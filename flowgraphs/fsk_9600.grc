@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?grc format='1' created='3.7.12'?>
 <flow_graph>
-  <timestamp>Fri Feb 23 16:20:50 2018</timestamp>
+  <timestamp>Fri Feb 23 17:03:12 2018</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -46,7 +46,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>cw_decoder</value>
+      <value>fsk_9600</value>
     </param>
     <param>
       <key>max_nouts</key>
@@ -97,11 +97,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 516)</value>
+      <value>(8, 588)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -109,11 +109,38 @@
     </param>
     <param>
       <key>id</key>
-      <value>cw_to_sym_act_thresh</value>
+      <value>ax_25_leading_sync_flags</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.15</value>
+      <value>3</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 524)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>baud_rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>9600</value>
     </param>
   </block>
   <block>
@@ -128,7 +155,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 644)</value>
+      <value>(8, 652)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -136,11 +163,38 @@
     </param>
     <param>
       <key>id</key>
-      <value>cw_to_sym_conf_level</value>
+      <value>decoded_path</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.75</value>
+      <value>"/home/rei/IdeaProjects/gr-stellarstation/examples/decoded_fsk_ax25/"</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 460)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fsk_deviation_hz</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>10e3</value>
     </param>
   </block>
   <block>
@@ -155,34 +209,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 708)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>decoded_file_prefix</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>"/home/rei/IdeaProjects/gr-stellarstation/examples/decoded_cw/"</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 196)</value>
+      <value>(8, 204)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -209,7 +236,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 388)</value>
+      <value>(8, 396)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -217,11 +244,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>lpf_2_decim</value>
+      <value>lpf_cutoff</value>
     </param>
     <param>
       <key>value</key>
-      <value>4</value>
+      <value>8000</value>
     </param>
   </block>
   <block>
@@ -236,34 +263,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 452)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>lpf_2_gain</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>4</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 260)</value>
+      <value>(8, 268)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -290,7 +290,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 132)</value>
+      <value>(8, 140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -317,7 +317,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 324)</value>
+      <value>(8, 332)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -333,65 +333,7 @@
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 772)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>waterfall_image_file_path</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/wut"</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 580)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>wpm</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>26</value>
-    </param>
-  </block>
-  <block>
-    <key>analog_agc2_xx</key>
-    <param>
-      <key>attack_rate</key>
-      <value>0.01</value>
-    </param>
+    <key>analog_quadrature_demod_cf</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -405,16 +347,12 @@
       <value></value>
     </param>
     <param>
-      <key>decay_rate</key>
-      <value>0.001</value>
-    </param>
-    <param>
       <key>_enabled</key>
       <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 284)</value>
+      <value>(480, 316)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -422,15 +360,11 @@
     </param>
     <param>
       <key>gain</key>
-      <value>0.0</value>
+      <value>samp_rate/(20*math.pi*fsk_deviation_hz/8.0)</value>
     </param>
     <param>
       <key>id</key>
-      <value>analog_agc2_xx_0_0</value>
-    </param>
-    <param>
-      <key>max_gain</key>
-      <value>65536</value>
+      <value>analog_quadrature_demod_cf_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -439,108 +373,6 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
-    </param>
-    <param>
-      <key>reference</key>
-      <value>0.15</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-  </block>
-  <block>
-    <key>analog_pll_carriertracking_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(232, 444)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>analog_pll_carriertracking_cc_0</value>
-    </param>
-    <param>
-      <key>w</key>
-      <value>2*math.pi/100</value>
-    </param>
-    <param>
-      <key>max_freq</key>
-      <value>2*math.pi/10</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>min_freq</key>
-      <value>-2*math.pi/10</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_complex_to_mag_squared</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(240, 616)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_complex_to_mag_squared_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
     </param>
   </block>
   <block>
@@ -571,7 +403,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(232, 28)</value>
+      <value>(248, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -622,7 +454,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(424, 44)</value>
+      <value>(440, 28)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -658,6 +490,159 @@
     </param>
   </block>
   <block>
+    <key>dc_blocker_xx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(256, 452)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>dc_blocker_xx_0</value>
+    </param>
+    <param>
+      <key>length</key>
+      <value>1024</value>
+    </param>
+    <param>
+      <key>long_form</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>ff</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_binary_slicer_fb</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(248, 736)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_binary_slicer_fb_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_clock_recovery_mm_xx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(440, 564)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>gain_mu</key>
+      <value>0.175</value>
+    </param>
+    <param>
+      <key>gain_omega</key>
+      <value>0.25*0.175*0.175</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_clock_recovery_mm_xx_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>mu</key>
+      <value>0.5</value>
+    </param>
+    <param>
+      <key>omega_relative_limit</key>
+      <value>0.005</value>
+    </param>
+    <param>
+      <key>omega</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+  </block>
+  <block>
     <key>fir_filter_xxx</key>
     <param>
       <key>alias</key>
@@ -681,7 +666,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(240, 180)</value>
+      <value>(256, 164)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -728,7 +713,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 84)</value>
+      <value>(8, 92)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -763,15 +748,15 @@
     </param>
     <param>
       <key>cutoff_freq</key>
-      <value>4000</value>
+      <value>lpf_cutoff</value>
     </param>
     <param>
       <key>decim</key>
-      <value>lpf_decim</value>
+      <value>1</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>type</key>
@@ -811,7 +796,7 @@
     </param>
     <param>
       <key>width</key>
-      <value>1000</value>
+      <value>lpf_cutoff/2</value>
     </param>
     <param>
       <key>win</key>
@@ -838,23 +823,23 @@
     </param>
     <param>
       <key>cutoff_freq</key>
-      <value>100</value>
+      <value>20000</value>
     </param>
     <param>
       <key>decim</key>
-      <value>lpf_2_decim</value>
+      <value>1</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>type</key>
-      <value>fir_filter_ccf</value>
+      <value>fir_filter_fff</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(448, 412)</value>
+      <value>(456, 412)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -862,11 +847,11 @@
     </param>
     <param>
       <key>gain</key>
-      <value>lpf_2_gain</value>
+      <value>1</value>
     </param>
     <param>
       <key>id</key>
-      <value>low_pass_filter_0_0</value>
+      <value>low_pass_filter_1</value>
     </param>
     <param>
       <key>interp</key>
@@ -882,11 +867,11 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>samp_rate/initial_decim/lpf_decim</value>
+      <value>samp_rate/initial_decim</value>
     </param>
     <param>
       <key>width</key>
-      <value>100</value>
+      <value>samp_rate/initial_decim*0.15</value>
     </param>
     <param>
       <key>win</key>
@@ -894,11 +879,7 @@
     </param>
   </block>
   <block>
-    <key>satnogs_cw_to_symbol</key>
-    <param>
-      <key>threshold</key>
-      <value>cw_to_sym_act_thresh</value>
-    </param>
+    <key>rational_resampler_xxx</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -908,20 +889,24 @@
       <value></value>
     </param>
     <param>
-      <key>conf_level</key>
-      <value>cw_to_sym_conf_level</value>
-    </param>
-    <param>
       <key>affinity</key>
       <value></value>
+    </param>
+    <param>
+      <key>decim</key>
+      <value>samp_rate/initial_decim</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>1</value>
     </param>
     <param>
+      <key>fbw</key>
+      <value>0</value>
+    </param>
+    <param>
       <key>_coordinate</key>
-      <value>(440, 572)</value>
+      <value>(232, 572)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -929,7 +914,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>satnogs_cw_to_symbol_0</value>
+      <value>rational_resampler_xxx_0</value>
+    </param>
+    <param>
+      <key>interp</key>
+      <value>baud_rate*4</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -940,12 +929,75 @@
       <value>0</value>
     </param>
     <param>
-      <key>sampling_rate</key>
-      <value>samp_rate/initial_decim/lpf_decim/lpf_2_decim</value>
+      <key>taps</key>
+      <value></value>
     </param>
     <param>
-      <key>wpm</key>
-      <value>wpm</value>
+      <key>type</key>
+      <value>fff</value>
+    </param>
+  </block>
+  <block>
+    <key>satnogs_ax25_decoder_bm</key>
+    <param>
+      <key>n_sync_flags</key>
+      <value>ax_25_leading_sync_flags</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>descrambling</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(384, 692)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>satnogs_ax25_decoder_bm_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>max_frame_len</key>
+      <value>1024</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>promisc</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>addr</key>
+      <value>'GND'</value>
+    </param>
+    <param>
+      <key>ssid</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -964,11 +1016,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(448, 708)</value>
+      <value>(736, 708)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -976,7 +1028,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>satnogs_frame_file_sink_0_0</value>
+      <value>satnogs_frame_file_sink_0_1_0</value>
     </param>
     <param>
       <key>output_type</key>
@@ -984,54 +1036,7 @@
     </param>
     <param>
       <key>prefix_name</key>
-      <value>decoded_file_prefix</value>
-    </param>
-  </block>
-  <block>
-    <key>satnogs_morse_decoder</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(224, 708)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>satnogs_morse_decoder_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>min_frame_len</key>
-      <value>3</value>
-    </param>
-    <param>
-      <key>unrecognized_char</key>
-      <value>ord('#')</value>
+      <value>decoded_path</value>
     </param>
   </block>
   <block>
@@ -1066,7 +1071,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 148)</value>
+      <value>(472, 132)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1090,20 +1095,8 @@
     </param>
   </block>
   <connection>
-    <source_block_id>analog_agc2_xx_0_0</source_block_id>
-    <sink_block_id>analog_pll_carriertracking_cc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>analog_pll_carriertracking_cc_0</source_block_id>
-    <sink_block_id>low_pass_filter_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_complex_to_mag_squared_0</source_block_id>
-    <sink_block_id>satnogs_cw_to_symbol_0</sink_block_id>
+    <source_block_id>analog_quadrature_demod_cf_0</source_block_id>
+    <sink_block_id>dc_blocker_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1116,6 +1109,24 @@
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
     <sink_block_id>fir_filter_xxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>dc_blocker_xx_0</source_block_id>
+    <sink_block_id>low_pass_filter_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_binary_slicer_fb_0</source_block_id>
+    <sink_block_id>satnogs_ax25_decoder_bm_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_clock_recovery_mm_xx_0</source_block_id>
+    <sink_block_id>digital_binary_slicer_fb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1133,26 +1144,26 @@
   </connection>
   <connection>
     <source_block_id>low_pass_filter_0</source_block_id>
-    <sink_block_id>analog_agc2_xx_0_0</sink_block_id>
+    <sink_block_id>analog_quadrature_demod_cf_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>low_pass_filter_0_0</source_block_id>
-    <sink_block_id>blocks_complex_to_mag_squared_0</sink_block_id>
+    <source_block_id>low_pass_filter_1</source_block_id>
+    <sink_block_id>rational_resampler_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>satnogs_cw_to_symbol_0</source_block_id>
-    <sink_block_id>satnogs_morse_decoder_0</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>in</sink_key>
+    <source_block_id>rational_resampler_xxx_0</source_block_id>
+    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>satnogs_morse_decoder_0</source_block_id>
-    <sink_block_id>satnogs_frame_file_sink_0_0</sink_block_id>
-    <source_key>out</source_key>
+    <source_block_id>satnogs_ax25_decoder_bm_0</source_block_id>
+    <sink_block_id>satnogs_frame_file_sink_0_1_0</sink_block_id>
+    <source_key>pdu</source_key>
     <sink_key>frame</sink_key>
   </connection>
 </flow_graph>
