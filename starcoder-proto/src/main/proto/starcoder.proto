@@ -23,72 +23,72 @@ package starcoder;
 
 // The GNURadio process manager service definition.
 service ProcessManager {
-    // Create a process
-    rpc StartProcess (StartProcessRequest) returns (StartProcessReply) {}
+  // Create a process
+  rpc StartProcess (StartProcessRequest) returns (StartProcessReply) {}
 
-    // End a process
-    rpc EndProcess (EndProcessRequest) returns (EndProcessReply) {}
+  // End a process
+  rpc EndProcess (EndProcessRequest) returns (EndProcessReply) {}
 }
 
 // The request message containing parameters for starting a process
 message StartProcessRequest {
-    // Filename of GNURadio script to run
-    string filename = 1;
+  // Filename of GNURadio script to run
+  string filename = 1;
 
-    // Key value pair representing a parameter to be passed to the script
-    message Parameter {
-        // Name of parameter
-        string key = 1;
+  // Key value pair representing a parameter to be passed to the script
+  message Parameter {
+    // Name of parameter
+    string key = 1;
 
-        // Value to assign the parameter
-        string value = 2;
-    }
+    // Value to assign the parameter
+    string value = 2;
+  }
 
-    // Arbitrary command line parameters to be passed to the GNURadio script
-    repeated Parameter parameters = 2;
+  // Arbitrary command line parameters to be passed to the GNURadio script
+  repeated Parameter parameters = 2;
 }
 
 // The message response to a StartProcessRequest
 message StartProcessReply {
-    // Unique Process ID of the process that was started
-    string processId = 1;
+  // Unique Process ID of the process that was started
+  string processId = 1;
 
-    // Response status
-    enum Status {
-        // Successfully started process.
-        SUCCESS = 0;
+  // Response status
+  enum Status {
+    // Successfully started process.
+    SUCCESS = 0;
 
-        // Unknown error starting process.
-        UNKNOWN_ERROR = 255;
-    }
+    // Unknown error starting process.
+    UNKNOWN_ERROR = 255;
+  }
 
-    // Response status
-    Status status = 2;
+  // Response status
+  Status status = 2;
 
-    // Error message
-    string error = 3;
+  // Error message
+  string error = 3;
 }
 
 // The request message containing parameters for enidng a process
 message EndProcessRequest {
-    // Process ID of process to end
-    string processId = 1;
+  // Process ID of process to end
+  string processId = 1;
 }
 
 // The message response to an EndProcessRequest
 message EndProcessReply {
-    // Response status
-    enum Status {
-        // Successfully started process.
-        SUCCESS = 0;
+  // Response status
+  enum Status {
+    // Successfully started process.
+    SUCCESS = 0;
 
-        // Unknown error starting process.
-        UNKNOWN_ERROR = 255;
-    }
+    // Unknown error starting process.
+    UNKNOWN_ERROR = 255;
+  }
 
-    // Response status
-    Status status = 2;
+  // Response status
+  Status status = 2;
 
-    // Error message
-    string error = 3;
+  // Error message
+  string error = 3;
 }
