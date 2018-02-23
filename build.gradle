@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+        maven {
+            url 'http://dl.bintray.com/curioswitch/curiostack'
+        }
+        maven {
+            url 'http://palantir.bintray.com/releases'
+        }
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'gradle.plugin.com.github.blindpirate:gogradle:0.8.0'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.115'
+    }
+}
+
+apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
+apply plugin: 'com.github.blindpirate.gogradle'
+
+golang {
+    version = '1.10'
+    packagePath = 'github.com/infostellarinc/starcoder'
+}
+
+gcloud {
+    clusterBaseName = 'infostellar-starcoder'
+    cloudRegion = 'asia-northeast1'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.5.1'
+    distributionType = 'ALL'
+}
+
