@@ -118,3 +118,6 @@ license {
         proto = 'SLASHSTAR_STYLE'
     }
 }
+
+
+tasks.resolveBuildDependencies.enabled = false
