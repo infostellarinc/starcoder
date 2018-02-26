@@ -32,7 +32,7 @@ import (
 
 const (
 	// TODO: Replace this with command line argument
-	port = ":50051"
+	bindAddress = ":50051"
 )
 
 type server struct{
@@ -59,7 +59,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to get user: %v", err)
 	}
-	lis, err := net.Listen("tcp", port)
+	lis, err := net.Listen("tcp", bindAddress)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
