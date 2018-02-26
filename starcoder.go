@@ -17,12 +17,10 @@
  *
  */
 
-//go:generate protoc -I ./starcoder-proto/src/main/proto --go_out=plugins=grpc:./protobuf ./starcoder-proto/src/main/proto/starcoder.proto
-
 package main
 
 import (
-	pb "github.com/infostellarinc/starcoder/protobuf"
+	pb "github.com/infostellarinc/starcoder/api"
 	"golang.org/x/net/context"
 	"net"
 	"log"
