@@ -38,11 +38,61 @@ buildscript {
 }
 
 apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
+apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 apply plugin: 'com.github.blindpirate.gogradle'
 
 golang {
     version = '1.10'
     packagePath = 'github.com/infostellarinc/starcoder'
+}
+
+protobuf {
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                gofast {
+                    option 'plugins=grpc'
+                    option 'Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types'
+                    option 'Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types'
+                    // Output into root directory for gogradle
+                    outputSubDir = '../../../../..'
+                }
+            }
+        }
+    }
+    plugins {
+        gofast {
+            path = project.file('.gogradle/project_gopath/bin/protoc-gen-gofast')
+        }
+    }
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir 'api'
+        }
+    }
+}
+
+task getProtocGoPlugin(type: com.github.blindpirate.gogradle.Go) {
+    outputs.file project.file('.gogradle/project_gopath/bin/protoc-gen-gofast')
+    go 'get -u github.com/gogo/protobuf/protoc-gen-gofast'
+}
+
+task deleteGeneratedFiles(type: Delete) {
+    delete fileTree(project.projectDir) {
+        include '**/*.pb.go'
+        include '**/*.mock.go'
+        include '**/rice-box.go'
+    }
+    delete 'vendor'
+}
+tasks.clean.dependsOn deleteGeneratedFiles
+
+afterEvaluate {
+    tasks.generateProto.dependsOn getProtocGoPlugin
+    tasks.goBuild.dependsOn tasks.generateProto
 }
 
 gcloud {
@@ -55,3 +105,10 @@ task wrapper(type: Wrapper) {
     distributionType = 'ALL'
 }
 
+// protobuf-gradle-plugin always apply Java plugin, but we don't need it.
+tasks.compileJava.enabled = false
+tasks.compileTestJava.enabled = false
+
+license {
+    header file('.baseline/copyright/001_gpl.txt')
+}
