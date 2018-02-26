@@ -110,5 +110,8 @@ tasks.compileJava.enabled = false
 tasks.compileTestJava.enabled = false
 
 license {
-    header file('.baseline/copyright/001_gpl.txt')
+    header file('LICENSE.header')
+    mapping {
+        proto = 'SLASHSTAR_STYLE'
+    }
 }
