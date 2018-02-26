@@ -86,3 +86,6 @@ gradle-app.setting
 
 # Compiled GNURadio flowgraphs
 flowgraphs/*.py
+
+# Generated golang code
+*.pb.go

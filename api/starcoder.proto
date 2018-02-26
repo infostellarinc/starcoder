@@ -14,14 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  */
-
 syntax = "proto3";
 
 package starcoder;
 
-option go_package = "protobuf";
+option go_package = "/api";
 
 // The GNURadio process manager service definition.
 service ProcessManager {
