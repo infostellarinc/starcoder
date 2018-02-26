@@ -21,7 +21,7 @@ syntax = "proto3";
 
 package starcoder;
 
-option go_package = "github.com/infostellarinc/starcoder/protobuf";
+option go_package = "protobuf";
 
 // The GNURadio process manager service definition.
 service ProcessManager {

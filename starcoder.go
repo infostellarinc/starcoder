@@ -17,6 +17,8 @@
  *
  */
 
+//go:generate protoc -I ./starcoder-proto/src/main/proto --go_out=plugins=grpc:./protobuf ./starcoder-proto/src/main/proto/starcoder.proto
+
 package main
 
 import (
