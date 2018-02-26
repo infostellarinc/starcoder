@@ -20,7 +20,7 @@
 package main
 
 import (
-	pb "github.com/infostellarinc/starcoder/starcoder-proto/src/main/proto"
+	pb "github.com/infostellarinc/starcoder/protobuf"
 	"golang.org/x/net/context"
 	"net"
 	"log"
