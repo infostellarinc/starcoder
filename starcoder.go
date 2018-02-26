@@ -66,7 +66,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterProcessManagerServer(s, &server{
 		// TODO: Replace this with command line argument
-		flowgraphDir: filepath.Join(usr.HomeDir, ".flowgraphs"),
+		flowgraphDir: filepath.Join(usr.HomeDir, ".starcoder/flowgraphs"),
 	})
 	// Register reflection service on gRPC server.
 	reflection.Register(s)
