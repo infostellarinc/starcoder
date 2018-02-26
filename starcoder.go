@@ -19,8 +19,58 @@
 
 package main
 
-import "fmt"
+import (
+	pb "github.com/infostellarinc/starcoder/api"
+	"golang.org/x/net/context"
+	"net"
+	"log"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+	"os/user"
+	"path/filepath"
+)
+
+const (
+	// TODO: Replace this with command line argument
+	bindAddress = ":50051"
+)
+
+type server struct{
+	flowgraphDir string
+}
+
+func (s *server) StartProcess(ctx context.Context, in *pb.StartProcessRequest) (*pb.StartProcessReply, error) {
+	return &pb.StartProcessReply{
+		ProcessId: "1",
+		Status: pb.StartProcessReply_SUCCESS,
+		Error: "",
+	}, nil
+}
+
+func (s *server) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
+	return &pb.EndProcessReply{
+		Status: pb.EndProcessReply_SUCCESS,
+		Error: "",
+	}, nil
+}
 
 func main() {
-	fmt.Println("hello world")
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatalf("failed to get user: %v", err)
+	}
+	lis, err := net.Listen("tcp", bindAddress)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	pb.RegisterProcessManagerServer(s, &server{
+		// TODO: Replace this with command line argument and use Packr to default to compiled in flowgraphs
+		flowgraphDir: filepath.Join(usr.HomeDir, ".starcoder/flowgraphs"),
+	})
+	// Register reflection service on gRPC server.
+	reflection.Register(s)
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }
