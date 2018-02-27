@@ -90,3 +90,6 @@ flowgraphs/*.py
 
 # Generated golang code
 *.pb.go
+
+# Don't check-in generated go-rice
+*rice-box.go
