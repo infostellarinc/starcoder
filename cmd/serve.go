@@ -26,6 +26,11 @@ import (
 	"log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"github.com/GeertJohan/go.rice"
+	"os"
+	"strings"
+	"io/ioutil"
+	"path/filepath"
 )
 
 const (
@@ -49,7 +54,27 @@ var serveCmd = &cobra.Command{
 		log.Printf("serve called, using bind address %v", serveCmdConfig.BindAddress)
 
 		if serveCmdConfig.FlowgraphDir == "" {
-			serveCmdConfig.FlowgraphDir = ""
+			tempDir, err := ioutil.TempDir("", "starcoder")
+			if err != nil {
+				log.Fatalf("failed to create directory: %v", err)
+			}
+			flowgraphsBox := rice.MustFindBox("../flowgraphs")
+			flowgraphsBox.Walk("", func(p string, info os.FileInfo, err error) error {
+				if p == "" {
+					return nil
+				}
+				if strings.HasSuffix(p, ".grc") {
+					// Write flowgraph to temporary directory
+					err := ioutil.WriteFile(filepath.Join(tempDir, p), flowgraphsBox.MustBytes(p), 0644)
+					if err != nil {
+						log.Fatalf("failed to write file: %v", err)
+					}
+				}
+				return nil
+			})
+
+			serveCmdConfig.FlowgraphDir = tempDir
+			log.Printf("Using temporary directory %v", serveCmdConfig.FlowgraphDir)
 		}
 
 		lis, err := net.Listen("tcp", serveCmdConfig.BindAddress)
