@@ -25,6 +25,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"path/filepath"
 )
 
 var cfgFile string
@@ -33,7 +34,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "starcoder",
 	Short: "A GRPC server for running GNURadio flowgraphs",
-	Long: `Starcoder is a GRPC server for running GNURadio flowgraphs`,
+	Long:  `Starcoder is a GRPC server for running GNURadio flowgraphs`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -75,8 +76,8 @@ func initConfig() {
 		}
 
 		// Search config in home directory with name ".starcoder" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".starcoder")
+		viper.AddConfigPath(filepath.Join(home, ".starcoder"))
+		viper.SetConfigName("config")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

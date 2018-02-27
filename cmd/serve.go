@@ -19,18 +19,20 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/GeertJohan/go.rice"
 	pb "github.com/infostellarinc/starcoder/api"
 	"github.com/infostellarinc/starcoder/server"
-	"net"
-	"log"
+	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"github.com/GeertJohan/go.rice"
-	"os"
-	"strings"
 	"io/ioutil"
+	"log"
+	"net"
+	"os"
+	"os/signal"
 	"path/filepath"
+	"strings"
+	"syscall"
 )
 
 const (
@@ -39,7 +41,7 @@ const (
 
 // Local flags used to configure the serve command
 type serveCmdConfiguration struct {
-	BindAddress string
+	BindAddress  string
 	FlowgraphDir string
 }
 
@@ -49,9 +51,11 @@ var serveCmdConfig = serveCmdConfiguration{}
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start the Starcoder server",
-	Long: `Start the Starcoder server`,
+	Long:  `Start the Starcoder server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Printf("serve called, using bind address %v", serveCmdConfig.BindAddress)
+
+		var temporaryDir string = ""
 
 		if serveCmdConfig.FlowgraphDir == "" {
 			tempDir, err := ioutil.TempDir("", "starcoder")
@@ -74,8 +78,32 @@ var serveCmd = &cobra.Command{
 			})
 
 			serveCmdConfig.FlowgraphDir = tempDir
+			temporaryDir = tempDir
 			log.Printf("Using temporary directory %v", serveCmdConfig.FlowgraphDir)
 		}
+
+		// Handle OS signals
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs)
+		go func() {
+			for {
+				select {
+				case s := <-sigs:
+					switch s {
+					case syscall.SIGINT:
+						fallthrough
+					case syscall.SIGTERM:
+						fallthrough
+					case syscall.SIGQUIT:
+						log.Println("Caught signal", s)
+						if temporaryDir != "" {
+							os.RemoveAll(temporaryDir)
+						}
+						os.Exit(0)
+					}
+				}
+			}
+		}()
 
 		lis, err := net.Listen("tcp", serveCmdConfig.BindAddress)
 		if err != nil {
