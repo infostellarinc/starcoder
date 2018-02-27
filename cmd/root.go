@@ -86,4 +86,11 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+	// Load values from config file back into pflags
+	for _, key := range viper.AllKeys() {
+		if viper.IsSet(key) {
+			serveCmd.Flags().Set(key, viper.GetString(key))
+		}
+	}
 }

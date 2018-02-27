@@ -23,6 +23,7 @@ import (
 	pb "github.com/infostellarinc/starcoder/api"
 	"github.com/infostellarinc/starcoder/server"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io/ioutil"
@@ -55,10 +56,9 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Printf("serve called, using bind address %v", serveCmdConfig.BindAddress)
 
-		var temporaryDir string = ""
-
 		if serveCmdConfig.FlowgraphDir == "" {
 			tempDir, err := ioutil.TempDir("", "starcoder")
+			defer os.RemoveAll(tempDir)
 			if err != nil {
 				log.Fatalf("failed to create directory: %v", err)
 			}
@@ -78,41 +78,40 @@ var serveCmd = &cobra.Command{
 			})
 
 			serveCmdConfig.FlowgraphDir = tempDir
-			temporaryDir = tempDir
 			log.Printf("Using temporary directory %v", serveCmdConfig.FlowgraphDir)
 		}
-
-		// Handle OS signals
-		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs)
-		go func() {
-			for {
-				select {
-				case s := <-sigs:
-					switch s {
-					case syscall.SIGINT:
-						fallthrough
-					case syscall.SIGTERM:
-						fallthrough
-					case syscall.SIGQUIT:
-						log.Println("Caught signal", s)
-						if temporaryDir != "" {
-							os.RemoveAll(temporaryDir)
-						}
-						os.Exit(0)
-					}
-				}
-			}
-		}()
 
 		lis, err := net.Listen("tcp", serveCmdConfig.BindAddress)
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
+
+		// Handle OS signals
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs)
+		go func(s *grpc.Server) {
+			for {
+				select {
+				case sig := <-sigs:
+					switch sig {
+					case syscall.SIGINT:
+						fallthrough
+					case syscall.SIGTERM:
+						fallthrough
+					case syscall.SIGQUIT:
+						log.Println("Caught signal", sig)
+						s.GracefulStop()
+						return
+					}
+				}
+			}
+		}(s)
+
 		pb.RegisterProcessManagerServer(s, &server.Starcoder{
 			FlowgraphDir: serveCmdConfig.FlowgraphDir,
 		})
+
 		// Register reflection service on gRPC server.
 		reflection.Register(s)
 		if err := s.Serve(lis); err != nil {
@@ -132,6 +131,8 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bindAddress", defaultBindAddress, "Address to bind to")
-	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraphDir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
+	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bind-address", defaultBindAddress, "Address to bind to")
+	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraph-dir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
+
+	viper.BindPFlags(serveCmd.Flags())
 }

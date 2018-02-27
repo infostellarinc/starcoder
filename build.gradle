@@ -130,10 +130,10 @@ task getRice(type: com.github.blindpirate.gogradle.Go) {
 }
 
 task useRice(type:Exec) {
+    dependsOn getRice
     inputs.dir 'flowgraphs'
     outputs.file 'cmd/rice-box.go'
 
-    dependsOn getRice
     workingDir project.file('cmd').toString()
     commandLine project.file('.gogradle/project_gopath/bin/rice').toString(), 'embed-go'
 }
