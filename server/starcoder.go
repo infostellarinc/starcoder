@@ -16,4 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package server
+
+import (
+	pb "github.com/infostellarinc/starcoder/api"
+	"golang.org/x/net/context"
+)
+
+type Starcoder struct{
+	FlowgraphDir string
+}
+
+func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest) (*pb.StartProcessReply, error) {
+	// TODO: Actually start the process
+	return &pb.StartProcessReply{
+		ProcessId: "1",
+		Status: pb.StartProcessReply_SUCCESS,
+		Error: "",
+	}, nil
+}
+
+func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
+	// TODO: Actually end the process
+	return &pb.EndProcessReply{
+		Status: pb.EndProcessReply_SUCCESS,
+		Error: "",
+	}, nil
+}

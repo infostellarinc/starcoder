@@ -21,38 +21,24 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	pb "github.com/infostellarinc/starcoder/api"
-	"golang.org/x/net/context"
+	"github.com/infostellarinc/starcoder/server"
 	"net"
 	"log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"os/user"
-	"path/filepath"
 )
 
 const (
-	// TODO: Replace this with command line argument
-	bindAddress = ":50051"
+	defaultBindAddress = ":50051"
 )
 
-type server struct{
-	flowgraphDir string
+// Local flags used to configure the serve command
+type serveCmdConfiguration struct {
+	BindAddress string
+	FlowgraphDir string
 }
 
-func (s *server) StartProcess(ctx context.Context, in *pb.StartProcessRequest) (*pb.StartProcessReply, error) {
-	return &pb.StartProcessReply{
-		ProcessId: "1",
-		Status: pb.StartProcessReply_SUCCESS,
-		Error: "",
-	}, nil
-}
-
-func (s *server) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
-	return &pb.EndProcessReply{
-		Status: pb.EndProcessReply_SUCCESS,
-		Error: "",
-	}, nil
-}
+var serveCmdConfig = serveCmdConfiguration{}
 
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
@@ -60,19 +46,19 @@ var serveCmd = &cobra.Command{
 	Short: "Start the Starcoder server",
 	Long: `Start the Starcoder server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("serve called")
-		usr, err := user.Current()
-		if err != nil {
-			log.Fatalf("failed to get user: %v", err)
+		log.Printf("serve called, using bind address %v", serveCmdConfig.BindAddress)
+
+		if serveCmdConfig.FlowgraphDir == "" {
+			serveCmdConfig.FlowgraphDir = ""
 		}
-		lis, err := net.Listen("tcp", bindAddress)
+
+		lis, err := net.Listen("tcp", serveCmdConfig.BindAddress)
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
-		pb.RegisterProcessManagerServer(s, &server{
-			// TODO: Replace this with command line argument and use Packr to default to compiled in flowgraphs
-			flowgraphDir: filepath.Join(usr.HomeDir, ".starcoder/flowgraphs"),
+		pb.RegisterProcessManagerServer(s, &server.Starcoder{
+			FlowgraphDir: serveCmdConfig.FlowgraphDir,
 		})
 		// Register reflection service on gRPC server.
 		reflection.Register(s)
@@ -93,5 +79,6 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// serveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bindAddress", defaultBindAddress, "Address to bind to")
+	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraphDir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
 }
