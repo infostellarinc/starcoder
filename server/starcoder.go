@@ -156,6 +156,10 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_PROCESS_EXITED,
 			Error:  "Process has already exited",
+			ProcessState: &pb.ProcessState{
+				SystemTime: cmd.ProcessState.SystemTime().Nanoseconds(),
+				UserTime:   cmd.ProcessState.UserTime().Nanoseconds(),
+			},
 		}, nil
 	}
 
@@ -195,7 +199,10 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 
 	return &pb.EndProcessReply{
 		Status: pb.EndProcessReply_SUCCESS,
-		// TODO: Send statistics of the ended process through its ProcessState
+		ProcessState: &pb.ProcessState{
+			SystemTime: cmd.ProcessState.SystemTime().Nanoseconds(),
+			UserTime:   cmd.ProcessState.UserTime().Nanoseconds(),
+		},
 	}, nil
 }
 
