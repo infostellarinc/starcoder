@@ -170,8 +170,7 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	secsPassed := 0
-	breakOut := false
-	for breakOut == false {
+	for breakOut := false; breakOut == false; {
 		select {
 		case <-ticker.C:
 			secsPassed += 1
