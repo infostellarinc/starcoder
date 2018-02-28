@@ -142,10 +142,36 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 }
 
 func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
-	// TODO: Actually end the process
+	if _, ok := s.processes[in.GetProcessId()]; !ok {
+		return &pb.EndProcessReply{
+			Status: pb.EndProcessReply_INVALID_PROCESS_ID,
+			Error:  fmt.Sprintf("Invalid process ID %v", in.GetProcessId()),
+		}, nil
+	}
+
+	proc := s.processes[in.GetProcessId()]
+
+	// TODO: Check if process is even still running at this point
+	err := proc.Signal(os.Interrupt)
+	if err != nil {
+		return &pb.EndProcessReply{
+			Status: pb.EndProcessReply_UNKNOWN_ERROR,
+			Error:  err.Error(),
+		}, nil
+	}
+
+	// TODO: Handle processes that won't end with SIGINT, as this will wait forever
+	_, err = proc.Wait()
+	if err != nil {
+		return &pb.EndProcessReply{
+			Status: pb.EndProcessReply_UNKNOWN_ERROR,
+			Error:  err.Error(),
+		}, nil
+	}
+
 	return &pb.EndProcessReply{
 		Status: pb.EndProcessReply_SUCCESS,
-		Error:  "",
+		// TODO: Send statistics of the ended process through its ProcessState
 	}, nil
 }
 

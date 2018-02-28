@@ -94,6 +94,9 @@ message EndProcessReply {
     // Successfully started process.
     SUCCESS = 0;
 
+    // Invalid Process Id
+    INVALID_PROCESS_ID = 1;
+
     // Unknown error starting process.
     UNKNOWN_ERROR = 255;
   }
