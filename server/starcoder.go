@@ -29,19 +29,20 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Starcoder struct {
-	flowgraphDir  string
-	temporaryDirs []string
-	processes     map[string]*os.Process
+	flowgraphDir   string
+	temporaryDirs  []string
+	commandRunners map[string]*CommandRunner
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	return &Starcoder{
-		flowgraphDir:  flowgraphDir,
-		temporaryDirs: make([]string, 0),
-		processes:     make(map[string]*os.Process),
+		flowgraphDir:   flowgraphDir,
+		temporaryDirs:  make([]string, 0),
+		commandRunners: make(map[string]*CommandRunner),
 	}
 }
 
@@ -130,29 +131,36 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	}
 	log.Printf("Executing: %s\n", strings.Join(gnuRadioCmd.Args, " "))
 
-	process := gnuRadioCmd.Process
-	s.processes[strconv.Itoa(process.Pid)] = process
+	commandRunner := NewCommandRunner(gnuRadioCmd)
+
+	s.commandRunners[strconv.Itoa(gnuRadioCmd.Process.Pid)] = commandRunner
 	// TODO: Have some way to monitor the running process
 
 	return &pb.StartProcessReply{
-		ProcessId: strconv.Itoa(process.Pid),
+		ProcessId: strconv.Itoa(gnuRadioCmd.Process.Pid),
 		Status:    pb.StartProcessReply_SUCCESS,
 		Error:     "",
 	}, nil
 }
 
 func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
-	if _, ok := s.processes[in.GetProcessId()]; !ok {
+	if _, ok := s.commandRunners[in.GetProcessId()]; !ok {
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_INVALID_PROCESS_ID,
 			Error:  fmt.Sprintf("Invalid process ID %v", in.GetProcessId()),
 		}, nil
 	}
 
-	proc := s.processes[in.GetProcessId()]
+	cmdRunner := s.commandRunners[in.GetProcessId()]
 
-	// TODO: Check if process is even still running at this point
-	err := proc.Signal(os.Interrupt)
+	if cmdRunner.Finished() {
+		return &pb.EndProcessReply{
+			Status: pb.EndProcessReply_PROCESS_EXITED,
+			Error:  "Process has already exited",
+		}, nil
+	}
+
+	err := cmdRunner.GetCommand().Process.Signal(os.Interrupt)
 	if err != nil {
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_UNKNOWN_ERROR,
@@ -161,11 +169,15 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 	}
 
 	// TODO: Handle processes that won't end with SIGINT, as this will wait forever
-	_, err = proc.Wait()
-	if err != nil {
+	for !cmdRunner.Finished() {
+		time.Sleep(time.Second)
+	}
+
+	cmdError := cmdRunner.GetCommandError()
+	if cmdError != nil {
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_UNKNOWN_ERROR,
-			Error:  err.Error(),
+			Error:  cmdError.Error(),
 		}, nil
 	}
 
@@ -176,9 +188,9 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 }
 
 func (s *Starcoder) Close() error {
-	for _, process := range s.processes {
+	for _, commandRunner := range s.commandRunners {
 		// TODO: Do something gentler than immediately killing?
-		process.Kill()
+		commandRunner.GetCommand().Process.Kill()
 	}
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)
