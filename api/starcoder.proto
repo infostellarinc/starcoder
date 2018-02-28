@@ -58,6 +58,18 @@ message StartProcessReply {
     // Successfully started process.
     SUCCESS = 0;
 
+    // File access problem
+    FILE_ACCESS_ERROR = 1;
+
+    // Unsupported file type
+    UNSUPPORTED_FILE_TYPE = 2;
+
+    // .grc compile error
+    GRC_COMPILE_ERROR = 3;
+
+    // Python file run error
+    PYTHON_RUN_ERROR = 4;
+
     // Unknown error starting process.
     UNKNOWN_ERROR = 255;
   }
