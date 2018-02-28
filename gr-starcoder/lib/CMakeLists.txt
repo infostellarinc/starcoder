@@ -26,6 +26,7 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND starcoder_sources
+    ar2300_source_impl.cc
 )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
