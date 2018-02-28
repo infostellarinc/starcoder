@@ -26,6 +26,10 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND starcoder_sources
+    init.c
+    driver.c
+    firmware.c
+    ar2300_receiver.cc
     ar2300_source_impl.cc
 )
 
@@ -36,7 +40,7 @@ if(NOT starcoder_sources)
 endif(NOT starcoder_sources)
 
 add_library(gnuradio-starcoder SHARED ${starcoder_sources})
-target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
+target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} usb-1.0)
 set_target_properties(gnuradio-starcoder PROPERTIES DEFINE_SYMBOL "gnuradio_starcoder_EXPORTS")
 
 if(APPLE)
