@@ -128,7 +128,7 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 			Error:  err.Error(),
 		}, nil
 	}
-	log.Printf("Ran command python with parameters %v", cliParameters)
+	log.Printf("Executing: %s\n", strings.Join(gnuRadioCmd.Args, " "))
 
 	process := gnuRadioCmd.Process
 	s.processes[strconv.Itoa(process.Pid)] = process
