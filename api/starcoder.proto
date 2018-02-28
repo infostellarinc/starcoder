@@ -81,10 +81,13 @@ message StartProcessReply {
   string error = 3;
 }
 
-// The request message containing parameters for enidng a process
+// The request message containing parameters for ending a process
 message EndProcessRequest {
   // Process ID of process to end
   string processId = 1;
+
+  // How long to wait for a process to end before killing it
+  int32 timeout = 2;
 }
 
 // The message response to an EndProcessRequest

@@ -167,9 +167,31 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 		}, nil
 	}
 
-	// TODO: Handle processes that won't end with SIGINT, as this will wait forever
-	for cmd.ProcessState == nil {
-		time.Sleep(time.Second)
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	secsPassed := 0
+	breakOut := false
+	for breakOut == false {
+		select {
+		case <-ticker.C:
+			secsPassed += 1
+			if cmd.ProcessState != nil || secsPassed >= int(in.GetTimeout()) {
+				breakOut = true
+			}
+		}
+	}
+
+	if cmd.ProcessState == nil {
+		err := cmd.Process.Signal(os.Kill)
+		if err != nil {
+			return &pb.EndProcessReply{
+				Status: pb.EndProcessReply_UNKNOWN_ERROR,
+				Error:  err.Error(),
+			}, nil
+		}
+		for cmd.ProcessState == nil {
+			time.Sleep(time.Millisecond)
+		}
 	}
 
 	return &pb.EndProcessReply{
