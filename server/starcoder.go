@@ -33,16 +33,16 @@ import (
 )
 
 type Starcoder struct {
-	flowgraphDir   string
-	temporaryDirs  []string
-	commandRunners map[string]*CommandRunner
+	flowgraphDir  string
+	temporaryDirs []string
+	commands      map[string]*exec.Cmd
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	return &Starcoder{
-		flowgraphDir:   flowgraphDir,
-		temporaryDirs:  make([]string, 0),
-		commandRunners: make(map[string]*CommandRunner),
+		flowgraphDir:  flowgraphDir,
+		temporaryDirs: make([]string, 0),
+		commands:      make(map[string]*exec.Cmd),
 	}
 }
 
@@ -130,10 +130,9 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		}, nil
 	}
 	log.Printf("Executing: %s\n", strings.Join(gnuRadioCmd.Args, " "))
+	go gnuRadioCmd.Wait()
 
-	commandRunner := NewCommandRunner(gnuRadioCmd)
-
-	s.commandRunners[strconv.Itoa(gnuRadioCmd.Process.Pid)] = commandRunner
+	s.commands[strconv.Itoa(gnuRadioCmd.Process.Pid)] = gnuRadioCmd
 	// TODO: Have some way to monitor the running process
 
 	return &pb.StartProcessReply{
@@ -144,23 +143,23 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 }
 
 func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
-	if _, ok := s.commandRunners[in.GetProcessId()]; !ok {
+	if _, ok := s.commands[in.GetProcessId()]; !ok {
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_INVALID_PROCESS_ID,
 			Error:  fmt.Sprintf("Invalid process ID %v", in.GetProcessId()),
 		}, nil
 	}
 
-	cmdRunner := s.commandRunners[in.GetProcessId()]
+	cmd := s.commands[in.GetProcessId()]
 
-	if cmdRunner.Finished() {
+	if cmd.ProcessState != nil {
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_PROCESS_EXITED,
 			Error:  "Process has already exited",
 		}, nil
 	}
 
-	err := cmdRunner.GetCommand().Process.Signal(os.Interrupt)
+	err := cmd.Process.Signal(os.Interrupt)
 	if err != nil {
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_UNKNOWN_ERROR,
@@ -169,16 +168,8 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 	}
 
 	// TODO: Handle processes that won't end with SIGINT, as this will wait forever
-	for !cmdRunner.Finished() {
+	for cmd.ProcessState == nil {
 		time.Sleep(time.Second)
-	}
-
-	cmdError := cmdRunner.GetCommandError()
-	if cmdError != nil {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_UNKNOWN_ERROR,
-			Error:  cmdError.Error(),
-		}, nil
 	}
 
 	return &pb.EndProcessReply{
@@ -188,9 +179,9 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 }
 
 func (s *Starcoder) Close() error {
-	for _, commandRunner := range s.commandRunners {
+	for _, cmd := range s.commands {
 		// TODO: Do something gentler than immediately killing?
-		commandRunner.GetCommand().Process.Kill()
+		cmd.Process.Kill()
 	}
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)
