@@ -67,7 +67,7 @@ var serveCmd = &cobra.Command{
 				if p == "" {
 					return nil
 				}
-				if strings.HasSuffix(p, ".grc") {
+				if strings.HasSuffix(p, ".grc") || strings.HasSuffix(p, ".py") {
 					// Write flowgraph to temporary directory
 					err := ioutil.WriteFile(filepath.Join(tempDir, p), flowgraphsBox.MustBytes(p), 0644)
 					if err != nil {
