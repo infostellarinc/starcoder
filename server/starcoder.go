@@ -169,6 +169,8 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 		}, nil
 	}
 
+	delete(s.processes, in.GetProcessId())
+
 	return &pb.EndProcessReply{
 		Status: pb.EndProcessReply_SUCCESS,
 		// TODO: Send statistics of the ended process through its ProcessState
