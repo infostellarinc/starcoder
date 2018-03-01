@@ -67,7 +67,6 @@ namespace gr {
         gr_vector_void_star &output_items)
     {
       gr_complex *out = (gr_complex *) output_items[0];
-
       int ret = receiver->read(buf, buf_size, timeout_ms);
       if (ret == 0) {
         return noutput_items;
@@ -87,7 +86,6 @@ namespace gr {
       int out_index = 0;
       for (int i = 0; i < inSize; ++i) {
         sample[sample_index++] = in[i];
-
         if (sample_index == 8) {
           sample_index = 0;
           gr_complex value = parse_sample();

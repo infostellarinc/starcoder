@@ -35,7 +35,7 @@ namespace gr {
       int   buf_size;
       int   timeout_ms;
 
-      char  sample[4];
+      char  sample[8];
       int   sample_index = 0;
 
       int encode_ar2300(char* in, int size, gr_complex* out);
