@@ -94,6 +94,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/sbinet/go-python"
+  packages = ["."]
+  revision = "6d13f941744b9332d6ed00dc2cd2722acd79a47e"
+
+[[projects]]
   name = "github.com/spf13/afero"
   packages = [
     ".",
@@ -223,6 +229,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e18b2a48e55a23f433f80a5495f85309b10921e34aa289e5356c7e251bd591b3"
+  inputs-digest = "953609705be6a3a15d99db02fad9f8ae6f6525bf7586a2cb459809e800912168"
   solver-name = "gps-cdcl"
   solver-version = 1
