@@ -112,16 +112,4 @@ message EndProcessReply {
 
   // Error message
   string error = 2;
-
-  // Process statistics
-  ProcessState processState = 3;
-}
-
-// Statistics about the process
-message ProcessState {
-  // System CPU time in nanoseconds.
-  int64 SystemTime = 1;
-
-  // User CPU time in nanoseconds.
-  int64 UserTime = 2;
 }

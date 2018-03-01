@@ -21,28 +21,28 @@ package server
 import (
 	"fmt"
 	pb "github.com/infostellarinc/starcoder/api"
+	"github.com/infostellarinc/starcoder/util"
+	"github.com/sbinet/go-python"
 	"golang.org/x/net/context"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
-	"time"
 )
 
 type Starcoder struct {
 	flowgraphDir  string
 	temporaryDirs []string
-	commands      map[string]*exec.Cmd
+	flowGraphs    map[string]*python.PyObject
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	return &Starcoder{
 		flowgraphDir:  flowgraphDir,
 		temporaryDirs: make([]string, 0),
-		commands:      make(map[string]*exec.Cmd),
+		flowGraphs:    make(map[string]*python.PyObject),
 	}
 }
 
@@ -70,6 +70,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		// Create temporary directory to store compiled .py file.
 		// We need this because we can't control the output filename
 		// of the compiled file.
+		// TODO: Should rename the file to something unique so it can be safely imported.
+		// Weird things will happen if the module name of two different flowgraphs is the same.
 		tempDir, err := ioutil.TempDir("", "starcoder")
 		if err != nil {
 			return &pb.StartProcessReply{
@@ -121,95 +123,113 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	for _, param := range in.GetParameters() {
 		cliParameters = append(cliParameters, "--"+param.GetKey(), param.GetValue())
 	}
-	gnuRadioCmd := exec.Command("python", cliParameters...)
-	err := gnuRadioCmd.Start()
+	// TODO: Have some way to monitor the running process
+
+	sysPath := python.PySys_GetObject("path")
+	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
+	log.Println(filepath.Dir(inFilePythonPath))
+	err := python.PyList_Append(sysPath, moduleDir)
 	if err != nil {
 		return &pb.StartProcessReply{
 			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
 			Error:  err.Error(),
 		}, nil
 	}
-	log.Printf("Executing: %s\n", strings.Join(gnuRadioCmd.Args, " "))
-	go gnuRadioCmd.Wait()
+	moduleDir.DecRef()
+	moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
+	log.Printf("Importing %v", moduleName)
+	module := python.PyImport_ImportModule(moduleName)
+	if module == nil {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  fmt.Sprintf("Module %v failed to load", moduleName),
+		}, nil
+	}
+	// GRC compiled python scripts have the top block class name equal to the python filename.
+	flowGraphClassName := moduleName
+	flowgraphClass := module.GetAttrString(flowGraphClassName)
+	if flowgraphClass == nil {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  fmt.Sprintf("Top block class %v not found", flowGraphClassName),
+		}, nil
+	}
+	gnuRadioModule := python.PyImport_ImportModule("gnuradio")
+	grModule := gnuRadioModule.GetAttrString("gr")
+	gnuRadioModule.DecRef()
+	topBlock := grModule.GetAttrString("top_block")
+	grModule.DecRef()
 
-	s.commands[strconv.Itoa(gnuRadioCmd.Process.Pid)] = gnuRadioCmd
-	// TODO: Have some way to monitor the running process
+	if flowgraphClass.IsSubclass(topBlock) != 1 {
+		// TODO: Handle error when return value is -1
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  fmt.Sprintf("Top block class %v is not a subclass of gnuradio.gr.top_block", flowGraphClassName),
+		}, nil
+	}
+	topBlock.DecRef()
+
+	// TODO: Instantiate flow graph with passed parameters, if any
+	flowGraphInstance := flowgraphClass.CallObject(python.PyTuple_New(0))
+	flowgraphClass.DecRef()
+	if flowGraphInstance == nil {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  "Could not instantiate flow graph class",
+		}, nil
+	}
+
+	// TODO: Check and handle errors on starting flowgraph
+	flowGraphInstance.CallMethod("start")
+	python.PyErr_Print()
+
+	var uniqueId string
+	for ok := true; ok; _, ok = s.flowGraphs[uniqueId] {
+		uniqueId = util.RandString(4)
+	}
+
+	s.flowGraphs[uniqueId] = flowGraphInstance
 
 	return &pb.StartProcessReply{
-		ProcessId: strconv.Itoa(gnuRadioCmd.Process.Pid),
+		ProcessId: uniqueId,
 		Status:    pb.StartProcessReply_SUCCESS,
 		Error:     "",
 	}, nil
 }
 
 func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
-	if _, ok := s.commands[in.GetProcessId()]; !ok {
+	if _, ok := s.flowGraphs[in.GetProcessId()]; !ok {
 		return &pb.EndProcessReply{
 			Status: pb.EndProcessReply_INVALID_PROCESS_ID,
 			Error:  fmt.Sprintf("Invalid process ID %v", in.GetProcessId()),
 		}, nil
 	}
 
-	cmd := s.commands[in.GetProcessId()]
+	flowGraph := s.flowGraphs[in.GetProcessId()]
 
-	if cmd.ProcessState != nil {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_PROCESS_EXITED,
-			Error:  "Process has already exited",
-			ProcessState: &pb.ProcessState{
-				SystemTime: cmd.ProcessState.SystemTime().Nanoseconds(),
-				UserTime:   cmd.ProcessState.UserTime().Nanoseconds(),
-			},
-		}, nil
-	}
+	// TODO: Check if the flow graph has already exited. Does it matter?
 
-	err := cmd.Process.Signal(os.Interrupt)
-	if err != nil {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_UNKNOWN_ERROR,
-			Error:  err.Error(),
-		}, nil
-	}
-
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-	secsPassed := 0
-	for breakOut := false; breakOut == false; {
-		select {
-		case <-ticker.C:
-			secsPassed += 1
-			if cmd.ProcessState != nil || secsPassed >= int(in.GetTimeout()) {
-				breakOut = true
-			}
-		}
-	}
-
-	if cmd.ProcessState == nil {
-		err := cmd.Process.Signal(os.Kill)
-		if err != nil {
-			return &pb.EndProcessReply{
-				Status: pb.EndProcessReply_UNKNOWN_ERROR,
-				Error:  err.Error(),
-			}, nil
-		}
-		for cmd.ProcessState == nil {
-			time.Sleep(time.Millisecond)
-		}
-	}
+	flowGraph.CallMethod("stop")
+	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
+	flowGraph.CallMethod("wait")
+	// TODO: Check for errors after calling stop and wait.
+	python.PyErr_Print()
+	flowGraph.DecRef()
+	delete(s.flowGraphs, in.GetProcessId())
 
 	return &pb.EndProcessReply{
 		Status: pb.EndProcessReply_SUCCESS,
-		ProcessState: &pb.ProcessState{
-			SystemTime: cmd.ProcessState.SystemTime().Nanoseconds(),
-			UserTime:   cmd.ProcessState.UserTime().Nanoseconds(),
-		},
 	}, nil
 }
 
 func (s *Starcoder) Close() error {
-	for _, cmd := range s.commands {
-		// TODO: Do something gentler than immediately killing?
-		cmd.Process.Kill()
+	for _, flowGraph := range s.flowGraphs {
+		flowGraph.CallMethod("stop")
+		// TODO: Is it possible "stop" won't work? Should we timeout wait?
+		flowGraph.CallMethod("wait")
+		// TODO: Check for errors after calling stop and wait.
+		python.PyErr_Print()
+		flowGraph.DecRef()
 	}
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)
