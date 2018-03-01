@@ -58,6 +58,18 @@ message StartProcessReply {
     // Successfully started process.
     SUCCESS = 0;
 
+    // File access problem
+    FILE_ACCESS_ERROR = 1;
+
+    // Unsupported file type
+    UNSUPPORTED_FILE_TYPE = 2;
+
+    // .grc compile error
+    GRC_COMPILE_ERROR = 3;
+
+    // Python file run error
+    PYTHON_RUN_ERROR = 4;
+
     // Unknown error starting process.
     UNKNOWN_ERROR = 255;
   }
@@ -69,10 +81,13 @@ message StartProcessReply {
   string error = 3;
 }
 
-// The request message containing parameters for enidng a process
+// The request message containing parameters for ending a process
 message EndProcessRequest {
   // Process ID of process to end
   string processId = 1;
+
+  // How long to wait for a process to end before killing it
+  int32 timeout = 2;
 }
 
 // The message response to an EndProcessRequest
@@ -82,13 +97,31 @@ message EndProcessReply {
     // Successfully started process.
     SUCCESS = 0;
 
+    // Invalid Process Id
+    INVALID_PROCESS_ID = 1;
+
+    // Process has exited
+    PROCESS_EXITED = 2;
+
     // Unknown error starting process.
     UNKNOWN_ERROR = 255;
   }
 
   // Response status
-  Status status = 2;
+  Status status = 1;
 
   // Error message
-  string error = 3;
+  string error = 2;
+
+  // Process statistics
+  ProcessState processState = 3;
+}
+
+// Statistics about the process
+message ProcessState {
+  // System CPU time in nanoseconds.
+  int64 SystemTime = 1;
+
+  // User CPU time in nanoseconds.
+  int64 UserTime = 2;
 }

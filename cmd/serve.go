@@ -67,7 +67,7 @@ var serveCmd = &cobra.Command{
 				if p == "" {
 					return nil
 				}
-				if strings.HasSuffix(p, ".grc") {
+				if strings.HasSuffix(p, ".grc") || strings.HasSuffix(p, ".py") {
 					// Write flowgraph to temporary directory
 					err := ioutil.WriteFile(filepath.Join(tempDir, p), flowgraphsBox.MustBytes(p), 0644)
 					if err != nil {
@@ -86,6 +86,7 @@ var serveCmd = &cobra.Command{
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
+		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir)
 
 		// Handle OS signals
 		sigs := make(chan os.Signal, 1)
@@ -101,6 +102,7 @@ var serveCmd = &cobra.Command{
 						fallthrough
 					case syscall.SIGQUIT:
 						log.Println("Caught signal", sig)
+						starcoder.Close()
 						s.GracefulStop()
 						return
 					}
@@ -108,9 +110,7 @@ var serveCmd = &cobra.Command{
 			}
 		}(s)
 
-		pb.RegisterProcessManagerServer(s, &server.Starcoder{
-			FlowgraphDir: serveCmdConfig.FlowgraphDir,
-		})
+		pb.RegisterProcessManagerServer(s, starcoder)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(s)
