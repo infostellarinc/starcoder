@@ -125,7 +125,13 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
 	sysPath := python.PySys_GetObject("path")
 	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
-	defer safeDecRef(moduleDir)
+	if moduleDir == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer moduleDir.DecRef()
 	err := python.PyList_Append(sysPath, moduleDir)
 	if err != nil {
 		return &pb.StartFlowgraphResponse{
@@ -135,7 +141,13 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	}
 
 	emptyTuple := python.PyTuple_New(0)
-	defer safeDecRef(emptyTuple)
+	if emptyTuple == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer emptyTuple.DecRef()
 
 	// Import module
 	moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
@@ -152,29 +164,29 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	// GRC compiled python scripts have the top block class name equal to the python filename.
 	flowGraphClassName := moduleName
 	flowgraphClass := module.GetAttrString(flowGraphClassName)
-	defer safeDecRef(flowgraphClass)
 	if flowgraphClass == nil {
 		return &pb.StartFlowgraphResponse{
 			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer flowgraphClass.DecRef()
 	gnuRadioModule := python.PyImport_ImportModule("gnuradio")
-	defer safeDecRef(gnuRadioModule)
 	if gnuRadioModule == nil {
 		return &pb.StartFlowgraphResponse{
 			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer gnuRadioModule.DecRef()
 	grModule := gnuRadioModule.GetAttrString("gr")
-	defer safeDecRef(grModule)
 	if grModule == nil {
 		return &pb.StartFlowgraphResponse{
 			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer grModule.DecRef()
 	topBlock := grModule.GetAttrString("top_block")
 	if topBlock == nil {
 		return &pb.StartFlowgraphResponse{
@@ -182,7 +194,7 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 			Error:  getExceptionString(),
 		}, nil
 	}
-	defer safeDecRef(topBlock)
+	defer topBlock.DecRef()
 
 	// Verify top_block subclass
 	isSubclass := flowgraphClass.IsSubclass(topBlock)
@@ -201,24 +213,24 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	}
 
 	kwArgs := python.PyDict_New()
-	defer safeDecRef(kwArgs)
 	if kwArgs == nil {
 		return &pb.StartFlowgraphResponse{
 			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer kwArgs.DecRef()
 
 	for _, param := range in.GetParameters() {
 		response := func() *pb.StartFlowgraphResponse {
 			pyKey := python.PyString_FromString(param.GetKey())
-			defer safeDecRef(pyKey)
 			if pyKey == nil {
 				return &pb.StartFlowgraphResponse{
 					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 					Error:  getExceptionString(),
 				}
 			}
+			defer pyKey.DecRef()
 			var convertedValue *python.PyObject
 			switch v := param.GetValue().GetVal().(type) {
 			case *pb.Value_StringValue:
@@ -239,13 +251,13 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 					Error:  "Unsupported value type",
 				}
 			}
-			defer safeDecRef(convertedValue)
 			if convertedValue == nil {
 				return &pb.StartFlowgraphResponse{
 					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 					Error:  getExceptionString(),
 				}
 			}
+			defer convertedValue.DecRef()
 			err = python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
 			if err != nil {
 				return &pb.StartFlowgraphResponse{
@@ -269,13 +281,13 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	}
 
 	callReturn := flowGraphInstance.CallMethod("start")
-	defer safeDecRef(callReturn)
 	if callReturn == nil {
 		return &pb.StartFlowgraphResponse{
 			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer callReturn.DecRef()
 
 	hash := sha1.Sum([]byte(fmt.Sprintf("%v", flowGraphInstance.GetCPointer())))
 	uniqueId := base64.URLEncoding.EncodeToString(hash[:])
@@ -302,24 +314,24 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 	// TODO: Check if the flow graph has already exited. Does it matter?
 
 	stopCallReturn := flowGraph.CallMethod("stop")
-	defer safeDecRef(stopCallReturn)
 	if stopCallReturn == nil {
 		return &pb.EndFlowgraphResponse{
 			Status: pb.EndFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer stopCallReturn.DecRef()
 	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
 	waitCallReturn := flowGraph.CallMethod("wait")
-	defer safeDecRef(waitCallReturn)
 	if waitCallReturn == nil {
 		return &pb.EndFlowgraphResponse{
 			Status: pb.EndFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer waitCallReturn.DecRef()
 	python.PyErr_Print()
-	safeDecRef(flowGraph)
+	flowGraph.DecRef()
 	delete(s.flowGraphs, in.GetProcessId())
 
 	return &pb.EndFlowgraphResponse{
@@ -339,18 +351,12 @@ func (s *Starcoder) Close() error {
 			log.Println(getExceptionString())
 		}
 		python.PyErr_Print()
-		safeDecRef(flowGraph)
+		flowGraph.DecRef()
 	}
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)
 	}
 	return nil
-}
-
-func safeDecRef(obj *python.PyObject) {
-	if obj != nil {
-		obj.DecRef()
-	}
 }
 
 func safeAsString(obj *python.PyObject) string {
@@ -362,9 +368,16 @@ func safeAsString(obj *python.PyObject) string {
 }
 
 func getExceptionString() string {
-	exc, val, _ := python.PyErr_Fetch()
-	defer safeDecRef(exc)
-	defer safeDecRef(val)
+	exc, val, tb := python.PyErr_Fetch()
+	if exc != nil {
+		defer exc.DecRef()
+	}
+	if val != nil {
+		defer val.DecRef()
+	}
+	if tb != nil {
+		defer tb.DecRef()
+	}
 	return fmt.Sprintf("Exception: %v \n Value: %v ",
 		safeAsString(exc), safeAsString(val))
 }
