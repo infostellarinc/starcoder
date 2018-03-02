@@ -47,12 +47,12 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 }
 
-func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest) (*pb.StartProcessReply, error) {
+func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartFlowgraphRequest) (*pb.StartFlowgraphReply, error) {
 	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
 
 	if _, err := os.Stat(inFileAbsPath); os.IsNotExist(err) {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_FILE_ACCESS_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_FILE_ACCESS_ERROR,
 			Error:  err.Error(),
 		}, nil
 	}
@@ -62,8 +62,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	if strings.HasSuffix(in.GetFilename(), ".grc") {
 		grccPath, err := exec.LookPath("grcc")
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
@@ -75,8 +75,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		// Weird things will happen if the module name of two different flowgraphs is the same.
 		tempDir, err := ioutil.TempDir("", "starcoder")
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
@@ -85,23 +85,23 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		grccCmd := exec.Command(grccPath, "-d", tempDir, inFileAbsPath)
 		err = grccCmd.Run()
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
 
 		files, err := ioutil.ReadDir(tempDir)
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
 
 		if len(files) != 1 {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_GRC_COMPILE_ERROR,
 				Error: fmt.Sprintf(
 					"Unexpected number of files output by GRCC: %v", len(files)),
 			}, nil
@@ -114,8 +114,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		inFilePythonPath = inFileAbsPath
 		log.Printf("Directly using Python file at %v", inFilePythonPath)
 	} else {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_UNSUPPORTED_FILE_TYPE,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_UNSUPPORTED_FILE_TYPE,
 			Error:  "Unsupported file type",
 		}, nil
 	}
@@ -128,8 +128,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	defer safeDecRef(moduleDir)
 	err := python.PyList_Append(sysPath, moduleDir)
 	if err != nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  err.Error(),
 		}, nil
 	}
@@ -142,8 +142,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	log.Printf("Importing %v", moduleName)
 	module := python.PyImport_ImportModule(moduleName)
 	if module == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
@@ -154,31 +154,31 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	flowgraphClass := module.GetAttrString(flowGraphClassName)
 	defer safeDecRef(flowgraphClass)
 	if flowgraphClass == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
 	gnuRadioModule := python.PyImport_ImportModule("gnuradio")
 	defer safeDecRef(gnuRadioModule)
 	if gnuRadioModule == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
 	grModule := gnuRadioModule.GetAttrString("gr")
 	defer safeDecRef(grModule)
 	if grModule == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
 	topBlock := grModule.GetAttrString("top_block")
 	if topBlock == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
@@ -187,15 +187,15 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	// Verify top_block subclass
 	isSubclass := flowgraphClass.IsSubclass(topBlock)
 	if isSubclass == 0 {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error: fmt.Sprintf(
 				"Top block class %v is not a "+
 					"subclass of gnuradio.gr.top_block", flowGraphClassName),
 		}, nil
 	} else if isSubclass == -1 {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
@@ -203,8 +203,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	kwArgs := python.PyDict_New()
 	defer safeDecRef(kwArgs)
 	if kwArgs == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
@@ -218,8 +218,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 				pyKey,
 				python.PyString_FromString(v.StringValue))
 			if err != nil {
-				return &pb.StartProcessReply{
-					Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 					Error:  err.Error(),
 				}, nil
 			}
@@ -230,8 +230,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 				python.PyInt_FromLong(int(v.IntegerValue)),
 			)
 			if err != nil {
-				return &pb.StartProcessReply{
-					Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 					Error:  err.Error(),
 				}, nil
 			}
@@ -242,8 +242,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 				python.PyLong_FromLongLong(v.LongValue),
 			)
 			if err != nil {
-				return &pb.StartProcessReply{
-					Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 					Error:  err.Error(),
 				}, nil
 			}
@@ -254,8 +254,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 				python.PyFloat_FromDouble(v.FloatValue),
 			)
 			if err != nil {
-				return &pb.StartProcessReply{
-					Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 					Error:  err.Error(),
 				}, nil
 			}
@@ -268,14 +268,14 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 					v.ComplexValue.GetImaginaryValue()),
 			)
 			if err != nil {
-				return &pb.StartProcessReply{
-					Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 					Error:  err.Error(),
 				}, nil
 			}
 		default:
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_UNKNOWN_ERROR,
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_UNKNOWN_ERROR,
 				Error:  "Unsupported value type",
 			}, nil
 		}
@@ -284,16 +284,16 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 
 	flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
 	if flowGraphInstance == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
 
 	callReturn := flowGraphInstance.CallMethod("start")
 	if callReturn == nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphReply{
+			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
@@ -303,17 +303,17 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 
 	s.flowGraphs[uniqueId] = flowGraphInstance
 
-	return &pb.StartProcessReply{
+	return &pb.StartFlowgraphReply{
 		ProcessId: uniqueId,
-		Status:    pb.StartProcessReply_SUCCESS,
+		Status:    pb.StartFlowgraphReply_SUCCESS,
 		Error:     "",
 	}, nil
 }
 
-func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
+func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndFlowgraphRequest) (*pb.EndFlowgraphReply, error) {
 	if _, ok := s.flowGraphs[in.GetProcessId()]; !ok {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_INVALID_PROCESS_ID,
+		return &pb.EndFlowgraphReply{
+			Status: pb.EndFlowgraphReply_INVALID_PROCESS_ID,
 			Error:  fmt.Sprintf("Invalid process ID %v", in.GetProcessId()),
 		}, nil
 	}
@@ -324,16 +324,16 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 
 	callReturn := flowGraph.CallMethod("stop")
 	if callReturn == nil {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_PYTHON_RUN_ERROR,
+		return &pb.EndFlowgraphReply{
+			Status: pb.EndFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
 	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
 	callReturn = flowGraph.CallMethod("wait")
 	if callReturn == nil {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_PYTHON_RUN_ERROR,
+		return &pb.EndFlowgraphReply{
+			Status: pb.EndFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
@@ -341,8 +341,8 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 	safeDecRef(flowGraph)
 	delete(s.flowGraphs, in.GetProcessId())
 
-	return &pb.EndProcessReply{
-		Status: pb.EndProcessReply_SUCCESS,
+	return &pb.EndFlowgraphReply{
+		Status: pb.EndFlowgraphReply_SUCCESS,
 	}, nil
 }
 

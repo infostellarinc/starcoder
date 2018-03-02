@@ -24,25 +24,25 @@ option go_package = "/api";
 // The GNURadio process manager service definition.
 service ProcessManager {
   // Create a process
-  rpc StartProcess (StartProcessRequest) returns (StartProcessReply) {}
+  rpc StartProcess (StartFlowgraphRequest) returns (StartFlowgraphReply) {}
 
   // End a process
-  rpc EndProcess (EndProcessRequest) returns (EndProcessReply) {}
+  rpc EndProcess (EndFlowgraphRequest) returns (EndFlowgraphReply) {}
 }
 
 // Complex number
 message Complex {
-  // Real value of the complex number
+  // Real part of the complex number
   double real_value = 1;
 
-  // Imaginary value of the complex number
+  // Imaginary part of the complex number
   double imaginary_value = 2;
 }
 
 // GNURadio parameter values
 message Value {
   oneof val {
-    // Represents at string value
+    // Represents a string value
     string string_value = 1;
 
     // Represents an integer
@@ -59,8 +59,8 @@ message Value {
   }
 }
 
-// The request message containing parameters for starting a process
-message StartProcessRequest {
+// The request message containing parameters for starting a flowgraph
+message StartFlowgraphRequest {
   // Filename of GNURadio script to run
   string filename = 1;
 
@@ -77,14 +77,14 @@ message StartProcessRequest {
   repeated Parameter parameters = 2;
 }
 
-// The message response to a StartProcessRequest
-message StartProcessReply {
-  // Unique Process ID of the process that was started
+// The message response to a StartFlowgraphRequest
+message StartFlowgraphReply {
+  // Unique Process ID of the flowgraph that was started
   string processId = 1;
 
   // Response status
   enum Status {
-    // Successfully started process.
+    // Successfully started flowgraph.
     SUCCESS = 0;
 
     // File access problem
@@ -99,7 +99,7 @@ message StartProcessReply {
     // Python file run error
     PYTHON_RUN_ERROR = 4;
 
-    // Unknown error starting process.
+    // Unknown error starting flowgraph.
     UNKNOWN_ERROR = 255;
   }
 
@@ -110,32 +110,29 @@ message StartProcessReply {
   string error = 3;
 }
 
-// The request message containing parameters for ending a process
-message EndProcessRequest {
+// The request message containing parameters for ending a flowgraph
+message EndFlowgraphRequest {
   // Process ID of process to end
   string processId = 1;
-
-  // How long to wait for a process to end before killing it
-  int32 timeout = 2;
 }
 
-// The message response to an EndProcessRequest
-message EndProcessReply {
+// The message response to an EndFlowgraphRequest
+message EndFlowgraphReply {
   // Response status
   enum Status {
-    // Successfully started process.
+    // Successfully ended flowgraph.
     SUCCESS = 0;
 
     // Invalid Process Id
     INVALID_PROCESS_ID = 1;
 
-    // Process has exited
+    // Flowgraph has exited
     PROCESS_EXITED = 2;
 
     // Python file run error
     PYTHON_RUN_ERROR = 3;
 
-    // Unknown error starting process.
+    // Unknown error ending flowgraph.
     UNKNOWN_ERROR = 255;
   }
 
