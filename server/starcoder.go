@@ -341,14 +341,18 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 
 func (s *Starcoder) Close() error {
 	for _, flowGraph := range s.flowGraphs {
-		callReturn := flowGraph.CallMethod("stop")
-		if callReturn == nil {
+		stopCallReturn := flowGraph.CallMethod("stop")
+		if stopCallReturn == nil {
 			log.Println(getExceptionString())
+		} else {
+			stopCallReturn.DecRef()
 		}
 		// TODO: Is it possible "stop" won't work? Should we timeout wait?
-		callReturn = flowGraph.CallMethod("wait")
-		if callReturn == nil {
+		waitCallReturn := flowGraph.CallMethod("wait")
+		if waitCallReturn == nil {
 			log.Println(getExceptionString())
+		} else {
+			waitCallReturn.DecRef()
 		}
 		python.PyErr_Print()
 		flowGraph.DecRef()
