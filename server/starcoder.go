@@ -211,75 +211,47 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartFlowgraphReque
 
 	for _, param := range in.GetParameters() {
 		pyKey := python.PyString_FromString(param.GetKey())
+		if pyKey == nil {
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
+				Error:  getExceptionString(),
+			}, nil
+		}
+		defer safeDecRef(pyKey)
+		var convertedValue *python.PyObject
 		switch v := param.GetValue().GetVal().(type) {
 		case *pb.Value_StringValue:
-			err = python.PyDict_SetItem(
-				kwArgs,
-				pyKey,
-				python.PyString_FromString(v.StringValue))
-			if err != nil {
-				return &pb.StartFlowgraphReply{
-					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-					Error:  err.Error(),
-				}, nil
-			}
+			convertedValue = python.PyString_FromString(v.StringValue)
 		case *pb.Value_IntegerValue:
-			python.PyDict_SetItem(
-				kwArgs,
-				pyKey,
-				python.PyInt_FromLong(int(v.IntegerValue)),
-			)
-			if err != nil {
-				return &pb.StartFlowgraphReply{
-					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-					Error:  err.Error(),
-				}, nil
-			}
+			convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
 		case *pb.Value_LongValue:
-			python.PyDict_SetItem(
-				kwArgs,
-				pyKey,
-				python.PyLong_FromLongLong(v.LongValue),
-			)
-			if err != nil {
-				return &pb.StartFlowgraphReply{
-					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-					Error:  err.Error(),
-				}, nil
-			}
+			convertedValue = python.PyLong_FromLongLong(v.LongValue)
 		case *pb.Value_FloatValue:
-			python.PyDict_SetItem(
-				kwArgs,
-				pyKey,
-				python.PyFloat_FromDouble(v.FloatValue),
-			)
-			if err != nil {
-				return &pb.StartFlowgraphReply{
-					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-					Error:  err.Error(),
-				}, nil
-			}
+			convertedValue = python.PyFloat_FromDouble(v.FloatValue)
 		case *pb.Value_ComplexValue:
-			python.PyDict_SetItem(
-				kwArgs,
-				pyKey,
-				python.PyComplex_FromDoubles(
-					v.ComplexValue.GetRealValue(),
-					v.ComplexValue.GetImaginaryValue()),
-			)
-			if err != nil {
-				return &pb.StartFlowgraphReply{
-					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-					Error:  err.Error(),
-				}, nil
-			}
+			convertedValue = python.PyComplex_FromDoubles(
+				v.ComplexValue.GetRealValue(),
+				v.ComplexValue.GetImaginaryValue())
 		default:
 			return &pb.StartFlowgraphReply{
 				Status: pb.StartFlowgraphReply_UNKNOWN_ERROR,
 				Error:  "Unsupported value type",
 			}, nil
 		}
-		safeDecRef(pyKey)
+		if convertedValue == nil {
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
+				Error:  getExceptionString(),
+			}, nil
+		}
+		defer safeDecRef(convertedValue)
+		err = python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
+		if err != nil {
+			return &pb.StartFlowgraphReply{
+				Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
+				Error:  err.Error(),
+			}, nil
+		}
 	}
 
 	flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
@@ -291,6 +263,7 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartFlowgraphReque
 	}
 
 	callReturn := flowGraphInstance.CallMethod("start")
+	defer safeDecRef(callReturn)
 	if callReturn == nil {
 		return &pb.StartFlowgraphReply{
 			Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
@@ -322,16 +295,18 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndFlowgraphRequest) 
 
 	// TODO: Check if the flow graph has already exited. Does it matter?
 
-	callReturn := flowGraph.CallMethod("stop")
-	if callReturn == nil {
+	stopCallReturn := flowGraph.CallMethod("stop")
+	defer safeDecRef(stopCallReturn)
+	if stopCallReturn == nil {
 		return &pb.EndFlowgraphReply{
 			Status: pb.EndFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),
 		}, nil
 	}
 	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
-	callReturn = flowGraph.CallMethod("wait")
-	if callReturn == nil {
+	waitCallReturn := flowGraph.CallMethod("wait")
+	defer safeDecRef(waitCallReturn)
+	if waitCallReturn == nil {
 		return &pb.EndFlowgraphReply{
 			Status: pb.EndFlowgraphReply_PYTHON_RUN_ERROR,
 			Error:  getExceptionString(),

@@ -105,7 +105,6 @@ var serveCmd = &cobra.Command{
 						log.Println("Caught signal", sig)
 						starcoder.Close()
 						s.GracefulStop()
-						python.Finalize()
 						return
 					}
 				}
@@ -118,6 +117,7 @@ var serveCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("failed to initialize python: %v", err)
 		}
+		defer python.Finalize()
 
 		// Register reflection service on gRPC server.
 		reflection.Register(s)
