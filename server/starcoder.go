@@ -210,47 +210,53 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartFlowgraphReque
 	}
 
 	for _, param := range in.GetParameters() {
-		pyKey := python.PyString_FromString(param.GetKey())
-		if pyKey == nil {
-			return &pb.StartFlowgraphReply{
-				Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-				Error:  getExceptionString(),
-			}, nil
-		}
-		defer safeDecRef(pyKey)
-		var convertedValue *python.PyObject
-		switch v := param.GetValue().GetVal().(type) {
-		case *pb.Value_StringValue:
-			convertedValue = python.PyString_FromString(v.StringValue)
-		case *pb.Value_IntegerValue:
-			convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
-		case *pb.Value_LongValue:
-			convertedValue = python.PyLong_FromLongLong(v.LongValue)
-		case *pb.Value_FloatValue:
-			convertedValue = python.PyFloat_FromDouble(v.FloatValue)
-		case *pb.Value_ComplexValue:
-			convertedValue = python.PyComplex_FromDoubles(
-				v.ComplexValue.GetRealValue(),
-				v.ComplexValue.GetImaginaryValue())
-		default:
-			return &pb.StartFlowgraphReply{
-				Status: pb.StartFlowgraphReply_UNKNOWN_ERROR,
-				Error:  "Unsupported value type",
-			}, nil
-		}
-		if convertedValue == nil {
-			return &pb.StartFlowgraphReply{
-				Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-				Error:  getExceptionString(),
-			}, nil
-		}
-		defer safeDecRef(convertedValue)
-		err = python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
-		if err != nil {
-			return &pb.StartFlowgraphReply{
-				Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
-				Error:  err.Error(),
-			}, nil
+		response := func() *pb.StartFlowgraphReply {
+			pyKey := python.PyString_FromString(param.GetKey())
+			defer safeDecRef(pyKey)
+			if pyKey == nil {
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
+					Error:  getExceptionString(),
+				}
+			}
+			var convertedValue *python.PyObject
+			switch v := param.GetValue().GetVal().(type) {
+			case *pb.Value_StringValue:
+				convertedValue = python.PyString_FromString(v.StringValue)
+			case *pb.Value_IntegerValue:
+				convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
+			case *pb.Value_LongValue:
+				convertedValue = python.PyLong_FromLongLong(v.LongValue)
+			case *pb.Value_FloatValue:
+				convertedValue = python.PyFloat_FromDouble(v.FloatValue)
+			case *pb.Value_ComplexValue:
+				convertedValue = python.PyComplex_FromDoubles(
+					v.ComplexValue.GetRealValue(),
+					v.ComplexValue.GetImaginaryValue())
+			default:
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_UNKNOWN_ERROR,
+					Error:  "Unsupported value type",
+				}
+			}
+			defer safeDecRef(convertedValue)
+			if convertedValue == nil {
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
+					Error:  getExceptionString(),
+				}
+			}
+			err = python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
+			if err != nil {
+				return &pb.StartFlowgraphReply{
+					Status: pb.StartFlowgraphReply_PYTHON_RUN_ERROR,
+					Error:  err.Error(),
+				}
+			}
+			return nil
+		}()
+		if response != nil {
+			return response, nil
 		}
 	}
 
