@@ -306,6 +306,33 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 652)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>waterfall_image_file_path</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>"/home/rei/sampleAR2300IQ/wut"</value>
+    </param>
+  </block>
+  <block>
     <key>analog_quadrature_demod_cf</key>
     <param>
       <key>alias</key>
@@ -1036,7 +1063,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>fft_size</key>
@@ -1048,7 +1075,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(472, 132)</value>
+      <value>(480, 132)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1056,7 +1083,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>satnogs_waterfall_sink_0</value>
+      <value>satnogs_waterfall_sink_0_0</value>
     </param>
     <param>
       <key>mode</key>
@@ -1087,7 +1114,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 652)</value>
+      <value>(8, 716)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1180,7 +1207,7 @@
   </connection>
   <connection>
     <source_block_id>rational_resampler_xxx_0_0</source_block_id>
-    <sink_block_id>satnogs_waterfall_sink_0</sink_block_id>
+    <sink_block_id>satnogs_waterfall_sink_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

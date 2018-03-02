@@ -19,39 +19,40 @@
 package server
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	pb "github.com/infostellarinc/starcoder/api"
+	"github.com/sbinet/go-python"
 	"golang.org/x/net/context"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
-	"time"
 )
 
 type Starcoder struct {
 	flowgraphDir  string
 	temporaryDirs []string
-	commands      map[string]*exec.Cmd
+	flowGraphs    map[string]*python.PyObject
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	return &Starcoder{
 		flowgraphDir:  flowgraphDir,
 		temporaryDirs: make([]string, 0),
-		commands:      make(map[string]*exec.Cmd),
+		flowGraphs:    make(map[string]*python.PyObject),
 	}
 }
 
-func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest) (*pb.StartProcessReply, error) {
+func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphRequest) (*pb.StartFlowgraphResponse, error) {
 	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
 
 	if _, err := os.Stat(inFileAbsPath); os.IsNotExist(err) {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_FILE_ACCESS_ERROR,
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_FILE_ACCESS_ERROR,
 			Error:  err.Error(),
 		}, nil
 	}
@@ -61,8 +62,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	if strings.HasSuffix(in.GetFilename(), ".grc") {
 		grccPath, err := exec.LookPath("grcc")
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphResponse{
+				Status: pb.StartFlowgraphResponse_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
@@ -70,10 +71,12 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		// Create temporary directory to store compiled .py file.
 		// We need this because we can't control the output filename
 		// of the compiled file.
+		// TODO: Should rename the file to something unique so it can be safely imported.
+		// Weird things will happen if the module name of two different flowgraphs is the same.
 		tempDir, err := ioutil.TempDir("", "starcoder")
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphResponse{
+				Status: pb.StartFlowgraphResponse_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
@@ -82,24 +85,25 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		grccCmd := exec.Command(grccPath, "-d", tempDir, inFileAbsPath)
 		err = grccCmd.Run()
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphResponse{
+				Status: pb.StartFlowgraphResponse_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
 
 		files, err := ioutil.ReadDir(tempDir)
 		if err != nil {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
+			return &pb.StartFlowgraphResponse{
+				Status: pb.StartFlowgraphResponse_GRC_COMPILE_ERROR,
 				Error:  err.Error(),
 			}, nil
 		}
 
 		if len(files) != 1 {
-			return &pb.StartProcessReply{
-				Status: pb.StartProcessReply_GRC_COMPILE_ERROR,
-				Error:  fmt.Sprintf("Unexpected number of files output by GRCC: %v", len(files)),
+			return &pb.StartFlowgraphResponse{
+				Status: pb.StartFlowgraphResponse_GRC_COMPILE_ERROR,
+				Error: fmt.Sprintf(
+					"Unexpected number of files output by GRCC: %v", len(files)),
 			}, nil
 		}
 
@@ -110,109 +114,274 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		inFilePythonPath = inFileAbsPath
 		log.Printf("Directly using Python file at %v", inFilePythonPath)
 	} else {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_UNSUPPORTED_FILE_TYPE,
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_UNSUPPORTED_FILE_TYPE,
 			Error:  "Unsupported file type",
 		}, nil
 	}
+	// TODO: Have some way to monitor the running process
 
-	var cliParameters []string
-	cliParameters = append(cliParameters, inFilePythonPath)
-	for _, param := range in.GetParameters() {
-		cliParameters = append(cliParameters, "--"+param.GetKey(), param.GetValue())
+	// Append module directory to sys.path
+	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
+	sysPath := python.PySys_GetObject("path")
+	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
+	if moduleDir == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
 	}
-	gnuRadioCmd := exec.Command("python", cliParameters...)
-	err := gnuRadioCmd.Start()
+	defer moduleDir.DecRef()
+	err := python.PyList_Append(sysPath, moduleDir)
 	if err != nil {
-		return &pb.StartProcessReply{
-			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  err.Error(),
 		}, nil
 	}
-	log.Printf("Executing: %s\n", strings.Join(gnuRadioCmd.Args, " "))
-	go gnuRadioCmd.Wait()
 
-	s.commands[strconv.Itoa(gnuRadioCmd.Process.Pid)] = gnuRadioCmd
-	// TODO: Have some way to monitor the running process
+	emptyTuple := python.PyTuple_New(0)
+	if emptyTuple == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer emptyTuple.DecRef()
 
-	return &pb.StartProcessReply{
-		ProcessId: strconv.Itoa(gnuRadioCmd.Process.Pid),
-		Status:    pb.StartProcessReply_SUCCESS,
+	// Import module
+	moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
+	log.Printf("Importing %v", moduleName)
+	module := python.PyImport_ImportModule(moduleName)
+	if module == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+
+	// Find top_block subclass
+	// GRC compiled python scripts have the top block class name equal to the python filename.
+	flowGraphClassName := moduleName
+	flowgraphClass := module.GetAttrString(flowGraphClassName)
+	if flowgraphClass == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer flowgraphClass.DecRef()
+	gnuRadioModule := python.PyImport_ImportModule("gnuradio")
+	if gnuRadioModule == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer gnuRadioModule.DecRef()
+	grModule := gnuRadioModule.GetAttrString("gr")
+	if grModule == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer grModule.DecRef()
+	topBlock := grModule.GetAttrString("top_block")
+	if topBlock == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer topBlock.DecRef()
+
+	// Verify top_block subclass
+	isSubclass := flowgraphClass.IsSubclass(topBlock)
+	if isSubclass == 0 {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error: fmt.Sprintf(
+				"Top block class %v is not a "+
+					"subclass of gnuradio.gr.top_block", flowGraphClassName),
+		}, nil
+	} else if isSubclass == -1 {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+
+	kwArgs := python.PyDict_New()
+	if kwArgs == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer kwArgs.DecRef()
+
+	for _, param := range in.GetParameters() {
+		response := func() *pb.StartFlowgraphResponse {
+			pyKey := python.PyString_FromString(param.GetKey())
+			if pyKey == nil {
+				return &pb.StartFlowgraphResponse{
+					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+					Error:  getExceptionString(),
+				}
+			}
+			defer pyKey.DecRef()
+			var convertedValue *python.PyObject
+			switch v := param.GetValue().GetVal().(type) {
+			case *pb.Value_StringValue:
+				convertedValue = python.PyString_FromString(v.StringValue)
+			case *pb.Value_IntegerValue:
+				convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
+			case *pb.Value_LongValue:
+				convertedValue = python.PyLong_FromLongLong(v.LongValue)
+			case *pb.Value_FloatValue:
+				convertedValue = python.PyFloat_FromDouble(v.FloatValue)
+			case *pb.Value_ComplexValue:
+				convertedValue = python.PyComplex_FromDoubles(
+					v.ComplexValue.GetRealValue(),
+					v.ComplexValue.GetImaginaryValue())
+			default:
+				return &pb.StartFlowgraphResponse{
+					Status: pb.StartFlowgraphResponse_UNKNOWN_ERROR,
+					Error:  "Unsupported value type",
+				}
+			}
+			if convertedValue == nil {
+				return &pb.StartFlowgraphResponse{
+					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+					Error:  getExceptionString(),
+				}
+			}
+			defer convertedValue.DecRef()
+			err = python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
+			if err != nil {
+				return &pb.StartFlowgraphResponse{
+					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+					Error:  err.Error(),
+				}
+			}
+			return nil
+		}()
+		if response != nil {
+			return response, nil
+		}
+	}
+
+	flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
+	if flowGraphInstance == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+
+	callReturn := flowGraphInstance.CallMethod("start")
+	if callReturn == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
+	defer callReturn.DecRef()
+
+	hash := sha1.Sum([]byte(fmt.Sprintf("%v", flowGraphInstance.GetCPointer())))
+	uniqueId := base64.URLEncoding.EncodeToString(hash[:])
+
+	s.flowGraphs[uniqueId] = flowGraphInstance
+
+	return &pb.StartFlowgraphResponse{
+		ProcessId: uniqueId,
+		Status:    pb.StartFlowgraphResponse_SUCCESS,
 		Error:     "",
 	}, nil
 }
 
-func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*pb.EndProcessReply, error) {
-	if _, ok := s.commands[in.GetProcessId()]; !ok {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_INVALID_PROCESS_ID,
+func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest) (*pb.EndFlowgraphResponse, error) {
+	if _, ok := s.flowGraphs[in.GetProcessId()]; !ok {
+		return &pb.EndFlowgraphResponse{
+			Status: pb.EndFlowgraphResponse_INVALID_PROCESS_ID,
 			Error:  fmt.Sprintf("Invalid process ID %v", in.GetProcessId()),
 		}, nil
 	}
 
-	cmd := s.commands[in.GetProcessId()]
+	flowGraph := s.flowGraphs[in.GetProcessId()]
 
-	if cmd.ProcessState != nil {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_PROCESS_EXITED,
-			Error:  "Process has already exited",
-			ProcessState: &pb.ProcessState{
-				SystemTime: cmd.ProcessState.SystemTime().Nanoseconds(),
-				UserTime:   cmd.ProcessState.UserTime().Nanoseconds(),
-			},
+	// TODO: Check if the flow graph has already exited. Does it matter?
+
+	stopCallReturn := flowGraph.CallMethod("stop")
+	if stopCallReturn == nil {
+		return &pb.EndFlowgraphResponse{
+			Status: pb.EndFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
 		}, nil
 	}
-
-	err := cmd.Process.Signal(os.Interrupt)
-	if err != nil {
-		return &pb.EndProcessReply{
-			Status: pb.EndProcessReply_UNKNOWN_ERROR,
-			Error:  err.Error(),
+	defer stopCallReturn.DecRef()
+	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
+	waitCallReturn := flowGraph.CallMethod("wait")
+	if waitCallReturn == nil {
+		return &pb.EndFlowgraphResponse{
+			Status: pb.EndFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
 		}, nil
 	}
+	defer waitCallReturn.DecRef()
+	python.PyErr_Print()
+	flowGraph.DecRef()
+	delete(s.flowGraphs, in.GetProcessId())
 
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-	secsPassed := 0
-	for breakOut := false; breakOut == false; {
-		select {
-		case <-ticker.C:
-			secsPassed += 1
-			if cmd.ProcessState != nil || secsPassed >= int(in.GetTimeout()) {
-				breakOut = true
-			}
-		}
-	}
-
-	if cmd.ProcessState == nil {
-		err := cmd.Process.Signal(os.Kill)
-		if err != nil {
-			return &pb.EndProcessReply{
-				Status: pb.EndProcessReply_UNKNOWN_ERROR,
-				Error:  err.Error(),
-			}, nil
-		}
-		for cmd.ProcessState == nil {
-			time.Sleep(time.Millisecond)
-		}
-	}
-
-	return &pb.EndProcessReply{
-		Status: pb.EndProcessReply_SUCCESS,
-		ProcessState: &pb.ProcessState{
-			SystemTime: cmd.ProcessState.SystemTime().Nanoseconds(),
-			UserTime:   cmd.ProcessState.UserTime().Nanoseconds(),
-		},
+	return &pb.EndFlowgraphResponse{
+		Status: pb.EndFlowgraphResponse_SUCCESS,
 	}, nil
 }
 
 func (s *Starcoder) Close() error {
-	for _, cmd := range s.commands {
-		// TODO: Do something gentler than immediately killing?
-		cmd.Process.Kill()
+	for _, flowGraph := range s.flowGraphs {
+		stopCallReturn := flowGraph.CallMethod("stop")
+		if stopCallReturn == nil {
+			log.Println(getExceptionString())
+		} else {
+			stopCallReturn.DecRef()
+		}
+		// TODO: Is it possible "stop" won't work? Should we timeout wait?
+		waitCallReturn := flowGraph.CallMethod("wait")
+		if waitCallReturn == nil {
+			log.Println(getExceptionString())
+		} else {
+			waitCallReturn.DecRef()
+		}
+		python.PyErr_Print()
+		flowGraph.DecRef()
 	}
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)
 	}
 	return nil
+}
+
+func safeAsString(obj *python.PyObject) string {
+	if obj != nil {
+		return python.PyString_AsString(obj)
+	} else {
+		return "None"
+	}
+}
+
+func getExceptionString() string {
+	exc, val, tb := python.PyErr_Fetch()
+	if exc != nil {
+		defer exc.DecRef()
+	}
+	if val != nil {
+		defer val.DecRef()
+	}
+	if tb != nil {
+		defer tb.DecRef()
+	}
+	return fmt.Sprintf("Exception: %v \n Value: %v ",
+		safeAsString(exc), safeAsString(val))
 }

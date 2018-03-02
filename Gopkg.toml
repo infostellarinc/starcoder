@@ -30,6 +30,7 @@ required = [
   "google.golang.org/genproto",
   "github.com/GeertJohan/go.rice",
   "github.com/spf13/cobra",
+  "github.com/sbinet/go-python",
 ]
 
 [[constraint]]
@@ -54,6 +55,10 @@ required = [
 
 [[constraint]]
   name = "github.com/spf13/cobra"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/sbinet/go-python"
   branch = "master"
 
 [prune]
