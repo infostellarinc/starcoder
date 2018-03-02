@@ -119,13 +119,12 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		}, nil
 	}
 	// TODO: Have some way to monitor the running process
-	// TODO: Better error handling everywhere
 
 	// Append module directory to sys.path
+	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
 	sysPath := python.PySys_GetObject("path")
 	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
 	defer safeDecRef(moduleDir)
-	log.Println(filepath.Dir(inFilePythonPath))
 	err := python.PyList_Append(sysPath, moduleDir)
 	if err != nil {
 		return &pb.StartProcessReply{
@@ -144,7 +143,7 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	if module == nil {
 		return &pb.StartProcessReply{
 			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
-			Error:  fmt.Sprintf("Module %v failed to load", moduleName),
+			Error:  getExceptionString(),
 		}, nil
 	}
 
@@ -156,24 +155,47 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	if flowgraphClass == nil {
 		return &pb.StartProcessReply{
 			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
-			Error:  fmt.Sprintf("Top block class %v not found", flowGraphClassName),
+			Error:  getExceptionString(),
 		}, nil
 	}
 	gnuRadioModule := python.PyImport_ImportModule("gnuradio")
 	defer safeDecRef(gnuRadioModule)
+	if gnuRadioModule == nil {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
 	grModule := gnuRadioModule.GetAttrString("gr")
 	defer safeDecRef(grModule)
+	if grModule == nil {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
 	topBlock := grModule.GetAttrString("top_block")
+	if topBlock == nil {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
 	defer safeDecRef(topBlock)
 
 	// Verify top_block subclass
-	if flowgraphClass.IsSubclass(topBlock) != 1 {
-		// TODO: Handle error when return value is -1
+	isSubclass := flowgraphClass.IsSubclass(topBlock)
+	if isSubclass == 0 {
 		return &pb.StartProcessReply{
 			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
 			Error: fmt.Sprintf(
 				"Top block class %v is not a "+
 					"subclass of gnuradio.gr.top_block", flowGraphClassName),
+		}, nil
+	} else if isSubclass == -1 {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
 		}, nil
 	}
 
@@ -224,11 +246,29 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		}
 
 		retValue := optionParser.CallMethodObjArgs("parse_args", args)
+		if retValue == nil {
+			return &pb.StartProcessReply{
+				Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				Error:  getExceptionString(),
+			}, nil
+		}
 		defer safeDecRef(retValue)
 		options := python.PyTuple_GetItem(retValue, 0)
+		if options == nil {
+			return &pb.StartProcessReply{
+				Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				Error:  getExceptionString(),
+			}, nil
+		}
 		defer safeDecRef(options)
 
 		kwArgs = options.GetAttrString("__dict__")
+		if kwArgs == nil {
+			return &pb.StartProcessReply{
+				Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+				Error:  getExceptionString(),
+			}, nil
+		}
 		defer safeDecRef(kwArgs)
 	}
 
@@ -236,12 +276,17 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 	if flowGraphInstance == nil {
 		return &pb.StartProcessReply{
 			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
-			Error:  "Could not instantiate flow graph class",
+			Error:  getExceptionString(),
 		}, nil
 	}
 
-	flowGraphInstance.CallMethod("start")
-	python.PyErr_Print()
+	callReturn := flowGraphInstance.CallMethod("start")
+	if callReturn == nil {
+		return &pb.StartProcessReply{
+			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
 
 	var uniqueId string
 	for ok := true; ok; _, ok = s.flowGraphs[uniqueId] {
@@ -269,10 +314,21 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 
 	// TODO: Check if the flow graph has already exited. Does it matter?
 
-	flowGraph.CallMethod("stop")
+	callReturn := flowGraph.CallMethod("stop")
+	if callReturn == nil {
+		return &pb.EndProcessReply{
+			Status: pb.EndProcessReply_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
 	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
-	flowGraph.CallMethod("wait")
-	// TODO: Check for errors after calling stop and wait.
+	callReturn = flowGraph.CallMethod("wait")
+	if callReturn == nil {
+		return &pb.EndProcessReply{
+			Status: pb.EndProcessReply_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
 	python.PyErr_Print()
 	safeDecRef(flowGraph)
 	delete(s.flowGraphs, in.GetProcessId())
@@ -284,10 +340,15 @@ func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndProcessRequest) (*
 
 func (s *Starcoder) Close() error {
 	for _, flowGraph := range s.flowGraphs {
-		flowGraph.CallMethod("stop")
+		callReturn := flowGraph.CallMethod("stop")
+		if callReturn == nil {
+			log.Println(getExceptionString())
+		}
 		// TODO: Is it possible "stop" won't work? Should we timeout wait?
-		flowGraph.CallMethod("wait")
-		// TODO: Check for errors after calling stop and wait.
+		callReturn = flowGraph.CallMethod("wait")
+		if callReturn == nil {
+			log.Println(getExceptionString())
+		}
 		python.PyErr_Print()
 		safeDecRef(flowGraph)
 	}
@@ -301,4 +362,20 @@ func safeDecRef(obj *python.PyObject) {
 	if obj != nil {
 		obj.DecRef()
 	}
+}
+
+func safeAsString(obj *python.PyObject) string {
+	if obj != nil {
+		return python.PyString_AsString(obj)
+	} else {
+		return "None"
+	}
+}
+
+func getExceptionString() string {
+	exc, val, _ := python.PyErr_Fetch()
+	defer safeDecRef(exc)
+	defer safeDecRef(val)
+	return fmt.Sprintf("Exception: %v \n Value: %v ",
+		safeAsString(exc), safeAsString(val))
 }

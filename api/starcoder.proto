@@ -103,6 +103,9 @@ message EndProcessReply {
     // Process has exited
     PROCESS_EXITED = 2;
 
+    // Python file run error
+    PYTHON_RUN_ERROR = 3;
+
     // Unknown error starting process.
     UNKNOWN_ERROR = 255;
   }
