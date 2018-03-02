@@ -24,10 +24,10 @@ option go_package = "/api";
 // The GNURadio process manager service definition.
 service ProcessManager {
   // Create a process
-  rpc StartProcess (StartFlowgraphRequest) returns (StartFlowgraphReply) {}
+  rpc StartFlowgraph (StartFlowgraphRequest) returns (StartFlowgraphReply) {}
 
   // End a process
-  rpc EndProcess (EndFlowgraphRequest) returns (EndFlowgraphReply) {}
+  rpc EndFlowgraph (EndFlowgraphRequest) returns (EndFlowgraphReply) {}
 }
 
 // Complex number

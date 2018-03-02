@@ -47,7 +47,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 }
 
-func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartFlowgraphRequest) (*pb.StartFlowgraphReply, error) {
+func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphRequest) (*pb.StartFlowgraphReply, error) {
 	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
 
 	if _, err := os.Stat(inFileAbsPath); os.IsNotExist(err) {
@@ -289,7 +289,7 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartFlowgraphReque
 	}, nil
 }
 
-func (s *Starcoder) EndProcess(ctx context.Context, in *pb.EndFlowgraphRequest) (*pb.EndFlowgraphReply, error) {
+func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest) (*pb.EndFlowgraphReply, error) {
 	if _, ok := s.flowGraphs[in.GetProcessId()]; !ok {
 		return &pb.EndFlowgraphReply{
 			Status: pb.EndFlowgraphReply_INVALID_PROCESS_ID,
