@@ -30,6 +30,35 @@ service ProcessManager {
   rpc EndProcess (EndProcessRequest) returns (EndProcessReply) {}
 }
 
+// Complex number
+message Complex {
+  // Real value of the complex number
+  double real_value = 1;
+
+  // Imaginary value of the complex number
+  double imaginary_value = 2;
+}
+
+// GNURadio parameter values
+message Value {
+  oneof val {
+    // Represents at string value
+    string string_value = 1;
+
+    // Represents an integer
+    int32 integer_value = 2;
+
+    // Represents a long integer
+    int64 long_value = 3;
+
+    // Represents a float
+    double float_value = 4;
+
+    // Represents a complex number
+    Complex complex_value = 5;
+  }
+}
+
 // The request message containing parameters for starting a process
 message StartProcessRequest {
   // Filename of GNURadio script to run
@@ -41,7 +70,7 @@ message StartProcessRequest {
     string key = 1;
 
     // Value to assign the parameter
-    string value = 2;
+    Value value = 2;
   }
 
   // Arbitrary command line parameters to be passed to the GNURadio script
