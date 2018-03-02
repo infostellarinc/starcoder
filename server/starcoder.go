@@ -134,6 +134,9 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		}, nil
 	}
 
+	emptyTuple := python.PyTuple_New(0)
+	defer safeDecRef(emptyTuple)
+
 	// Import module
 	moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
 	log.Printf("Importing %v", moduleName)
@@ -190,7 +193,7 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 			}, nil
 		} else {
 			// Top block has no parameters. Initialize with empty kwArgs
-			kwArgs = python.PyTuple_New(0)
+			kwArgs = emptyTuple
 			defer safeDecRef(kwArgs)
 		}
 	} else {
@@ -198,7 +201,7 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		defer safeDecRef(optparseModule)
 		optionParserClass := optparseModule.GetAttrString("OptionParser")
 		defer safeDecRef(optionParserClass)
-		optionParser := optionParserFunction.Call(python.PyTuple_New(0), python.PyTuple_New(0))
+		optionParser := optionParserFunction.Call(emptyTuple, emptyTuple)
 		defer safeDecRef(optionParser)
 		if optionParser == nil || optionParser.IsInstance(optionParserClass) != 1 {
 			return &pb.StartProcessReply{
@@ -229,7 +232,7 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		defer safeDecRef(kwArgs)
 	}
 
-	flowGraphInstance := flowgraphClass.Call(python.PyTuple_New(0), kwArgs)
+	flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
 	if flowGraphInstance == nil {
 		return &pb.StartProcessReply{
 			Status: pb.StartProcessReply_PYTHON_RUN_ERROR,
