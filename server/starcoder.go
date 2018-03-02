@@ -19,9 +19,10 @@
 package server
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	pb "github.com/infostellarinc/starcoder/api"
-	"github.com/infostellarinc/starcoder/util"
 	"github.com/sbinet/go-python"
 	"golang.org/x/net/context"
 	"io/ioutil"
@@ -288,10 +289,8 @@ func (s *Starcoder) StartProcess(ctx context.Context, in *pb.StartProcessRequest
 		}, nil
 	}
 
-	var uniqueId string
-	for ok := true; ok; _, ok = s.flowGraphs[uniqueId] {
-		uniqueId = util.RandString(4)
-	}
+	hash := sha1.Sum([]byte(fmt.Sprintf("%v", flowGraphInstance.GetCPointer())))
+	uniqueId := base64.URLEncoding.EncodeToString(hash[:])
 
 	s.flowGraphs[uniqueId] = flowGraphInstance
 
