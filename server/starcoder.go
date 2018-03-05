@@ -124,6 +124,12 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	// Append module directory to sys.path
 	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
 	sysPath := python.PySys_GetObject("path")
+	if sysPath == nil {
+		return &pb.StartFlowgraphResponse{
+			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+			Error:  getExceptionString(),
+		}, nil
+	}
 	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
 	if moduleDir == nil {
 		return &pb.StartFlowgraphResponse{
@@ -159,6 +165,7 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 			Error:  getExceptionString(),
 		}, nil
 	}
+	defer module.DecRef()
 
 	// Find top_block subclass
 	// GRC compiled python scripts have the top block class name equal to the python filename.
