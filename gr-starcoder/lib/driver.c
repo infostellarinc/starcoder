@@ -29,26 +29,23 @@ extern volatile int event_thread_run;
  *
  * Returns the number of bytes unwritten or -1
  */
-int iq_packet_write(AR2300_HANDLE *ar2300, unsigned char *buffer, int length) {
+int iq_packet_write(AR2300_HANDLE *ar2300, const unsigned char *buffer, int length) {
   int left;
   ssize_t written;
 
   left = length;
-  while (left > 0) {
-    written = write(ar2300->outfd, buffer, left);
-    if (written <= 0) {
-      if (errno != 0) {
-        return -1;
-      } else {
-        return left;
-      }
-    }
-    if (left != written) {
+  written = write(ar2300->outfd, buffer, left);
+  if (written <= 0) {
+    if (errno != 0) {
+      return -1;
+    } else {
       return left;
     }
-    left -= written;
-    buffer += written;
   }
+
+  left -= written;
+  buffer += written;
+
   return left;
 }
 
@@ -89,8 +86,6 @@ void callback_libusb_iso_done(struct libusb_transfer *transfer) {
           }
         } else {
           /* some error occurred for this packet */
-          LOGGER(LOG_DEBUG, "packet %d status %d %d %d\n", idx, hdr->status,
-                 hdr->actual_length, hdr->length);
           ar2300->err_func(transfer, AR2300_ERR_ISO_PACKET);
         }
 

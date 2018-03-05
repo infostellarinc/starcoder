@@ -3,7 +3,6 @@
 /** @file */
 #ifndef AR2300_DRIVER_H
 #define AR2300_DRIVER_H
-#endif
 
 #define AR2300_USE_PTHREAD 1 /**< include threading code for event handler */
 #define AR2300_USE_SYSLOG 1  /**< output debug messages to syslog */
@@ -244,3 +243,5 @@ void ar2300_set_err_handler(AR2300_HANDLE *ar2300,
 
 /** transfer error for this iso packet */
 #define AR2300_ERR_ISO_PACKET (10)
+
+#endif

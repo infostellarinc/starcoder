@@ -2,9 +2,11 @@
 
 #define _GNU_SOURCE
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <libusb-1.0/libusb.h>
 #include "ar2300_driver.h"
@@ -363,4 +365,24 @@ void ar2300_set_fd(AR2300_HANDLE *ar2300, int fd) {
     return;
   }
   ar2300->outfd = fd;
+
+  // Get the current pipe size (this is just for debug info in the logs)
+  int currentSize = fcntl(fd, F_GETPIPE_SZ);
+  int maxPipeSize = 1048576;
+
+  // Determine max allowed pipe size and use it.
+  FILE *fp = fopen("/proc/sys/fs/pipe-max-size", "r");
+  if (fp == NULL) {
+    LOGGER(LOG_WARNING, "Couldn't open /proc/sys/fs/pipe-max-size");
+  } else {
+    char str[128];
+    if (fgets(str, 128, fp) != NULL) {
+      maxPipeSize = atoi(str);
+      LOGGER(LOG_INFO, "Max supported pipe size is %d\n", maxPipeSize);
+    }
+    fclose(fp);
+  }
+
+  int newSize = fcntl(fd, F_SETPIPE_SZ, maxPipeSize);
+  LOGGER(LOG_INFO, "Change pipe size from %d to %d\n", currentSize, newSize);
 }

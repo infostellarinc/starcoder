@@ -70,8 +70,6 @@ void ar2300_receiver::initialize() {
      throw std::runtime_error("ar2300_receiver::initialize");
   }
 
-  fcntl(read_pipe[PIPE_WRITE], F_SETFL, O_NONBLOCK);
-
   // Set the pipe for writing received data
   ar2300_set_fd(ar2300, read_pipe[PIPE_WRITE]);
 
