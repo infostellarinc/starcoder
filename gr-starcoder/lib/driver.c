@@ -89,7 +89,7 @@ void callback_libusb_iso_done(struct libusb_transfer *transfer) {
           }
         } else {
           /* some error occurred for this packet */
-          LOGGER(LOG_WARNING, "packet %d status %d %d %d\n", idx, hdr->status,
+          LOGGER(LOG_DEBUG, "packet %d status %d %d %d\n", idx, hdr->status,
                  hdr->actual_length, hdr->length);
           ar2300->err_func(transfer, AR2300_ERR_ISO_PACKET);
         }

@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include "ar2300_driver.h"
 
+#define FIRMWARE_PACKETS_LENGTH 277
+
+
 libusb_device_handle *open_device(libusb_context *ctx);
 
 /**
@@ -22,7 +25,7 @@ typedef struct {
   uint8_t data[32]; /**< download data */
 } firmware_packet;
 
-firmware_packet firmware[] = {
+firmware_packet firmware[FIRMWARE_PACKETS_LENGTH] = {
     {0xa0,
      0x7f92,
      0x0001,
@@ -2103,19 +2106,20 @@ libusb_device_handle *write_firmware(libusb_context *ctx,
   tv.tv_sec = 0;
   tv.tv_usec = 10000;
 
-  while (p->length) {
-    result = libusb_control_transfer(handle, 0x40, p->request, p->address, 0,
-                                     p->data, p->length, 5000);
+  for(int i = 0; i < FIRMWARE_PACKETS_LENGTH; i++) {
+    result = libusb_control_transfer(handle, 0x40, p[i].request, p[i].address, 0,
+                                     p[i].data, p[i].length, 5000);
     if (result < 0) {
+
       goto ERR;
     }
-    if (result != p->length) {
+    if (result != p[i].length) {
       result = 1;
       goto ERR;
     }
 
     result = 0;
-    if (p->request == 0xa0 && p->address == 0xe600 && p->data[0] == 0x00) {
+    if (p[i].request == 0xa0 && p[i].address == 0xe600 && p[i].data[0] == 0x00) {
       /* check if machine resets */
       /* machine was reset - reacquire handle */
       libusb_release_interface(handle, AR2300_IF_NO);
@@ -2146,7 +2150,6 @@ libusb_device_handle *write_firmware(libusb_context *ctx,
         goto ERR;
       }
     }
-    p++;
   }
 ERR:
   if (result != 0 && handle) {

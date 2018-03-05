@@ -83,8 +83,23 @@ namespace gr {
                               const int inSize,
                               gr_complex* out)
     {
+      int offset = 0;
+      if (!seenIValue) {
+        for (int i = 1; i < inSize; i += 2) {
+          if (in[i] & 0x1) {
+            offset = i - 1;
+            seenIValue = true;
+            break;
+          }
+        }
+      }
+
+      if (!seenIValue) {
+        return 0;
+      }
+
       int out_index = 0;
-      for (int i = 0; i < inSize; ++i) {
+      for (int i = offset; i < inSize; ++i) {
         sample[sample_index++] = in[i];
         if (sample_index == 8) {
           sample_index = 0;

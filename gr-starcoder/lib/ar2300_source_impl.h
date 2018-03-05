@@ -37,6 +37,7 @@ namespace gr {
 
       char  sample[8];
       int   sample_index = 0;
+      bool  seenIValue = false;
 
       int encode_ar2300(char* in, int size, gr_complex* out);
       gr_complex parse_sample() const;
