@@ -87,7 +87,14 @@ var serveCmd = &cobra.Command{
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
-		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir)
+
+		err = python.Initialize()
+		if err != nil {
+			log.Fatalf("failed to initialize python: %v", err)
+		}
+		defer python.Finalize()
+		threadState := python.PyEval_SaveThread()
+		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, threadState)
 
 		// Handle OS signals
 		sigs := make(chan os.Signal, 1)
@@ -112,12 +119,6 @@ var serveCmd = &cobra.Command{
 		}(s)
 
 		pb.RegisterProcessManagerServer(s, starcoder)
-
-		err = python.Initialize()
-		if err != nil {
-			log.Fatalf("failed to initialize python: %v", err)
-		}
-		defer python.Finalize()
 
 		// Register reflection service on gRPC server.
 		reflection.Register(s)

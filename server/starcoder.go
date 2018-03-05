@@ -37,13 +37,15 @@ type Starcoder struct {
 	flowgraphDir  string
 	temporaryDirs []string
 	flowGraphs    map[string]*python.PyObject
+	threadState   *python.PyThreadState
 }
 
-func NewStarcoderServer(flowgraphDir string) *Starcoder {
+func NewStarcoderServer(flowgraphDir string, threadState *python.PyThreadState) *Starcoder {
 	return &Starcoder{
 		flowgraphDir:  flowgraphDir,
 		temporaryDirs: make([]string, 0),
 		flowGraphs:    make(map[string]*python.PyObject),
+		threadState:   threadState,
 	}
 }
 
@@ -120,6 +122,11 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 		}, nil
 	}
 	// TODO: Have some way to monitor the running process
+
+	python.PyEval_RestoreThread(s.threadState)
+	defer func() {
+		s.threadState = python.PyEval_SaveThread()
+	}()
 
 	// Append module directory to sys.path
 	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
@@ -316,6 +323,11 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 		}, nil
 	}
 
+	python.PyEval_RestoreThread(s.threadState)
+	defer func() {
+		s.threadState = python.PyEval_SaveThread()
+	}()
+
 	flowGraph := s.flowGraphs[in.GetProcessId()]
 
 	// TODO: Check if the flow graph has already exited. Does it matter?
@@ -347,6 +359,7 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 }
 
 func (s *Starcoder) Close() error {
+	python.PyEval_RestoreThread(s.threadState)
 	for _, flowGraph := range s.flowGraphs {
 		stopCallReturn := flowGraph.CallMethod("stop")
 		if stopCallReturn == nil {
