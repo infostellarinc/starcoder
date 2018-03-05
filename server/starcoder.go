@@ -130,7 +130,6 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 			Error:  getExceptionString(),
 		}, nil
 	}
-	defer sysPath.DecRef()
 	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
 	if moduleDir == nil {
 		return &pb.StartFlowgraphResponse{
