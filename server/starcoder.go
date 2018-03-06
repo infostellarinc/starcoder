@@ -30,6 +30,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -37,13 +38,20 @@ type Starcoder struct {
 	flowgraphDir  string
 	temporaryDirs []string
 	flowGraphs    map[string]*python.PyObject
+	threadState   *python.PyThreadState
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
+	err := python.Initialize()
+	if err != nil {
+		log.Fatalf("failed to initialize python: %v", err)
+	}
+	threadState := python.PyEval_SaveThread()
 	return &Starcoder{
 		flowgraphDir:  flowgraphDir,
 		temporaryDirs: make([]string, 0),
 		flowGraphs:    make(map[string]*python.PyObject),
+		threadState:   threadState,
 	}
 }
 
@@ -120,6 +128,13 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 		}, nil
 	}
 	// TODO: Have some way to monitor the running process
+
+	runtime.LockOSThread()
+	python.PyEval_RestoreThread(s.threadState)
+	defer func() {
+		s.threadState = python.PyEval_SaveThread()
+		runtime.UnlockOSThread()
+	}()
 
 	// Append module directory to sys.path
 	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
@@ -316,6 +331,13 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 		}, nil
 	}
 
+	runtime.LockOSThread()
+	python.PyEval_RestoreThread(s.threadState)
+	defer func() {
+		s.threadState = python.PyEval_SaveThread()
+		runtime.UnlockOSThread()
+	}()
+
 	flowGraph := s.flowGraphs[in.GetProcessId()]
 
 	// TODO: Check if the flow graph has already exited. Does it matter?
@@ -347,6 +369,12 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 }
 
 func (s *Starcoder) Close() error {
+	runtime.LockOSThread()
+	python.PyEval_RestoreThread(s.threadState)
+	defer func() {
+		python.Finalize()
+		runtime.UnlockOSThread()
+	}()
 	for _, flowGraph := range s.flowGraphs {
 		stopCallReturn := flowGraph.CallMethod("stop")
 		if stopCallReturn == nil {
