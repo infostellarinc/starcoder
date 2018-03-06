@@ -22,7 +22,6 @@ import (
 	"github.com/GeertJohan/go.rice"
 	pb "github.com/infostellarinc/starcoder/api"
 	"github.com/infostellarinc/starcoder/server"
-	"github.com/sbinet/go-python"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -112,12 +111,6 @@ var serveCmd = &cobra.Command{
 		}(s)
 
 		pb.RegisterProcessManagerServer(s, starcoder)
-
-		err = python.Initialize()
-		if err != nil {
-			log.Fatalf("failed to initialize python: %v", err)
-		}
-		defer python.Finalize()
 
 		// Register reflection service on gRPC server.
 		reflection.Register(s)
