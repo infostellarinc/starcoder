@@ -62,7 +62,7 @@ namespace gr {
         gr_vector_void_star &output_items)
     {
       gr_complex *out = (gr_complex *) output_items[0];
-      int buf_size = noutput_items;
+      int buf_size = noutput_items * 8;
       char* buf = new char[buf_size];
 
       int ret = receiver->read(buf, buf_size, timeout_ms);
@@ -98,8 +98,18 @@ namespace gr {
         sample[sample_index++] = in[i];
         if (sample_index == 8) {
           sample_index = 0;
+          if(!validate_sample(sample)) {
+            GR_LOG_WARN(d_logger, boost::format("Sample may be corrupted"));
+            num_of_consecutive_warns++;
+            if(num_of_consecutive_warns > CONSECUTIVE_WARNING_LIMIT) {
+              GR_LOG_WARN(d_logger, boost::format("Exceeded the limit of consecutive warnings"));
+              throw std::runtime_error("ar2300_source_impl::encode_ar2300()");
+            }
+            continue;
+          }
           gr_complex value = parse_sample(sample);
           out[out_index++] = value;
+          num_of_consecutive_warns = 0;
         }
       }
 
@@ -116,6 +126,15 @@ namespace gr {
                                   (in[6] << 9 & 0x1FE00) | (in[7] << 1 & 0x1FC)) >>
                                  2;
       return gr_complex(real, imag);
+    }
+
+    bool ar2300_source_impl::validate_sample(const char (&in)[8]) const {
+       int i_crc = (in[0] & 0x00) << 24 | (in[1] & 0x01)<< 16 | (in[2] & 0x00) << 8 | (in[3] & 0x01);
+       int q_crc = (in[4] & 0x00) << 24 | (in[5] & 0x01)<< 16 | (in[6] & 0x00) << 8 | (in[7] & 0x01);
+       if((i_crc == 0x10000) && (q_crc == 0)) {
+        return true;
+       }
+       return false;
     }
 
   } /* namespace starcoder */

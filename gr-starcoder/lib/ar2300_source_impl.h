@@ -24,6 +24,8 @@
 #include <starcoder/ar2300_source.h>
 #include "ar2300_receiver.h"
 
+#define CONSECUTIVE_WARNING_LIMIT 10
+
 namespace gr {
   namespace starcoder {
 
@@ -32,9 +34,11 @@ namespace gr {
      private:
       std::unique_ptr<ar2300_receiver> receiver;
       int   timeout_ms;
+      int   num_of_warns;
 
       int encode_ar2300(const char* in, int size, gr_complex* out);
       gr_complex parse_sample(const char (&in)[8]) const;
+      bool validate_sample(const char (&in)[8]) const;
 
      public:
       ar2300_source_impl();
