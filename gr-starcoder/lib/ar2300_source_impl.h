@@ -35,12 +35,8 @@ namespace gr {
       int   buf_size;
       int   timeout_ms;
 
-      char  sample[8];
-      int   sample_index = 0;
-      bool  seenIValue = false;
-
-      int encode_ar2300(char* in, int size, gr_complex* out);
-      gr_complex parse_sample() const;
+      int encode_ar2300(const char* in, int size, gr_complex* out);
+      gr_complex parse_sample(const char (&in)[8]) const;
 
      public:
       ar2300_source_impl();
@@ -49,11 +45,10 @@ namespace gr {
       // Where all the action really happens
       int work(int noutput_items,
          gr_vector_const_void_star &input_items,
-         gr_vector_void_star &output_items);
+         gr_vector_void_star &output_items) override;
     };
 
   } // namespace starcoder
 } // namespace gr
 
 #endif /* INCLUDED_STARCODER_AR2300_SOURCE_IMPL_H */
-

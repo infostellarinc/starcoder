@@ -206,7 +206,7 @@ void *ar2300_libusb_event_thread(void *ctx) __attribute__((weak));
  * set the transfer error callback
  *
  * This function is called with an error code if the
- * USB bulk or isochronous transfer fails.
+ * USB bulk or isochronous transfer fails.pi
  *
  * @param ar2300  handle to the ar2300 device
  * @param f       the function to be called on error

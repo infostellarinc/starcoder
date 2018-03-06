@@ -16,7 +16,7 @@ class ar2300_receiver {
   ar2300_receiver();
   ~ar2300_receiver();
 
-  void initialize();
+  void start();
   void stop();
   bool check();
   int read(char* buf, int size, int timeout);

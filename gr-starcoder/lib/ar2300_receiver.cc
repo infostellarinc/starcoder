@@ -46,7 +46,7 @@ ar2300_receiver::~ar2300_receiver() { stop(); }
 /*
  * Initializer
  */
-void ar2300_receiver::initialize() {
+void ar2300_receiver::start() {
   err_code = ERROR_CODE_NA;
   init_flag = false;
 
@@ -93,7 +93,7 @@ void ar2300_receiver::initialize() {
  * Stop receiving
  */
 void ar2300_receiver::stop() {
-  if (init_flag) {
+  if (!init_flag) {
     return;
   }
 
@@ -119,6 +119,8 @@ void ar2300_receiver::stop() {
 
 /*
  * Read IQ data from device
+ * @return: 0  - Timeout
+ *          >0 - Number of bytes read
  */
 int ar2300_receiver::read(char* buf, int size, int timeout) {
   if (err_code != ERROR_CODE_NA) {

@@ -47,7 +47,7 @@ namespace gr {
       buf_size = 10240;
       timeout_ms = 1000;
       buf = new char[buf_size];
-      receiver->initialize();
+      receiver->start();
     }
 
     /*
@@ -56,9 +56,7 @@ namespace gr {
     ar2300_source_impl::~ar2300_source_impl()
     {
       receiver->stop();
-      if (buf != NULL) {
-         delete[](buf);
-      }
+      delete[](buf);
     }
 
     int
@@ -69,7 +67,7 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
       int ret = receiver->read(buf, buf_size, timeout_ms);
       if (ret == 0) {
-        return noutput_items;
+        return 0;
       }
 
       int outSize = encode_ar2300(buf, ret, out);
@@ -79,22 +77,19 @@ namespace gr {
     }
 
     int
-    ar2300_source_impl::encode_ar2300(char* in,
+    ar2300_source_impl::encode_ar2300(const char* in,
                               const int inSize,
                               gr_complex* out)
     {
-      int offset = 0;
-      if (!seenIValue) {
-        for (int i = 1; i < inSize; i += 2) {
-          if (in[i] & 0x1) {
-            offset = i - 1;
-            seenIValue = true;
-            break;
-          }
-        }
-      }
+      char  sample[8];
+      int   sample_index = 0;
 
-      if (!seenIValue) {
+      int offset = 0;
+      for (int i = 1; i < inSize; i += 2) {
+        if (in[i] & 0x1) {
+          offset = i - 1;
+          break;
+        }
         return 0;
       }
 
@@ -103,7 +98,7 @@ namespace gr {
         sample[sample_index++] = in[i];
         if (sample_index == 8) {
           sample_index = 0;
-          gr_complex value = parse_sample();
+          gr_complex value = parse_sample(sample);
           out[out_index++] = value;
         }
       }
@@ -112,17 +107,16 @@ namespace gr {
     }
 
     gr_complex
-    ar2300_source_impl::parse_sample() const
+    ar2300_source_impl::parse_sample(const char (&in)[8]) const
     {
-      float real = ((sample[0] << 24) | (sample[1] << 16 & 16646144) |
-                                  (sample[2] << 9 & 130560) | (sample[3] << 1 & 508)) >>
+      float real = ((in[0] << 24) | (in[1] << 16 & 0xFE0000) |
+                                  (in[2] << 9 & 0x1FE00) | (in[3] << 1 & 0x1FC)) >>
                                  2;
-      float imag = ((sample[4] << 24) | (sample[5] << 16 & 16646144) |
-                                  (sample[6] << 9 & 130560) | (sample[7] << 1 & 508)) >>
+      float imag = ((in[4] << 24) | (in[5] << 16 & 0xFE0000) |
+                                  (in[6] << 9 & 0x1FE00) | (in[7] << 1 & 0x1FC)) >>
                                  2;
       return gr_complex(real, imag);
     }
 
   } /* namespace starcoder */
 } /* namespace gr */
-
