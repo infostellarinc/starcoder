@@ -44,9 +44,7 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
         receiver(new ar2300_receiver())
     {
-      buf_size = 10240;
       timeout_ms = 1000;
-      buf = new char[buf_size];
       receiver->start();
     }
 
@@ -56,7 +54,6 @@ namespace gr {
     ar2300_source_impl::~ar2300_source_impl()
     {
       receiver->stop();
-      delete[](buf);
     }
 
     int
@@ -65,6 +62,9 @@ namespace gr {
         gr_vector_void_star &output_items)
     {
       gr_complex *out = (gr_complex *) output_items[0];
+      int buf_size = noutput_items;
+      char* buf = new char[buf_size];
+
       int ret = receiver->read(buf, buf_size, timeout_ms);
       if (ret == 0) {
         return 0;

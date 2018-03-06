@@ -31,8 +31,6 @@ namespace gr {
     {
      private:
       std::unique_ptr<ar2300_receiver> receiver;
-      char* buf;
-      int   buf_size;
       int   timeout_ms;
 
       int encode_ar2300(const char* in, int size, gr_complex* out);
