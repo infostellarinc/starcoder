@@ -372,8 +372,8 @@ func (s *Starcoder) Close() error {
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
 	defer func() {
-		runtime.UnlockOSThread()
 		python.Finalize()
+		runtime.UnlockOSThread()
 	}()
 	for _, flowGraph := range s.flowGraphs {
 		stopCallReturn := flowGraph.CallMethod("stop")
