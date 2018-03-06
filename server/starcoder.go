@@ -21,6 +21,7 @@ package server
 import (
 	"crypto/sha1"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	pb "github.com/infostellarinc/starcoder/api"
 	"github.com/sbinet/go-python"
@@ -37,15 +38,15 @@ type Starcoder struct {
 	flowgraphDir  string
 	temporaryDirs []string
 	flowGraphs    map[string]*python.PyObject
-	threadState   *python.PyThreadState
+	pythonRuntime *PythonRuntime
 }
 
-func NewStarcoderServer(flowgraphDir string, threadState *python.PyThreadState) *Starcoder {
+func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	return &Starcoder{
 		flowgraphDir:  flowgraphDir,
 		temporaryDirs: make([]string, 0),
 		flowGraphs:    make(map[string]*python.PyObject),
-		threadState:   threadState,
+		pythonRuntime: NewPythonRuntime(),
 	}
 }
 
@@ -123,191 +124,144 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	}
 	// TODO: Have some way to monitor the running process
 
-	python.PyEval_RestoreThread(s.threadState)
-	defer func() {
-		s.threadState = python.PyEval_SaveThread()
-	}()
+	var uniqueId string
 
-	// Append module directory to sys.path
-	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
-	sysPath := python.PySys_GetObject("path")
-	if sysPath == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
-	if moduleDir == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer moduleDir.DecRef()
-	err := python.PyList_Append(sysPath, moduleDir)
+	err := s.pythonRuntime.Do(func() error {
+		// Append module directory to sys.path
+		log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
+		sysPath := python.PySys_GetObject("path")
+		if sysPath == nil {
+			return errors.New(getExceptionString())
+		}
+		moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
+		if moduleDir == nil {
+			return errors.New(getExceptionString())
+		}
+		defer moduleDir.DecRef()
+		err := python.PyList_Append(sysPath, moduleDir)
+		if err != nil {
+			return errors.New(getExceptionString())
+		}
+
+		emptyTuple := python.PyTuple_New(0)
+		if emptyTuple == nil {
+			return errors.New(getExceptionString())
+		}
+		defer emptyTuple.DecRef()
+
+		// Import module
+		moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
+		log.Printf("Importing %v", moduleName)
+		module := python.PyImport_ImportModule(moduleName)
+		if module == nil {
+			return errors.New(getExceptionString())
+		}
+		defer module.DecRef()
+
+		// Find top_block subclass
+		// GRC compiled python scripts have the top block class name equal to the python filename.
+		flowGraphClassName := moduleName
+		flowgraphClass := module.GetAttrString(flowGraphClassName)
+		if flowgraphClass == nil {
+			return errors.New(getExceptionString())
+		}
+		defer flowgraphClass.DecRef()
+		gnuRadioModule := python.PyImport_ImportModule("gnuradio")
+		if gnuRadioModule == nil {
+			return errors.New(getExceptionString())
+		}
+		defer gnuRadioModule.DecRef()
+		grModule := gnuRadioModule.GetAttrString("gr")
+		if grModule == nil {
+			return errors.New(getExceptionString())
+		}
+		defer grModule.DecRef()
+		topBlock := grModule.GetAttrString("top_block")
+		if topBlock == nil {
+			return errors.New(getExceptionString())
+		}
+		defer topBlock.DecRef()
+
+		// Verify top_block subclass
+		isSubclass := flowgraphClass.IsSubclass(topBlock)
+		if isSubclass == 0 {
+			return errors.New(fmt.Sprintf(
+				"Top block class %v is not a "+
+					"subclass of gnuradio.gr.top_block", flowGraphClassName))
+		} else if isSubclass == -1 {
+			return errors.New(getExceptionString())
+		}
+
+		kwArgs := python.PyDict_New()
+		if kwArgs == nil {
+			return errors.New(getExceptionString())
+		}
+		defer kwArgs.DecRef()
+
+		for _, param := range in.GetParameters() {
+			err := func() error {
+				pyKey := python.PyString_FromString(param.GetKey())
+				if pyKey == nil {
+					return errors.New(getExceptionString())
+				}
+				defer pyKey.DecRef()
+				var convertedValue *python.PyObject
+				switch v := param.GetValue().GetVal().(type) {
+				case *pb.Value_StringValue:
+					convertedValue = python.PyString_FromString(v.StringValue)
+				case *pb.Value_IntegerValue:
+					convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
+				case *pb.Value_LongValue:
+					convertedValue = python.PyLong_FromLongLong(v.LongValue)
+				case *pb.Value_FloatValue:
+					convertedValue = python.PyFloat_FromDouble(v.FloatValue)
+				case *pb.Value_ComplexValue:
+					convertedValue = python.PyComplex_FromDoubles(
+						v.ComplexValue.GetRealValue(),
+						v.ComplexValue.GetImaginaryValue())
+				default:
+					return errors.New("Unsupported value type")
+				}
+				if convertedValue == nil {
+					return errors.New(getExceptionString())
+				}
+				defer convertedValue.DecRef()
+				err = python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
+				if err != nil {
+					return err
+				}
+				return nil
+			}()
+			if err != nil {
+				return err
+			}
+		}
+
+		flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
+		if flowGraphInstance == nil {
+			return errors.New(getExceptionString())
+		}
+
+		callReturn := flowGraphInstance.CallMethod("start")
+		if callReturn == nil {
+			return errors.New(getExceptionString())
+		}
+		defer callReturn.DecRef()
+
+		hash := sha1.Sum([]byte(fmt.Sprintf("%v", flowGraphInstance.GetCPointer())))
+		uniqueId = base64.URLEncoding.EncodeToString(hash[:])
+
+		s.flowGraphs[uniqueId] = flowGraphInstance
+
+		return nil
+	})
+
 	if err != nil {
 		return &pb.StartFlowgraphResponse{
 			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
 			Error:  err.Error(),
 		}, nil
 	}
-
-	emptyTuple := python.PyTuple_New(0)
-	if emptyTuple == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer emptyTuple.DecRef()
-
-	// Import module
-	moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
-	log.Printf("Importing %v", moduleName)
-	module := python.PyImport_ImportModule(moduleName)
-	if module == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer module.DecRef()
-
-	// Find top_block subclass
-	// GRC compiled python scripts have the top block class name equal to the python filename.
-	flowGraphClassName := moduleName
-	flowgraphClass := module.GetAttrString(flowGraphClassName)
-	if flowgraphClass == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer flowgraphClass.DecRef()
-	gnuRadioModule := python.PyImport_ImportModule("gnuradio")
-	if gnuRadioModule == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer gnuRadioModule.DecRef()
-	grModule := gnuRadioModule.GetAttrString("gr")
-	if grModule == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer grModule.DecRef()
-	topBlock := grModule.GetAttrString("top_block")
-	if topBlock == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer topBlock.DecRef()
-
-	// Verify top_block subclass
-	isSubclass := flowgraphClass.IsSubclass(topBlock)
-	if isSubclass == 0 {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error: fmt.Sprintf(
-				"Top block class %v is not a "+
-					"subclass of gnuradio.gr.top_block", flowGraphClassName),
-		}, nil
-	} else if isSubclass == -1 {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-
-	kwArgs := python.PyDict_New()
-	if kwArgs == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer kwArgs.DecRef()
-
-	for _, param := range in.GetParameters() {
-		response := func() *pb.StartFlowgraphResponse {
-			pyKey := python.PyString_FromString(param.GetKey())
-			if pyKey == nil {
-				return &pb.StartFlowgraphResponse{
-					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-					Error:  getExceptionString(),
-				}
-			}
-			defer pyKey.DecRef()
-			var convertedValue *python.PyObject
-			switch v := param.GetValue().GetVal().(type) {
-			case *pb.Value_StringValue:
-				convertedValue = python.PyString_FromString(v.StringValue)
-			case *pb.Value_IntegerValue:
-				convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
-			case *pb.Value_LongValue:
-				convertedValue = python.PyLong_FromLongLong(v.LongValue)
-			case *pb.Value_FloatValue:
-				convertedValue = python.PyFloat_FromDouble(v.FloatValue)
-			case *pb.Value_ComplexValue:
-				convertedValue = python.PyComplex_FromDoubles(
-					v.ComplexValue.GetRealValue(),
-					v.ComplexValue.GetImaginaryValue())
-			default:
-				return &pb.StartFlowgraphResponse{
-					Status: pb.StartFlowgraphResponse_UNKNOWN_ERROR,
-					Error:  "Unsupported value type",
-				}
-			}
-			if convertedValue == nil {
-				return &pb.StartFlowgraphResponse{
-					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-					Error:  getExceptionString(),
-				}
-			}
-			defer convertedValue.DecRef()
-			err = python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
-			if err != nil {
-				return &pb.StartFlowgraphResponse{
-					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-					Error:  err.Error(),
-				}
-			}
-			return nil
-		}()
-		if response != nil {
-			return response, nil
-		}
-	}
-
-	flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
-	if flowGraphInstance == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-
-	callReturn := flowGraphInstance.CallMethod("start")
-	if callReturn == nil {
-		return &pb.StartFlowgraphResponse{
-			Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer callReturn.DecRef()
-
-	hash := sha1.Sum([]byte(fmt.Sprintf("%v", flowGraphInstance.GetCPointer())))
-	uniqueId := base64.URLEncoding.EncodeToString(hash[:])
-
-	s.flowGraphs[uniqueId] = flowGraphInstance
-
 	return &pb.StartFlowgraphResponse{
 		ProcessId: uniqueId,
 		Status:    pb.StartFlowgraphResponse_SUCCESS,
@@ -323,63 +277,65 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 		}, nil
 	}
 
-	python.PyEval_RestoreThread(s.threadState)
-	defer func() {
-		s.threadState = python.PyEval_SaveThread()
-	}()
-
 	flowGraph := s.flowGraphs[in.GetProcessId()]
 
-	// TODO: Check if the flow graph has already exited. Does it matter?
+	err := s.pythonRuntime.Do(func() error {
+		// TODO: Check if the flow graph has already exited. Does it matter?
 
-	stopCallReturn := flowGraph.CallMethod("stop")
-	if stopCallReturn == nil {
+		stopCallReturn := flowGraph.CallMethod("stop")
+		if stopCallReturn == nil {
+			return errors.New(getExceptionString())
+		}
+		defer stopCallReturn.DecRef()
+		// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
+		waitCallReturn := flowGraph.CallMethod("wait")
+		if waitCallReturn == nil {
+			return errors.New(getExceptionString())
+		}
+		defer waitCallReturn.DecRef()
+		python.PyErr_Print()
+		flowGraph.DecRef()
+		delete(s.flowGraphs, in.GetProcessId())
+
+		return nil
+	})
+
+	if err != nil {
 		return &pb.EndFlowgraphResponse{
 			Status: pb.EndFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
+			Error:  err.Error(),
 		}, nil
 	}
-	defer stopCallReturn.DecRef()
-	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
-	waitCallReturn := flowGraph.CallMethod("wait")
-	if waitCallReturn == nil {
-		return &pb.EndFlowgraphResponse{
-			Status: pb.EndFlowgraphResponse_PYTHON_RUN_ERROR,
-			Error:  getExceptionString(),
-		}, nil
-	}
-	defer waitCallReturn.DecRef()
-	python.PyErr_Print()
-	flowGraph.DecRef()
-	delete(s.flowGraphs, in.GetProcessId())
-
 	return &pb.EndFlowgraphResponse{
 		Status: pb.EndFlowgraphResponse_SUCCESS,
 	}, nil
 }
 
 func (s *Starcoder) Close() error {
-	python.PyEval_RestoreThread(s.threadState)
-	for _, flowGraph := range s.flowGraphs {
-		stopCallReturn := flowGraph.CallMethod("stop")
-		if stopCallReturn == nil {
-			log.Println(getExceptionString())
-		} else {
-			stopCallReturn.DecRef()
+	s.pythonRuntime.Do(func() error {
+		for _, flowGraph := range s.flowGraphs {
+			stopCallReturn := flowGraph.CallMethod("stop")
+			if stopCallReturn == nil {
+				log.Println(getExceptionString())
+			} else {
+				stopCallReturn.DecRef()
+			}
+			// TODO: Is it possible "stop" won't work? Should we timeout wait?
+			waitCallReturn := flowGraph.CallMethod("wait")
+			if waitCallReturn == nil {
+				log.Println(getExceptionString())
+			} else {
+				waitCallReturn.DecRef()
+			}
+			python.PyErr_Print()
+			flowGraph.DecRef()
 		}
-		// TODO: Is it possible "stop" won't work? Should we timeout wait?
-		waitCallReturn := flowGraph.CallMethod("wait")
-		if waitCallReturn == nil {
-			log.Println(getExceptionString())
-		} else {
-			waitCallReturn.DecRef()
-		}
-		python.PyErr_Print()
-		flowGraph.DecRef()
-	}
+		return nil
+	})
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)
 	}
+	s.pythonRuntime.Close()
 	return nil
 }
 
