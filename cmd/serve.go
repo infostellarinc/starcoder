@@ -22,7 +22,6 @@ import (
 	"github.com/GeertJohan/go.rice"
 	pb "github.com/infostellarinc/starcoder/api"
 	"github.com/infostellarinc/starcoder/server"
-	"github.com/sbinet/go-python"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -87,14 +86,7 @@ var serveCmd = &cobra.Command{
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
-
-		err = python.Initialize()
-		if err != nil {
-			log.Fatalf("failed to initialize python: %v", err)
-		}
-		defer python.Finalize()
-		threadState := python.PyEval_SaveThread()
-		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, threadState)
+		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir)
 
 		// Handle OS signals
 		sigs := make(chan os.Signal, 1)

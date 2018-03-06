@@ -41,7 +41,12 @@ type Starcoder struct {
 	threadState   *python.PyThreadState
 }
 
-func NewStarcoderServer(flowgraphDir string, threadState *python.PyThreadState) *Starcoder {
+func NewStarcoderServer(flowgraphDir string) *Starcoder {
+	err := python.Initialize()
+	if err != nil {
+		log.Fatalf("failed to initialize python: %v", err)
+	}
+	threadState := python.PyEval_SaveThread()
 	return &Starcoder{
 		flowgraphDir:  flowgraphDir,
 		temporaryDirs: make([]string, 0),
@@ -366,7 +371,10 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 func (s *Starcoder) Close() error {
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
-	defer runtime.UnlockOSThread()
+	defer func() {
+		runtime.UnlockOSThread()
+		python.Finalize()
+	}()
 	for _, flowGraph := range s.flowGraphs {
 		stopCallReturn := flowGraph.CallMethod("stop")
 		if stopCallReturn == nil {
