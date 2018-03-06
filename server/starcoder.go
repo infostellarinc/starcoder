@@ -30,6 +30,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -123,6 +124,8 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	}
 	// TODO: Have some way to monitor the running process
 
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
 	defer func() {
 		s.threadState = python.PyEval_SaveThread()
@@ -323,6 +326,8 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 		}, nil
 	}
 
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
 	defer func() {
 		s.threadState = python.PyEval_SaveThread()
@@ -359,6 +364,7 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 }
 
 func (s *Starcoder) Close() error {
+	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
 	for _, flowGraph := range s.flowGraphs {
 		stopCallReturn := flowGraph.CallMethod("stop")
