@@ -22,5 +22,5 @@
 ########################################################################
 install(FILES
     api.h
-    DESTINATION include/grpc
+    msg_sink.h DESTINATION include/grpc
 )

@@ -26,6 +26,7 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND grpc_sources
+    msg_sink_impl.cc
 )
 
 set(grpc_sources "${grpc_sources}" PARENT_SCOPE)
