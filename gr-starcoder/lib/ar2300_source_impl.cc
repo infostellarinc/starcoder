@@ -57,21 +57,22 @@ namespace gr {
     }
 
     int
-    ar2300_source_impl::work(int noutput_items,
+    ar2300_source_impl::work(int n_output_items,
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)
     {
       gr_complex *out = (gr_complex *) output_items[0];
-      int buf_size = noutput_items * 8;
+      int buf_size = n_output_items * 8;
       char* buf = new char[buf_size];
 
       int ret = receiver->read(buf, buf_size, timeout_ms);
-      if (ret == 0) {
+      if (ret < 8) {
         return 0;
       }
 
       int outSize = encode_ar2300(buf, ret, out);
 
+      delete[] buf;
       // Tell runtime system how many output items we produced.
       return outSize;
     }
@@ -81,9 +82,6 @@ namespace gr {
                               const int inSize,
                               gr_complex* out)
     {
-      char  sample[8];
-      int   sample_index = 0;
-
       int offset = 0;
       for (int i = 1; i < inSize; i += 2) {
         if (in[i] & 0x1) {
@@ -93,7 +91,10 @@ namespace gr {
         return 0;
       }
 
-      int out_index = 0;
+      char sample[8];
+      int  sample_index = 0;
+      int  out_index = 0;
+
       for (int i = offset; i < inSize; ++i) {
         sample[sample_index++] = in[i];
         if (sample_index == 8) {
@@ -107,8 +108,8 @@ namespace gr {
             }
             continue;
           }
-          gr_complex value = parse_sample(sample);
-          out[out_index++] = value;
+
+          out[out_index++] = parse_sample(sample);
           num_of_consecutive_warns = 0;
         }
       }

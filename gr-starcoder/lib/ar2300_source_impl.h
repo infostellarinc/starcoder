@@ -34,7 +34,7 @@ namespace gr {
      private:
       std::unique_ptr<ar2300_receiver> receiver;
       int   timeout_ms;
-      int   num_of_warns;
+      int   num_of_consecutive_warns = 0;
 
       int encode_ar2300(const char* in, int size, gr_complex* out);
       gr_complex parse_sample(const char (&in)[8]) const;
@@ -45,7 +45,7 @@ namespace gr {
       ~ar2300_source_impl();
 
       // Where all the action really happens
-      int work(int noutput_items,
+      int work(int n_output_items,
          gr_vector_const_void_star &input_items,
          gr_vector_void_star &output_items) override;
     };
