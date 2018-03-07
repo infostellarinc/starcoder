@@ -1,0 +1,11 @@
+This is the grgrpc-write-a-block package meant as a guide to building
+out-of-tree packages. To use the grgrpc blocks, the Python namespaces
+is in 'grgrpc', which is imported as:
+
+    import grgrpc
+
+See the Doxygen documentation for details about the blocks available
+in this package. A quick listing of the details can be found in Python
+after importing by using:
+
+    help(grgrpc)
