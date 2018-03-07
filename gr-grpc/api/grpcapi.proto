@@ -17,7 +17,7 @@
  */
 syntax = "proto3";
 
-package grgrpc;
+package grpcapi;
 
 // The PMT Message sink
 service MessageSink {
