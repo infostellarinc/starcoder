@@ -21,7 +21,11 @@
 #ifndef INCLUDED_GRGRPC_MSG_SINK_IMPL_H
 #define INCLUDED_GRGRPC_MSG_SINK_IMPL_H
 
+#include <grpc/grpc.h>
 #include <grgrpc/msg_sink.h>
+#include "grpcapi.grpc.pb.h"
+
+using grpcapi::MessageSink;
 
 namespace gr {
   namespace grgrpc {
@@ -29,7 +33,7 @@ namespace gr {
     class msg_sink_impl : public msg_sink
     {
      private:
-      // Nothing to declare in this block.
+       std::unique_ptr<MessageSink::Stub> stub_;
 
      public:
       msg_sink_impl(char *address);

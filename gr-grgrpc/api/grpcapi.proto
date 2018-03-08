@@ -28,7 +28,7 @@ service MessageSink {
 // The message containing a serialized PMT
 message SendMessageRequest {
   // Serialized arbitrary PMT message
-  repeated bytes bytes = 1;
+  bytes bytes = 1;
 }
 
 // Response to a SendMessageRequest

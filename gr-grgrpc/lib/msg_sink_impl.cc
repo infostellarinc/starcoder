@@ -23,7 +23,20 @@
 #endif
 
 #include <gnuradio/io_signature.h>
+#include <grpc/grpc.h>
+#include <grpc++/channel.h>
+#include <grpc++/client_context.h>
+#include <grpc++/create_channel.h>
+#include <grpc++/security/credentials.h>
 #include "msg_sink_impl.h"
+#include "grpcapi.pb.h"
+#include "grpcapi.grpc.pb.h"
+
+using grpc::ClientContext;
+using grpc::Status;
+using grpcapi::MessageSink;
+using grpcapi::SendMessageRequest;
+using grpcapi::SendMessageResponse;
 
 namespace gr {
   namespace grgrpc {
@@ -41,9 +54,11 @@ namespace gr {
     msg_sink_impl::msg_sink_impl(char *address)
       : gr::block("msg_sink",
               gr::io_signature::make(0, 0, 0),
-              gr::io_signature::make(0, 0, 0))
+              gr::io_signature::make(0, 0, 0)),
+        // TODO: Add options for SSL
+        stub_(MessageSink::NewStub(
+            CreateChannel(address, grpc::InsecureChannelCredentials())))
     {
-      // TODO: Open gRPC connection
       message_port_register_in(pmt::mp("in"));
       set_msg_handler( pmt::mp("in"),
         boost::bind(&msg_sink_impl::handler, this, _1));
@@ -54,7 +69,7 @@ namespace gr {
      */
     msg_sink_impl::~msg_sink_impl()
     {
-      // TODO: Close gRPC connection
+      stub_.release();
     }
 
     void msg_sink_impl::handler(pmt::pmt_t msg)
@@ -63,7 +78,23 @@ namespace gr {
       // TODO: Convert PMT to a gRPC native data structure.
       // Use built-in PMT serialization for now.
       pmt::serialize(msg, sb);
-      // TODO: Send it
+
+      SendMessageRequest req;
+      SendMessageResponse *resp;
+
+      req.set_bytes(sb.str());
+
+      ClientContext context;
+      Status status = stub_->SendMessage(&context, req, resp);
+      if (!status.ok()) {
+        std::cout << "SendMessage rpc failed." << std::endl;
+        return;
+      }
+      if (resp->status() != grpcapi::SendMessageResponse_Status_SUCCESS) {
+        std::cout << "SendMessage rpc returned unsuccessful status" << std::endl;
+      } else {
+        std::cout << "SendMessage rpc returned successfully" << std::endl;
+      }
     }
 
   } /* namespace grgrpc */
