@@ -63,7 +63,7 @@ namespace gr {
     {
       gr_complex *out = (gr_complex *) output_items[0];
       int buf_size = n_output_items * 8;
-      char* buf = new char[buf_size];
+      char buf[buf_size];
 
       int ret = receiver->read(buf, buf_size, timeout_ms);
       if (ret < 8) {
@@ -72,7 +72,6 @@ namespace gr {
 
       int outSize = encode_ar2300(buf, ret, out);
 
-      delete[] buf;
       // Tell runtime system how many output items we produced.
       return outSize;
     }
