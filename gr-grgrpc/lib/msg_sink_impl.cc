@@ -42,7 +42,7 @@ namespace gr {
   namespace grgrpc {
 
     msg_sink::sptr
-    msg_sink::make(char *address)
+    msg_sink::make(const std::string& address)
     {
       return gnuradio::get_initial_sptr
         (new msg_sink_impl(address));
@@ -51,7 +51,7 @@ namespace gr {
     /*
      * The private constructor
      */
-    msg_sink_impl::msg_sink_impl(char *address)
+    msg_sink_impl::msg_sink_impl(const std::string& address)
       : gr::block("msg_sink",
               gr::io_signature::make(0, 0, 0),
               gr::io_signature::make(0, 0, 0)),

@@ -36,7 +36,7 @@ namespace gr {
        std::unique_ptr<MessageSink::Stub> stub_;
 
      public:
-      msg_sink_impl(char *address);
+      msg_sink_impl(const std::string& address);
       ~msg_sink_impl();
 
       void handler(pmt::pmt_t msg);

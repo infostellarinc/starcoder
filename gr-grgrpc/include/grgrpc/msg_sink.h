@@ -46,7 +46,7 @@ namespace gr {
        * class. grgrpc::msg_sink::make is the public interface for
        * creating new instances.
        */
-      static sptr make(char *address);
+      static sptr make(const std::string& addr);
     };
 
   } // namespace grgrpc
