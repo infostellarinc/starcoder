@@ -1,19 +1,20 @@
 <?xml version="1.0"?>
 <block>
-  <name>msg_sink</name>
+  <name>gRPC Message Sink</name>
   <key>grgrpc_msg_sink</key>
   <category>[grgrpc]</category>
   <import>import grgrpc</import>
-  <make>grgrpc.msg_sink($*address)</make>
+  <make>grgrpc.msg_sink($address)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Address</name>
+    <key>address</key>
+    <value>'localhost:50051'</value>
+    <type>string</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,16 +24,6 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>message</type>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
-  <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
-  </source>
 </block>
