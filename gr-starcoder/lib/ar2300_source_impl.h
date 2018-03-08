@@ -25,6 +25,7 @@
 #include "ar2300_receiver.h"
 
 #define CONSECUTIVE_WARNING_LIMIT 10
+#define AR2300_SCALE_FACTOR 1E-7
 
 namespace gr {
   namespace starcoder {
