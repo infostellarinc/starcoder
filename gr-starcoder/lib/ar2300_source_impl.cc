@@ -125,7 +125,7 @@ namespace gr {
       float imag = ((in[4] << 24) | (in[5] << 16 & 0xFE0000) |
                                   (in[6] << 9 & 0x1FE00) | (in[7] << 1 & 0x1FC)) >>
                                  2;
-      return gr_complex(real, imag);
+      return gr_complex(real * powf(10, -7), imag * powf(10, -7));
     }
 
     bool ar2300_source_impl::validate_sample(const char (&in)[8]) const {
