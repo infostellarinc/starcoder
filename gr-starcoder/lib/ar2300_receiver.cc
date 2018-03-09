@@ -52,7 +52,7 @@ ar2300_receiver::ar2300_receiver() {
   ar2300 = NULL;
   read_pipe[PIPE_READ] = -1;
   read_pipe[PIPE_WRITE] = -1;
-  init_flag = false;
+  started = false;
 }
 
 /*
@@ -65,7 +65,7 @@ ar2300_receiver::~ar2300_receiver() { stop(); }
  */
 void ar2300_receiver::start() {
   err_code = ERROR_CODE_NA;
-  init_flag = false;
+  started = false;
 
   // Initialize libusb context
   int ret = libusb_init(&context);
@@ -103,14 +103,14 @@ void ar2300_receiver::start() {
     throw std::runtime_error("ar2300_receiver::initialize");
   }
 
-  init_flag = true;
+  started = true;
 }
 
 /*
  * Stop receiving
  */
 void ar2300_receiver::stop() {
-  if (!init_flag) {
+  if (!started) {
     return;
   }
 
@@ -131,12 +131,12 @@ void ar2300_receiver::stop() {
     context = NULL;
   }
 
-  init_flag = false;
+  started = false;
 }
 
 /*
  * Read IQ data from device
- * @return: 0  - Timeout
+ * @return: 0  - Select is timeout or there's nothing to read
  *          >0 - Number of bytes read
  */
 int ar2300_receiver::read(char* buf, int size, int timeout) {
@@ -180,6 +180,5 @@ int ar2300_receiver::select_for_read(int timeout) {
   FD_ZERO(&rfds);
   FD_SET(read_pipe[PIPE_READ], &rfds);
 
-  int ret = ::select(FD_SETSIZE, &rfds, (fd_set*)NULL, (fd_set*)NULL, &tv);
-  return (ret);
+  return ::select(FD_SETSIZE, &rfds, (fd_set*)NULL, (fd_set*)NULL, &tv);
 }

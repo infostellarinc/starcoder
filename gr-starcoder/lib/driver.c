@@ -61,8 +61,6 @@ int iq_packet_write(AR2300_HANDLE *ar2300, const unsigned char *buffer, int leng
   }
 
   left -= written;
-  buffer += written;
-
   return left;
 }
 

@@ -52,7 +52,7 @@ class ar2300_receiver {
   int read_pipe[2];
 
   // Initialization flag
-  bool init_flag;
+  bool started;
 
   //! Error code
   static int err_code;
