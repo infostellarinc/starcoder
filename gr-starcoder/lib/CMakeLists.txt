@@ -60,7 +60,7 @@ GR_LIBRARY_FOO(gnuradio-starcoder RUNTIME_COMPONENT "starcoder_runtime" DEVEL_CO
 ########################################################################
 include(GrTest)
 
-include_directories(${CPPUNIT_INCLUDE_DIRS})
+include_directories( ${CPPUNIT_INCLUDE_DIRS} )
 
 list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
@@ -74,6 +74,7 @@ target_link_libraries(
   ${GNURADIO_RUNTIME_LIBRARIES}
   ${Boost_LIBRARIES}
   ${CPPUNIT_LIBRARIES}
+  gnuradio-blocks
   gnuradio-starcoder
 )
 
