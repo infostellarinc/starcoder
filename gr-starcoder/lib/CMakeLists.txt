@@ -26,6 +26,11 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND starcoder_sources
+    init.c
+    driver.c
+    firmware.c
+    ar2300_receiver.cc
+    ar2300_source_impl.cc
 )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
@@ -35,7 +40,7 @@ if(NOT starcoder_sources)
 endif(NOT starcoder_sources)
 
 add_library(gnuradio-starcoder SHARED ${starcoder_sources})
-target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
+target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} usb-1.0)
 set_target_properties(gnuradio-starcoder PROPERTIES DEFINE_SYMBOL "gnuradio_starcoder_EXPORTS")
 
 if(APPLE)
@@ -55,7 +60,7 @@ GR_LIBRARY_FOO(gnuradio-starcoder RUNTIME_COMPONENT "starcoder_runtime" DEVEL_CO
 ########################################################################
 include(GrTest)
 
-include_directories(${CPPUNIT_INCLUDE_DIRS})
+include_directories( ${CPPUNIT_INCLUDE_DIRS} )
 
 list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
@@ -69,6 +74,7 @@ target_link_libraries(
   ${GNURADIO_RUNTIME_LIBRARIES}
   ${Boost_LIBRARIES}
   ${CPPUNIT_LIBRARIES}
+  gnuradio-blocks
   gnuradio-starcoder
 )
 

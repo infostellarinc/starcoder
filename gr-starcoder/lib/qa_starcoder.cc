@@ -26,11 +26,35 @@
  */
 
 #include "qa_starcoder.h"
+#include <gnuradio/top_block.h>
+#include <gnuradio/blocks/null_sink.h>
+#include <starcoder/ar2300_source.h>
+#include <cppunit/TestCaller.h>
+#include <chrono>
+#include <thread>
+#include <stdio.h>
 
 CppUnit::TestSuite *
 qa_starcoder::suite()
 {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("starcoder");
+  s->addTest( new CppUnit::TestCaller<qa_starcoder>( "run_ar2300_source_block", &qa_starcoder::run_ar2300_source_block ) );
 
   return s;
+}
+
+
+void qa_starcoder::run_ar2300_source_block()
+{
+  gr::top_block_sptr tb = gr::make_top_block("top");
+  gr::starcoder::ar2300_source::sptr src = gr::starcoder::ar2300_source::make();
+  gr::block_sptr dst = gr::blocks::null_sink::make(sizeof(gr_complex));
+
+  tb->connect(src, 0, dst, 0);
+  tb->start();
+
+  std::this_thread::sleep_for(std::chrono::seconds(5));
+
+  tb->stop();
+  tb->wait();
 }

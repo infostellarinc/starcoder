@@ -22,13 +22,12 @@
 This is the GNU Radio STARCODER module. Place your Python package
 description here (python/__init__.py).
 '''
-
 # import swig generated symbols into the starcoder namespace
 try:
 	# this might fail if the module is python-only
 	from starcoder_swig import *
 except ImportError:
-	pass
+  pass
 
 # import any pure python here
 #

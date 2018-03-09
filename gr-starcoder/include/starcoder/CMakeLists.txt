@@ -22,5 +22,5 @@
 ########################################################################
 install(FILES
     api.h
-    DESTINATION include/starcoder
+    ar2300_source.h DESTINATION include/starcoder
 )

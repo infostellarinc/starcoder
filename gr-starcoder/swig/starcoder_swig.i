@@ -8,6 +8,9 @@
 %include "starcoder_swig_doc.i"
 
 %{
+#include "starcoder/ar2300_source.h"
 %}
 
 
+%include "starcoder/ar2300_source.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, ar2300_source);

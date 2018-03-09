@@ -71,7 +71,7 @@ fabric.properties
 
 ### Gradle template
 .gradle
-/build/
+build
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -93,3 +93,4 @@ flowgraphs/*.py
 
 # Don't check-in generated go-rice
 *rice-box.go
+
