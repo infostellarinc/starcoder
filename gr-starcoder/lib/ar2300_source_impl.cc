@@ -82,12 +82,18 @@ namespace gr {
                               gr_complex* out)
     {
       int offset = 0;
+      bool seen_i_value = false;
+
       for (int i = 1; i < inSize; i += 2) {
         if (in[i] & 0x1) {
           offset = i - 1;
+          seen_i_value = true;
           break;
         }
-        return 0;
+      }
+
+      if(!seen_i_value) {
+          return 0;
       }
 
       char sample[8];
