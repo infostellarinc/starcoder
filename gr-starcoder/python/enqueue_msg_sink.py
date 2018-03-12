@@ -19,7 +19,6 @@
 # Boston, MA 02110-1301, USA.
 # 
 
-import numpy
 from gnuradio import gr
 import pmt
 from collections import deque
