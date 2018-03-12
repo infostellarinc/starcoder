@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
   <name>gRPC Message Sink</name>
-  <key>grpcall_msg_sink</key>
-  <category>[grpcall]</category>
-  <import>import grpcall</import>
-  <make>grpcall.msg_sink($address)</make>
+  <key>grgrpc_msg_sink</key>
+  <category>[grgrpc]</category>
+  <import>import grgrpc</import>
+  <make>grgrpc.msg_sink($address)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

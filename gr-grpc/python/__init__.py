@@ -19,14 +19,14 @@
 # The presence of this file turns this directory into a Python package
 
 '''
-This is the GNU Radio GRPCALL module. Place your Python package
+This is the GNU Radio GRGRPC module. Place your Python package
 description here (python/__init__.py).
 '''
 
-# import swig generated symbols into the grpcall namespace
+# import swig generated symbols into the grgrpc namespace
 try:
 	# this might fail if the module is python-only
-	from grpcall_swig import *
+	from grgrpc_swig import *
 except ImportError:
 	pass
 

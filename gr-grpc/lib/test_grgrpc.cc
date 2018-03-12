@@ -28,7 +28,7 @@
 #include <cppunit/XmlOutputter.h>
 
 #include <gnuradio/unittests.h>
-#include "qa_grpcall.h"
+#include "qa_grgrpc.h"
 #include <iostream>
 #include <fstream>
 
@@ -36,10 +36,10 @@ int
 main (int argc, char **argv)
 {
   CppUnit::TextTestRunner runner;
-  std::ofstream xmlfile(get_unittest_path("grpcall.xml").c_str());
+  std::ofstream xmlfile(get_unittest_path("grgrpc.xml").c_str());
   CppUnit::XmlOutputter *xmlout = new CppUnit::XmlOutputter(&runner.result(), xmlfile);
 
-  runner.addTest(qa_grpcall::suite());
+  runner.addTest(qa_grgrpc::suite());
   runner.setOutputter(xmlout);
 
   bool was_successful = runner.run("", false);

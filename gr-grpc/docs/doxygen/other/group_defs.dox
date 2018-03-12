@@ -1,6 +1,6 @@
 /*!
- * \defgroup block GNU Radio GRPCALL C++ Signal Processing Blocks
- * \brief All C++ blocks that can be used from the GRPCALL GNU Radio
+ * \defgroup block GNU Radio GRGRPC C++ Signal Processing Blocks
+ * \brief All C++ blocks that can be used from the GRGRPC GNU Radio
  *        module are listed here or in the subcategories below.
  *
  */

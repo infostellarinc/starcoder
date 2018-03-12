@@ -67,29 +67,29 @@ add_custom_command(
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 link_directories(${Boost_LIBRARY_DIRS})
-list(APPEND grpcall_sources
+list(APPEND grgrpc_sources
     msg_sink_impl.cc
     ${hw_proto_srcs}
     ${hw_grpc_srcs}
     )
 
-set(grpcall_sources "${grpcall_sources}" PARENT_SCOPE)
-if(NOT grpcall_sources)
+set(grgrpc_sources "${grgrpc_sources}" PARENT_SCOPE)
+if(NOT grgrpc_sources)
 	MESSAGE(STATUS "No C++ sources... skipping lib/")
 	return()
-endif(NOT grpcall_sources)
+endif(NOT grgrpc_sources)
 
-add_library(gnuradio-grpcall SHARED ${grpcall_sources})
-target_link_libraries(gnuradio-grpcall
+add_library(gnuradio-grgrpc SHARED ${grgrpc_sources})
+target_link_libraries(gnuradio-grgrpc
     ${Boost_LIBRARIES}
     ${GNURADIO_ALL_LIBRARIES}
     ${_PROTOBUF_LIBPROTOBUF}
     gRPC::grpc++_unsecure
 )
-set_target_properties(gnuradio-grpcall PROPERTIES DEFINE_SYMBOL "gnuradio_grpcall_EXPORTS")
+set_target_properties(gnuradio-grgrpc PROPERTIES DEFINE_SYMBOL "gnuradio_grgrpc_EXPORTS")
 
 if(APPLE)
-    set_target_properties(gnuradio-grpcall PROPERTIES
+    set_target_properties(gnuradio-grgrpc PROPERTIES
         INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
     )
 endif(APPLE)
@@ -98,7 +98,7 @@ endif(APPLE)
 # Install built library files
 ########################################################################
 include(GrMiscUtils)
-GR_LIBRARY_FOO(gnuradio-grpcall RUNTIME_COMPONENT "grpcall_runtime" DEVEL_COMPONENT "grpcall_devel")
+GR_LIBRARY_FOO(gnuradio-grgrpc RUNTIME_COMPONENT "grgrpc_runtime" DEVEL_COMPONENT "grgrpc_devel")
 
 ########################################################################
 # Print summary

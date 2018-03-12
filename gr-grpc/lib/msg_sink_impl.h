@@ -18,16 +18,16 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_GRPCALL_MSG_SINK_IMPL_H
-#define INCLUDED_GRPCALL_MSG_SINK_IMPL_H
+#ifndef INCLUDED_GRGRPC_MSG_SINK_IMPL_H
+#define INCLUDED_GRGRPC_MSG_SINK_IMPL_H
 
-#include <grpcall/msg_sink.h>
+#include <grgrpc/msg_sink.h>
 #include "grpcapi.grpc.pb.h"
 
 using grpcapi::MessageSink;
 
 namespace gr {
-  namespace grpcall {
+  namespace grgrpc {
 
     class msg_sink_impl : public msg_sink
     {
@@ -41,8 +41,8 @@ namespace gr {
       void handler(pmt::pmt_t msg);
     };
 
-  } // namespace grpcall
+  } // namespace grgrpc
 } // namespace gr
 
-#endif /* INCLUDED_GRPCALL_MSG_SINK_IMPL_H */
+#endif /* INCLUDED_GRGRPC_MSG_SINK_IMPL_H */
 

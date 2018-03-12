@@ -19,38 +19,38 @@
  */
 
 
-#ifndef INCLUDED_GRPCALL_MSG_SINK_H
-#define INCLUDED_GRPCALL_MSG_SINK_H
+#ifndef INCLUDED_GRGRPC_MSG_SINK_H
+#define INCLUDED_GRGRPC_MSG_SINK_H
 
-#include <grpcall/api.h>
+#include <grgrpc/api.h>
 #include <gnuradio/block.h>
 
 namespace gr {
-  namespace grpcall {
+  namespace grgrpc {
 
     /*!
      * \brief <+description of block+>
-     * \ingroup grpcall
+     * \ingroup grgrpc
      *
      */
-    class GRPCALL_API msg_sink : virtual public gr::block
+    class GRGRPC_API msg_sink : virtual public gr::block
     {
      public:
       typedef boost::shared_ptr<msg_sink> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of grpcall::msg_sink.
+       * \brief Return a shared_ptr to a new instance of grgrpc::msg_sink.
        *
-       * To avoid accidental use of raw pointers, grpcall::msg_sink's
+       * To avoid accidental use of raw pointers, grgrpc::msg_sink's
        * constructor is in a private implementation
-       * class. grpcall::msg_sink::make is the public interface for
+       * class. grgrpc::msg_sink::make is the public interface for
        * creating new instances.
        */
       static sptr make(char* address);
     };
 
-  } // namespace grpcall
+  } // namespace grgrpc
 } // namespace gr
 
-#endif /* INCLUDED_GRPCALL_MSG_SINK_H */
+#endif /* INCLUDED_GRGRPC_MSG_SINK_H */
 

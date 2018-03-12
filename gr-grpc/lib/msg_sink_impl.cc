@@ -34,7 +34,7 @@ using grpcapi::SendMessageRequest;
 using grpcapi::SendMessageResponse;
 
 namespace gr {
-  namespace grpcall {
+  namespace grgrpc {
 
     msg_sink::sptr
     msg_sink::make(char* address)
@@ -95,5 +95,5 @@ namespace gr {
       }
     }
 
-  } /* namespace grpcall */
+  } /* namespace grgrpc */
 } /* namespace gr */

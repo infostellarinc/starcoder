@@ -23,5 +23,5 @@
 install(FILES
     api.h
     msg_sink.h
-    DESTINATION include/grpcall
+    DESTINATION include/grgrpc
 )

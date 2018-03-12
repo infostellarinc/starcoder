@@ -21,7 +21,7 @@
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
-import grpcall_swig as grpcall
+import grgrpc_swig as grgrpc
 
 class qa_msg_sink (gr_unittest.TestCase):
 
