@@ -20,10 +20,10 @@
 ########################################################################
 # Check if there is C++ code at all
 ########################################################################
-if(NOT grpc_sources)
+if(NOT grgrpc_sources)
 	MESSAGE(STATUS "No C++ sources... skipping swig/")
 	return()
-endif(NOT grpc_sources)
+endif(NOT grgrpc_sources)
 
 ########################################################################
 # Include swig generation macros
@@ -43,23 +43,23 @@ foreach(incdir ${GNURADIO_RUNTIME_INCLUDE_DIRS})
     list(APPEND GR_SWIG_INCLUDE_DIRS ${incdir}/gnuradio/swig)
 endforeach(incdir)
 
-set(GR_SWIG_LIBRARIES gnuradio-grpc)
-set(GR_SWIG_DOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/grpc_swig_doc.i)
+set(GR_SWIG_LIBRARIES gnuradio-grgrpc)
+set(GR_SWIG_DOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/grgrpc_swig_doc.i)
 set(GR_SWIG_DOC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
-GR_SWIG_MAKE(grpc_swig grpc_swig.i)
+GR_SWIG_MAKE(grgrpc_swig grgrpc_swig.i)
 
 ########################################################################
 # Install the build swig module
 ########################################################################
-GR_SWIG_INSTALL(TARGETS grpc_swig DESTINATION ${GR_PYTHON_DIR}/grpc)
+GR_SWIG_INSTALL(TARGETS grgrpc_swig DESTINATION ${GR_PYTHON_DIR}/grgrpc)
 
 ########################################################################
 # Install swig .i files for development
 ########################################################################
 install(
     FILES
-    grpc_swig.i
-    ${CMAKE_CURRENT_BINARY_DIR}/grpc_swig_doc.i
-    DESTINATION ${GR_INCLUDE_DIR}/grpc/swig
+    grgrpc_swig.i
+    ${CMAKE_CURRENT_BINARY_DIR}/grgrpc_swig_doc.i
+    DESTINATION ${GR_INCLUDE_DIR}/grgrpc/swig
 )

@@ -19,15 +19,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_GRPC_API_H
-#define INCLUDED_GRPC_API_H
+#ifndef INCLUDED_GRGRPC_API_H
+#define INCLUDED_GRGRPC_API_H
 
 #include <gnuradio/attributes.h>
 
-#ifdef gnuradio_grpc_EXPORTS
-#  define GRPC_API __GR_ATTR_EXPORT
+#ifdef gnuradio_grgrpc_EXPORTS
+#  define GRGRPC_API __GR_ATTR_EXPORT
 #else
-#  define GRPC_API __GR_ATTR_IMPORT
+#  define GRGRPC_API __GR_ATTR_IMPORT
 #endif
 
-#endif /* INCLUDED_GRPC_API_H */
+#endif /* INCLUDED_GRGRPC_API_H */

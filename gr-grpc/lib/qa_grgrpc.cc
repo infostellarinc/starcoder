@@ -25,12 +25,12 @@
  * add them here.
  */
 
-#include "qa_grpc.h"
+#include "qa_grgrpc.h"
 
 CppUnit::TestSuite *
-qa_grpc::suite()
+qa_grgrpc::suite()
 {
-  CppUnit::TestSuite *s = new CppUnit::TestSuite("grpc");
+  CppUnit::TestSuite *s = new CppUnit::TestSuite("grgrpc");
 
   return s;
 }
