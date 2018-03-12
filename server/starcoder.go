@@ -21,6 +21,7 @@ package server
 import (
 	"crypto/sha1"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	pb "github.com/infostellarinc/starcoder/api"
 	"github.com/sbinet/go-python"
@@ -32,13 +33,20 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type Starcoder struct {
 	flowgraphDir  string
 	temporaryDirs []string
 	flowGraphs    map[string]*python.PyObject
+	streamPairs   map[string]map[string]streamPair
 	threadState   *python.PyThreadState
+}
+
+type streamPair struct {
+	queue        *python.PyObject
+	closeChannel chan bool
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
@@ -51,6 +59,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 		flowgraphDir:  flowgraphDir,
 		temporaryDirs: make([]string, 0),
 		flowGraphs:    make(map[string]*python.PyObject),
+		streamPairs:   make(map[string]map[string]streamPair),
 		threadState:   threadState,
 	}
 }
@@ -315,12 +324,122 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	uniqueId := base64.URLEncoding.EncodeToString(hash[:])
 
 	s.flowGraphs[uniqueId] = flowGraphInstance
+	s.streamPairs[uniqueId] = make(map[string]streamPair)
+
+	// Look for any Enqueue Message Sink blocks
+	starcoderModule := python.PyImport_ImportModule("starcoder")
+	if starcoderModule == nil {
+		log.Println("gr-starcoder module not found. There are no Enqueue Message Sink blocks")
+	} else {
+		defer starcoderModule.DecRef()
+
+		enqueueMessageSink := starcoderModule.GetAttrString("enqueue_msg_sink")
+		if enqueueMessageSink == nil {
+			log.Println("gr-starcoder module does not contain enqueue_msg_sink")
+		} else {
+			defer enqueueMessageSink.DecRef()
+			flowGraphDict := flowGraphInstance.GetAttrString("__dict__")
+			if flowGraphDict == nil {
+				return &pb.StartFlowgraphResponse{
+					Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+					Error:  getExceptionString(),
+				}, nil
+			}
+			defer flowGraphDict.DecRef()
+
+			iter := 0
+			key := python.PyString_FromString("")
+			val := python.PyString_FromString("")
+			for python.PyDict_Next(flowGraphDict, &iter, &key, &val) {
+				// Verify enqueue_msg_sink instance
+				isInstance := val.IsInstance(enqueueMessageSink)
+				if isInstance == 1 {
+					q := val.CallMethod("get_q")
+					if q == nil {
+						return &pb.StartFlowgraphResponse{
+							Status: pb.StartFlowgraphResponse_PYTHON_RUN_ERROR,
+							Error:  getExceptionString(),
+						}, nil
+					}
+					k := python.PyString_AsString(key)
+					s.streamPairs[uniqueId][k] = streamPair{
+						queue:        q,
+						closeChannel: make(chan bool),
+					}
+					fmt.Println("found enqueue_msg_sink block:", k)
+				} else if isInstance == -1 {
+					log.Println(getExceptionString())
+				}
+			}
+		}
+	}
 
 	return &pb.StartFlowgraphResponse{
 		ProcessId: uniqueId,
 		Status:    pb.StartFlowgraphResponse_SUCCESS,
 		Error:     "",
 	}, nil
+}
+
+func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessManager_StreamPmtServer) error {
+	var flowGraphStreamPairs map[string]streamPair
+	if sp, ok := s.streamPairs[request.GetProcessId()]; !ok {
+		return errors.New(fmt.Sprintf("Invalid flowgraph ID %v", request.GetProcessId()))
+	} else {
+		flowGraphStreamPairs = sp
+	}
+	var pmtQueue *python.PyObject
+	var closeChannel chan bool
+	if sp, ok := flowGraphStreamPairs[request.GetBlockId()]; !ok {
+		return errors.New(fmt.Sprintf("Invalid block ID %v", request.GetBlockId()))
+	} else {
+		pmtQueue = sp.queue
+		closeChannel = sp.closeChannel
+	}
+	ticker := time.NewTicker(time.Millisecond * 100) // Poll the PMT queue every 100ms
+	for {
+		select {
+		case <-ticker.C:
+			err := func() error {
+				runtime.LockOSThread()
+				python.PyEval_RestoreThread(s.threadState)
+				defer func() {
+					s.threadState = python.PyEval_SaveThread()
+					runtime.UnlockOSThread()
+				}()
+				pyLength := pmtQueue.CallMethod("__len__")
+				length := python.PyInt_AsLong(pyLength)
+
+				emptyTuple := python.PyTuple_New(0)
+				if emptyTuple == nil {
+					return errors.New(getExceptionString())
+				}
+				defer emptyTuple.DecRef()
+
+				for i := 0; i < length; i++ {
+					pmt := pmtQueue.CallMethod("popleft")
+					if pmt == nil {
+						return errors.New(getExceptionString())
+					}
+					// TODO: Convert PMT to a gRPC native data structure.
+					// Use built-in PMT serialization for now.
+					pmtBytes := python.PyByteArray_AsBytes(pmt)
+					pmt.DecRef()
+					log.Println(pmtBytes)
+					if err := stream.Send(&pb.StreamPmtResponse{Bytes: []byte(pmtBytes)}); err != nil {
+						return err
+					}
+				}
+				return nil
+			}()
+			if err != nil {
+				return err
+			}
+		case <-closeChannel:
+			return nil
+		}
+	}
+	return nil
 }
 
 func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest) (*pb.EndFlowgraphResponse, error) {
@@ -391,6 +510,12 @@ func (s *Starcoder) Close() error {
 		}
 		python.PyErr_Print()
 		flowGraph.DecRef()
+	}
+	for _, spMap := range s.streamPairs {
+		for _, sp := range spMap {
+			sp.closeChannel <- true
+			sp.queue.DecRef()
+		}
 	}
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)

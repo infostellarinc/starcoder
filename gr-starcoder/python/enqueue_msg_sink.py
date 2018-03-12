@@ -39,6 +39,5 @@ class enqueue_msg_sink(gr.basic_block):
     def get_q(self):
         return self.q
 
-    def msg_handler(self, pmt):
-        self.q.append(pmt)
-        print("Received pmt", pmt)
+    def msg_handler(self, message):
+        self.q.append(bytearray(pmt.serialize_str(message)))

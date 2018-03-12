@@ -28,6 +28,9 @@ service ProcessManager {
 
   // End a process
   rpc EndFlowgraph (EndFlowgraphRequest) returns (EndFlowgraphResponse) {}
+
+  // Stream from enqueue message sink block
+  rpc StreamPmt (StreamPmtRequest) returns (stream StreamPmtResponse) {}
 }
 
 // Complex number
@@ -141,4 +144,19 @@ message EndFlowgraphResponse {
 
   // Error message
   string error = 2;
+}
+
+// The message containing a serialized PMT (GNURadio Polymorphic Message Type)
+message StreamPmtRequest {
+  // Flowgraph ID
+  string processId = 1;
+
+  // Block ID for specifying which enqueue_msg_sink block to stream
+  string blockId = 2;
+}
+
+// The message containing a serialized PMT (GNURadio Polymorphic Message Type)
+message StreamPmtResponse {
+  // Serialized arbitrary PMT message
+  bytes bytes = 1;
 }
