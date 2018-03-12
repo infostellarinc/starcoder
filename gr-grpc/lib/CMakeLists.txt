@@ -105,4 +105,3 @@ GR_LIBRARY_FOO(gnuradio-grpcall RUNTIME_COMPONENT "grpcall_runtime" DEVEL_COMPON
 ########################################################################
 message(STATUS "Using install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Building for version: ${VERSION} / ${LIBVER}")
-

@@ -23,8 +23,7 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include <grpc++/security/credentials.h>
-#include <grpc++/create_channel.h>
+#include <grpc++/grpc++.h>
 #include "msg_sink_impl.h"
 #include "grpcapi.grpc.pb.h"
 
@@ -76,20 +75,20 @@ namespace gr {
       pmt::serialize(msg, sb);
 
       SendMessageRequest req;
-      SendMessageResponse *resp;
+      SendMessageResponse resp;
 
-      std::cout << sb.str() << std::endl;
+      std::cout << "Sending message" << sb.str() << std::endl;
 
       req.set_bytes(sb.str());
 
       ClientContext context;
       // TODO: Add a timeout for sending
-      Status status = stub_->SendMessage(&context, req, resp);
+      Status status = stub_->SendMessage(&context, req, &resp);
       if (!status.ok()) {
         std::cout << "SendMessage rpc failed." << std::endl;
         return;
       }
-      if (resp->status() != grpcapi::SendMessageResponse_Status_SUCCESS) {
+      if (resp.status() != grpcapi::SendMessageResponse_Status_SUCCESS) {
         std::cout << "SendMessage rpc returned unsuccessful status" << std::endl;
       } else {
         std::cout << "SendMessage rpc returned successfully" << std::endl;
@@ -98,4 +97,3 @@ namespace gr {
 
   } /* namespace grpcall */
 } /* namespace gr */
-
