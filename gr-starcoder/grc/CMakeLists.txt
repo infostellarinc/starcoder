@@ -18,5 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    starcoder_ar2300_source.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_ar2300_source.xml
+    starcoder_enqueue_msg_sink.xml DESTINATION share/gnuradio/grc/blocks
 )
