@@ -23,14 +23,36 @@ option go_package = "/api";
 
 // The GNURadio process manager service definition.
 service ProcessManager {
-  // Create a process
-  rpc StartFlowgraph (StartFlowgraphRequest) returns (StartFlowgraphResponse) {}
+  // Runs a flowgraph and streams back
+  rpc RunFlowgraph (stream RunFlowgraphRequest) returns (stream RunFlowgraphResponse) {}
+}
 
-  // End a process
-  rpc EndFlowgraph (EndFlowgraphRequest) returns (EndFlowgraphResponse) {}
+message RunFlowgraphRequest {
+  // Filename of GNURadio script to run
+  string filename = 1;
 
-  // Stream from enqueue message sink block
-  rpc StreamPmt (StreamPmtRequest) returns (stream StreamPmtResponse) {}
+  // Key value pair representing a parameter to be passed to the script
+  message Parameter {
+    // Name of parameter
+    string key = 1;
+
+    // Value to assign the parameter
+    Value value = 2;
+  }
+
+  // Arbitrary command line parameters to be passed to the GNURadio script
+  repeated Parameter parameters = 2;
+
+  // Blocks to stream back in the response
+  repeated string block_id = 3;
+}
+
+message RunFlowgraphResponse {
+  // Block ID to which this response belongs
+  string block_id = 1;
+
+  // Serialized arbitrary PMT (GNURadio Polymorphic Message Type)
+  bytes payload = 2;
 }
 
 // Complex number
@@ -60,103 +82,4 @@ message Value {
     // Represents a complex number
     Complex complex_value = 5;
   }
-}
-
-// The request message containing parameters for starting a flowgraph
-message StartFlowgraphRequest {
-  // Filename of GNURadio script to run
-  string filename = 1;
-
-  // Key value pair representing a parameter to be passed to the script
-  message Parameter {
-    // Name of parameter
-    string key = 1;
-
-    // Value to assign the parameter
-    Value value = 2;
-  }
-
-  // Arbitrary command line parameters to be passed to the GNURadio script
-  repeated Parameter parameters = 2;
-}
-
-// The message response to a StartFlowgraphRequest
-message StartFlowgraphResponse {
-  // Unique Process ID of the flowgraph that was started
-  string processId = 1;
-
-  // Response status
-  enum Status {
-    // Successfully started flowgraph.
-    SUCCESS = 0;
-
-    // File access problem
-    FILE_ACCESS_ERROR = 1;
-
-    // Unsupported file type
-    UNSUPPORTED_FILE_TYPE = 2;
-
-    // .grc compile error
-    GRC_COMPILE_ERROR = 3;
-
-    // Python file run error
-    PYTHON_RUN_ERROR = 4;
-
-    // Unknown error starting flowgraph.
-    UNKNOWN_ERROR = 255;
-  }
-
-  // Response status
-  Status status = 2;
-
-  // Error message
-  string error = 3;
-}
-
-// The request message containing parameters for ending a flowgraph
-message EndFlowgraphRequest {
-  // Process ID of process to end
-  string processId = 1;
-}
-
-// The message response to an EndFlowgraphRequest
-message EndFlowgraphResponse {
-  // Response status
-  enum Status {
-    // Successfully ended flowgraph.
-    SUCCESS = 0;
-
-    // Invalid Process Id
-    INVALID_PROCESS_ID = 1;
-
-    // Flowgraph has exited
-    PROCESS_EXITED = 2;
-
-    // Python file run error
-    PYTHON_RUN_ERROR = 3;
-
-    // Unknown error ending flowgraph.
-    UNKNOWN_ERROR = 255;
-  }
-
-  // Response status
-  Status status = 1;
-
-  // Error message
-  string error = 2;
-}
-
-// The message containing a serialized PMT (GNURadio Polymorphic Message Type)
-message StreamPmtRequest {
-  // Flowgraph ID
-  string processId = 1;
-
-  // Block ID for specifying which enqueue_msg_sink block to stream
-  string blockId = 2;
-}
-
-// The message containing a serialized PMT (GNURadio Polymorphic Message Type)
-message StreamPmtResponse {
-  // Serialized arbitrary PMT message
-  bytes bytes = 1;
 }
