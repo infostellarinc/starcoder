@@ -32,12 +32,16 @@ class enqueue_msg_sink(gr.basic_block):
             name="enqueue_msg_sink",
             in_sig=[],
             out_sig=[])
-        self.q = deque()
         self.message_port_register_in(pmt.intern("in"))
         self.set_msg_handler(pmt.intern("in"), self.msg_handler)
+        self.observers = []
 
-    def get_q(self):
-        return self.q
+    def observe(self):
+        q = deque()
+        self.observers.append(q)
+        return q
 
     def msg_handler(self, message):
-        self.q.append(bytearray(pmt.serialize_str(message)))
+        serialized_bytes = bytearray(pmt.serialize_str(message))
+        for q in self.observers:
+            q.append(serialized_bytes)
