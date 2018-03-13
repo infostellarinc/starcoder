@@ -54,7 +54,6 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 }
 
 func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) error {
-	log.Println("yo")
 	in, err := stream.Recv()
 	if err == io.EOF {
 		return nil
@@ -335,20 +334,21 @@ func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) er
 							s.threadState = python.PyEval_SaveThread()
 							runtime.UnlockOSThread()
 						}()
-						pyLength := pmtQueue.CallMethod("__len__")
-						length := python.PyInt_AsLong(pyLength)
+						length := python.PyList_Size(pmtQueue)
 
 						var bytes [][]byte
 
+						emptyList := python.PyList_New(0)
+						defer emptyList.DecRef()
+
 						for i := 0; i < length; i++ {
-							pmt := pmtQueue.CallMethod("popleft")
-							if pmt == nil {
-								return nil, errors.New(getExceptionString())
-							}
 							// TODO: Convert PMT to a gRPC native data structure.
 							// Use built-in PMT serialization for now.
-							pmtBytes := python.PyByteArray_AsBytes(pmt)
-							pmt.DecRef()
+							pmtBytes := python.PyByteArray_AsBytes(python.PyList_GetItem(pmtQueue, i))
+							err := python.PyList_SetSlice(pmtQueue, 0, length, emptyList)
+							if err != nil {
+								return nil, err
+							}
 							log.Println(k, pmtBytes)
 							bytes = append(bytes, pmtBytes)
 						}

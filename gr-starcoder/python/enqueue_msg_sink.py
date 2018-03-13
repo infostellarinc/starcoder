@@ -21,7 +21,6 @@
 
 from gnuradio import gr
 import pmt
-from collections import deque
 
 class enqueue_msg_sink(gr.basic_block):
     """
@@ -37,7 +36,7 @@ class enqueue_msg_sink(gr.basic_block):
         self.observers = []
 
     def observe(self):
-        q = deque()
+        q = []
         self.observers.append(q)
         return q
 
