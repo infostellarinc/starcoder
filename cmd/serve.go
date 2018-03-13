@@ -110,7 +110,7 @@ var serveCmd = &cobra.Command{
 			}
 		}(s)
 
-		pb.RegisterProcessManagerServer(s, starcoder)
+		pb.RegisterStarCoderServer(s, starcoder)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(s)

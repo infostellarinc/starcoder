@@ -53,7 +53,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 }
 
-func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) error {
+func (s *Starcoder) RunFlowgraph(stream pb.StarCoder_RunFlowgraphServer) error {
 	in, err := stream.Recv()
 	if err == io.EOF {
 		return nil
@@ -136,12 +136,6 @@ func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) er
 		if err != nil {
 			return nil, nil, err
 		}
-
-		emptyTuple := python.PyTuple_New(0)
-		if emptyTuple == nil {
-			return nil, nil, errors.New(getExceptionString())
-		}
-		defer emptyTuple.DecRef()
 
 		// Import module
 		moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
@@ -231,6 +225,12 @@ func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) er
 				return nil, nil, err
 			}
 		}
+
+		emptyTuple := python.PyTuple_New(0)
+		if emptyTuple == nil {
+			return nil, nil, errors.New(getExceptionString())
+		}
+		defer emptyTuple.DecRef()
 
 		flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
 		if flowGraphInstance == nil {
@@ -350,7 +350,6 @@ func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) er
 							if err != nil {
 								return nil, err
 							}
-							log.Println(k, pmtBytes)
 							bytes = append(bytes, pmtBytes)
 						}
 						return bytes, nil

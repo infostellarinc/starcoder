@@ -34,7 +34,7 @@ func main() {
 		log.Fatalf("fail to dial: %v", err)
 	}
 	defer conn.Close()
-	client := pb.NewProcessManagerClient(conn)
+	client := pb.NewStarCoderClient(conn)
 
 	stream, err := client.RunFlowgraph(context.Background())
 	waitc := make(chan struct{})
