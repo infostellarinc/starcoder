@@ -313,6 +313,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) er
 				return
 			}
 			if err != nil {
+				closeChannel <- true
 				log.Printf("%v", err)
 				return
 			}
