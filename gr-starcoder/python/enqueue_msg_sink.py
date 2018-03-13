@@ -29,11 +29,11 @@ class enqueue_msg_sink(gr.basic_block):
     """
     def __init__(self):
         gr.basic_block.__init__(self,
-            name="enqueue_msg_sink",
+            name='enqueue_msg_sink',
             in_sig=[],
             out_sig=[])
-        self.message_port_register_in(pmt.intern("in"))
-        self.set_msg_handler(pmt.intern("in"), self.msg_handler)
+        self.message_port_register_in(pmt.intern('in'))
+        self.set_msg_handler(pmt.intern('in'), self.msg_handler)
         self.observers = []
 
     def observe(self):

@@ -266,7 +266,9 @@ func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) er
 
 				iter := 0
 				key := python.PyString_FromString("")
+				defer key.DecRef()
 				val := python.PyString_FromString("")
+				defer val.DecRef()
 				for python.PyDict_Next(flowGraphDict, &iter, &key, &val) {
 					// Verify enqueue_msg_sink instance
 					isInstance := val.IsInstance(enqueueMessageSink)
@@ -335,12 +337,6 @@ func (s *Starcoder) RunFlowgraph(stream pb.ProcessManager_RunFlowgraphServer) er
 						}()
 						pyLength := pmtQueue.CallMethod("__len__")
 						length := python.PyInt_AsLong(pyLength)
-
-						emptyTuple := python.PyTuple_New(0)
-						if emptyTuple == nil {
-							return nil, errors.New(getExceptionString())
-						}
-						defer emptyTuple.DecRef()
 
 						var bytes [][]byte
 
