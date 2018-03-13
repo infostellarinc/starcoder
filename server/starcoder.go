@@ -41,37 +41,43 @@ type Starcoder struct {
 	temporaryDirs        []string
 	flowGraphs           map[string]*python.PyObject
 	msgSinkBlocks        map[string]map[string]*python.PyObject
-	streamCloserManagers map[string]*streamCloserManager
+	streamCloserManagers map[string]*pollStreamerManager
 	threadState          *python.PyThreadState
 }
 
-type streamCloserManager struct {
-	streamClosers          map[streamCloser]bool // registered listeners
-	registerStreamCloser   chan streamCloser
-	deregisterStreamCloser chan streamCloser
-	closeChannel           chan chan bool
+type pollStreamerManager struct {
+	pollStreamers        map[pollStreamer]bool // registered listeners
+	registerPollStreamer chan pollStreamer
+	closeChannel         chan chan bool
 }
 
-type streamCloser = chan bool
-
-func newStreamCloserManager() *streamCloserManager {
-	s := &streamCloserManager{
-		streamClosers:          make(map[streamCloser]bool),
-		registerStreamCloser:   make(chan streamCloser),
-		deregisterStreamCloser: make(chan streamCloser),
-		closeChannel:           make(chan chan bool),
+func newPollStreamerManager() *pollStreamerManager {
+	s := &pollStreamerManager{
+		pollStreamers:        make(map[pollStreamer]bool),
+		registerPollStreamer: make(chan pollStreamer),
+		closeChannel:         make(chan chan bool),
 	}
 
-	go func(s *streamCloserManager) {
+	ticker := time.NewTicker(100 * time.Millisecond)
+
+	go func(s *pollStreamerManager) {
 		for {
 			select {
-			case sc := <-s.registerStreamCloser:
-				s.streamClosers[sc] = true
-			case sc := <-s.deregisterStreamCloser:
-				delete(s.streamClosers, sc)
+			case ps := <-s.registerPollStreamer:
+				s.pollStreamers[ps] = true
+			case <-ticker.C:
+				for ps := range s.pollStreamers {
+					respChan := make(chan error)
+					ps.retrieveErrorChannel <- respChan
+					err := <-respChan
+					if err != nil {
+						ps.closeChannel <- true
+						delete(s.pollStreamers, ps)
+					}
+				}
 			case x := <-s.closeChannel:
-				for sc := range s.streamClosers {
-					sc <- true
+				for ps := range s.pollStreamers {
+					ps.closeChannel <- true
 				}
 				x <- true
 				return
@@ -82,7 +88,13 @@ func newStreamCloserManager() *streamCloserManager {
 	return s
 }
 
-func (s *streamCloserManager) Close() {
+type pollStreamer struct {
+	closeChannel         chan bool
+	retrieveErrorChannel chan chan error
+	streamError          error
+}
+
+func (s *pollStreamerManager) Close() {
 	respChannel := make(chan bool)
 	s.closeChannel <- respChannel
 	<-respChannel
@@ -99,7 +111,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 		temporaryDirs:        make([]string, 0),
 		flowGraphs:           make(map[string]*python.PyObject),
 		msgSinkBlocks:        make(map[string]map[string]*python.PyObject),
-		streamCloserManagers: make(map[string]*streamCloserManager),
+		streamCloserManagers: make(map[string]*pollStreamerManager),
 		threadState:          threadState,
 	}
 }
@@ -362,11 +374,10 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 
 	hash := sha1.Sum([]byte(fmt.Sprintf("%v", flowGraphInstance.GetCPointer())))
 	uniqueId := base64.URLEncoding.EncodeToString(hash[:])
-	uniqueId = "1"
 
 	s.flowGraphs[uniqueId] = flowGraphInstance
 	s.msgSinkBlocks[uniqueId] = make(map[string]*python.PyObject)
-	s.streamCloserManagers[uniqueId] = newStreamCloserManager()
+	s.streamCloserManagers[uniqueId] = newPollStreamerManager()
 
 	// Look for any Enqueue Message Sink blocks
 	starcoderModule := python.PyImport_ImportModule("starcoder")
@@ -427,7 +438,7 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 		blockInstance = b
 	}
 
-	var streamCloserManager *streamCloserManager
+	var streamCloserManager *pollStreamerManager
 	if scm, ok := s.streamCloserManagers[request.GetProcessId()]; !ok {
 		return errors.New(fmt.Sprintf("Invalid flowgraph ID %v", request.GetProcessId()))
 	} else {
@@ -446,13 +457,20 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 		s.threadState = python.PyEval_SaveThread()
 	}()
 
-	streamCloser := make(chan bool)
-	streamCloserManager.registerStreamCloser <- streamCloser
+	streamer := pollStreamer{
+		closeChannel:         make(chan bool),
+		retrieveErrorChannel: make(chan chan error),
+	}
+	streamCloserManager.registerPollStreamer <- streamer
 
 	ticker := time.NewTicker(time.Millisecond * 100) // Poll the PMT queue every 100ms
+
 	for {
 		select {
 		case <-ticker.C:
+			if streamer.streamError != nil {
+				break
+			}
 			bytes, err := func() ([][]byte, error) {
 				runtime.LockOSThread()
 				python.PyEval_RestoreThread(s.threadState)
@@ -486,19 +504,19 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 				return bytes, nil
 			}()
 			if err != nil {
-				// Only need to deregister if the stream is broken through error
-				streamCloserManager.deregisterStreamCloser <- streamCloser
-				return err
+				streamer.streamError = err
+				break
 			}
 			for _, b := range bytes {
 				if err := stream.Send(&pb.StreamPmtResponse{Bytes: b}); err != nil {
-					// Only need to deregister if the stream is broken through error
-					streamCloserManager.deregisterStreamCloser <- streamCloser
-					return err
+					streamer.streamError = err
+					break
 				}
 			}
-		case <-streamCloser:
-			return nil
+		case respChannel := <-streamer.retrieveErrorChannel:
+			respChannel <- streamer.streamError
+		case <-streamer.closeChannel:
+			return streamer.streamError
 		}
 	}
 	return nil
