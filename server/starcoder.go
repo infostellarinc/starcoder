@@ -453,7 +453,7 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 	for {
 		select {
 		case <-ticker.C:
-			err := func() error {
+			bytes, err := func() ([][]byte, error) {
 				runtime.LockOSThread()
 				python.PyEval_RestoreThread(s.threadState)
 				defer func() {
@@ -465,30 +465,37 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 
 				emptyTuple := python.PyTuple_New(0)
 				if emptyTuple == nil {
-					return errors.New(getExceptionString())
+					return nil, errors.New(getExceptionString())
 				}
 				defer emptyTuple.DecRef()
+
+				var bytes [][]byte
 
 				for i := 0; i < length; i++ {
 					pmt := pmtQueue.CallMethod("popleft")
 					if pmt == nil {
-						return errors.New(getExceptionString())
+						return nil, errors.New(getExceptionString())
 					}
 					// TODO: Convert PMT to a gRPC native data structure.
 					// Use built-in PMT serialization for now.
 					pmtBytes := python.PyByteArray_AsBytes(pmt)
 					pmt.DecRef()
 					log.Println(pmtBytes)
-					if err := stream.Send(&pb.StreamPmtResponse{Bytes: []byte(pmtBytes)}); err != nil {
-						return err
-					}
+					bytes = append(bytes, pmtBytes)
 				}
-				return nil
+				return bytes, nil
 			}()
 			if err != nil {
 				// Only need to deregister if the stream is broken through error
 				streamCloserManager.deregisterStreamCloser <- streamCloser
 				return err
+			}
+			for _, b := range bytes {
+				if err := stream.Send(&pb.StreamPmtResponse{Bytes: b}); err != nil {
+					// Only need to deregister if the stream is broken through error
+					streamCloserManager.deregisterStreamCloser <- streamCloser
+					return err
+				}
 			}
 		case <-streamCloser:
 			return nil
