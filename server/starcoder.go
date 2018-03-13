@@ -37,15 +37,15 @@ import (
 )
 
 type Starcoder struct {
-	flowgraphDir  string
-	temporaryDirs []string
-	flowGraphs    map[string]*python.PyObject
-	streamBlocks  map[string]map[string]*streamBlock
-	threadState   *python.PyThreadState
+	flowgraphDir         string
+	temporaryDirs        []string
+	flowGraphs           map[string]*python.PyObject
+	msgSinkBlocks        map[string]map[string]*python.PyObject
+	streamCloserManagers map[string]*streamCloserManager
+	threadState          *python.PyThreadState
 }
 
-type streamBlock struct {
-	blockInstance          *python.PyObject
+type streamCloserManager struct {
 	streamClosers          map[streamCloser]bool // registered listeners
 	registerStreamCloser   chan streamCloser
 	deregisterStreamCloser chan streamCloser
@@ -54,16 +54,15 @@ type streamBlock struct {
 
 type streamCloser = chan bool
 
-func newStreamBlock(blockInstance *python.PyObject) *streamBlock {
-	s := &streamBlock{
-		blockInstance:          blockInstance,
+func newStreamCloserManager() *streamCloserManager {
+	s := &streamCloserManager{
 		streamClosers:          make(map[streamCloser]bool),
 		registerStreamCloser:   make(chan streamCloser),
 		deregisterStreamCloser: make(chan streamCloser),
 		closeChannel:           make(chan chan bool),
 	}
 
-	go func(s *streamBlock) {
+	go func(s *streamCloserManager) {
 		for {
 			select {
 			case sc := <-s.registerStreamCloser:
@@ -83,7 +82,7 @@ func newStreamBlock(blockInstance *python.PyObject) *streamBlock {
 	return s
 }
 
-func (s *streamBlock) Close() {
+func (s *streamCloserManager) Close() {
 	respChannel := make(chan bool)
 	s.closeChannel <- respChannel
 	<-respChannel
@@ -96,11 +95,12 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 	threadState := python.PyEval_SaveThread()
 	return &Starcoder{
-		flowgraphDir:  flowgraphDir,
-		temporaryDirs: make([]string, 0),
-		flowGraphs:    make(map[string]*python.PyObject),
-		streamBlocks:  make(map[string]map[string]*streamBlock),
-		threadState:   threadState,
+		flowgraphDir:         flowgraphDir,
+		temporaryDirs:        make([]string, 0),
+		flowGraphs:           make(map[string]*python.PyObject),
+		msgSinkBlocks:        make(map[string]map[string]*python.PyObject),
+		streamCloserManagers: make(map[string]*streamCloserManager),
+		threadState:          threadState,
 	}
 }
 
@@ -365,7 +365,8 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 	uniqueId = "1"
 
 	s.flowGraphs[uniqueId] = flowGraphInstance
-	s.streamBlocks[uniqueId] = make(map[string]*streamBlock)
+	s.msgSinkBlocks[uniqueId] = make(map[string]*python.PyObject)
+	s.streamCloserManagers[uniqueId] = newStreamCloserManager()
 
 	// Look for any Enqueue Message Sink blocks
 	starcoderModule := python.PyImport_ImportModule("starcoder")
@@ -396,7 +397,7 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 				isInstance := val.IsInstance(enqueueMessageSink)
 				if isInstance == 1 {
 					k := python.PyString_AsString(key)
-					s.streamBlocks[uniqueId][k] = newStreamBlock(val)
+					s.msgSinkBlocks[uniqueId][k] = val
 					fmt.Println("found enqueue_msg_sink block:", k)
 				} else if isInstance == -1 {
 					log.Println(getExceptionString())
@@ -413,24 +414,28 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 }
 
 func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessManager_StreamPmtServer) error {
-	var flowGraphStreamBlocks map[string]*streamBlock
-	if sbs, ok := s.streamBlocks[request.GetProcessId()]; !ok {
+	var flowGraphBlocks map[string]*python.PyObject
+	if b, ok := s.msgSinkBlocks[request.GetProcessId()]; !ok {
 		return errors.New(fmt.Sprintf("Invalid flowgraph ID %v", request.GetProcessId()))
 	} else {
-		flowGraphStreamBlocks = sbs
+		flowGraphBlocks = b
 	}
-	var streamBlock *streamBlock
-	if sb, ok := flowGraphStreamBlocks[request.GetBlockId()]; !ok {
+	var blockInstance *python.PyObject
+	if b, ok := flowGraphBlocks[request.GetBlockId()]; !ok {
 		return errors.New(fmt.Sprintf("Invalid block ID %v", request.GetBlockId()))
 	} else {
-		streamBlock = sb
+		blockInstance = b
 	}
 
-	sc := make(chan bool)
-	streamBlock.registerStreamCloser <- sc
+	var streamCloserManager *streamCloserManager
+	if scm, ok := s.streamCloserManagers[request.GetProcessId()]; !ok {
+		return errors.New(fmt.Sprintf("Invalid flowgraph ID %v", request.GetProcessId()))
+	} else {
+		streamCloserManager = scm
+	}
 
 	python.PyEval_RestoreThread(s.threadState)
-	pmtQueue := streamBlock.blockInstance.CallMethod("observe")
+	pmtQueue := blockInstance.CallMethod("observe")
 	if pmtQueue == nil {
 		return errors.New(getExceptionString())
 	}
@@ -440,6 +445,9 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 		pmtQueue.DecRef()
 		s.threadState = python.PyEval_SaveThread()
 	}()
+
+	streamCloser := make(chan bool)
+	streamCloserManager.registerStreamCloser <- streamCloser
 
 	ticker := time.NewTicker(time.Millisecond * 100) // Poll the PMT queue every 100ms
 	for {
@@ -479,10 +487,10 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 			}()
 			if err != nil {
 				// Only need to deregister if the stream is broken through error
-				streamBlock.deregisterStreamCloser <- sc
+				streamCloserManager.deregisterStreamCloser <- streamCloser
 				return err
 			}
-		case <-sc:
+		case <-streamCloser:
 			return nil
 		}
 	}
@@ -497,10 +505,9 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 		}, nil
 	}
 
-	sbs := s.streamBlocks[in.GetProcessId()]
-	for _, sb := range sbs {
-		sb.Close()
-	}
+	scm := s.streamCloserManagers[in.GetProcessId()]
+	scm.Close()
+	delete(s.streamCloserManagers, in.GetProcessId())
 
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
@@ -508,10 +515,6 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 		s.threadState = python.PyEval_SaveThread()
 		runtime.UnlockOSThread()
 	}()
-
-	for _, sb := range sbs {
-		sb.blockInstance.DecRef()
-	}
 
 	flowGraph := s.flowGraphs[in.GetProcessId()]
 
@@ -536,8 +539,12 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 	defer waitCallReturn.DecRef()
 	python.PyErr_Print()
 	flowGraph.DecRef()
-	delete(s.streamBlocks, in.GetProcessId())
 	delete(s.flowGraphs, in.GetProcessId())
+
+	for _, blockInstance := range s.msgSinkBlocks[in.GetProcessId()] {
+		blockInstance.DecRef()
+	}
+	delete(s.msgSinkBlocks, in.GetProcessId())
 
 	return &pb.EndFlowgraphResponse{
 		Status: pb.EndFlowgraphResponse_SUCCESS,
@@ -545,10 +552,8 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 }
 
 func (s *Starcoder) Close() error {
-	for _, sbs := range s.streamBlocks {
-		for _, sb := range sbs {
-			sb.Close()
-		}
+	for _, scm := range s.streamCloserManagers {
+		scm.Close()
 	}
 
 	runtime.LockOSThread()
@@ -573,6 +578,11 @@ func (s *Starcoder) Close() error {
 		}
 		python.PyErr_Print()
 		flowGraph.DecRef()
+	}
+	for _, blocks := range s.msgSinkBlocks {
+		for _, block := range blocks {
+			block.DecRef()
+		}
 	}
 	for _, tempDir := range s.temporaryDirs {
 		os.RemoveAll(tempDir)
