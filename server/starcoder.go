@@ -298,6 +298,13 @@ func (s *Starcoder) RunFlowgraph(stream pb.StarCoder_RunFlowgraphServer) error {
 		pmtQueues[key] = pmtQueue
 		s.threadState = python.PyEval_SaveThread()
 	}
+	defer func() {
+		python.PyEval_RestoreThread(s.threadState)
+		for _, blockInstance := range msgSinkBlocks {
+			blockInstance.DecRef()
+		}
+		s.threadState = python.PyEval_SaveThread()
+	}()
 
 	closeChannel := make(chan bool)
 	ticker := time.NewTicker(time.Millisecond * 100)
@@ -325,35 +332,28 @@ func (s *Starcoder) RunFlowgraph(stream pb.StarCoder_RunFlowgraphServer) error {
 		for {
 			select {
 			case <-closeChannel:
+				err := s.stopFlowGraph(flowGraphInstance)
+				if err != nil {
+					return err
+				}
+				for k, pmtQueue := range pmtQueues {
+					bytes, err := s.getBytesFromQueue(pmtQueue)
+					if err != nil {
+						return err
+					}
+					for _, b := range bytes {
+						if err := stream.Send(&pb.RunFlowgraphResponse{
+							BlockId: k,
+							Payload: b,
+						}); err != nil {
+							return err
+						}
+					}
+				}
 				return nil
 			case <-ticker.C:
 				for k, pmtQueue := range pmtQueues {
-					bytes, err := func() ([][]byte, error) {
-						runtime.LockOSThread()
-						python.PyEval_RestoreThread(s.threadState)
-						defer func() {
-							s.threadState = python.PyEval_SaveThread()
-							runtime.UnlockOSThread()
-						}()
-						length := python.PyList_Size(pmtQueue)
-
-						var bytes [][]byte
-
-						emptyList := python.PyList_New(0)
-						defer emptyList.DecRef()
-
-						for i := 0; i < length; i++ {
-							// TODO: Convert PMT to a gRPC native data structure.
-							// Use built-in PMT serialization for now.
-							pmtBytes := python.PyByteArray_AsBytes(python.PyList_GetItem(pmtQueue, i))
-							err := python.PyList_SetSlice(pmtQueue, 0, length, emptyList)
-							if err != nil {
-								return nil, err
-							}
-							bytes = append(bytes, pmtBytes)
-						}
-						return bytes, nil
-					}()
+					bytes, err := s.getBytesFromQueue(pmtQueue)
 					if err != nil {
 						return err
 					}
@@ -373,39 +373,59 @@ func (s *Starcoder) RunFlowgraph(stream pb.StarCoder_RunFlowgraphServer) error {
 		return err
 	}
 
-	err = func() error {
-		runtime.LockOSThread()
-		python.PyEval_RestoreThread(s.threadState)
-		defer func() {
-			s.threadState = python.PyEval_SaveThread()
-			runtime.UnlockOSThread()
-		}()
+	return nil
+}
 
-		// TODO: Check if the flow graph has already exited. Does it matter?
-
-		stopCallReturn := flowGraphInstance.CallMethod("stop")
-		if stopCallReturn == nil {
-			return errors.New(getExceptionString())
-		}
-		defer stopCallReturn.DecRef()
-		// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
-		waitCallReturn := flowGraphInstance.CallMethod("wait")
-		if waitCallReturn == nil {
-			return errors.New(getExceptionString())
-		}
-		defer waitCallReturn.DecRef()
-		python.PyErr_Print()
-		flowGraphInstance.DecRef()
-
-		for _, blockInstance := range msgSinkBlocks {
-			blockInstance.DecRef()
-		}
-		return nil
+func (s *Starcoder) getBytesFromQueue(pmtQueue *python.PyObject) ([][]byte, error) {
+	runtime.LockOSThread()
+	python.PyEval_RestoreThread(s.threadState)
+	defer func() {
+		s.threadState = python.PyEval_SaveThread()
+		runtime.UnlockOSThread()
 	}()
-	if err != nil {
-		return err
-	}
+	length := python.PyList_Size(pmtQueue)
 
+	var bytes [][]byte
+
+	emptyList := python.PyList_New(0)
+	defer emptyList.DecRef()
+
+	for i := 0; i < length; i++ {
+		// TODO: Convert PMT to a gRPC native data structure.
+		// Use built-in PMT serialization for now.
+		pmtBytes := python.PyByteArray_AsBytes(python.PyList_GetItem(pmtQueue, i))
+		err := python.PyList_SetSlice(pmtQueue, 0, length, emptyList)
+		if err != nil {
+			return nil, err
+		}
+		bytes = append(bytes, pmtBytes)
+	}
+	return bytes, nil
+}
+
+func (s *Starcoder) stopFlowGraph(flowGraphInstance *python.PyObject) error {
+	runtime.LockOSThread()
+	python.PyEval_RestoreThread(s.threadState)
+	defer func() {
+		s.threadState = python.PyEval_SaveThread()
+		runtime.UnlockOSThread()
+	}()
+
+	// TODO: Check if the flow graph has already exited. Does it matter?
+
+	stopCallReturn := flowGraphInstance.CallMethod("stop")
+	if stopCallReturn == nil {
+		return errors.New(getExceptionString())
+	}
+	defer stopCallReturn.DecRef()
+	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
+	waitCallReturn := flowGraphInstance.CallMethod("wait")
+	if waitCallReturn == nil {
+		return errors.New(getExceptionString())
+	}
+	defer waitCallReturn.DecRef()
+	python.PyErr_Print()
+	flowGraphInstance.DecRef()
 	return nil
 }
 
