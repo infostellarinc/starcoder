@@ -41,7 +41,7 @@ type Starcoder struct {
 	temporaryDirs        []string
 	flowGraphs           map[string]*python.PyObject
 	msgSinkBlocks        map[string]map[string]*python.PyObject
-	streamCloserManagers map[string]*pollStreamerManager
+	pollStreamerManagers map[string]*pollStreamerManager
 	threadState          *python.PyThreadState
 }
 
@@ -111,7 +111,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 		temporaryDirs:        make([]string, 0),
 		flowGraphs:           make(map[string]*python.PyObject),
 		msgSinkBlocks:        make(map[string]map[string]*python.PyObject),
-		streamCloserManagers: make(map[string]*pollStreamerManager),
+		pollStreamerManagers: make(map[string]*pollStreamerManager),
 		threadState:          threadState,
 	}
 }
@@ -377,7 +377,7 @@ func (s *Starcoder) StartFlowgraph(ctx context.Context, in *pb.StartFlowgraphReq
 
 	s.flowGraphs[uniqueId] = flowGraphInstance
 	s.msgSinkBlocks[uniqueId] = make(map[string]*python.PyObject)
-	s.streamCloserManagers[uniqueId] = newPollStreamerManager()
+	s.pollStreamerManagers[uniqueId] = newPollStreamerManager()
 
 	// Look for any Enqueue Message Sink blocks
 	starcoderModule := python.PyImport_ImportModule("starcoder")
@@ -438,11 +438,11 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 		blockInstance = b
 	}
 
-	var streamCloserManager *pollStreamerManager
-	if scm, ok := s.streamCloserManagers[request.GetProcessId()]; !ok {
+	var psManager *pollStreamerManager
+	if scm, ok := s.pollStreamerManagers[request.GetProcessId()]; !ok {
 		return errors.New(fmt.Sprintf("Invalid flowgraph ID %v", request.GetProcessId()))
 	} else {
-		streamCloserManager = scm
+		psManager = scm
 	}
 
 	python.PyEval_RestoreThread(s.threadState)
@@ -461,7 +461,7 @@ func (s *Starcoder) StreamPmt(request *pb.StreamPmtRequest, stream pb.ProcessMan
 		closeChannel:         make(chan bool),
 		retrieveErrorChannel: make(chan chan error),
 	}
-	streamCloserManager.registerPollStreamer <- streamer
+	psManager.registerPollStreamer <- streamer
 
 	ticker := time.NewTicker(time.Millisecond * 100) // Poll the PMT queue every 100ms
 
@@ -530,9 +530,9 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 		}, nil
 	}
 
-	scm := s.streamCloserManagers[in.GetProcessId()]
+	scm := s.pollStreamerManagers[in.GetProcessId()]
 	scm.Close()
-	delete(s.streamCloserManagers, in.GetProcessId())
+	delete(s.pollStreamerManagers, in.GetProcessId())
 
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
@@ -577,7 +577,7 @@ func (s *Starcoder) EndFlowgraph(ctx context.Context, in *pb.EndFlowgraphRequest
 }
 
 func (s *Starcoder) Close() error {
-	for _, scm := range s.streamCloserManagers {
+	for _, scm := range s.pollStreamerManagers {
 		scm.Close()
 	}
 
