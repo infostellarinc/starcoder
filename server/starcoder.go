@@ -86,7 +86,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	return s
 }
 
-func (s *Starcoder) CloseAllStreams() {
+func (s *Starcoder) closeAllStreams() {
 	respCh := make(chan bool)
 	s.closeAllStreamsChannel <- respCh
 	<-respCh
@@ -566,7 +566,7 @@ func (s *Starcoder) withPythonInterpreter(f func()) {
 }
 
 func (s *Starcoder) Close() error {
-	s.CloseAllStreams()
+	s.closeAllStreams()
 
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
