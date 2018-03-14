@@ -34,6 +34,8 @@ import (
 	"time"
 )
 
+import "C"
+
 type Starcoder struct {
 	flowgraphDir  string
 	temporaryDirs []string
@@ -53,7 +55,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 }
 
-func (s *Starcoder) RunFlowgraph(stream pb.StarCoder_RunFlowgraphServer) error {
+func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	in, err := stream.Recv()
 	if err == io.EOF {
 		return nil
