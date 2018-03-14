@@ -344,6 +344,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		for {
 			select {
 			case <-closeChannel:
+				// TODO: Make this call unblock by getting rid of `wait`
 				err := s.stopFlowGraph(flowGraphInstance)
 				if err != nil {
 					return err
