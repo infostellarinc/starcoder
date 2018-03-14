@@ -108,174 +108,187 @@ func (s *Starcoder) compileGrc(path string) (string, error) {
 }
 
 func (s *Starcoder) startFlowGraph(inFilePythonPath string, request *pb.RunFlowgraphRequest) (*python.PyObject, map[string]*python.PyObject, error) {
-	runtime.LockOSThread()
-	python.PyEval_RestoreThread(s.threadState)
-	defer func() {
-		s.threadState = python.PyEval_SaveThread()
-		runtime.UnlockOSThread()
-	}()
+	var flowGraphInstance *python.PyObject
+	var msgSinkBlocks map[string]*python.PyObject
+	var err error
 
-	// Append module directory to sys.path
-	log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
-	sysPath := python.PySys_GetObject("path")
-	if sysPath == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
-	if moduleDir == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer moduleDir.DecRef()
-	err := python.PyList_Append(sysPath, moduleDir)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// Import module
-	moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
-	log.Printf("Importing %v", moduleName)
-	module := python.PyImport_ImportModule(moduleName)
-	if module == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer module.DecRef()
-
-	// Find top_block subclass
-	// GRC compiled python scripts have the top block class name equal to the python filename.
-	flowGraphClassName := moduleName
-	flowgraphClass := module.GetAttrString(flowGraphClassName)
-	if flowgraphClass == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer flowgraphClass.DecRef()
-	gnuRadioModule := python.PyImport_ImportModule("gnuradio")
-	if gnuRadioModule == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer gnuRadioModule.DecRef()
-	grModule := gnuRadioModule.GetAttrString("gr")
-	if grModule == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer grModule.DecRef()
-	topBlock := grModule.GetAttrString("top_block")
-	if topBlock == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer topBlock.DecRef()
-
-	// Verify top_block subclass
-	isSubclass := flowgraphClass.IsSubclass(topBlock)
-	if isSubclass == 0 {
-		return nil, nil, errors.New(fmt.Sprintf(
-			"Top block class %v is not a "+
-				"subclass of gnuradio.gr.top_block", flowGraphClassName))
-
-	} else if isSubclass == -1 {
-		return nil, nil, errors.New(getExceptionString())
-	}
-
-	kwArgs := python.PyDict_New()
-	if kwArgs == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer kwArgs.DecRef()
-
-	for _, param := range request.GetParameters() {
-		err := func() error {
-			pyKey := python.PyString_FromString(param.GetKey())
-			if pyKey == nil {
-				return errors.New(getExceptionString())
-			}
-			defer pyKey.DecRef()
-			var convertedValue *python.PyObject
-			switch v := param.GetValue().GetVal().(type) {
-			case *pb.Value_StringValue:
-				convertedValue = python.PyString_FromString(v.StringValue)
-			case *pb.Value_IntegerValue:
-				convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
-			case *pb.Value_LongValue:
-				convertedValue = python.PyLong_FromLongLong(v.LongValue)
-			case *pb.Value_FloatValue:
-				convertedValue = python.PyFloat_FromDouble(v.FloatValue)
-			case *pb.Value_ComplexValue:
-				convertedValue = python.PyComplex_FromDoubles(
-					v.ComplexValue.GetRealValue(),
-					v.ComplexValue.GetImaginaryValue())
-			default:
-				return errors.New("unsupported value type")
-			}
-			if convertedValue == nil {
-				return errors.New(getExceptionString())
-			}
-			defer convertedValue.DecRef()
-			err := python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
-			if err != nil {
-				return errors.New(getExceptionString())
-			}
-			return nil
-		}()
-		if err != nil {
-			return nil, nil, err
+	s.withPythonInterpreter(func() {
+		// Append module directory to sys.path
+		log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
+		sysPath := python.PySys_GetObject("path")
+		if sysPath == nil {
+			err = errors.New(getExceptionString())
+			return
 		}
-	}
+		moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
+		if moduleDir == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer moduleDir.DecRef()
+		err = python.PyList_Append(sysPath, moduleDir)
+		if err != nil {
+			return
+		}
 
-	emptyTuple := python.PyTuple_New(0)
-	if emptyTuple == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer emptyTuple.DecRef()
+		// Import module
+		moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
+		log.Printf("Importing %v", moduleName)
+		module := python.PyImport_ImportModule(moduleName)
+		if module == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer module.DecRef()
 
-	flowGraphInstance := flowgraphClass.Call(emptyTuple, kwArgs)
-	if flowGraphInstance == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
+		// Find top_block subclass
+		// GRC compiled python scripts have the top block class name equal to the python filename.
+		flowGraphClassName := moduleName
+		flowgraphClass := module.GetAttrString(flowGraphClassName)
+		if flowgraphClass == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer flowgraphClass.DecRef()
+		gnuRadioModule := python.PyImport_ImportModule("gnuradio")
+		if gnuRadioModule == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer gnuRadioModule.DecRef()
+		grModule := gnuRadioModule.GetAttrString("gr")
+		if grModule == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer grModule.DecRef()
+		topBlock := grModule.GetAttrString("top_block")
+		if topBlock == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer topBlock.DecRef()
 
-	callReturn := flowGraphInstance.CallMethod("start")
-	if callReturn == nil {
-		return nil, nil, errors.New(getExceptionString())
-	}
-	defer callReturn.DecRef()
+		// Verify top_block subclass
+		isSubclass := flowgraphClass.IsSubclass(topBlock)
+		if isSubclass == 0 {
+			err = errors.New(fmt.Sprintf(
+				"Top block class %v is not a "+
+					"subclass of gnuradio.gr.top_block", flowGraphClassName))
+			return
 
-	msgSinkBlocks := make(map[string]*python.PyObject)
+		} else if isSubclass == -1 {
+			err = errors.New(getExceptionString())
+			return
+		}
 
-	// Look for any Enqueue Message Sink blocks
-	starcoderModule := python.PyImport_ImportModule("starcoder")
-	if starcoderModule == nil {
-		log.Println("gr-starcoder module not found. There are no Enqueue Message Sink blocks")
-	} else {
-		defer starcoderModule.DecRef()
+		kwArgs := python.PyDict_New()
+		if kwArgs == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer kwArgs.DecRef()
 
-		enqueueMessageSink := starcoderModule.GetAttrString("enqueue_msg_sink")
-		if enqueueMessageSink == nil {
-			log.Println("gr-starcoder module does not contain enqueue_msg_sink")
-		} else {
-			defer enqueueMessageSink.DecRef()
-			flowGraphDict := flowGraphInstance.GetAttrString("__dict__")
-			if flowGraphDict == nil {
-				return nil, nil, errors.New(getExceptionString())
+		for _, param := range request.GetParameters() {
+			err = func() error {
+				pyKey := python.PyString_FromString(param.GetKey())
+				if pyKey == nil {
+					return errors.New(getExceptionString())
+				}
+				defer pyKey.DecRef()
+				var convertedValue *python.PyObject
+				switch v := param.GetValue().GetVal().(type) {
+				case *pb.Value_StringValue:
+					convertedValue = python.PyString_FromString(v.StringValue)
+				case *pb.Value_IntegerValue:
+					convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
+				case *pb.Value_LongValue:
+					convertedValue = python.PyLong_FromLongLong(v.LongValue)
+				case *pb.Value_FloatValue:
+					convertedValue = python.PyFloat_FromDouble(v.FloatValue)
+				case *pb.Value_ComplexValue:
+					convertedValue = python.PyComplex_FromDoubles(
+						v.ComplexValue.GetRealValue(),
+						v.ComplexValue.GetImaginaryValue())
+				default:
+					return errors.New("unsupported value type")
+				}
+				if convertedValue == nil {
+					return errors.New(getExceptionString())
+				}
+				defer convertedValue.DecRef()
+				err := python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
+				if err != nil {
+					return errors.New(getExceptionString())
+				}
+				return nil
+			}()
+			if err != nil {
+				return
 			}
-			defer flowGraphDict.DecRef()
+		}
 
-			iter := 0
-			key := python.PyString_FromString("")
-			defer key.DecRef()
-			val := python.PyString_FromString("")
-			defer val.DecRef()
-			for python.PyDict_Next(flowGraphDict, &iter, &key, &val) {
-				// Verify enqueue_msg_sink instance
-				isInstance := val.IsInstance(enqueueMessageSink)
-				if isInstance == 1 {
-					k := python.PyString_AsString(key)
-					msgSinkBlocks[k] = val
-					fmt.Println("found enqueue_msg_sink block:", k)
-				} else if isInstance == -1 {
-					log.Println(getExceptionString())
+		emptyTuple := python.PyTuple_New(0)
+		if emptyTuple == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer emptyTuple.DecRef()
+
+		flowGraphInstance = flowgraphClass.Call(emptyTuple, kwArgs)
+		if flowGraphInstance == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+
+		callReturn := flowGraphInstance.CallMethod("start")
+		if callReturn == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer callReturn.DecRef()
+
+		msgSinkBlocks = make(map[string]*python.PyObject)
+
+		// Look for any Enqueue Message Sink blocks
+		starcoderModule := python.PyImport_ImportModule("starcoder")
+		if starcoderModule == nil {
+			log.Println("gr-starcoder module not found. There are no Enqueue Message Sink blocks")
+		} else {
+			defer starcoderModule.DecRef()
+
+			enqueueMessageSink := starcoderModule.GetAttrString("enqueue_msg_sink")
+			if enqueueMessageSink == nil {
+				log.Println("gr-starcoder module does not contain enqueue_msg_sink")
+			} else {
+				defer enqueueMessageSink.DecRef()
+				flowGraphDict := flowGraphInstance.GetAttrString("__dict__")
+				if flowGraphDict == nil {
+					err = errors.New(getExceptionString())
+					return
+				}
+				defer flowGraphDict.DecRef()
+
+				iter := 0
+				key := python.PyString_FromString("")
+				defer key.DecRef()
+				val := python.PyString_FromString("")
+				defer val.DecRef()
+				for python.PyDict_Next(flowGraphDict, &iter, &key, &val) {
+					// Verify enqueue_msg_sink instance
+					isInstance := val.IsInstance(enqueueMessageSink)
+					if isInstance == 1 {
+						k := python.PyString_AsString(key)
+						msgSinkBlocks[k] = val
+						fmt.Println("found enqueue_msg_sink block:", k)
+					} else if isInstance == -1 {
+						log.Println(getExceptionString())
+					}
 				}
 			}
 		}
-	}
-	return flowGraphInstance, msgSinkBlocks, nil
+	})
+	return flowGraphInstance, msgSinkBlocks, err
 }
 
 func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
@@ -301,21 +314,24 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 
 	pmtQueues := make(map[string]*python.PyObject)
 
-	for key, b := range msgSinkBlocks {
-		python.PyEval_RestoreThread(s.threadState)
-		pmtQueue := b.CallMethod("observe")
-		if pmtQueue == nil {
-			return errors.New(getExceptionString())
+	for key, blockInstance := range msgSinkBlocks {
+		s.withPythonInterpreter(func() {
+			pmtQueue := blockInstance.CallMethod("observe")
+			if pmtQueue == nil {
+				err = errors.New(getExceptionString())
+			}
+			pmtQueues[key] = pmtQueue
+		})
+		if err != nil {
+			return err
 		}
-		pmtQueues[key] = pmtQueue
-		s.threadState = python.PyEval_SaveThread()
 	}
 	defer func() {
-		python.PyEval_RestoreThread(s.threadState)
-		for _, blockInstance := range msgSinkBlocks {
-			blockInstance.DecRef()
-		}
-		s.threadState = python.PyEval_SaveThread()
+		s.withPythonInterpreter(func() {
+			for _, blockInstance := range msgSinkBlocks {
+				blockInstance.DecRef()
+			}
+		})
 	}()
 
 	closeChannel := make(chan bool)
@@ -417,29 +433,37 @@ func (s *Starcoder) getBytesFromQueue(pmtQueue *python.PyObject) ([][]byte, erro
 }
 
 func (s *Starcoder) stopFlowGraph(flowGraphInstance *python.PyObject) error {
+	var err error
+	s.withPythonInterpreter(func() {
+		// TODO: Check if the flow graph has already exited. Does it matter?
+
+		stopCallReturn := flowGraphInstance.CallMethod("stop")
+		if stopCallReturn == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer stopCallReturn.DecRef()
+		// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
+		waitCallReturn := flowGraphInstance.CallMethod("wait")
+		if waitCallReturn == nil {
+			err = errors.New(getExceptionString())
+			return
+		}
+		defer waitCallReturn.DecRef()
+		python.PyErr_Print()
+		flowGraphInstance.DecRef()
+	})
+	return err
+}
+
+func (s *Starcoder) withPythonInterpreter(f func()) {
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
 	defer func() {
 		s.threadState = python.PyEval_SaveThread()
 		runtime.UnlockOSThread()
 	}()
-
-	// TODO: Check if the flow graph has already exited. Does it matter?
-
-	stopCallReturn := flowGraphInstance.CallMethod("stop")
-	if stopCallReturn == nil {
-		return errors.New(getExceptionString())
-	}
-	defer stopCallReturn.DecRef()
-	// TODO: Is it possible "stop" won't work? Should we timeout "wait"?
-	waitCallReturn := flowGraphInstance.CallMethod("wait")
-	if waitCallReturn == nil {
-		return errors.New(getExceptionString())
-	}
-	defer waitCallReturn.DecRef()
-	python.PyErr_Print()
-	flowGraphInstance.DecRef()
-	return nil
+	f()
 }
 
 func (s *Starcoder) Close() error {
