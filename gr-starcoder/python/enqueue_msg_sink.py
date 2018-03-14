@@ -24,7 +24,8 @@ import pmt
 
 class enqueue_msg_sink(gr.basic_block):
     """
-    docstring for block enqueue_msg_sink
+    This block can be "observed" by outside objects using its `observe` method.
+    Each PMT received by this block is given to all its registered observers.
     """
     def __init__(self):
         gr.basic_block.__init__(self,

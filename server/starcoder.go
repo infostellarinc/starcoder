@@ -55,6 +55,58 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 }
 
+func (s *Starcoder) compileGrc(path string) (string, error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return "", err
+	}
+
+	var inFilePythonPath string
+
+	if strings.HasSuffix(path, ".grc") {
+		grccPath, err := exec.LookPath("grcc")
+		if err != nil {
+			return "", err
+		}
+
+		// Create temporary directory to store compiled .py file.
+		// We need this because we can't control the output filename
+		// of the compiled file.
+		// TODO: Should rename the file to something unique so it can be safely imported.
+		// Weird things will happen if the module name of two different flowgraphs is the same.
+		tempDir, err := ioutil.TempDir("", "starcoder")
+		if err != nil {
+			return "", err
+		}
+		s.temporaryDirs = append(s.temporaryDirs, tempDir)
+
+		grccCmd := exec.Command(grccPath, "-d", tempDir, path)
+		err = grccCmd.Run()
+		if err != nil {
+			return "", err
+		}
+
+		files, err := ioutil.ReadDir(tempDir)
+		if err != nil {
+			return "", err
+		}
+
+		if len(files) != 1 {
+			return "", errors.New(fmt.Sprintf(
+				"Unexpected number of files output by GRCC: %v", len(files)))
+		}
+
+		inFilePythonPath = filepath.Join(tempDir, files[0].Name())
+		log.Printf("Successfully compiled GRC file to %v", inFilePythonPath)
+
+	} else if strings.HasSuffix(path, ".py") {
+		inFilePythonPath = path
+		log.Printf("Directly using Python file at %v", inFilePythonPath)
+	} else {
+		return "", errors.New("unsupported file type")
+	}
+	return inFilePythonPath, nil
+}
+
 func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	in, err := stream.Recv()
 	if err == io.EOF {
@@ -66,53 +118,9 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 
 	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
 
-	if _, err := os.Stat(inFileAbsPath); os.IsNotExist(err) {
+	inFilePythonPath, err := s.compileGrc(inFileAbsPath)
+	if err != nil {
 		return err
-	}
-
-	var inFilePythonPath string
-
-	if strings.HasSuffix(in.GetFilename(), ".grc") {
-		grccPath, err := exec.LookPath("grcc")
-		if err != nil {
-			return err
-		}
-
-		// Create temporary directory to store compiled .py file.
-		// We need this because we can't control the output filename
-		// of the compiled file.
-		// TODO: Should rename the file to something unique so it can be safely imported.
-		// Weird things will happen if the module name of two different flowgraphs is the same.
-		tempDir, err := ioutil.TempDir("", "starcoder")
-		if err != nil {
-			return err
-		}
-		s.temporaryDirs = append(s.temporaryDirs, tempDir)
-
-		grccCmd := exec.Command(grccPath, "-d", tempDir, inFileAbsPath)
-		err = grccCmd.Run()
-		if err != nil {
-			return err
-		}
-
-		files, err := ioutil.ReadDir(tempDir)
-		if err != nil {
-			return err
-		}
-
-		if len(files) != 1 {
-			return errors.New(fmt.Sprintf(
-				"Unexpected number of files output by GRCC: %v", len(files)))
-		}
-
-		inFilePythonPath = filepath.Join(tempDir, files[0].Name())
-		log.Printf("Successfully compiled GRC file to %v", inFilePythonPath)
-
-	} else if strings.HasSuffix(in.GetFilename(), ".py") {
-		inFilePythonPath = inFileAbsPath
-		log.Printf("Directly using Python file at %v", inFilePythonPath)
-	} else {
-		return errors.New("unsupported file type")
 	}
 
 	flowGraphInstance, msgSinkBlocks, err := func() (*python.PyObject, map[string]*python.PyObject, error) {
