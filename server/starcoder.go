@@ -36,10 +36,12 @@ import (
 )
 
 type Starcoder struct {
-	flowgraphDir   string
-	temporaryDirs  []string
-	threadState    *python.PyThreadState
-	streamsManager *streamsManager
+	flowgraphDir           string
+	temporaryDirs          []string
+	threadState            *python.PyThreadState
+	streamHandlers         map[*streamHandler]bool // registered stream handlers
+	registerStreamHandler  chan *streamHandler
+	closeAllStreamsChannel chan chan bool
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
@@ -48,22 +50,10 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 		log.Fatalf("failed to initialize python: %v", err)
 	}
 	threadState := python.PyEval_SaveThread()
-	return &Starcoder{
-		flowgraphDir:   flowgraphDir,
-		temporaryDirs:  make([]string, 0),
-		threadState:    threadState,
-		streamsManager: newStreamsManager(),
-	}
-}
-
-type streamsManager struct {
-	streamHandlers         map[*streamHandler]bool // registered stream handlers
-	registerStreamHandler  chan *streamHandler
-	closeAllStreamsChannel chan chan bool
-}
-
-func newStreamsManager() *streamsManager {
-	sm := &streamsManager{
+	s := &Starcoder{
+		flowgraphDir:           flowgraphDir,
+		temporaryDirs:          make([]string, 0),
+		threadState:            threadState,
 		streamHandlers:         make(map[*streamHandler]bool),
 		registerStreamHandler:  make(chan *streamHandler),
 		closeAllStreamsChannel: make(chan chan bool),
@@ -71,32 +61,34 @@ func newStreamsManager() *streamsManager {
 
 	ticker := time.NewTicker(100 * time.Millisecond) // How often to check if a stream should end
 
-	go func(sm *streamsManager) {
+	go func(s *Starcoder) {
 		for {
 			select {
-			case sh := <-sm.registerStreamHandler:
-				sm.streamHandlers[sh] = true
+			case sh := <-s.registerStreamHandler:
+				s.streamHandlers[sh] = true
 			case <-ticker.C:
-				for sh := range sm.streamHandlers {
+				for sh := range s.streamHandlers {
 					if sh.MustClose() {
 						sh.Close()
-						delete(sm.streamHandlers, sh)
+						delete(s.streamHandlers, sh)
 					}
 				}
-			case respCh := <-sm.closeAllStreamsChannel:
-				for sh := range sm.streamHandlers {
+			case respCh := <-s.closeAllStreamsChannel:
+				for sh := range s.streamHandlers {
 					sh.Close()
 				}
 				respCh <- true
+				return
 			}
 		}
-	}(sm)
-	return sm
+	}(s)
+
+	return s
 }
 
-func (sm *streamsManager) CloseAllStreams() {
+func (s *Starcoder) CloseAllStreams() {
 	respCh := make(chan bool)
-	sm.closeAllStreamsChannel <- respCh
+	s.closeAllStreamsChannel <- respCh
 	<-respCh
 }
 
@@ -269,7 +261,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	}()
 
 	sh := newStreamHandler(s, stream, flowGraphInstance, pmtQueues)
-	s.streamsManager.registerStreamHandler <- sh
+	s.registerStreamHandler <- sh
 	sh.Wait()
 
 	return sh.streamError
@@ -576,7 +568,7 @@ func (s *Starcoder) withPythonInterpreter(f func()) {
 }
 
 func (s *Starcoder) Close() error {
-	s.streamsManager.CloseAllStreams()
+	s.CloseAllStreams()
 
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
