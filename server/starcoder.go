@@ -189,44 +189,7 @@ func (s *Starcoder) startFlowGraph(inFilePythonPath string, request *pb.RunFlowg
 		}
 		defer kwArgs.DecRef()
 
-		for _, param := range request.GetParameters() {
-			err = func() error {
-				pyKey := python.PyString_FromString(param.GetKey())
-				if pyKey == nil {
-					return errors.New(getExceptionString())
-				}
-				defer pyKey.DecRef()
-				var convertedValue *python.PyObject
-				switch v := param.GetValue().GetVal().(type) {
-				case *pb.Value_StringValue:
-					convertedValue = python.PyString_FromString(v.StringValue)
-				case *pb.Value_IntegerValue:
-					convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
-				case *pb.Value_LongValue:
-					convertedValue = python.PyLong_FromLongLong(v.LongValue)
-				case *pb.Value_FloatValue:
-					convertedValue = python.PyFloat_FromDouble(v.FloatValue)
-				case *pb.Value_ComplexValue:
-					convertedValue = python.PyComplex_FromDoubles(
-						v.ComplexValue.GetRealValue(),
-						v.ComplexValue.GetImaginaryValue())
-				default:
-					return errors.New("unsupported value type")
-				}
-				if convertedValue == nil {
-					return errors.New(getExceptionString())
-				}
-				defer convertedValue.DecRef()
-				err := python.PyDict_SetItem(kwArgs, pyKey, convertedValue)
-				if err != nil {
-					return errors.New(getExceptionString())
-				}
-				return nil
-			}()
-			if err != nil {
-				return
-			}
-		}
+		fillDictWithParameters(kwArgs, request.GetParameters())
 
 		emptyTuple := python.PyTuple_New(0)
 		if emptyTuple == nil {
@@ -291,6 +254,48 @@ func (s *Starcoder) startFlowGraph(inFilePythonPath string, request *pb.RunFlowg
 	return flowGraphInstance, msgSinkBlocks, err
 }
 
+func fillDictWithParameters(dict *python.PyObject, params []*pb.RunFlowgraphRequest_Parameter) error {
+	for _, param := range params {
+		err := func() error {
+			pyKey := python.PyString_FromString(param.GetKey())
+			if pyKey == nil {
+				return errors.New(getExceptionString())
+			}
+			defer pyKey.DecRef()
+			var convertedValue *python.PyObject
+			switch v := param.GetValue().GetVal().(type) {
+			case *pb.Value_StringValue:
+				convertedValue = python.PyString_FromString(v.StringValue)
+			case *pb.Value_IntegerValue:
+				convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
+			case *pb.Value_LongValue:
+				convertedValue = python.PyLong_FromLongLong(v.LongValue)
+			case *pb.Value_FloatValue:
+				convertedValue = python.PyFloat_FromDouble(v.FloatValue)
+			case *pb.Value_ComplexValue:
+				convertedValue = python.PyComplex_FromDoubles(
+					v.ComplexValue.GetRealValue(),
+					v.ComplexValue.GetImaginaryValue())
+			default:
+				return errors.New("unsupported value type")
+			}
+			if convertedValue == nil {
+				return errors.New(getExceptionString())
+			}
+			defer convertedValue.DecRef()
+			err := python.PyDict_SetItem(dict, pyKey, convertedValue)
+			if err != nil {
+				return errors.New(getExceptionString())
+			}
+			return nil
+		}()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	in, err := stream.Recv()
 	if err == io.EOF {
@@ -335,8 +340,6 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	}()
 
 	closeChannel := make(chan bool)
-	ticker := time.NewTicker(time.Millisecond * 100)
-
 	go func() {
 		for {
 			// Beyond the first packet, we don't care what the client
@@ -356,6 +359,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	}()
 
 	// Streaming loop here
+	ticker := time.NewTicker(time.Millisecond * 100)
 	err = func() error {
 		for {
 			select {
