@@ -35,8 +35,6 @@ import (
 	"time"
 )
 
-import "C"
-
 type Starcoder struct {
 	flowgraphDir   string
 	temporaryDirs  []string
