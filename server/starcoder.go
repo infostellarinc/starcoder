@@ -97,7 +97,7 @@ type streamHandler struct {
 	stream            pb.Starcoder_RunFlowgraphServer
 	flowGraphInstance *python.PyObject
 	pmtQueues         map[string]*python.PyObject
-	mustClose         bool
+	clientFinished    bool
 	streamError       error
 	wg                sync.WaitGroup
 	retrieveMustClose chan chan bool
@@ -110,7 +110,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		stream:            stream,
 		flowGraphInstance: fgInstance,
 		pmtQueues:         pmtQueues,
-		mustClose:         false,
+		clientFinished:    false,
 		streamError:       nil,
 		wg:                sync.WaitGroup{},
 		retrieveMustClose: make(chan chan bool),
@@ -144,13 +144,12 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		for {
 			select {
 			case <-ticker.C:
-				if sh.mustClose {
+				if sh.clientFinished || sh.streamError != nil {
 					break
 				}
 				for k, pmtQueue := range sh.pmtQueues {
 					bytes, err := sh.starcoder.getBytesFromQueue(pmtQueue)
 					if err != nil {
-						sh.mustClose = true
 						sh.streamError = err
 					}
 					for _, b := range bytes {
@@ -158,15 +157,14 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 							BlockId: k,
 							Payload: b,
 						}); err != nil {
-							sh.mustClose = true
 							sh.streamError = err
 						}
 					}
 				}
 			case <-mustCloseChan:
-				sh.mustClose = true
+				sh.clientFinished = true
 			case respChannel := <-sh.retrieveMustClose:
-				respChannel <- sh.mustClose
+				respChannel <- sh.clientFinished || sh.streamError != nil
 			case respChannel := <-sh.closeChannel:
 				// TODO: Make this call unblock by getting rid of `wait`
 				err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
