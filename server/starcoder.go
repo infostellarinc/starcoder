@@ -55,6 +55,119 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 }
 
+func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
+	in, err := stream.Recv()
+	if err == io.EOF {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
+
+	inFilePythonPath, err := s.compileGrc(inFileAbsPath)
+	if err != nil {
+		return err
+	}
+
+	flowGraphInstance, msgSinkBlocks, err := s.startFlowGraph(inFilePythonPath, in)
+	if err != nil {
+		return err
+	}
+
+	pmtQueues := make(map[string]*python.PyObject)
+
+	for key, blockInstance := range msgSinkBlocks {
+		s.withPythonInterpreter(func() {
+			pmtQueue := blockInstance.CallMethod("observe")
+			if pmtQueue == nil {
+				err = errors.New(getExceptionString())
+			}
+			pmtQueues[key] = pmtQueue
+		})
+		if err != nil {
+			return err
+		}
+	}
+	defer func() {
+		s.withPythonInterpreter(func() {
+			for _, blockInstance := range msgSinkBlocks {
+				blockInstance.DecRef()
+			}
+		})
+	}()
+
+	closeChannel := make(chan bool)
+	go func() {
+		for {
+			// Beyond the first packet, we don't care what the client
+			// is sending us until it wants to end the connection.
+			_, err := stream.Recv()
+			if err == io.EOF {
+				// Client is done listening
+				closeChannel <- true
+				return
+			}
+			if err != nil {
+				closeChannel <- true
+				log.Printf("%v", err)
+				return
+			}
+		}
+	}()
+
+	// Streaming loop here
+	ticker := time.NewTicker(time.Millisecond * 100)
+	err = func() error {
+		for {
+			select {
+			case <-closeChannel:
+				// TODO: Make this call unblock by getting rid of `wait`
+				err := s.stopFlowGraph(flowGraphInstance)
+				if err != nil {
+					return err
+				}
+				for k, pmtQueue := range pmtQueues {
+					bytes, err := s.getBytesFromQueue(pmtQueue)
+					if err != nil {
+						return err
+					}
+					for _, b := range bytes {
+						if err := stream.Send(&pb.RunFlowgraphResponse{
+							BlockId: k,
+							Payload: b,
+						}); err != nil {
+							return err
+						}
+					}
+				}
+				return nil
+			case <-ticker.C:
+				for k, pmtQueue := range pmtQueues {
+					bytes, err := s.getBytesFromQueue(pmtQueue)
+					if err != nil {
+						return err
+					}
+					for _, b := range bytes {
+						if err := stream.Send(&pb.RunFlowgraphResponse{
+							BlockId: k,
+							Payload: b,
+						}); err != nil {
+							return err
+						}
+					}
+				}
+			}
+		}
+	}()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Starcoder) compileGrc(path string) (string, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return "", err
@@ -296,119 +409,6 @@ func fillDictWithParameters(dict *python.PyObject, params []*pb.RunFlowgraphRequ
 	return nil
 }
 
-func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
-	in, err := stream.Recv()
-	if err == io.EOF {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
-
-	inFilePythonPath, err := s.compileGrc(inFileAbsPath)
-	if err != nil {
-		return err
-	}
-
-	flowGraphInstance, msgSinkBlocks, err := s.startFlowGraph(inFilePythonPath, in)
-	if err != nil {
-		return err
-	}
-
-	pmtQueues := make(map[string]*python.PyObject)
-
-	for key, blockInstance := range msgSinkBlocks {
-		s.withPythonInterpreter(func() {
-			pmtQueue := blockInstance.CallMethod("observe")
-			if pmtQueue == nil {
-				err = errors.New(getExceptionString())
-			}
-			pmtQueues[key] = pmtQueue
-		})
-		if err != nil {
-			return err
-		}
-	}
-	defer func() {
-		s.withPythonInterpreter(func() {
-			for _, blockInstance := range msgSinkBlocks {
-				blockInstance.DecRef()
-			}
-		})
-	}()
-
-	closeChannel := make(chan bool)
-	go func() {
-		for {
-			// Beyond the first packet, we don't care what the client
-			// is sending us until it wants to end the connection.
-			_, err := stream.Recv()
-			if err == io.EOF {
-				// Client is done listening
-				closeChannel <- true
-				return
-			}
-			if err != nil {
-				closeChannel <- true
-				log.Printf("%v", err)
-				return
-			}
-		}
-	}()
-
-	// Streaming loop here
-	ticker := time.NewTicker(time.Millisecond * 100)
-	err = func() error {
-		for {
-			select {
-			case <-closeChannel:
-				// TODO: Make this call unblock by getting rid of `wait`
-				err := s.stopFlowGraph(flowGraphInstance)
-				if err != nil {
-					return err
-				}
-				for k, pmtQueue := range pmtQueues {
-					bytes, err := s.getBytesFromQueue(pmtQueue)
-					if err != nil {
-						return err
-					}
-					for _, b := range bytes {
-						if err := stream.Send(&pb.RunFlowgraphResponse{
-							BlockId: k,
-							Payload: b,
-						}); err != nil {
-							return err
-						}
-					}
-				}
-				return nil
-			case <-ticker.C:
-				for k, pmtQueue := range pmtQueues {
-					bytes, err := s.getBytesFromQueue(pmtQueue)
-					if err != nil {
-						return err
-					}
-					for _, b := range bytes {
-						if err := stream.Send(&pb.RunFlowgraphResponse{
-							BlockId: k,
-							Payload: b,
-						}); err != nil {
-							return err
-						}
-					}
-				}
-			}
-		}
-	}()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (s *Starcoder) getBytesFromQueue(pmtQueue *python.PyObject) ([][]byte, error) {
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
@@ -463,11 +463,9 @@ func (s *Starcoder) stopFlowGraph(flowGraphInstance *python.PyObject) error {
 func (s *Starcoder) withPythonInterpreter(f func()) {
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
-	defer func() {
-		s.threadState = python.PyEval_SaveThread()
-		runtime.UnlockOSThread()
-	}()
 	f()
+	s.threadState = python.PyEval_SaveThread()
+	runtime.UnlockOSThread()
 }
 
 func (s *Starcoder) Close() error {
