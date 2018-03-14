@@ -151,6 +151,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 					bytes, err := sh.starcoder.getBytesFromQueue(pmtQueue)
 					if err != nil {
 						sh.streamError = err
+						break
 					}
 					for _, b := range bytes {
 						if err := stream.Send(&pb.RunFlowgraphResponse{
@@ -158,6 +159,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 							Payload: b,
 						}); err != nil {
 							sh.streamError = err
+							break
 						}
 					}
 				}
