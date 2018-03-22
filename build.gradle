@@ -33,7 +33,7 @@ buildscript {
     }
     dependencies {
         classpath 'gradle.plugin.com.github.blindpirate:gogradle:0.8.0'
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.115'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.127'
     }
 }
 
@@ -47,7 +47,6 @@ golang {
 }
 
 def gopath = System.env['GOPATH'] ?: project.file('.gogradle/project_gopath').toString()
-println gopath
 
 protobuf {
     generateProtoTasks {
@@ -100,7 +99,7 @@ gcloud {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.5.1'
+    gradleVersion = '4.6'
     distributionType = 'ALL'
 }
 
@@ -196,3 +195,47 @@ tasks.resolveBuildDependencies.enabled = false
 tasks.resolveTestDependencies.enabled = false
 
 tasks.build.dependsOn tasks.goBuild
+
+envs {
+    conda 'miniconda2-gnuradio', 'Miniconda2-4.4.10', [
+            'pybombs',
+            'cheetah',
+            'lxml',
+            'mako',
+            'requests',
+            condaPackage('autoconf'),
+            condaPackage('automake'),
+            condaPackage('boost'),
+            condaPackage('cmake'),
+            condaPackage('gcc_linux-64'),
+            condaPackage('gfortran_linux-64'),
+            condaPackage('gxx_linux-64'),
+            condaPackage('git'),
+            condaPackage('gsl'),
+            condaPackage('libtool'),
+            condaPackage('make'),
+            condaPackage('numpy'),
+            condaPackage('swig'),
+            condaPackage('wget'),
+    ]
+}
+
+ext.gnuradioRoot = gradle.gradleUserHomeDir.toPath().resolve('curiostack/python/bootstrap/miniconda2-gnuradio')
+
+def condaCommand(command) {
+    return """
+    . ${gnuradioRoot.resolve('etc/profile.d/conda.sh')} && \\
+    conda activate && \\
+    ${command}
+    """
+}
+
+task setupPrefix(type: Exec) {
+    dependsOn 'pythonSetup'
+    executable 'bash'
+    args '-c', condaCommand("""pybombs auto-config && \\
+        pybombs recipes add-defaults && \\
+        pybombs recipes add gr-starcoder ${project.file('gr-recipes')} && \\
+        pybombs -v prefix init ${gnuradioRoot} -a gnuradio -R gnuradio-nogui
+    """)
+}
