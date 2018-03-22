@@ -21,12 +21,6 @@ package starcoder;
 
 option go_package = "/api";
 
-// The GNURadio process manager service definition.
-service Starcoder {
-  // Runs a flowgraph and streams back
-  rpc RunFlowgraph (stream RunFlowgraphRequest) returns (stream RunFlowgraphResponse) {}
-}
-
 message RunFlowgraphRequest {
   // Filename of GNURadio script to run
   string filename = 1;
@@ -82,4 +76,10 @@ message Value {
     // Represents a complex number
     Complex complex_value = 5;
   }
+}
+
+// The GNURadio process manager service definition.
+service Starcoder {
+  // Runs a flowgraph and streams back
+  rpc RunFlowgraph (stream RunFlowgraphRequest) returns (stream RunFlowgraphResponse) {}
 }
