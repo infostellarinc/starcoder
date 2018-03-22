@@ -1,0 +1,106 @@
+#
+# Starcoder - a server to read/write data from/to the stars, written in Go.
+# Copyright (C) 2018 InfoStellar, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+
+inherit: prefix
+depends:
+- gnuradio
+config:
+  config:
+    # git cache causes recursive clone to fail for some reason. With only one prefix, there isn't much
+    # point in having it anyways.
+    git-cache: ''
+    # sudo shouldn't be required to setup
+    elevate_pre_args: ''
+    packagers:
+    - pkgconfig
+
+  packages:
+    gnuradio:
+      forcebuild: true
+      gitbranch: v3.7.11
+      # No gui dependencies
+      depends:
+      - boost
+      - fftw
+      - cppunit
+      - swig
+      - gsl
+      - uhd
+      - cheetah
+      - numpy
+      - lxml
+      - liblog4cpp
+      vars:
+        config_opt: "-DENABLE_DOXYGEN=OFF -DENABLE_GR_AUDIO=OFF -DENABLE_GR_BLOCKS=ON -DENABLE_GR_DIGITAL=ON -DENABLE_GR_FEC=ON -DENABLE_GR_FFT=ON -DENABLE_GR_FILTER=ON -DENABLE_GR_QTGUI=OFF -DENABLE_GR_UHD=ON -DENABLE_PYTHON=ON -DENABLE_VOLK=ON -DENABLE_GRC=OFF"
+
+    liblog4cpp:
+      # Older versions don't compile on modern gcc.
+      source: wget+http://prdownloads.sourceforge.net/log4cpp/log4cpp-1.1.3.tar.gz
+    uhd:
+      gitbranch: v3.11.0.0
+      vars:
+        config_opt: "-DENABLE_EXAMPLES=off"
+
+    # All these dependencies are installed through miniconda.
+    autoconf:
+      forceinstalled: true
+    automake:
+      forceinstalled: true
+    autotools-bootstrap:
+      forceinstalled: true
+    boost:
+      forceinstalled: true
+    build-essential:
+      forceinstalled: true
+    cheetah:
+      forceinstalled: true
+    cmake:
+      forceinstalled: true
+    doxygen:
+      forceinstalled: true
+    gcc:
+      forceinstalled: true
+    gsl:
+      forceinstalled: true
+    libtool:
+      forceinstalled: true
+    lxml:
+      forceinstalled: true
+    make:
+      forceinstalled: true
+    mako:
+      forceinstalled: true
+    numpy:
+      forceinstalled: true
+    python:
+      forceinstalled: true
+    python-requests:
+      forceinstalled: true
+    setuptools:
+      forceinstalled: true
+    swig:
+      forceinstalled: true
+    wget:
+      forceinstalled: true
+
+  categories:
+    baseline:
+      forcebuild: true
+    hardware:
+      forcebuild: true
