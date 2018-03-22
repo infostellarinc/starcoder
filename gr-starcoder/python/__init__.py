@@ -30,4 +30,5 @@ except ImportError:
   pass
 
 # import any pure python here
+from enqueue_msg_sink import enqueue_msg_sink
 #
