@@ -519,14 +519,11 @@ func (s *Starcoder) getBytesFromQueue(pmtQueue *python.PyObject) ([][]byte, erro
 
 	var bytes [][]byte
 
-	emptyList := python.PyList_New(0)
-	defer emptyList.DecRef()
-
 	for i := 0; i < length; i++ {
 		// TODO: Convert PMT to a gRPC native data structure.
 		// Use built-in PMT serialization for now.
 		pmtBytes := python.PyByteArray_AsBytes(python.PyList_GetItem(pmtQueue, i))
-		err := python.PyList_SetSlice(pmtQueue, 0, length, emptyList)
+		err := python.PyList_SetSlice(pmtQueue, 0, length, nil)
 		if err != nil {
 			return nil, err
 		}
