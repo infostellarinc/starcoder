@@ -63,7 +63,7 @@ func main() {
 			{
 				Key: "waterfall_image_file_path",
 				Value: &pb.Value{
-					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/wut"},
+					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/waterfall"},
 				},
 			},
 		},
