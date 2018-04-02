@@ -66,7 +66,7 @@
     </param>
     <param>
       <key>run_options</key>
-      <value>run</value>
+      <value>prompt</value>
     </param>
     <param>
       <key>run</key>
@@ -325,11 +325,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>waterfall_image_file_path</value>
+      <value>source_filepath</value>
     </param>
     <param>
       <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/wut"</value>
+      <value>"/home/rei/sampleAR2300IQ/cw_iq.bin"</value>
     </param>
   </block>
   <block>
@@ -517,6 +517,57 @@
     </param>
   </block>
   <block>
+    <key>blocks_file_sink</key>
+    <param>
+      <key>append</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>file</key>
+      <value>"" + full_iq_file_path</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(584, 228)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_file_sink_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>unbuffered</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_file_source</key>
     <param>
       <key>begin_tag</key>
@@ -628,6 +679,84 @@
     <param>
       <key>vlen</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_enqueue_msg_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(456, 784)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>decoded_cw</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 852)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>full_iq_file_path</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>"/home/rei/sampleAR2300IQ/full.bin"</value>
     </param>
   </block>
   <block>
@@ -1043,7 +1172,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 148)</value>
+      <value>(584, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1090,7 +1219,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>source_filepath</value>
+      <value>waterfall_image_file_path</value>
     </param>
     <param>
       <key>label</key>
@@ -1110,7 +1239,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/full.bin"</value>
+      <value>"/home/rei/sampleAR2300IQ/waterfall"</value>
     </param>
   </block>
   <connection>
@@ -1157,6 +1286,12 @@
   </connection>
   <connection>
     <source_block_id>rational_resampler_xxx_0</source_block_id>
+    <sink_block_id>blocks_file_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rational_resampler_xxx_0</source_block_id>
     <sink_block_id>low_pass_filter_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -1170,6 +1305,12 @@
   <connection>
     <source_block_id>satnogs_cw_to_symbol_0</source_block_id>
     <sink_block_id>satnogs_morse_decoder_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>satnogs_morse_decoder_0</source_block_id>
+    <sink_block_id>decoded_cw</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
