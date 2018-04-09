@@ -9,8 +9,12 @@
 
 %{
 #include "starcoder/ar2300_source.h"
+#include "starcoder/complex_to_msg_c.h"
 %}
 
 
 %include "starcoder/ar2300_source.h"
 GR_SWIG_BLOCK_MAGIC2(starcoder, ar2300_source);
+
+%include "starcoder/complex_to_msg_c.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, complex_to_msg_c);

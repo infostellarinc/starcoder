@@ -120,7 +120,7 @@
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0.001</value>
+      <value>0.00</value>
     </param>
     <param>
       <key>alias</key>
@@ -533,6 +533,37 @@
     </param>
   </block>
   <block>
+    <key>starcoder_enqueue_msg_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(752, 408)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>partial_iq_sink</value>
+    </param>
+  </block>
+  <block>
     <key>satnogs_waterfall_sink</key>
     <param>
       <key>alias</key>
@@ -585,6 +616,49 @@
     <param>
       <key>samp_rate</key>
       <value>samp_rate</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_complex_to_msg_c</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(752, 340)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_complex_to_msg_c_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_items</key>
+      <value>131072</value>
     </param>
   </block>
   <block>
@@ -737,5 +811,17 @@
     <sink_block_id>satnogs_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_throttle_0</source_block_id>
+    <sink_block_id>starcoder_complex_to_msg_c_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_complex_to_msg_c_0</source_block_id>
+    <sink_block_id>partial_iq_sink</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
   </connection>
 </flow_graph>

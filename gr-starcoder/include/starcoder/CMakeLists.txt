@@ -22,5 +22,6 @@
 ########################################################################
 install(FILES
     api.h
-    ar2300_source.h DESTINATION include/starcoder
+    ar2300_source.h
+    complex_to_msg_c.h DESTINATION include/starcoder
 )
