@@ -44,6 +44,7 @@ namespace gr {
               gr::io_signature::make(0, 0, 0)),
         num_items(num_items)
     {
+      // TODO: Send any possible leftover data when closing
       set_output_multiple(num_items);
       message_port_register_out(pmt::mp("out"));
     }
