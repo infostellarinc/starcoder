@@ -45,8 +45,8 @@ class qa_complex_to_msg_c (gr_unittest.TestCase):
         self.tb.msg_connect((ctm, 'out'), (snk, 'store'))
         self.tb.run()
 
-        assert snk.num_messages() == 1
-        assert pmt.is_blob(snk.get_message(0))
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.is_blob(snk.get_message(0)))
         np.testing.assert_array_equal(pmt.to_python(snk.get_message(0)), expected)
 
     def test_002_multiple_message_out (self):
@@ -63,9 +63,9 @@ class qa_complex_to_msg_c (gr_unittest.TestCase):
         self.tb.msg_connect((ctm, 'out'), (snk, 'store'))
         self.tb.run()
 
-        assert snk.num_messages() == 2
-        assert pmt.is_blob(snk.get_message(0))
-        assert pmt.is_blob(snk.get_message(1))
+        self.assertEqual(snk.num_messages(), 2)
+        self.assertTrue(pmt.is_blob(snk.get_message(0)))
+        self.assertTrue(pmt.is_blob(snk.get_message(1)))
         np.testing.assert_array_equal(pmt.to_python(snk.get_message(0)), expected1)
         np.testing.assert_array_equal(pmt.to_python(snk.get_message(1)), expected2)
 
