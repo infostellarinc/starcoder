@@ -120,7 +120,7 @@
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0.01</value>
+      <value>0.001</value>
     </param>
     <param>
       <key>alias</key>
