@@ -11,7 +11,7 @@
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>Number of items</name>
+    <name>Number of items per message</name>
     <key>num_items</key>
     <type>int</type>
   </param>
