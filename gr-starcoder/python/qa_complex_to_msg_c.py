@@ -21,6 +21,8 @@
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
+import pmt
+import numpy as np
 import starcoder_swig as starcoder
 
 class qa_complex_to_msg_c (gr_unittest.TestCase):
@@ -31,11 +33,41 @@ class qa_complex_to_msg_c (gr_unittest.TestCase):
     def tearDown (self):
         self.tb = None
 
-    def test_001_t (self):
-        # set up fg
-        self.tb.run ()
-        # check data
+    def test_001_single_message_out (self):
+        src_data = (1j, 1+2j, 1)
+        # expected is the binary representation of (1j, 1+2j)
+        expected = np.array([0, 0, 0, 0, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 0, 64], dtype='uint8')
 
+        src = blocks.vector_source_c(src_data)
+        ctm = starcoder.complex_to_msg_c(2)
+        snk = blocks.message_debug()
+        self.tb.connect(src, ctm)
+        self.tb.msg_connect((ctm, 'out'), (snk, 'store'))
+        self.tb.run()
+
+        assert snk.num_messages() == 1
+        assert pmt.is_blob(snk.get_message(0))
+        np.testing.assert_array_equal(pmt.to_python(snk.get_message(0)), expected)
+
+    def test_002_multiple_message_out (self):
+        src_data = (1j, 1+2j, 1, 0)
+        # expected1 is the binary representation of (1j, 1+2j)
+        expected1 = np.array([0, 0, 0, 0, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 0, 64], dtype='uint8')
+        # expected2 is the binary representation of (1, 0)
+        expected2 = np.array([0, 0, 128, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype='uint8')
+
+        src = blocks.vector_source_c(src_data)
+        ctm = starcoder.complex_to_msg_c(2)
+        snk = blocks.message_debug()
+        self.tb.connect(src, ctm)
+        self.tb.msg_connect((ctm, 'out'), (snk, 'store'))
+        self.tb.run()
+
+        assert snk.num_messages() == 2
+        assert pmt.is_blob(snk.get_message(0))
+        assert pmt.is_blob(snk.get_message(1))
+        np.testing.assert_array_equal(pmt.to_python(snk.get_message(0)), expected1)
+        np.testing.assert_array_equal(pmt.to_python(snk.get_message(1)), expected2)
 
 if __name__ == '__main__':
     gr_unittest.run(qa_complex_to_msg_c, "qa_complex_to_msg_c.xml")
