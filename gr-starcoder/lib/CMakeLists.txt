@@ -24,14 +24,13 @@ include(GrPlatform) #define LIB_SUFFIX
 
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
-
 list(APPEND starcoder_sources
     init.c
     driver.c
     firmware.c
     ar2300_receiver.cc
     ar2300_source_impl.cc
-)
+    complex_to_msg_c_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<block>
+  <name>Complex to Message</name>
+  <key>starcoder_complex_to_msg_c</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.complex_to_msg_c($num_items)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Number of items per message</name>
+    <key>num_items</key>
+    <type>int</type>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

@@ -22,6 +22,7 @@
 from gnuradio import gr
 import pmt
 
+# TODO: Rewrite this block in C++
 class enqueue_msg_sink(gr.basic_block):
     """
     This block can be "observed" by outside objects using its `observe` method.
