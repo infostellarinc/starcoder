@@ -603,11 +603,14 @@ func (s *Starcoder) stopFlowGraph(flowGraphInstance *python.PyObject) error {
 }
 
 func (s *Starcoder) withPythonInterpreter(f func()) {
+	// TODO: Why is this lock needed?
+	s.compileLock.Lock()
 	runtime.LockOSThread()
 	python.PyEval_RestoreThread(s.threadState)
 	f()
 	s.threadState = python.PyEval_SaveThread()
 	runtime.UnlockOSThread()
+	s.compileLock.Unlock()
 }
 
 func (s *Starcoder) Close() error {
