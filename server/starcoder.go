@@ -36,13 +36,20 @@ import (
 )
 
 type Starcoder struct {
-	flowgraphDir            string
-	temporaryDirs           []string
-	threadState             *python.PyThreadState
-	streamHandlers          map[*streamHandler]bool // registered stream handlers
-	registerStreamHandler   chan *streamHandler
-	deregisterStreamHandler chan *streamHandler
-	closeAllStreamsChannel  chan chan bool
+	flowgraphDir              string
+	threadState               *python.PyThreadState
+	streamHandlers            map[*streamHandler]bool // registered stream handlers
+	registerStreamHandler     chan *streamHandler
+	deregisterStreamHandler   chan *streamHandler
+	closeAllStreamsChannel    chan chan bool
+	tempModule                string
+	filepathToModAndClassName map[string]*moduleAndClassNames
+	compileLock               sync.Mutex
+}
+
+type moduleAndClassNames struct {
+	moduleName string
+	className  string
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
@@ -52,14 +59,40 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 	threadState := python.PyEval_SaveThread()
 	s := &Starcoder{
-		flowgraphDir:            flowgraphDir,
-		temporaryDirs:           make([]string, 0),
-		threadState:             threadState,
-		streamHandlers:          make(map[*streamHandler]bool),
-		registerStreamHandler:   make(chan *streamHandler),
-		deregisterStreamHandler: make(chan *streamHandler),
-		closeAllStreamsChannel:  make(chan chan bool),
+		flowgraphDir:              flowgraphDir,
+		threadState:               threadState,
+		streamHandlers:            make(map[*streamHandler]bool),
+		registerStreamHandler:     make(chan *streamHandler),
+		deregisterStreamHandler:   make(chan *streamHandler),
+		closeAllStreamsChannel:    make(chan chan bool),
+		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
 	}
+
+	tempDir, err := ioutil.TempDir("", "starcoder")
+	if err != nil {
+		log.Fatalf("failed to create temporary directory %v", err)
+	}
+	s.tempModule = tempDir
+
+	s.withPythonInterpreter(func() {
+		// Append module directory to sys.path
+		log.Printf("Appending %v to sys.path", tempDir)
+		sysPath := python.PySys_GetObject("path")
+		if sysPath == nil {
+			err = errors.New(getExceptionString())
+			log.Fatalf("failed to get sys.path %v", err)
+		}
+		moduleDir := python.PyString_FromString(tempDir)
+		if moduleDir == nil {
+			err = errors.New(getExceptionString())
+			log.Fatalf("Python error: %v", err)
+		}
+		defer moduleDir.DecRef()
+		err = python.PyList_Append(sysPath, moduleDir)
+		if err != nil {
+			log.Fatalf("Python error: %v", err)
+		}
+	})
 
 	go func(s *Starcoder) {
 		for {
@@ -233,12 +266,12 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 
 	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
 
-	inFilePythonPath, err := s.compileGrc(inFileAbsPath)
+	modAndClass, err := s.compileGrc(inFileAbsPath)
 	if err != nil {
 		return err
 	}
 
-	flowGraphInstance, msgSinkBlocks, err := s.startFlowGraph(inFilePythonPath, in)
+	flowGraphInstance, msgSinkBlocks, err := s.startFlowGraph(modAndClass, in)
 	if err != nil {
 		return err
 	}
@@ -272,86 +305,95 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	return sh.streamError
 }
 
-func (s *Starcoder) compileGrc(path string) (string, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return "", err
+func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
+	// This lock is needed to avoid compiling the same .grc file more than once
+	// and to prevent race conditions when copying things over to tempModule.
+	s.compileLock.Lock()
+	defer s.compileLock.Unlock()
+	if val, ok := s.filepathToModAndClassName[path]; ok {
+		log.Printf(
+			"Already compiled %v: Using module name %v and class name %v",
+			path, val.moduleName, val.className)
+		return val, nil
 	}
 
-	var inFilePythonPath string
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, err
+	}
+
+	var moduleName, className string
 
 	if strings.HasSuffix(path, ".grc") {
 		grccPath, err := exec.LookPath("grcc")
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		// Create temporary directory to store compiled .py file.
 		// We need this because we can't control the output filename
 		// of the compiled file.
-		// TODO: Should rename the file to something unique so it can be safely imported.
-		// Weird things will happen if the module name of two different flowgraphs is the same.
 		tempDir, err := ioutil.TempDir("", "starcoder")
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		s.temporaryDirs = append(s.temporaryDirs, tempDir)
+		defer os.RemoveAll(tempDir)
 
 		grccCmd := exec.Command(grccPath, "-d", tempDir, path)
 		err = grccCmd.Run()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		files, err := ioutil.ReadDir(tempDir)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		if len(files) != 1 {
-			return "", errors.New(fmt.Sprintf(
+			return nil, errors.New(fmt.Sprintf(
 				"Unexpected number of files output by GRCC: %v", len(files)))
 		}
 
-		inFilePythonPath = filepath.Join(tempDir, files[0].Name())
-		log.Printf("Successfully compiled GRC file to %v", inFilePythonPath)
+		log.Printf("Successfully compiled %v to %v", path, files[0].Name())
 
+		//Rename the moduleName to something unique so it won't overwrite other files
+		f, err := ioutil.TempFile(tempDir, strings.TrimSuffix(files[0].Name(), ".py"))
+		f.Close()
+		uniqueModuleName := filepath.Base(f.Name())
+
+		err = os.Rename(
+			filepath.Join(tempDir, files[0].Name()),
+			filepath.Join(s.tempModule, uniqueModuleName+".py"),
+		)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("Renamed %v to %v", files[0].Name(), uniqueModuleName+".py")
+
+		moduleName = uniqueModuleName
+		className = strings.TrimSuffix(files[0].Name(), ".py")
 	} else if strings.HasSuffix(path, ".py") {
-		inFilePythonPath = path
-		log.Printf("Directly using Python file at %v", inFilePythonPath)
+		// TODO: Support directly using already compiled .py files
+		return nil, errors.New("unsupported file type")
 	} else {
-		return "", errors.New("unsupported file type")
+		return nil, errors.New("unsupported file type")
 	}
-	return inFilePythonPath, nil
+	retVal := &moduleAndClassNames{
+		moduleName: moduleName,
+		className:  className,
+	}
+	s.filepathToModAndClassName[path] = retVal
+	return retVal, nil
 }
 
-func (s *Starcoder) startFlowGraph(inFilePythonPath string, request *pb.RunFlowgraphRequest) (*python.PyObject, map[string]*python.PyObject, error) {
+func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.RunFlowgraphRequest) (*python.PyObject, map[string]*python.PyObject, error) {
 	var flowGraphInstance *python.PyObject
 	var msgSinkBlocks map[string]*python.PyObject
 	var err error
 
 	s.withPythonInterpreter(func() {
-		// Append module directory to sys.path
-		log.Printf("Appending %v to sys.path", filepath.Dir(inFilePythonPath))
-		sysPath := python.PySys_GetObject("path")
-		if sysPath == nil {
-			err = errors.New(getExceptionString())
-			return
-		}
-		moduleDir := python.PyString_FromString(filepath.Dir(inFilePythonPath))
-		if moduleDir == nil {
-			err = errors.New(getExceptionString())
-			return
-		}
-		defer moduleDir.DecRef()
-		err = python.PyList_Append(sysPath, moduleDir)
-		if err != nil {
-			return
-		}
-
 		// Import module
-		moduleName := strings.TrimSuffix(filepath.Base(inFilePythonPath), filepath.Ext(filepath.Base(inFilePythonPath)))
-		log.Printf("Importing %v", moduleName)
-		module := python.PyImport_ImportModule(moduleName)
+		module := python.PyImport_ImportModule(modAndImport.moduleName)
 		if module == nil {
 			err = errors.New(getExceptionString())
 			return
@@ -360,8 +402,7 @@ func (s *Starcoder) startFlowGraph(inFilePythonPath string, request *pb.RunFlowg
 
 		// Find top_block subclass
 		// GRC compiled python scripts have the top block class name equal to the python filename.
-		flowGraphClassName := moduleName
-		flowgraphClass := module.GetAttrString(flowGraphClassName)
+		flowgraphClass := module.GetAttrString(modAndImport.className)
 		if flowgraphClass == nil {
 			err = errors.New(getExceptionString())
 			return
@@ -391,7 +432,7 @@ func (s *Starcoder) startFlowGraph(inFilePythonPath string, request *pb.RunFlowg
 		if isSubclass == 0 {
 			err = errors.New(fmt.Sprintf(
 				"Top block class %v is not a "+
-					"subclass of gnuradio.gr.top_block", flowGraphClassName))
+					"subclass of gnuradio.gr.top_block", modAndImport.className))
 			return
 
 		} else if isSubclass == -1 {
@@ -578,9 +619,7 @@ func (s *Starcoder) Close() error {
 		python.Finalize()
 		runtime.UnlockOSThread()
 	}()
-	for _, tempDir := range s.temporaryDirs {
-		os.RemoveAll(tempDir)
-	}
+	os.RemoveAll(s.tempModule)
 	return nil
 }
 
