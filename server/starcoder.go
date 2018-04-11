@@ -36,12 +36,13 @@ import (
 )
 
 type Starcoder struct {
-	flowgraphDir           string
-	temporaryDirs          []string
-	threadState            *python.PyThreadState
-	streamHandlers         map[*streamHandler]bool // registered stream handlers
-	registerStreamHandler  chan *streamHandler
-	closeAllStreamsChannel chan chan bool
+	flowgraphDir            string
+	temporaryDirs           []string
+	threadState             *python.PyThreadState
+	streamHandlers          map[*streamHandler]bool // registered stream handlers
+	registerStreamHandler   chan *streamHandler
+	deregisterStreamHandler chan *streamHandler
+	closeAllStreamsChannel  chan chan bool
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
@@ -51,27 +52,24 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	}
 	threadState := python.PyEval_SaveThread()
 	s := &Starcoder{
-		flowgraphDir:           flowgraphDir,
-		temporaryDirs:          make([]string, 0),
-		threadState:            threadState,
-		streamHandlers:         make(map[*streamHandler]bool),
-		registerStreamHandler:  make(chan *streamHandler),
-		closeAllStreamsChannel: make(chan chan bool),
+		flowgraphDir:            flowgraphDir,
+		temporaryDirs:           make([]string, 0),
+		threadState:             threadState,
+		streamHandlers:          make(map[*streamHandler]bool),
+		registerStreamHandler:   make(chan *streamHandler),
+		deregisterStreamHandler: make(chan *streamHandler),
+		closeAllStreamsChannel:  make(chan chan bool),
 	}
-
-	ticker := time.NewTicker(100 * time.Millisecond) // How often to check if a stream should end
 
 	go func(s *Starcoder) {
 		for {
 			select {
 			case sh := <-s.registerStreamHandler:
 				s.streamHandlers[sh] = true
-			case <-ticker.C:
-				for sh := range s.streamHandlers {
-					if sh.MustClose() {
-						sh.Close()
-						delete(s.streamHandlers, sh)
-					}
+			case sh := <-s.deregisterStreamHandler:
+				if _, ok := s.streamHandlers[sh]; ok {
+					sh.Close()
+					delete(s.streamHandlers, sh)
 				}
 			case respCh := <-s.closeAllStreamsChannel:
 				for sh := range s.streamHandlers {
@@ -100,7 +98,6 @@ type streamHandler struct {
 	clientFinished    bool
 	streamError       error
 	wg                sync.WaitGroup
-	retrieveMustClose chan chan bool
 	closeChannel      chan chan bool
 }
 
@@ -113,7 +110,6 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		clientFinished:    false,
 		streamError:       nil,
 		wg:                sync.WaitGroup{},
-		retrieveMustClose: make(chan chan bool),
 		closeChannel:      make(chan chan bool),
 	}
 
@@ -122,13 +118,16 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		for {
 			// Beyond the first packet, we don't care what the client
 			// is sending us until it wants to end the connection.
+			// TODO: Eventually we would want to let the client send
+			// info to the flow graph during runtime. This will be the
+			// ideal place to receive/process it.
 			_, err := stream.Recv()
 			if err == io.EOF {
 				// Client is done listening
 				break
 			}
 			if err != nil {
-				log.Printf("%v", err)
+				log.Printf("Received error from client: %v", err)
 				break
 			}
 		}
@@ -150,7 +149,9 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				for k, pmtQueue := range sh.pmtQueues {
 					bytes, err := sh.starcoder.getBytesFromQueue(pmtQueue)
 					if err != nil {
+						log.Printf("Error getting bytes from queue: %v", err)
 						sh.streamError = err
+						sh.deregister()
 						break
 					}
 					for _, b := range bytes {
@@ -158,19 +159,21 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 							BlockId: k,
 							Payload: b,
 						}); err != nil {
+							log.Printf("Error sending stream: %v", err)
 							sh.streamError = err
+							sh.deregister()
 							break
 						}
 					}
 				}
 			case <-mustCloseChan:
 				sh.clientFinished = true
-			case respChannel := <-sh.retrieveMustClose:
-				respChannel <- sh.clientFinished || sh.streamError != nil
+				sh.deregister()
 			case respChannel := <-sh.closeChannel:
 				// TODO: Make this call unblock by getting rid of `wait`
 				err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
 				if err != nil {
+					log.Printf("Error stopping flowgraph: %v", err)
 					sh.streamError = err
 					respChannel <- true
 					return
@@ -178,6 +181,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				for k, pmtQueue := range sh.pmtQueues {
 					bytes, err := sh.starcoder.getBytesFromQueue(pmtQueue)
 					if err != nil {
+						log.Printf("Error getting bytes from queue: %v", err)
 						sh.streamError = err
 						respChannel <- true
 						return
@@ -187,6 +191,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 							BlockId: k,
 							Payload: b,
 						}); err != nil {
+							log.Printf("Error sending stream: %v", err)
 							sh.streamError = err
 							respChannel <- true
 							return
@@ -205,10 +210,10 @@ func (sh *streamHandler) Wait() {
 	sh.wg.Wait()
 }
 
-func (sh *streamHandler) MustClose() bool {
-	respCh := make(chan bool)
-	sh.retrieveMustClose <- respCh
-	return <-respCh
+func (sh *streamHandler) deregister() {
+	go func() {
+		sh.starcoder.deregisterStreamHandler <- sh
+	}()
 }
 
 func (sh *streamHandler) Close() {
