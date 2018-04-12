@@ -37,7 +37,7 @@ import (
 
 type Starcoder struct {
 	flowgraphDir              string
-	threadState               *python.PyThreadState
+	gilState                  python.PyGILState
 	streamHandlers            map[*streamHandler]bool // registered stream handlers
 	registerStreamHandler     chan *streamHandler
 	deregisterStreamHandler   chan *streamHandler
@@ -57,10 +57,15 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 	if err != nil {
 		log.Fatalf("failed to initialize python: %v", err)
 	}
-	threadState := python.PyEval_SaveThread()
+
+	// This call releases the GIL so it can be acquired from different threads i.e. everywhere else
+	// See these links:
+	// https://stackoverflow.com/questions/15470367/pyeval-initthreads-in-python-3-how-when-to-call-it-the-saga-continues-ad-naus/42667657#42667657
+	// https://stackoverflow.com/questions/10625584/embedding-python-in-multithreaded-c-application/10702119#10702119
+	python.PyEval_SaveThread()
+
 	s := &Starcoder{
 		flowgraphDir:              flowgraphDir,
-		threadState:               threadState,
 		streamHandlers:            make(map[*streamHandler]bool),
 		registerStreamHandler:     make(chan *streamHandler),
 		deregisterStreamHandler:   make(chan *streamHandler),
@@ -556,9 +561,9 @@ func fillDictWithParameters(dict *python.PyObject, params []*pb.RunFlowgraphRequ
 
 func (s *Starcoder) getBytesFromQueue(pmtQueue *python.PyObject) ([][]byte, error) {
 	runtime.LockOSThread()
-	python.PyEval_RestoreThread(s.threadState)
+	s.gilState = python.PyGILState_Ensure()
 	defer func() {
-		s.threadState = python.PyEval_SaveThread()
+		python.PyGILState_Release(s.gilState)
 		runtime.UnlockOSThread()
 	}()
 	length := python.PyList_Size(pmtQueue)
@@ -603,25 +608,20 @@ func (s *Starcoder) stopFlowGraph(flowGraphInstance *python.PyObject) error {
 }
 
 func (s *Starcoder) withPythonInterpreter(f func()) {
-	// TODO: Why is this lock needed?
-	s.compileLock.Lock()
 	runtime.LockOSThread()
-	python.PyEval_RestoreThread(s.threadState)
+	s.gilState = python.PyGILState_Ensure()
 	f()
-	s.threadState = python.PyEval_SaveThread()
+	python.PyGILState_Release(s.gilState)
 	runtime.UnlockOSThread()
-	s.compileLock.Unlock()
 }
 
 func (s *Starcoder) Close() error {
 	s.closeAllStreams()
 
 	runtime.LockOSThread()
-	python.PyEval_RestoreThread(s.threadState)
-	defer func() {
-		python.Finalize()
-		runtime.UnlockOSThread()
-	}()
+	s.gilState = python.PyGILState_Ensure()
+	python.Finalize()
+	runtime.UnlockOSThread()
 	os.RemoveAll(s.tempModule)
 	return nil
 }
