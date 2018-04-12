@@ -60,8 +60,8 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 
 	// This call releases the GIL so it can be acquired from different threads i.e. everywhere else
 	// See these links:
-	// https://stackoverflow.com/questions/15470367/pyeval-initthreads-in-python-3-how-when-to-call-it-the-saga-continues-ad-naus/42667657#42667657
-	// https://stackoverflow.com/questions/10625584/embedding-python-in-multithreaded-c-application/10702119#10702119
+	// https://stackoverflow.com/questions/15470367/
+	// https://stackoverflow.com/questions/10625584/
 	python.PyEval_SaveThread()
 
 	s := &Starcoder{
