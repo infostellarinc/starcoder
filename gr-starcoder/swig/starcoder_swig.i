@@ -11,6 +11,7 @@
 #include "starcoder/ar2300_source.h"
 #include "starcoder/complex_to_msg_c.h"
 #include "starcoder/waterfall_heatmap.h"
+#include "starcoder/waterfall_plotter.h"
 %}
 
 
@@ -21,3 +22,5 @@ GR_SWIG_BLOCK_MAGIC2(starcoder, ar2300_source);
 GR_SWIG_BLOCK_MAGIC2(starcoder, complex_to_msg_c);
 %include "starcoder/waterfall_heatmap.h"
 GR_SWIG_BLOCK_MAGIC2(starcoder, waterfall_heatmap);
+%include "starcoder/waterfall_plotter.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, waterfall_plotter);

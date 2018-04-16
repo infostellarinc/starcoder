@@ -24,5 +24,6 @@ install(FILES
     api.h
     ar2300_source.h
     complex_to_msg_c.h
-    waterfall_heatmap.h DESTINATION include/starcoder
+    waterfall_heatmap.h
+    waterfall_plotter.h DESTINATION include/starcoder
 )

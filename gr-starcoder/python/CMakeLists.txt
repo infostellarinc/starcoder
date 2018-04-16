@@ -31,6 +31,7 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
+    plot_waterfall.py
     enqueue_msg_sink.py DESTINATION ${GR_PYTHON_DIR}/starcoder
 )
 
@@ -45,3 +46,4 @@ GR_ADD_TEST(qa_ar2300_source ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa
 GR_ADD_TEST(qa_enqueue_msg_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_msg_sink.py)
 GR_ADD_TEST(qa_complex_to_msg_c ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_complex_to_msg_c.py)
 GR_ADD_TEST(qa_waterfall_heatmap ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_heatmap.py)
+GR_ADD_TEST(qa_waterfall_plotter ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_plotter.py)
