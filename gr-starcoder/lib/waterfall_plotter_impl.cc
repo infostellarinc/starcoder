@@ -47,9 +47,10 @@ namespace gr {
       : gr::sync_block("waterfall_plotter",
               gr::io_signature::make(1, 1, fft_size * sizeof(int8_t)),
               gr::io_signature::make(0, 0, 0)),
-        totalSize(0),
-        blob(new char[0]),
-        fft_size(fft_size)
+        d_total_size(0),
+        d_blob(new char[0]),
+        d_fft_size(fft_size),
+        d_filename(filename)
     {}
 
     /*
@@ -57,7 +58,7 @@ namespace gr {
      */
     waterfall_plotter_impl::~waterfall_plotter_impl()
     {
-      delete[] blob;
+      delete[] d_blob;
     }
 
     int
@@ -69,101 +70,108 @@ namespace gr {
 
       const char *in = (const char *) input_items[0];
 
-      totalSize += noutput_items * block_size;
+      d_total_size += noutput_items * block_size;
 
       item a;
       char *buffer = new char[noutput_items * block_size];
       memcpy (buffer, in, noutput_items * block_size);
       a.size = noutput_items * block_size;
       a.arr = buffer;
-      listOfArrays.push_back(a);
+      d_list_of_arrays.push_back(a);
 
       // Tell runtime system how many output items we produced.
       return noutput_items;
     }
 
-    void waterfall_plotter_impl::init_numpy_array() {
+    void waterfall_plotter_impl::d_init_numpy_array() {
       import_array();
     }
 
     bool waterfall_plotter_impl::stop() {
 
-      if (listOfArrays.begin() == listOfArrays.end()) {
+      if (d_list_of_arrays.begin() == d_list_of_arrays.end()) {
       	std::cout << "list empty." << std::endl;
       	return true;
       }
 
-      char *numpyArrayBuffer = new char[totalSize];
-      int copiedSoFar = 0;
-      for (auto it = listOfArrays.cbegin(); it != listOfArrays.cend(); it++) {
-        std::copy((*it).arr, (*it).arr+(*it).size, numpyArrayBuffer + copiedSoFar);
-        copiedSoFar += (*it).size;
+      char *numpy_array_buffer = new char[d_total_size];
+      int copied_so_far = 0;
+      for (auto it = d_list_of_arrays.cbegin(); it != d_list_of_arrays.cend(); it++) {
+        std::copy((*it).arr, (*it).arr+(*it).size, numpy_array_buffer + copied_so_far);
+        copied_so_far += (*it).size;
         delete[] (*it).arr;
       }
 
       PyGILState_STATE gstate;
       gstate = PyGILState_Ensure();
-      init_numpy_array();
+      d_init_numpy_array();
 
       npy_intp dims[2]{
-        static_cast<long int>(totalSize / (fft_size * sizeof(int8_t))),
-        static_cast<long int>(fft_size)};
+        static_cast<long int>(d_total_size / (d_fft_size * sizeof(int8_t))),
+        static_cast<long int>(d_fft_size)};
       const int ND = 2;
       std::cout << "dims: " << dims[0] << " " << dims[1] << std::endl;
 
-      PyObject *pArray = PyArray_SimpleNewFromData(
-        ND, dims, NPY_INT8, reinterpret_cast<void*>(numpyArrayBuffer));
-      if (!pArray) {
+      PyObject *numpy_array = PyArray_SimpleNewFromData(
+        ND, dims, NPY_INT8, reinterpret_cast<void*>(numpy_array_buffer));
+      if (!numpy_array) {
         std::cerr << "failed to build array" << std::endl;
         PyGILState_Release(gstate);
         return false;
       }
 
-      PyObject* myModuleString = PyString_FromString((char *)"starcoder");
-      if (!myModuleString) {
+      PyObject* module_string = PyString_FromString((char *)"starcoder");
+      if (!module_string) {
         std::cerr << "null starcoder string" << std::endl;
         PyGILState_Release(gstate);
         return false;
       }
-      PyObject* myModule = PyImport_Import(myModuleString);
-      if (!myModule) {
+      PyObject* module = PyImport_Import(module_string);
+      if (!module) {
         std::cerr << "failed to import module" << std::endl;
         PyGILState_Release(gstate);
         return false;
       }
-      PyObject* myFunction = PyObject_GetAttrString(myModule,(char *)"plot_waterfall");
-      if (!myModule) {
+      PyObject* plot_waterfall_func = PyObject_GetAttrString(module,(char *)"plot_waterfall");
+      if (!module) {
         std::cerr << "failed to retrieve plot_waterfall" << std::endl;
         PyGILState_Release(gstate);
         return false;
       }
-      PyObject* myResult = PyObject_CallFunctionObjArgs(myFunction, pArray, NULL);
-      if (!myResult) {
+      PyObject* result;
+      if (d_filename[0] != '\0') {
+        PyObject* pyFilename = PyString_FromString(d_filename);
+        result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, pyFilename, NULL);
+        Py_DECREF(pyFilename);
+      } else {
+        result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, NULL);
+      }
+      if (!result) {
         std::cerr << "failed to call function" << std::endl;
         PyErr_Print();
         PyGILState_Release(gstate);
         return false;
       }
-      Py_ssize_t imageSize = PyString_Size(myResult);
-      std::cout << imageSize << " = Retrieved image size" << std::endl;
-      char *imageBuffer = PyString_AsString(myResult);
-      if (!imageBuffer) {
+      Py_ssize_t image_size = PyString_Size(result);
+      std::cout << image_size << " = Retrieved image size" << std::endl;
+      char *image_buffer = PyString_AsString(result);
+      if (!image_buffer) {
         std::cerr << "failed to retrieve image string" << std::endl;
         PyGILState_Release(gstate);
         return false;
       }
 
-      blob = new char[imageSize];
-      memcpy(blob, imageBuffer, imageSize);
+      d_blob = new char[image_size];
+      memcpy(d_blob, image_buffer, image_size);
 
-      Py_DECREF(pArray);
-      Py_DECREF(myModuleString);
-      Py_DECREF(myModule);
-      Py_DECREF(myFunction);
-      Py_DECREF(myResult);
+      Py_DECREF(numpy_array);
+      Py_DECREF(module_string);
+      Py_DECREF(module);
+      Py_DECREF(plot_waterfall_func);
+      Py_DECREF(result);
 
       PyGILState_Release(gstate);
-      delete[] numpyArrayBuffer;
+      delete[] numpy_array_buffer;
       return true;
     }
 

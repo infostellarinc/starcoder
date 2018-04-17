@@ -34,11 +34,12 @@ namespace gr {
     class waterfall_plotter_impl : public waterfall_plotter
     {
      private:
-      std::list<item> listOfArrays;
-      int totalSize;
-      char* blob;
-      size_t fft_size;
-      void init_numpy_array();
+      std::list<item> d_list_of_arrays;
+      int d_total_size;
+      char* d_blob;
+      char* d_filename;
+      size_t d_fft_size;
+      void d_init_numpy_array();
 
      public:
       waterfall_plotter_impl(double samp_rate, double center_freq, double rps, size_t fft_size, char* filename);

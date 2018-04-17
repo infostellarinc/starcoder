@@ -25,7 +25,8 @@ import io
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-def plot_waterfall(arr):
+
+def plot_waterfall(arr, filename=None):
     plt.figure(dpi=400)
     fig = plt.imshow(arr, cmap=cm.nipy_spectral,
                     interpolation='none', vmin=-120, vmax=-70, alpha=0.8,
@@ -37,5 +38,6 @@ def plot_waterfall(arr):
 
     buf = io.BytesIO()
     plt.savefig(buf, bbox_inches='tight', pad_inches=0)
-    plt.savefig("/home/rei/yoyooyoyoy.png", bbox_inches='tight', pad_inches=0)
+    if filename is not None:
+        plt.savefig(filename, bbox_inches='tight', pad_inches=0)
     return buf.getvalue()
