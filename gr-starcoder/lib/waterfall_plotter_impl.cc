@@ -78,12 +78,6 @@ namespace gr {
       a.arr = buffer;
       listOfArrays.push_back(a);
 
-      std::cout << block_size << " block size" << std::endl;
-      std::cout << noutput_items << " output items" << std::endl;
-      for (int i = 0; i < a.size; i ++) {
-        std::cout << static_cast<unsigned>(buffer[i]) << " buffer" << std::endl;
-      }
-
       // Tell runtime system how many output items we produced.
       return noutput_items;
     }
@@ -102,14 +96,9 @@ namespace gr {
       char *numpyArrayBuffer = new char[totalSize];
       int copiedSoFar = 0;
       for (auto it = listOfArrays.cbegin(); it != listOfArrays.cend(); it++) {
-        std::cout << (*it).size << " size buffer" << std::endl;
         std::copy((*it).arr, (*it).arr+(*it).size, numpyArrayBuffer + copiedSoFar);
         copiedSoFar += (*it).size;
         delete[] (*it).arr;
-      }
-
-      for (int i = 0; i < totalSize; i ++) {
-        std::cout << static_cast<unsigned>(numpyArrayBuffer[i]) << " numpyarraybuffer" << std::endl;
       }
 
       PyGILState_STATE gstate;
@@ -123,7 +112,7 @@ namespace gr {
       std::cout << "dims: " << dims[0] << " " << dims[1] << std::endl;
 
       PyObject *pArray = PyArray_SimpleNewFromData(
-        ND, dims, NPY_INT8, reinterpret_cast<void*>(pArray));
+        ND, dims, NPY_INT8, reinterpret_cast<void*>(numpyArrayBuffer));
       if (!pArray) {
         std::cerr << "failed to build array" << std::endl;
         PyGILState_Release(gstate);
