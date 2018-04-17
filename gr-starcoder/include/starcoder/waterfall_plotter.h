@@ -46,7 +46,7 @@ namespace gr {
        * class. starcoder::waterfall_plotter::make is the public interface for
        * creating new instances.
        */
-      static sptr make(double samp_rate, double center_freq, double rps, size_t fft_size, char* filename);
+      static sptr make(size_t fft_size, char* filename);
     };
 
   } // namespace starcoder

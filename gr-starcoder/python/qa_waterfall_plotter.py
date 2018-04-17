@@ -37,7 +37,7 @@ class qa_waterfall_plotter (gr_unittest.TestCase):
         src_data = tuple(range(140, 180)*20)
         src = blocks.vector_source_b(src_data)
         s2v = blocks.stream_to_vector(gr.sizeof_char, self.fft_size)
-        op = starcoder.waterfall_plotter(1, 2, 3, self.fft_size, "")
+        op = starcoder.waterfall_plotter(self.fft_size, "")
         self.tb.connect(src, s2v, op)
         self.tb.run()
         # check data

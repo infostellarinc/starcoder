@@ -1,17 +1,10 @@
 <?xml version="1.0"?>
 <block>
-  <name>waterfall_plotter</name>
+  <name>Waterfall Plotter</name>
   <key>starcoder_waterfall_plotter</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
-  <make>starcoder.waterfall_plotter($samp_rate, $center_freq, $rps, $fft_size, $filename)</make>
-
-  <param>
-    <name>Sample Rate</name>
-    <key>samp_rate</key>
-    <value>samp_rate</value>
-    <type>real</type>
-  </param>
+  <make>starcoder.waterfall_plotter($fft_size, $filename)</make>
 
   <param>
     <name>FFT Size</name>
@@ -20,26 +13,11 @@
     <type>int</type>
   </param>
 
-
-  <param>
-    <name>Pixel Rows per Second</name>
-    <key>rps</key>
-    <value>10</value>
-    <type>int</type>
-  </param>
-
   <param>
     <name>Filename</name>
     <key>filename</key>
     <value>""</value>
     <type>string</type>
-  </param>
-
-  <param>
-    <name>Center Frequency</name>
-    <key>center_freq</key>
-    <value>0.0</value>
-    <type>real</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:

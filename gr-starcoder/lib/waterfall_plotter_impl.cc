@@ -34,16 +34,16 @@ namespace gr {
   namespace starcoder {
 
     waterfall_plotter::sptr
-    waterfall_plotter::make(double samp_rate, double center_freq, double rps, size_t fft_size, char* filename)
+    waterfall_plotter::make(size_t fft_size, char* filename)
     {
       return gnuradio::get_initial_sptr
-        (new waterfall_plotter_impl(samp_rate, center_freq, rps, fft_size, filename));
+        (new waterfall_plotter_impl(fft_size, filename));
     }
 
     /*
      * The private constructor
      */
-    waterfall_plotter_impl::waterfall_plotter_impl(double samp_rate, double center_freq, double rps, size_t fft_size, char* filename)
+    waterfall_plotter_impl::waterfall_plotter_impl(size_t fft_size, char* filename)
       : gr::sync_block("waterfall_plotter",
               gr::io_signature::make(1, 1, fft_size * sizeof(int8_t)),
               gr::io_signature::make(0, 0, 0)),
