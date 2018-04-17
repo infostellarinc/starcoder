@@ -112,63 +112,61 @@ namespace gr {
       const int ND = 2;
       std::cout << "dims: " << dims[0] << " " << dims[1] << std::endl;
 
-      PyObject *numpy_array = PyArray_SimpleNewFromData(
-        ND, dims, NPY_INT8, reinterpret_cast<void*>(numpy_array_buffer));
-      if (!numpy_array) {
-        std::cerr << "failed to build array" << std::endl;
-        PyGILState_Release(gstate);
-        return false;
-      }
+      PyObject *numpy_array = NULL, *module_string = NULL, *module = NULL,
+        *plot_waterfall_func = NULL, *pyFilename = NULL, *result = NULL;
 
-      PyObject* module_string = PyString_FromString((char *)"starcoder");
-      if (!module_string) {
-        std::cerr << "null starcoder string" << std::endl;
-        PyGILState_Release(gstate);
-        return false;
-      }
-      PyObject* module = PyImport_Import(module_string);
-      if (!module) {
-        std::cerr << "failed to import module" << std::endl;
-        PyGILState_Release(gstate);
-        return false;
-      }
-      PyObject* plot_waterfall_func = PyObject_GetAttrString(module,(char *)"plot_waterfall");
-      if (!module) {
-        std::cerr << "failed to retrieve plot_waterfall" << std::endl;
-        PyGILState_Release(gstate);
-        return false;
-      }
-      PyObject* result;
+      numpy_array = PyArray_SimpleNewFromData(
+        ND, dims, NPY_INT8, reinterpret_cast<void*>(numpy_array_buffer));
+      if (numpy_array == NULL)
+        goto error;
+
+      module_string = PyString_FromString((char *)"starcoder");
+      if (module_string == NULL)
+        goto error;
+
+      module = PyImport_Import(module_string);
+      if (module == NULL)
+        goto error;
+
+      plot_waterfall_func = PyObject_GetAttrString(module,(char *)"plot_waterfall");
+      if (module == NULL)
+        goto error;
+
+      pyFilename = PyString_FromString(d_filename);
+      if (pyFilename == NULL)
+        goto error;
+
       if (d_filename[0] != '\0') {
-        PyObject* pyFilename = PyString_FromString(d_filename);
         result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, pyFilename, NULL);
-        Py_DECREF(pyFilename);
       } else {
         result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, NULL);
       }
-      if (!result) {
-        std::cerr << "failed to call function" << std::endl;
-        PyErr_Print();
-        PyGILState_Release(gstate);
-        return false;
-      }
-      Py_ssize_t image_size = PyString_Size(result);
+      if (result == NULL)
+        goto error;
+
+      Py_ssize_t image_size;
+      image_size = PyString_Size(result);
       std::cout << image_size << " = Retrieved image size" << std::endl;
-      char *image_buffer = PyString_AsString(result);
-      if (!image_buffer) {
-        std::cerr << "failed to retrieve image string" << std::endl;
-        PyGILState_Release(gstate);
-        return false;
-      }
+      char *image_buffer;
+      image_buffer = PyString_AsString(result);
+      if (image_buffer == NULL)
+        goto error;
 
       d_blob = new char[image_size];
       memcpy(d_blob, image_buffer, image_size);
 
-      Py_DECREF(numpy_array);
-      Py_DECREF(module_string);
-      Py_DECREF(module);
-      Py_DECREF(plot_waterfall_func);
-      Py_DECREF(result);
+error:
+      /* Cleanup code, shared by success and failure path */
+      Py_XDECREF(numpy_array);
+      Py_XDECREF(module_string);
+      Py_XDECREF(module);
+      Py_XDECREF(plot_waterfall_func);
+      Py_XDECREF(pyFilename);
+      Py_XDECREF(result);
+
+      if (PyErr_Occurred()) {
+        PyErr_Print();
+      }
 
       PyGILState_Release(gstate);
       delete[] numpy_array_buffer;
