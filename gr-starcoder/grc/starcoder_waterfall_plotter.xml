@@ -28,6 +28,7 @@
   <sink>
     <name>in</name>
     <type>byte</type>
+    <vlen>$fft_size</vlen>
   </sink>
 
 </block>
