@@ -158,6 +158,11 @@ else(DOXYGEN_FOUND)
 endif(DOXYGEN_FOUND)
 
 ########################################################################
+# Set up Python
+########################################################################
+find_package(PythonLibs 2 REQUIRED)
+
+########################################################################
 # Setup the include and linker paths
 ########################################################################
 include_directories(
@@ -168,6 +173,7 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
     ${CPPUNIT_INCLUDE_DIRS}
     ${GNURADIO_ALL_INCLUDE_DIRS}
+    ${PYTHON_INCLUDE_DIRS}
 )
 
 link_directories(

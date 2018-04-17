@@ -18,12 +18,17 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
+import matplotlib
+matplotlib.use('agg')
+
 import io
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-def plot_waterfall(arr):
+def plot_waterfall(arr=None):
+    if arr is None:
+        arr = np.random.randn(100, 100) - 90
     plt.figure(dpi=400)
     fig = plt.imshow(arr, cmap=cm.nipy_spectral,
                     interpolation='none', vmin=-120, vmax=-70, alpha=0.8,
@@ -35,4 +40,5 @@ def plot_waterfall(arr):
 
     buf = io.BytesIO()
     plt.savefig(buf, bbox_inches='tight', pad_inches=0)
-    return buf
+    #plt.savefig("/home/rei/yoyooyoyoy.png", bbox_inches='tight', pad_inches=0)
+    return buf.getvalue()

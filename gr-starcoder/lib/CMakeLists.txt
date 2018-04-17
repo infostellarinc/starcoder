@@ -77,6 +77,7 @@ target_link_libraries(
   ${CPPUNIT_LIBRARIES}
   gnuradio-blocks
   gnuradio-starcoder
+  ${PYTHON_LIBRARIES}
 )
 
 GR_ADD_TEST(test_starcoder test-starcoder)

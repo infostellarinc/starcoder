@@ -36,6 +36,7 @@ namespace gr {
      private:
       std::list<item> listOfArrays;
       int totalSize;
+      char* blob;
 
      public:
       waterfall_plotter_impl(double samp_rate, double center_freq, double rps, size_t fft_size, char* filename);

@@ -22,6 +22,7 @@
 #include "config.h"
 #endif
 
+#include <Python.h>
 #include <gnuradio/io_signature.h>
 #include "waterfall_plotter_impl.h"
 #include <iostream>
@@ -43,14 +44,17 @@ namespace gr {
       : gr::sync_block("waterfall_plotter",
               gr::io_signature::make(1, 1, fft_size * sizeof(int8_t)),
               gr::io_signature::make(0, 0, 0)),
-        totalSize(0)
+        totalSize(0),
+        blob(new char[0])
     {}
 
     /*
      * Our virtual destructor.
      */
     waterfall_plotter_impl::~waterfall_plotter_impl()
-    {}
+    {
+      delete[] blob;
+    }
 
     int
     waterfall_plotter_impl::work(int noutput_items,
@@ -70,10 +74,10 @@ namespace gr {
       a.arr = buffer;
       listOfArrays.push_back(a);
 
-      std::cout << block_size << " block size\n";
-      std::cout << noutput_items << " output items\n";
+      std::cout << block_size << " block size" << std::endl;
+      std::cout << noutput_items << " output items" << std::endl;
       for (int i = 0; i < a.size; i ++) {
-        std::cout << static_cast<unsigned>(buffer[i]) << " buffer\n";
+        std::cout << static_cast<unsigned>(buffer[i]) << " buffer" << std::endl;
       }
 
       // Tell runtime system how many output items we produced.
@@ -81,17 +85,70 @@ namespace gr {
     }
 
     bool waterfall_plotter_impl::stop() {
-      std::cout << "end\n";
+
       if (listOfArrays.begin() == listOfArrays.end()) {
-      	std::cout << "list empty.\n";
+      	std::cout << "list empty." << std::endl;
       	return true;
       }
+
+      char *numpyArrayBuffer = new char[totalSize];
+      int copiedSoFar = 0;
       for (auto it = listOfArrays.cbegin(); it != listOfArrays.cend(); it++) {
-        std::cout << (*it).size << " size buffer\n";
-        for (int i = 0; i < (*it).size; i ++) {
-          std::cout << static_cast<unsigned>((*it).arr[i]) << " buffer\n";
-        }
+        std::cout << (*it).size << " size buffer" << std::endl;
+        std::copy((*it).arr, (*it).arr+(*it).size, numpyArrayBuffer + copiedSoFar);
+        copiedSoFar += (*it).size;
+        delete[] (*it).arr;
       }
+
+      for (int i = 0; i < totalSize; i ++) {
+        std::cout << static_cast<unsigned>(numpyArrayBuffer[i]) << " numpyarraybuffer" << std::endl;
+      }
+
+      PyGILState_STATE gstate;
+      gstate = PyGILState_Ensure();
+
+      PyObject* myModuleString = PyString_FromString((char *)"starcoder");
+      if (!myModuleString) {
+        std::cerr << "null starcoder string" << std::endl;
+        PyGILState_Release(gstate);
+        return false;
+      }
+      PyObject* myModule = PyImport_Import(myModuleString);
+      if (!myModule) {
+        std::cerr << "failed to import module" << std::endl;
+        PyGILState_Release(gstate);
+        return false;
+      }
+      PyObject* myFunction = PyObject_GetAttrString(myModule,(char *)"plot_waterfall");
+      if (!myModule) {
+        std::cerr << "failed to retrieve plot_waterfall" << std::endl;
+        PyGILState_Release(gstate);
+        return false;
+      }
+      PyObject* myResult = PyObject_CallObject(myFunction, NULL);
+      if (!myResult) {
+        std::cerr << "failed to call function" << std::endl;
+        PyGILState_Release(gstate);
+        return false;
+      }
+      Py_ssize_t imageSize = PyString_Size(myResult);
+      std::cout << imageSize << " = Retrieved image size" << std::endl;
+      char *imageBuffer = PyString_AsString(myResult);
+      if (!imageBuffer) {
+        std::cerr << "failed to retrieve image string" << std::endl;
+        PyGILState_Release(gstate);
+        return false;
+      }
+
+      blob = new char[imageSize];
+      memcpy(blob, imageBuffer, imageSize);
+
+      Py_DECREF(myModuleString);
+      Py_DECREF(myModule);
+      Py_DECREF(myFunction);
+      Py_DECREF(myResult);
+
+      PyGILState_Release(gstate);
       return true;
     }
 
