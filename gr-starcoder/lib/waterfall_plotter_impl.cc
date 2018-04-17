@@ -22,7 +22,10 @@
 #include "config.h"
 #endif
 
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+
 #include <Python.h>
+#include "numpy/arrayobject.h"
 #include <gnuradio/io_signature.h>
 #include "waterfall_plotter_impl.h"
 #include <iostream>
@@ -45,7 +48,8 @@ namespace gr {
               gr::io_signature::make(1, 1, fft_size * sizeof(int8_t)),
               gr::io_signature::make(0, 0, 0)),
         totalSize(0),
-        blob(new char[0])
+        blob(new char[0]),
+        fft_size(fft_size)
     {}
 
     /*
@@ -84,6 +88,10 @@ namespace gr {
       return noutput_items;
     }
 
+    void waterfall_plotter_impl::init_numpy_array() {
+      import_array();
+    }
+
     bool waterfall_plotter_impl::stop() {
 
       if (listOfArrays.begin() == listOfArrays.end()) {
@@ -106,6 +114,21 @@ namespace gr {
 
       PyGILState_STATE gstate;
       gstate = PyGILState_Ensure();
+      init_numpy_array();
+
+      npy_intp dims[2]{
+        static_cast<long int>(totalSize / (fft_size * sizeof(int8_t))),
+        static_cast<long int>(fft_size)};
+      const int ND = 2;
+      std::cout << "dims: " << dims[0] << " " << dims[1] << std::endl;
+
+      PyObject *pArray = PyArray_SimpleNewFromData(
+        ND, dims, NPY_INT8, reinterpret_cast<void*>(pArray));
+      if (!pArray) {
+        std::cerr << "failed to build array" << std::endl;
+        PyGILState_Release(gstate);
+        return false;
+      }
 
       PyObject* myModuleString = PyString_FromString((char *)"starcoder");
       if (!myModuleString) {
@@ -125,9 +148,10 @@ namespace gr {
         PyGILState_Release(gstate);
         return false;
       }
-      PyObject* myResult = PyObject_CallObject(myFunction, NULL);
+      PyObject* myResult = PyObject_CallFunctionObjArgs(myFunction, pArray, NULL);
       if (!myResult) {
         std::cerr << "failed to call function" << std::endl;
+        PyErr_Print();
         PyGILState_Release(gstate);
         return false;
       }
@@ -143,12 +167,14 @@ namespace gr {
       blob = new char[imageSize];
       memcpy(blob, imageBuffer, imageSize);
 
+      Py_DECREF(pArray);
       Py_DECREF(myModuleString);
       Py_DECREF(myModule);
       Py_DECREF(myFunction);
       Py_DECREF(myResult);
 
       PyGILState_Release(gstate);
+      delete[] numpyArrayBuffer;
       return true;
     }
 

@@ -22,6 +22,7 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import starcoder_swig as starcoder
+import numpy as np
 
 class qa_waterfall_plotter (gr_unittest.TestCase):
 
@@ -33,7 +34,8 @@ class qa_waterfall_plotter (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-        src_data = tuple(range(20))
+        src_data = tuple(range(-100, -80))
+        arr = np.random.randn(100000) - 90
         src = blocks.vector_source_b(src_data)
         s2v = blocks.stream_to_vector(gr.sizeof_char, self.fft_size)
         op = starcoder.waterfall_plotter(1, 2, 3, self.fft_size, "yo")
