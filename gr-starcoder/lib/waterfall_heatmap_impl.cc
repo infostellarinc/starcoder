@@ -1,5 +1,23 @@
 /* -*- c++ -*- */
 /*
+ * Copyright 2018 Infostellar, Inc.
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+/*
  * gr-satnogs: SatNOGS GNU Radio Out-Of-Tree Module
  *
  *  Copyright (C) 2017, Libre Space Foundation <http://librespacefoundation.org/>
@@ -52,7 +70,7 @@ namespace gr {
             d_max_energy(-72.0f),
             d_samp_rate (samp_rate),
             d_rps (rps),
-            d_fft_size (fft_size),
+            fft_size_ (fft_size),
             d_mode ((wf_mode_t)mode),
             d_refresh( (d_samp_rate / fft_size) / rps),
             d_fft_cnt(0),
@@ -156,32 +174,32 @@ namespace gr {
         d_fft_cnt++;
         if(d_fft_cnt > d_refresh){
           fft_in = d_fft.get_inbuf();
-          memcpy(fft_in, in + i*d_fft_size, d_fft_size*sizeof(gr_complex));
+          memcpy(fft_in, in + i*fft_size_, fft_size_*sizeof(gr_complex));
           d_fft.execute();
 
           /* Compute the energy in dB */
           volk_32fc_s32f_x2_power_spectral_density_32f (d_shift_buffer,
                                                         d_fft.get_outbuf(),
-                                                        (float) d_fft_size, 1.0,
-                                                        d_fft_size);
+                                                        (float) fft_size_, 1.0,
+                                                        fft_size_);
           /* Perform FFT shift */
           memcpy (d_hold_buffer, d_shift_buffer + d_fft_shift,
-                  sizeof(float) * (d_fft_size - d_fft_shift));
-          memcpy (&d_hold_buffer[d_fft_size - d_fft_shift],
+                  sizeof(float) * (fft_size_ - d_fft_shift));
+          memcpy (&d_hold_buffer[fft_size_ - d_fft_shift],
                   d_shift_buffer,
                   sizeof(float) * d_fft_shift);
 
           /* Clamp the energy to the [min, max] range */
           volk_32f_x2_max_32f (d_hold_buffer, d_hold_buffer, d_min_buffer,
-                               d_fft_size);
+                               fft_size_);
           volk_32f_x2_min_32f (d_hold_buffer, d_hold_buffer, d_max_buffer,
-                               d_fft_size);
-          volk_32f_s32f_convert_8i (out + produced * d_fft_size, d_hold_buffer,
-                                    1.0, d_fft_size);
+                               fft_size_);
+          volk_32f_s32f_convert_8i (out + produced * fft_size_, d_hold_buffer,
+                                    1.0, fft_size_);
           produced++;
           d_fft_cnt = 0;
         }
-        d_samples_cnt += d_fft_size;
+        d_samples_cnt += fft_size_;
       }
       return produced;
     }
@@ -197,48 +215,48 @@ namespace gr {
       gr_complex *fft_in;
       for(i = 0; i < n_fft; i++){
         fft_in = d_fft.get_inbuf ();
-        memcpy (fft_in, in + i * d_fft_size, d_fft_size * sizeof(gr_complex));
+        memcpy (fft_in, in + i * fft_size_, fft_size_ * sizeof(gr_complex));
         d_fft.execute ();
 
         /* Compute the mag^2 */
         volk_32fc_magnitude_squared_32f (d_tmp_buffer, d_fft.get_outbuf(),
-                                         d_fft_size);
+                                         fft_size_);
 
         /* Normalization factor */
         volk_32f_s32f_multiply_32f (d_tmp_buffer, d_tmp_buffer,
-                                    1.0/(d_fft_size * d_fft_size), d_fft_size);
+                                    1.0/(fft_size_ * fft_size_), fft_size_);
 
         /* Max hold */
         volk_32f_x2_max_32f (d_hold_buffer, d_hold_buffer, d_tmp_buffer,
-                             d_fft_size);
+                             fft_size_);
         d_fft_cnt++;
         if(d_fft_cnt > d_refresh) {
           /* Perform FFT shift */
           memcpy (d_shift_buffer, d_hold_buffer + d_fft_shift,
-                  sizeof(float) * (d_fft_size - d_fft_shift));
-          memcpy (&d_shift_buffer[d_fft_size - d_fft_shift],
+                  sizeof(float) * (fft_size_ - d_fft_shift));
+          memcpy (&d_shift_buffer[fft_size_ - d_fft_shift],
                   d_hold_buffer,
                   sizeof(float) * d_fft_shift);
 
           /* Compute the energy in dB */
-          for(j = 0; j < d_fft_size; j++){
+          for(j = 0; j < fft_size_; j++){
             d_hold_buffer[j] = 10.0 * log10f(d_shift_buffer[j] + 1.0e-20);
           }
 
           /* Clamp the energy to the [min, max] range */
           volk_32f_x2_max_32f (d_hold_buffer, d_hold_buffer, d_min_buffer,
-                               d_fft_size);
+                               fft_size_);
           volk_32f_x2_min_32f (d_hold_buffer, d_hold_buffer, d_max_buffer,
-                               d_fft_size);
+                               fft_size_);
 
           /* Reset */
           d_fft_cnt = 0;
-          volk_32f_s32f_convert_8i (out + produced * d_fft_size, d_hold_buffer,
-                                    1.0, d_fft_size);
+          volk_32f_s32f_convert_8i (out + produced * fft_size_, d_hold_buffer,
+                                    1.0, fft_size_);
           produced++;
-          memset(d_hold_buffer, 0, d_fft_size * sizeof(float));
+          memset(d_hold_buffer, 0, fft_size_ * sizeof(float));
         }
-        d_samples_cnt += d_fft_size;
+        d_samples_cnt += fft_size_;
       }
       return produced;
     }
@@ -254,17 +272,17 @@ namespace gr {
       gr_complex *fft_in;
       for(i = 0; i < n_fft; i++){
         fft_in = d_fft.get_inbuf ();
-        memcpy (fft_in, in + i * d_fft_size, d_fft_size * sizeof(gr_complex));
+        memcpy (fft_in, in + i * fft_size_, fft_size_ * sizeof(gr_complex));
         d_fft.execute ();
         /* Perform FFT shift */
         memcpy (d_shift_buffer, &d_fft.get_outbuf ()[d_fft_shift],
-                sizeof(gr_complex) * (d_fft_size - d_fft_shift));
-        memcpy (&d_shift_buffer[d_fft_size - d_fft_shift],
+                sizeof(gr_complex) * (fft_size_ - d_fft_shift));
+        memcpy (&d_shift_buffer[fft_size_ - d_fft_shift],
                 &d_fft.get_outbuf ()[0], sizeof(gr_complex) * d_fft_shift);
 
         /* Accumulate the complex numbers  */
         volk_32f_x2_add_32f(d_hold_buffer, d_hold_buffer,
-                            (float *)d_shift_buffer, 2 * d_fft_size);
+                            (float *)d_shift_buffer, 2 * fft_size_);
         d_fft_cnt++;
         if(d_fft_cnt > d_refresh) {
           /*
@@ -273,22 +291,22 @@ namespace gr {
            */
           volk_32fc_s32f_x2_power_spectral_density_32f (
               d_hold_buffer, (gr_complex *)d_hold_buffer,
-              (float) d_fft_cnt * d_fft_size, 1.0, d_fft_size);
+              (float) d_fft_cnt * fft_size_, 1.0, fft_size_);
 
           /* Clamp the energy to the [min, max] range */
           volk_32f_x2_max_32f (d_hold_buffer, d_hold_buffer, d_min_buffer,
-                               d_fft_size);
+                               fft_size_);
           volk_32f_x2_min_32f (d_hold_buffer, d_hold_buffer, d_max_buffer,
-                               d_fft_size);
+                               fft_size_);
 
           /* Reset */
           d_fft_cnt = 0;
-          volk_32f_s32f_convert_8i (out + produced * d_fft_size, d_hold_buffer,
-                                    1.0, d_fft_size);
+          volk_32f_s32f_convert_8i (out + produced * fft_size_, d_hold_buffer,
+                                    1.0, fft_size_);
           produced++;
-          memset(d_hold_buffer, 0, 2 * d_fft_size * sizeof(float));
+          memset(d_hold_buffer, 0, 2 * fft_size_ * sizeof(float));
         }
-        d_samples_cnt += d_fft_size;
+        d_samples_cnt += fft_size_;
       }
       return produced;
     }

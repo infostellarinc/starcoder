@@ -47,19 +47,16 @@ namespace gr {
       : gr::sync_block("waterfall_plotter",
               gr::io_signature::make(1, 1, fft_size * sizeof(int8_t)),
               gr::io_signature::make(0, 0, 0)),
-        d_total_size(0),
-        d_blob(new char[0]),
-        d_fft_size(fft_size),
-        d_filename(filename)
+        total_size_(0),
+        fft_size_(fft_size),
+        filename_(filename)
     {}
 
     /*
      * Our virtual destructor.
      */
     waterfall_plotter_impl::~waterfall_plotter_impl()
-    {
-      delete[] d_blob;
-    }
+    {}
 
     int
     waterfall_plotter_impl::work(int noutput_items,
@@ -70,33 +67,32 @@ namespace gr {
 
       const char *in = (const char *) input_items[0];
 
-      d_total_size += noutput_items * block_size;
+      total_size_ += noutput_items * block_size;
 
       item a;
       char *buffer = new char[noutput_items * block_size];
       memcpy (buffer, in, noutput_items * block_size);
       a.size = noutput_items * block_size;
       a.arr = buffer;
-      d_list_of_arrays.push_back(a);
+      list_of_arrays_.push_back(a);
 
       // Tell runtime system how many output items we produced.
       return noutput_items;
     }
 
-    void waterfall_plotter_impl::d_init_numpy_array() {
+    void waterfall_plotter_impl::init_numpy_array() {
       import_array();
     }
 
     bool waterfall_plotter_impl::stop() {
 
-      if (d_list_of_arrays.begin() == d_list_of_arrays.end()) {
-      	std::cout << "list empty." << std::endl;
+      if (list_of_arrays_.begin() == list_of_arrays_.end()) {
       	return true;
       }
 
-      char *numpy_array_buffer = new char[d_total_size];
+      char *numpy_array_buffer = new char[total_size_];
       int copied_so_far = 0;
-      for (auto it = d_list_of_arrays.cbegin(); it != d_list_of_arrays.cend(); it++) {
+      for (auto it = list_of_arrays_.cbegin(); it != list_of_arrays_.cend(); it++) {
         std::copy((*it).arr, (*it).arr+(*it).size, numpy_array_buffer + copied_so_far);
         copied_so_far += (*it).size;
         delete[] (*it).arr;
@@ -104,13 +100,12 @@ namespace gr {
 
       PyGILState_STATE gstate;
       gstate = PyGILState_Ensure();
-      d_init_numpy_array();
+      init_numpy_array();
 
       npy_intp dims[2]{
-        static_cast<long int>(d_total_size / (d_fft_size * sizeof(int8_t))),
-        static_cast<long int>(d_fft_size)};
+        static_cast<long int>(total_size_ / (fft_size_ * sizeof(int8_t))),
+        static_cast<long int>(fft_size_)};
       const int ND = 2;
-      std::cout << "dims: " << dims[0] << " " << dims[1] << std::endl;
 
       PyObject *numpy_array = NULL, *module_string = NULL, *module = NULL,
         *plot_waterfall_func = NULL, *pyFilename = NULL, *result = NULL;
@@ -132,11 +127,11 @@ namespace gr {
       if (module == NULL)
         goto error;
 
-      pyFilename = PyString_FromString(d_filename);
+      pyFilename = PyString_FromString(filename_);
       if (pyFilename == NULL)
         goto error;
 
-      if (d_filename[0] != '\0') {
+      if (filename_[0] != '\0') {
         result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, pyFilename, NULL);
       } else {
         result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, NULL);
@@ -146,14 +141,10 @@ namespace gr {
 
       Py_ssize_t image_size;
       image_size = PyString_Size(result);
-      std::cout << image_size << " = Retrieved image size" << std::endl;
       char *image_buffer;
       image_buffer = PyString_AsString(result);
       if (image_buffer == NULL)
         goto error;
-
-      d_blob = new char[image_size];
-      memcpy(d_blob, image_buffer, image_size);
 
 error:
       /* Cleanup code, shared by success and failure path */

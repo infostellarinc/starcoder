@@ -36,8 +36,9 @@ def plot_waterfall(arr, filename=None):
     fig.axes.get_yaxis().set_visible(False)
     plt.axis('off')
 
-    buf = io.BytesIO()
-    plt.savefig(buf, bbox_inches='tight', pad_inches=0)
     if filename is not None:
         plt.savefig(filename, bbox_inches='tight', pad_inches=0)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, bbox_inches='tight', pad_inches=0, format='png')
     return buf.getvalue()

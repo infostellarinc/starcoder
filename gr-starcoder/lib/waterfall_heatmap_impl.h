@@ -1,5 +1,23 @@
 /* -*- c++ -*- */
 /*
+ * Copyright 2018 Infostellar, Inc.
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+/*
  * gr-satnogs: SatNOGS GNU Radio Out-Of-Tree Module
  *
  *  Copyright (C) 2017, Libre Space Foundation <http://librespacefoundation.org/>
@@ -44,7 +62,7 @@ namespace gr {
       const float d_max_energy;
       const double d_samp_rate;
       double d_rps;
-      const size_t d_fft_size;
+      const size_t fft_size_;
       wf_mode_t d_mode;
       size_t d_refresh;
       size_t d_fft_cnt;
@@ -56,6 +74,15 @@ namespace gr {
       float *d_tmp_buffer;
       float *d_min_buffer;
       float *d_max_buffer;
+
+      size_t
+      compute_decimation(int8_t *out, const gr_complex *in, size_t n_fft);
+
+      size_t
+      compute_max_hold(int8_t *out, const gr_complex *in, size_t n_fft);
+
+      size_t
+      compute_mean(int8_t *out, const gr_complex *in, size_t n_fft);
 
 
     public:
@@ -69,15 +96,6 @@ namespace gr {
                     gr_vector_int &ninput_items,
                     gr_vector_const_void_star &input_items,
                     gr_vector_void_star &output_items);
-
-      size_t
-      compute_decimation(int8_t *out, const gr_complex *in, size_t n_fft);
-
-      size_t
-      compute_max_hold(int8_t *out, const gr_complex *in, size_t n_fft);
-
-      size_t
-      compute_mean(int8_t *out, const gr_complex *in, size_t n_fft);
     };
 
   } // namespace starcoder
