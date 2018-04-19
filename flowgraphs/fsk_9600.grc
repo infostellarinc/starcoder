@@ -1173,7 +1173,7 @@
     </param>
   </block>
   <block>
-    <key>satnogs_waterfall_sink</key>
+    <key>starcoder_waterfall_sink</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1192,7 +1192,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>fft_size</key>
@@ -1212,7 +1212,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>satnogs_waterfall_sink_0_0</value>
+      <value>starcoder_waterfall_sink_0</value>
     </param>
     <param>
       <key>mode</key>
@@ -1342,7 +1342,7 @@
   </connection>
   <connection>
     <source_block_id>rational_resampler_xxx_0_0</source_block_id>
-    <sink_block_id>satnogs_waterfall_sink_0_0</sink_block_id>
+    <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

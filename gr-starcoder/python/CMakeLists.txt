@@ -31,7 +31,9 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    enqueue_msg_sink.py DESTINATION ${GR_PYTHON_DIR}/starcoder
+    plot_waterfall.py
+    enqueue_msg_sink.py
+    waterfall_sink.py DESTINATION ${GR_PYTHON_DIR}/starcoder
 )
 
 ########################################################################
@@ -44,3 +46,11 @@ set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
 GR_ADD_TEST(qa_ar2300_source ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_ar2300_source.py)
 GR_ADD_TEST(qa_enqueue_msg_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_msg_sink.py)
 GR_ADD_TEST(qa_complex_to_msg_c ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_complex_to_msg_c.py)
+GR_ADD_TEST(qa_waterfall_heatmap ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_heatmap.py)
+GR_ADD_TEST(qa_waterfall_plotter ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_plotter.py)
+GR_ADD_TEST(qa_waterfall_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_sink.py)
+configure_file(
+${CMAKE_CURRENT_SOURCE_DIR}/test_waterfall.png
+${CMAKE_CURRENT_BINARY_DIR}/test_waterfall.png
+COPYONLY
+)

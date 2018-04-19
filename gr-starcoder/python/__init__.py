@@ -31,4 +31,6 @@ except ImportError:
 
 # import any pure python here
 from enqueue_msg_sink import enqueue_msg_sink
+from plot_waterfall import plot_waterfall
+from waterfall_sink import waterfall_sink
 #
