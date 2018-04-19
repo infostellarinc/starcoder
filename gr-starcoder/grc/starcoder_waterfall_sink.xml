@@ -40,10 +40,6 @@
       <name>Max hold</name>
       <key>1</key>
     </option>
-    <option>
-      <name>Mean</name>
-      <key>2</key>
-    </option>
   </param>
 
   <param>

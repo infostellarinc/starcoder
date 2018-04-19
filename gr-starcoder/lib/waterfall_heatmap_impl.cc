@@ -149,9 +149,6 @@ namespace gr {
         case WATERFALL_MODE_MAX_HOLD:
           produced = compute_max_hold (out, in, n_fft);
           break;
-        case WATERFALL_MODE_MEAN:
-          produced = compute_mean (out, in, n_fft);
-          break;
         default:
           throw std::runtime_error ("Wrong waterfall mode");
           return -1;
@@ -255,56 +252,6 @@ namespace gr {
                                     1.0, fft_size_);
           produced++;
           memset(d_hold_buffer, 0, fft_size_ * sizeof(float));
-        }
-        d_samples_cnt += fft_size_;
-      }
-      return produced;
-    }
-
-    size_t
-    waterfall_heatmap_impl::compute_mean (int8_t *out, const gr_complex* in,
-                                          size_t n_fft)
-    {
-      size_t i;
-      size_t produced = 0;
-      size_t j;
-      float t;
-      gr_complex *fft_in;
-      for(i = 0; i < n_fft; i++){
-        fft_in = d_fft.get_inbuf ();
-        memcpy (fft_in, in + i * fft_size_, fft_size_ * sizeof(gr_complex));
-        d_fft.execute ();
-        /* Perform FFT shift */
-        memcpy (d_shift_buffer, &d_fft.get_outbuf ()[d_fft_shift],
-                sizeof(gr_complex) * (fft_size_ - d_fft_shift));
-        memcpy (&d_shift_buffer[fft_size_ - d_fft_shift],
-                &d_fft.get_outbuf ()[0], sizeof(gr_complex) * d_fft_shift);
-
-        /* Accumulate the complex numbers  */
-        volk_32f_x2_add_32f(d_hold_buffer, d_hold_buffer,
-                            (float *)d_shift_buffer, 2 * fft_size_);
-        d_fft_cnt++;
-        if(d_fft_cnt > d_refresh) {
-          /*
-           * Compute the energy in dB performing the proper normalization
-           * before any dB calculation, emulating the mean
-           */
-          volk_32fc_s32f_x2_power_spectral_density_32f (
-              d_hold_buffer, (gr_complex *)d_hold_buffer,
-              (float) d_fft_cnt * fft_size_, 1.0, fft_size_);
-
-          /* Clamp the energy to the [min, max] range */
-          volk_32f_x2_max_32f (d_hold_buffer, d_hold_buffer, d_min_buffer,
-                               fft_size_);
-          volk_32f_x2_min_32f (d_hold_buffer, d_hold_buffer, d_max_buffer,
-                               fft_size_);
-
-          /* Reset */
-          d_fft_cnt = 0;
-          volk_32f_s32f_convert_8i (out + produced * fft_size_, d_hold_buffer,
-                                    1.0, fft_size_);
-          produced++;
-          memset(d_hold_buffer, 0, 2 * fft_size_ * sizeof(float));
         }
         d_samples_cnt += fft_size_;
       }

@@ -55,7 +55,6 @@ namespace gr {
       typedef enum {
         WATERFALL_MODE_DECIMATION = 0,//!< WATERFALL_MODE_DECIMATION Performs just a decimation and computes the energy only
         WATERFALL_MODE_MAX_HOLD = 1,  //!< WATERFALL_MODE_MAX_HOLD compute the max hold energy of all the FFT snapshots between two consecutive pixel rows
-        WATERFALL_MODE_MEAN = 2       //!< WATERFALL_MODE_MEAN compute the mean energy of all the FFT snapshots between two consecutive pixel rows
       } wf_mode_t;
 
       const float d_min_energy;
@@ -80,9 +79,6 @@ namespace gr {
 
       size_t
       compute_max_hold(int8_t *out, const gr_complex *in, size_t n_fft);
-
-      size_t
-      compute_mean(int8_t *out, const gr_complex *in, size_t n_fft);
 
 
     public:
