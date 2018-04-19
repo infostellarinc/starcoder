@@ -22,25 +22,32 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import starcoder_swig as starcoder
-import numpy as np
+import os
 
 class qa_waterfall_plotter (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
         self.fft_size = 40
+        self.filename = "waterfall.png"
 
     def tearDown (self):
         self.tb = None
+        try:
+            os.remove(self.filename)
+        except OSError:
+            pass
 
     def test_001_t (self):
         src_data = tuple(range(140, 180)*20)
         src = blocks.vector_source_b(src_data)
         s2v = blocks.stream_to_vector(gr.sizeof_char, self.fft_size)
-        op = starcoder.waterfall_plotter(self.fft_size, "")
+        op = starcoder.waterfall_plotter(self.fft_size, self.filename)
         self.tb.connect(src, s2v, op)
         self.tb.run()
-        # check data
+        with open(self.filename) as f:
+            with open("test_waterfall.png") as g:
+                self.assertEqual(f.read(), g.read())
 
 
 if __name__ == '__main__':

@@ -49,3 +49,10 @@ GR_ADD_TEST(qa_complex_to_msg_c ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}
 GR_ADD_TEST(qa_waterfall_heatmap ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_heatmap.py)
 GR_ADD_TEST(qa_waterfall_plotter ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_plotter.py)
 GR_ADD_TEST(qa_waterfall_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_waterfall_sink.py)
+message(${CMAKE_CURRENT_SOURCE_DIR})
+message(${CMAKE_CURRENT_BINARY_DIR})
+configure_file(
+${CMAKE_CURRENT_SOURCE_DIR}/test_waterfall.png
+${CMAKE_CURRENT_BINARY_DIR}/test_waterfall.png
+COPYONLY
+)
