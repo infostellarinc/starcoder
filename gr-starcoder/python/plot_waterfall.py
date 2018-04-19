@@ -44,11 +44,7 @@ def float_to_str(f):
     return '{:.1}'.format(f)
 
 
-def plot_waterfall(arr, filename=None):
-    samp_rate = 112500
-    fft = 1024
-    center_freq = 0.0
-    rps = 10
+def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
 
     plt.figure(figsize=(12.8, 20.8), dpi=200)
     plt.imshow(arr, cmap=cm.nipy_spectral,
@@ -93,7 +89,7 @@ def plot_waterfall(arr, filename=None):
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Time (seconds)')
 
-    if filename is not None:
+    if filename != '':
         plt.savefig(filename, bbox_inches='tight', pad_inches=0.2)
 
     buf = io.BytesIO()

@@ -66,7 +66,7 @@ namespace gr {
        */
       static sptr
       make(double samp_rate, double center_freq,
-           double rps, size_t fft_size, char* filename);
+           int rps, size_t fft_size, char* filename);
     };
 
   } // namespace starcoder

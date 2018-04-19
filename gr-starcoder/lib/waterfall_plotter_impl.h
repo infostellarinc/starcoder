@@ -38,14 +38,14 @@ namespace gr {
       int total_size_;
       double samp_rate_;
       double center_freq_;
-      double rps_;
+      int rps_;
       char* filename_;
       size_t fft_size_;
       void init_numpy_array();
 
      public:
       waterfall_plotter_impl(double samp_rate, double center_freq,
-                             double rps, size_t fft_size, char* filename);
+                             int rps, size_t fft_size, char* filename);
       ~waterfall_plotter_impl();
 
       // Where all the action really happens

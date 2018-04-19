@@ -35,7 +35,7 @@ namespace gr {
 
     waterfall_plotter::sptr
     waterfall_plotter::make(double samp_rate, double center_freq,
-                            double rps, size_t fft_size, char* filename)
+                            int rps, size_t fft_size, char* filename)
     {
       return gnuradio::get_initial_sptr
         (new waterfall_plotter_impl(samp_rate, center_freq,
@@ -47,7 +47,7 @@ namespace gr {
      */
     waterfall_plotter_impl::waterfall_plotter_impl(double samp_rate,
                                                    double center_freq,
-                                                   double rps,
+                                                   int rps,
                                                    size_t fft_size,
                                                    char* filename)
       : gr::sync_block("waterfall_plotter",
@@ -117,8 +117,9 @@ namespace gr {
       const int ND = 2;
 
       PyObject *numpy_array = NULL, *module_string = NULL, *module = NULL,
-        *plot_waterfall_func = NULL, *pyFilename = NULL, *result = NULL,
-        *py_samp_rate = NULL;
+        *plot_waterfall_func = NULL, *py_filename = NULL, *result = NULL,
+        *py_samp_rate = NULL, *py_center_freq = NULL, *py_rps = NULL,
+        *py_fft_size = NULL;
 
       numpy_array = PyArray_SimpleNewFromData(
         ND, dims, NPY_INT8, reinterpret_cast<void*>(numpy_array_buffer));
@@ -141,15 +142,32 @@ namespace gr {
       if (py_samp_rate == NULL)
         goto error;
 
-      pyFilename = PyString_FromString(filename_);
-      if (pyFilename == NULL)
+      py_center_freq = PyFloat_FromDouble(center_freq_);
+      if (py_center_freq == NULL)
         goto error;
 
-      if (filename_[0] != '\0') {
-        result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, pyFilename, NULL);
-      } else {
-        result = PyObject_CallFunctionObjArgs(plot_waterfall_func, numpy_array, NULL);
-      }
+      py_rps = PyInt_FromLong((long) rps_);
+      if (py_rps == NULL)
+        goto error;
+
+      py_fft_size = PyInt_FromSize_t(fft_size_);
+      if (py_fft_size == NULL)
+        goto error;
+
+      py_filename = PyString_FromString(filename_);
+      if (py_filename == NULL)
+        goto error;
+
+      result = PyObject_CallFunctionObjArgs(
+        plot_waterfall_func,
+        numpy_array,
+        py_samp_rate,
+        py_center_freq,
+        py_rps,
+        py_fft_size,
+        py_filename,
+        NULL);
+
       if (result == NULL)
         goto error;
 
@@ -167,7 +185,10 @@ error:
       Py_XDECREF(module);
       Py_XDECREF(plot_waterfall_func);
       Py_XDECREF(py_samp_rate);
-      Py_XDECREF(pyFilename);
+      Py_XDECREF(py_center_freq);
+      Py_XDECREF(py_rps);
+      Py_XDECREF(py_fft_size);
+      Py_XDECREF(py_filename);
       Py_XDECREF(result);
 
       if (PyErr_Occurred()) {
