@@ -25,6 +25,7 @@ import starcoder_swig as starcoder
 import os
 import tempfile
 
+
 class qa_waterfall_plotter (gr_unittest.TestCase):
 
     def setUp (self):
