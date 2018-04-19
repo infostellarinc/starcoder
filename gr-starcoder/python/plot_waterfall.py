@@ -22,22 +22,79 @@ import matplotlib
 matplotlib.use('agg')
 
 import io
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.ticker import IndexLocator, AutoMinorLocator
+
+
+def float_to_str(f):
+    r = f / 1e9
+    if(r > 1 or r < -1 or np.isclose(r, 1.0, rtol=1e-03, atol=1e-05)
+        or np.isclose(r, -1.0, rtol=1e-03, atol=1e-05)):
+        return '{:.1f}'.format(r) + "G"
+    r = f / 1e6
+    if(r > 1 or r < -1 or np.isclose(r, 1.0, rtol=1e-03, atol=1e-05) or
+        np.isclose(r, -1.0, rtol=1e-03, atol=1e-05)):
+        return '{:.1f}'.format(r) + "M"
+    r = f / 1e3
+    if(r > 1 or r < -1 or np.isclose(r, 1.0, rtol=1e-03, atol=1e-05)
+        or np.isclose(r, -1.0, rtol=1e-03, atol=1e-05)):
+        return '{:.1f}'.format(r) + "k"
+    return '{:.1}'.format(f)
 
 
 def plot_waterfall(arr, filename=None):
-    plt.figure(dpi=400)
-    fig = plt.imshow(arr, cmap=cm.nipy_spectral,
-                    interpolation='none', vmin=-120, vmax=-70, alpha=0.8,
-                    aspect='auto')
+    samp_rate = 112500
+    fft = 1024
+    center_freq = 0.0
+    rps = 10
 
-    fig.axes.get_xaxis().set_visible(False)
-    fig.axes.get_yaxis().set_visible(False)
-    plt.axis('off')
+    plt.figure(figsize=(12.8, 20.8), dpi=200)
+    plt.imshow(arr, cmap=cm.nipy_spectral,
+               interpolation='none', vmin=int(np.mean(arr)), vmax=arr.max(),
+               alpha=1, aspect='auto')
+    cb = plt.colorbar(aspect=50)
+    cb.set_label('Power (dB)')
+
+    cell_freq = samp_rate / 10.0
+    center_tick = fft/2
+    carriers_per_tick = int(cell_freq * fft / samp_rate)
+    nticks = 9
+
+    x_ticks = [center_tick]
+    x_tick_labels = [float_to_str(center_freq)]
+    for i in range(nticks/2):
+        x_ticks.append((i + 1) * carriers_per_tick + center_tick)
+        x_ticks.insert(0, center_tick - (i + 1) * carriers_per_tick)
+        x_tick_labels.append(float_to_str(center_freq + (i + 1) * cell_freq))
+        x_tick_labels.insert(0, float_to_str(center_freq - (i + 1) * cell_freq))
+
+    n_rows_per_tick = 60 * rps
+    y_ticks = []
+    y_tick_labels = []
+    j = 0
+    for i in range(len(arr), 0, -n_rows_per_tick):
+        y_ticks.append(i)
+        y_tick_labels.append(j * 60)
+        j = j + 1
+
+    plt.xticks(x_ticks, x_tick_labels, size='x-large')
+    if len(y_ticks) > 0:
+        plt.yticks(y_ticks, y_tick_labels, size='x-large')
+    plt.grid(b='on', linestyle='dashed', linewidth=1,
+             color='#000000', alpha=0.3)
+
+    minor_locator_y = IndexLocator(10 * rps, len(arr) % (10 * rps))
+    plt.axes().yaxis.set_minor_locator(minor_locator_y)
+    plt.axes().yaxis.grid(which='minor', color='black', linestyle='-', linewidth=0.05, alpha=0.7)
+    plt.axes().xaxis.grid(which='minor', color='black', linestyle='-', linewidth=0.1, alpha=0.6)
+    plt.axes().xaxis.set_minor_locator(AutoMinorLocator(10))
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Time (seconds)')
 
     if filename is not None:
-        plt.savefig(filename, bbox_inches='tight', pad_inches=0)
+        plt.savefig(filename, bbox_inches='tight', pad_inches=0.2)
 
     buf = io.BytesIO()
     plt.savefig(buf, bbox_inches='tight', pad_inches=0, format='png')

@@ -55,7 +55,7 @@ class waterfall_sink(gr.hier_block2):
 
         waterfall_heatmap = starcoder_swig.waterfall_heatmap(samp_rate, center_freq, rps, fft_size, mode)
         s2v = blocks.stream_to_vector(gr.sizeof_gr_complex, fft_size)
-        waterfall_pl = starcoder_swig.waterfall_plotter(fft_size, filename)
+        waterfall_pl = starcoder_swig.waterfall_plotter(samp_rate, center_freq, rps, fft_size, filename)
 
         self.connect((self, 0), (s2v, 0))
         self.connect((s2v, 0), (waterfall_heatmap, 0))

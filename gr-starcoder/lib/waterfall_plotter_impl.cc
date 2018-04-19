@@ -34,20 +34,29 @@ namespace gr {
   namespace starcoder {
 
     waterfall_plotter::sptr
-    waterfall_plotter::make(size_t fft_size, char* filename)
+    waterfall_plotter::make(double samp_rate, double center_freq,
+                            double rps, size_t fft_size, char* filename)
     {
       return gnuradio::get_initial_sptr
-        (new waterfall_plotter_impl(fft_size, filename));
+        (new waterfall_plotter_impl(samp_rate, center_freq,
+                                    rps, fft_size, filename));
     }
 
     /*
      * The private constructor
      */
-    waterfall_plotter_impl::waterfall_plotter_impl(size_t fft_size, char* filename)
+    waterfall_plotter_impl::waterfall_plotter_impl(double samp_rate,
+                                                   double center_freq,
+                                                   double rps,
+                                                   size_t fft_size,
+                                                   char* filename)
       : gr::sync_block("waterfall_plotter",
               gr::io_signature::make(1, 1, fft_size * sizeof(int8_t)),
               gr::io_signature::make(0, 0, 0)),
         total_size_(0),
+        samp_rate_(samp_rate),
+        center_freq_(center_freq),
+        rps_(rps),
         fft_size_(fft_size),
         filename_(filename)
     {}
@@ -108,7 +117,8 @@ namespace gr {
       const int ND = 2;
 
       PyObject *numpy_array = NULL, *module_string = NULL, *module = NULL,
-        *plot_waterfall_func = NULL, *pyFilename = NULL, *result = NULL;
+        *plot_waterfall_func = NULL, *pyFilename = NULL, *result = NULL,
+        *py_samp_rate = NULL;
 
       numpy_array = PyArray_SimpleNewFromData(
         ND, dims, NPY_INT8, reinterpret_cast<void*>(numpy_array_buffer));
@@ -125,6 +135,10 @@ namespace gr {
 
       plot_waterfall_func = PyObject_GetAttrString(module,(char *)"plot_waterfall");
       if (module == NULL)
+        goto error;
+
+      py_samp_rate = PyFloat_FromDouble(samp_rate_);
+      if (py_samp_rate == NULL)
         goto error;
 
       pyFilename = PyString_FromString(filename_);
@@ -152,6 +166,7 @@ error:
       Py_XDECREF(module_string);
       Py_XDECREF(module);
       Py_XDECREF(plot_waterfall_func);
+      Py_XDECREF(py_samp_rate);
       Py_XDECREF(pyFilename);
       Py_XDECREF(result);
 

@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street,
@@ -64,7 +64,9 @@ namespace gr {
        * class. starcoder::waterfall_plotter::make is the public interface for
        * creating new instances.
        */
-      static sptr make(size_t fft_size, char* filename);
+      static sptr
+      make(double samp_rate, double center_freq,
+           double rps, size_t fft_size, char* filename);
     };
 
   } // namespace starcoder
