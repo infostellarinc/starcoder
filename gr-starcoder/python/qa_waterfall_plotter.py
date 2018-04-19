@@ -23,13 +23,15 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import starcoder_swig as starcoder
 import os
+import tempfile
 
 class qa_waterfall_plotter (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
         self.fft_size = 40
-        self.filename = "waterfall.png"
+        _, path = tempfile.mkstemp('.png')
+        self.filename = path
 
     def tearDown (self):
         self.tb = None
