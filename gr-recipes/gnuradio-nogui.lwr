@@ -33,7 +33,7 @@ config:
   packages:
     gnuradio:
       forcebuild: true
-      gitbranch: v3.7.12.0
+      gitbranch: v3.7.11
       # No gui dependencies
       depends:
       - boost
