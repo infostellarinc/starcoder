@@ -133,6 +133,7 @@ endif(APPLE)
 # Find gnuradio build dependencies
 ########################################################################
 find_package(CppUnit)
+find_package(Log4cpp)
 find_package(Doxygen)
 
 # Search for GNU Radio and its components and versions. Add any
@@ -161,6 +162,7 @@ endif(DOXYGEN_FOUND)
 # Set up Python
 ########################################################################
 find_package(PythonLibs 2 REQUIRED)
+find_package(NumPy REQUIRED)
 
 ########################################################################
 # Setup the include and linker paths
@@ -174,6 +176,7 @@ include_directories(
     ${CPPUNIT_INCLUDE_DIRS}
     ${GNURADIO_ALL_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS}
+    ${NumPy_INCLUDE_DIRS}
 )
 
 link_directories(
