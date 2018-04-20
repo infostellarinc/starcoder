@@ -214,6 +214,7 @@ envs {
             condaPackage('gsl'),
             condaPackage('libtool'),
             condaPackage('make'),
+            condaPackage('matplotlib'),
             condaPackage('numpy'),
             condaPackage('swig'),
             condaPackage('wget'),
