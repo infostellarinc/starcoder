@@ -24,6 +24,8 @@
 
 #include <gnuradio/io_signature.h>
 #include "ar2300_source_impl.h"
+#include <chrono>
+#include <thread>
 
 namespace gr {
   namespace starcoder {
@@ -60,6 +62,7 @@ namespace gr {
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)
     {
+      std::this_thread::sleep_for(std::chrono::microseconds(500));
       gr_complex *out = (gr_complex *) output_items[0];
       int buf_size = n_output_items * 8;
       char buf[buf_size];
