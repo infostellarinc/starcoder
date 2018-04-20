@@ -48,6 +48,10 @@ golang {
 
 def gopath = System.env['GOPATH'] ?: project.file('.gogradle/project_gopath').toString()
 
+goBuild {
+    outputLocation = 'build/out/${PROJECT_NAME}${GOEXE}'
+}
+
 protobuf {
     generateProtoTasks {
         all().each { task ->
@@ -202,6 +206,7 @@ envs {
             'cheetah',
             'lxml',
             'mako',
+            'matplotlib',
             'requests',
             condaPackage('autoconf'),
             condaPackage('automake'),
@@ -214,7 +219,6 @@ envs {
             condaPackage('gsl'),
             condaPackage('libtool'),
             condaPackage('make'),
-            condaPackage('matplotlib'),
             condaPackage('numpy'),
             condaPackage('swig'),
             condaPackage('wget'),
@@ -245,6 +249,17 @@ task setupPrefix(type: Exec) {
     environment 'BOOST_ROOT', gnuradioRoot
 
     environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+
+    doLast {
+        // Manually copy GRC since it's installation has a hard dependency on GUI components, even
+        // though we only use the GUI-less grcc.
+        copy {
+            from "${gnuradioRoot}/src/gnuradio/grc"
+            into "${gnuradioRoot}/lib/python2.7/site-packages/gnuradio/grc"
+        }
+        delete "${gnuradioRoot}/pkgs"
+        delete "${gnuradioRoot}/src"
+    }
 }
 
 task installGrStarcoder(type: Exec) {
@@ -261,4 +276,14 @@ task installGrStarcoder(type: Exec) {
     }
 
     environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+}
+
+task installStarcoder(type: Copy) {
+    dependsOn build
+    from 'build/out'
+    into "${gnuradioRoot}/bin"
+}
+
+task install {
+    dependsOn installGrStarcoder, installStarcoder
 }
