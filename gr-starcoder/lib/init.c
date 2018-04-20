@@ -403,3 +403,10 @@ void ar2300_set_fd(AR2300_HANDLE *ar2300, int fd) {
   int newSize = fcntl(fd, F_SETPIPE_SZ, maxPipeSize);
   LOGGER(LOG_INFO, "Change pipe size from %d to %d\n", currentSize, newSize);
 }
+
+void ar2300_set_q(AR2300_HANDLE *ar2300, starcoder_queue *q) {
+  if (!ar2300) {
+    return;
+  }
+  ar2300->q = q;
+}

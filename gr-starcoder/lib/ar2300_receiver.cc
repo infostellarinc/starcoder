@@ -90,6 +90,9 @@ void ar2300_receiver::start() {
   // Set the pipe for writing received data
   ar2300_set_fd(ar2300, read_pipe[PIPE_WRITE]);
 
+  // Set the ring buffer for received data
+  ar2300_set_q(ar2300, &q);
+
   // Set the callback for error handling
   ar2300_set_err_handler(ar2300, err_callback);
 
@@ -140,28 +143,14 @@ void ar2300_receiver::stop() {
  *          >0 - Number of bytes read
  */
 int ar2300_receiver::read(char* buf, int size, int timeout) {
+/*
   if (err_code != ERROR_CODE_NA) {
     stop();
     fprintf(stderr, "ar2300_receiver::read: something error occurred while reading data. err_code=%d\n", err_code);
     throw std::runtime_error("ar2300_receiver::read");
-  }
+  }*/
 
-  int stat = select_for_read(timeout);
-  if (stat < 0) {
-    stop();
-    fprintf(stderr, "ar2300_receiver::read: invalid status was returned. stat=%d\n", stat);
-    throw std::runtime_error("ar2300_receiver::read");
-  } else if (stat == 0) {
-    // timeout
-    return 0;
-  }
-
-  int ret = ::read(read_pipe[PIPE_READ], buf, size);
-  if (ret < 0) {
-    stop();
-    fprintf(stderr, "ar2300_receiver::read: failed to read data from the device. ret=%d\n", ret);
-    throw std::runtime_error("ar2300_receiver::read");
-  }
+  int ret = q.pop(buf, size);
 
   return ret;
 }

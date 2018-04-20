@@ -23,7 +23,7 @@
 
 #define AR2300_USE_PTHREAD 1 /**< include threading code for event handler */
 #define AR2300_USE_SYSLOG 1  /**< output debug messages to syslog */
-
+#include "starcoder_queue.h"
 /*
  * constants related to receiver spec
  */
@@ -117,6 +117,8 @@ typedef struct ar2300_handle {
 
   int outfd; /**< I/Q output file descriptor */
 
+  starcoder_queue* q; // Boost ring buffer for storing IQ data
+
   transfer_error_callback_func err_func; /**< error callback */
 
   /** prepare multiple iso transfers so that
@@ -195,6 +197,11 @@ int ar2300_stop_transfer(AR2300_HANDLE *ar2300);
  * @param fd the file to write I/Q data to
  */
 void ar2300_set_fd(AR2300_HANDLE *ar2300, int fd);
+
+/**
+ * set the ring buffer
+ */
+void ar2300_set_q(AR2300_HANDLE *ar2300, starcoder_queue *q);
 
 /**
  * start an event handling thread

@@ -22,6 +22,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include "starcoder_queue.h"
 
 extern "C" {
 #include <libusb-1.0/libusb.h>
@@ -50,6 +51,9 @@ class ar2300_receiver {
 
   // Pipe for reading data from AR2300
   int read_pipe[2];
+
+  // Ring buffer
+  starcoder_queue q;
 
   // Initialization flag
   bool started;
