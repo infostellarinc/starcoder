@@ -243,6 +243,8 @@ task setupPrefix(type: Exec) {
     """)
     // For some reason, cmake has trouble finding boost in certain situations.
     environment 'BOOST_ROOT', gnuradioRoot
+
+    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
 }
 
 task installGrStarcoder(type: Exec) {
@@ -257,4 +259,6 @@ task installGrStarcoder(type: Exec) {
     doFirst {
         project.file('build/starcoder-cmake').mkdirs()
     }
+
+    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
 }
