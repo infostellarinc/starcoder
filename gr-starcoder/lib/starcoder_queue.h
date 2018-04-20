@@ -9,7 +9,7 @@
     size_t push(const char*, size_t);
     size_t pop(char*, size_t);
   private:
-    boost::lockfree::spsc_queue<char, boost::lockfree::capacity<1024> > q_;
+    boost::lockfree::spsc_queue<char, boost::lockfree::capacity<1048576> > q_;
   };
 #else
   typedef
