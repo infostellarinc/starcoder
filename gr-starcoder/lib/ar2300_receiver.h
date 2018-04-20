@@ -37,7 +37,7 @@ class ar2300_receiver {
   void start();
   void stop();
   bool check();
-  int read(char* buf, int size, int timeout);
+  int read(char* buf, int size);
   static void set_error_code(int code) { err_code = code; }
 
  private:

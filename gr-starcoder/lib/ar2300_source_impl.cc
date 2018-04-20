@@ -44,7 +44,6 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
         receiver(new ar2300_receiver())
     {
-      timeout_ms = 1000;
       receiver->start();
     }
 
@@ -65,7 +64,7 @@ namespace gr {
       int buf_size = n_output_items * 8;
       char buf[buf_size];
 
-      int ret = receiver->read(buf, buf_size, timeout_ms);
+      int ret = receiver->read(buf, buf_size);
       if (ret < 8) {
         return 0;
       }

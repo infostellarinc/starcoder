@@ -142,7 +142,7 @@ void ar2300_receiver::stop() {
  * @return: 0  - Select is timeout or there's nothing to read
  *          >0 - Number of bytes read
  */
-int ar2300_receiver::read(char* buf, int size, int timeout) {
+int ar2300_receiver::read(char* buf, int size) {
 
   if (err_code != ERROR_CODE_NA) {
     stop();
