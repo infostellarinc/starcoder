@@ -22,15 +22,17 @@
 #define STARCODER_QUEUE_H
 #ifdef __cplusplus
 #include <queue>
+#include <boost/circular_buffer.hpp>
 #include <boost/fiber/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
+  typedef std::queue<char, boost::circular_buffer<char>> internal_ring_buffer;
   class starcoder_queue {
   public:
     starcoder_queue();
     size_t push(const char*, size_t);
     size_t pop(char*, size_t);
   private:
-    std::queue<char> q_;
+    internal_ring_buffer q_;
     boost::fibers::condition_variable_any condition_var_;
     boost::mutex mutex_;
   };

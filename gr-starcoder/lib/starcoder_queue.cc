@@ -19,7 +19,9 @@
 
 #include "starcoder_queue.h"
 
-starcoder_queue::starcoder_queue() { }
+starcoder_queue::starcoder_queue() :
+  q_(internal_ring_buffer(boost::circular_buffer<char>(1048576)))
+{ }
 
 size_t starcoder_queue::push(const char *arr, size_t size) {
   boost::mutex::scoped_lock lock(mutex_);
