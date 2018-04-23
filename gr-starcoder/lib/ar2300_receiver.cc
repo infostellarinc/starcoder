@@ -136,8 +136,7 @@ void ar2300_receiver::stop() {
 
 /*
  * Read IQ data from device
- * @return: 0  - Select is timeout or there's nothing to read
- *          >0 - Number of bytes read
+ * @return: Number of bytes read
  */
 int ar2300_receiver::read(char* buf, int size) {
 
