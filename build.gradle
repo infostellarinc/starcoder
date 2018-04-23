@@ -48,6 +48,10 @@ golang {
 
 def gopath = System.env['GOPATH'] ?: project.file('.gogradle/project_gopath').toString()
 
+goBuild {
+    outputLocation = 'build/out/${PROJECT_NAME}${GOEXE}'
+}
+
 protobuf {
     generateProtoTasks {
         all().each { task ->
@@ -202,6 +206,7 @@ envs {
             'cheetah',
             'lxml',
             'mako',
+            'matplotlib',
             'requests',
             condaPackage('autoconf'),
             condaPackage('automake'),
@@ -231,11 +236,54 @@ def condaCommand(command) {
 }
 
 task setupPrefix(type: Exec) {
+    onlyIf { !project.file("${gnuradioRoot}/lib/libgnuradio-blocks.so").exists() }
+
     dependsOn 'pythonSetup'
     executable 'bash'
     args '-c', condaCommand("""pybombs auto-config && \\
-        pybombs recipes add-defaults && \\
-        pybombs recipes add gr-starcoder ${project.file('gr-recipes')} && \\
-        pybombs -v prefix init ${gnuradioRoot} -a gnuradio -R gnuradio-nogui
+        pybombs -y recipes add-defaults && \\
+        pybombs -y recipes add gr-starcoder ${project.file('gr-recipes')} && \\
+        pybombs -y -v prefix init ${gnuradioRoot} -a gnuradio -R gnuradio-nogui
     """)
+    // For some reason, cmake has trouble finding boost in certain situations.
+    environment 'BOOST_ROOT', gnuradioRoot
+
+    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+
+    doLast {
+        // Manually copy GRC since it's installation has a hard dependency on GUI components, even
+        // though we only use the GUI-less grcc.
+        copy {
+            from "${gnuradioRoot}/src/gnuradio/grc"
+            into "${gnuradioRoot}/lib/python2.7/site-packages/gnuradio/grc"
+        }
+        delete "${gnuradioRoot}/pkgs"
+        delete "${gnuradioRoot}/src"
+    }
+}
+
+task installGrStarcoder(type: Exec) {
+    dependsOn setupPrefix
+    executable 'bash'
+    args '-c', condaCommand("""cmake ../../gr-starcoder -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=${gnuradioRoot} -Wno-dev && \\
+        make &&
+        make install
+    """)
+
+    workingDir project.file('build/starcoder-cmake')
+    doFirst {
+        project.file('build/starcoder-cmake').mkdirs()
+    }
+
+    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+}
+
+task installStarcoder(type: Copy) {
+    dependsOn build
+    from 'build/out'
+    into "${gnuradioRoot}/bin"
+}
+
+task install {
+    dependsOn installGrStarcoder, installStarcoder
 }
