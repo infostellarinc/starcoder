@@ -24,8 +24,6 @@
 
 #include <gnuradio/io_signature.h>
 #include "ar2300_source_impl.h"
-#include <chrono>
-#include <thread>
 
 namespace gr {
   namespace starcoder {

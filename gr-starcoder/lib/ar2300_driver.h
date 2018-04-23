@@ -115,7 +115,7 @@ typedef struct ar2300_handle {
 
   ar2300_bulk_status bulk_status; /**< status of bulk transfer */
 
-  starcoder_queue* q; // Boost ring buffer for storing IQ data
+  starcoder_queue* q; // Blocking queue for storing IQ data
 
   transfer_error_callback_func err_func; /**< error callback */
 

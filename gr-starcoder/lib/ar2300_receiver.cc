@@ -87,7 +87,7 @@ void ar2300_receiver::start() {
      throw std::runtime_error("ar2300_receiver::initialize");
   }
 
-  // Set the ring buffer for received data
+  // Set the blocking queue for received data
   ar2300_set_q(ar2300, &q);
 
   // Set the callback for error handling

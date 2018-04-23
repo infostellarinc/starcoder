@@ -52,7 +52,7 @@ class ar2300_receiver {
   // Pipe for reading data from AR2300
   int read_pipe[2];
 
-  // Ring buffer
+  // Blocking queue
   starcoder_queue q;
 
   // Initialization flag
