@@ -32,7 +32,6 @@ size_t starcoder_queue::push(const char *arr, size_t size) {
   if (was_empty) {
     condition_var_.notify_one();
   }
-  lock.unlock();
   return size;
 }
 
@@ -42,14 +41,13 @@ size_t starcoder_queue::pop(char *arr, size_t size) {
     condition_var_.wait(lock);
   }
 
-  int i = 0;
-  while (i < size && !q_.empty()) {
-    arr[i] = q_.front();
+  int popped = 0;
+  while (popped < size && !q_.empty()) {
+    arr[popped] = q_.front();
     q_.pop();
-    i++;
+    popped++;
   }
-  lock.unlock();
-  return i;
+  return popped;
 }
 
 size_t push_to_queue(starcoder_queue* q, const char *arr, size_t size) {
