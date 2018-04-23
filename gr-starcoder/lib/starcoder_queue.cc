@@ -21,14 +21,14 @@
 #include <chrono>
 
 starcoder_queue::starcoder_queue(int buffer_size) :
-  q_(internal_ring_buffer(boost::circular_buffer<char>(buffer_size)))
+  queue_(boost::circular_buffer<char>(buffer_size))
 { }
 
 size_t starcoder_queue::push(const char *arr, size_t size) {
   std::unique_lock<std::mutex> lock(mutex_);
-  bool const was_empty = q_.empty();
+  bool const was_empty = queue_.empty();
   for (int i = 0; i < size; i++) {
-    q_.push(arr[i]);
+    queue_.push(arr[i]);
   }
   if (was_empty) {
     condition_var_.notify_one();
@@ -38,14 +38,14 @@ size_t starcoder_queue::push(const char *arr, size_t size) {
 
 size_t starcoder_queue::pop(char *arr, size_t size, int timeout_ms) {
   std::unique_lock<std::mutex> lock(mutex_);
-  while (q_.empty()) {
+  while (queue_.empty()) {
     condition_var_.wait_for(lock, std::chrono::milliseconds(timeout_ms));
   }
 
   int popped = 0;
-  while (popped < size && !q_.empty()) {
-    arr[popped] = q_.front();
-    q_.pop();
+  while (popped < size && !queue_.empty()) {
+    arr[popped] = queue_.front();
+    queue_.pop();
     popped++;
   }
   return popped;

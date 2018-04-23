@@ -25,27 +25,27 @@
 #include <boost/circular_buffer.hpp>
 #include <mutex>
 #include <condition_variable>
-  typedef std::queue<char, boost::circular_buffer<char>> internal_ring_buffer;
-  class starcoder_queue {
+typedef std::queue<char, boost::circular_buffer<char>> internal_ring_buffer;
+class starcoder_queue {
   public:
     starcoder_queue(int buffer_size);
     size_t push(const char*, size_t);
     size_t pop(char*, size_t, int);
   private:
-    internal_ring_buffer q_;
+    internal_ring_buffer queue_;
     std::condition_variable condition_var_;
     std::mutex mutex_;
-  };
+};
 #else
-  typedef
-    struct starcoder_queue
-      starcoder_queue;
+typedef
+  struct starcoder_queue
+    starcoder_queue;
 #endif
 #ifdef __cplusplus
 extern "C" {
 #endif
-  extern size_t push_to_queue(starcoder_queue*, const char*, size_t);
-  extern size_t pop_from_queue(starcoder_queue*, char*, size_t, int);
+extern size_t push_to_queue(starcoder_queue* q, const char* arr, size_t size);
+extern size_t pop_from_queue(starcoder_queue* q, char* arr, size_t size, int timeout_ms);
 #ifdef __cplusplus
 }
 #endif
