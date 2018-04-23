@@ -30,7 +30,7 @@
   public:
     starcoder_queue(int buffer_size);
     size_t push(const char*, size_t);
-    size_t pop(char*, size_t);
+    size_t pop(char*, size_t, int);
   private:
     internal_ring_buffer q_;
     std::condition_variable condition_var_;
@@ -45,7 +45,7 @@
 extern "C" {
 #endif
   extern size_t push_to_queue(starcoder_queue*, const char*, size_t);
-  extern size_t pop_from_queue(starcoder_queue*, char*, size_t);
+  extern size_t pop_from_queue(starcoder_queue*, char*, size_t, int);
 #ifdef __cplusplus
 }
 #endif

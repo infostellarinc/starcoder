@@ -23,8 +23,6 @@
 
 using namespace std;
 
-#define PIPE_READ 0
-#define PIPE_WRITE 1
 #define ERROR_CODE_NA -1  // No assigned error code
 
 int ar2300_receiver::err_code = ERROR_CODE_NA;
@@ -52,8 +50,6 @@ ar2300_receiver::ar2300_receiver(int buffer_size) :
 {
   context = NULL;
   ar2300 = NULL;
-  read_pipe[PIPE_READ] = -1;
-  read_pipe[PIPE_WRITE] = -1;
   started = false;
 }
 
@@ -80,13 +76,6 @@ void ar2300_receiver::start() {
   ar2300 = ar2300_open(context);
   if (ar2300 == NULL) {
     throw std::runtime_error("ar2300_receiver::initialize: couldn't open AR2300.");
-  }
-
-  // Prepare a pipe for reading
-  ret = pipe(read_pipe);
-  if (ret < 0) {
-     fprintf(stderr, "ar2300_receiver::initialize: failed to create the pipe for reading data. ret=%d\n", ret);
-     throw std::runtime_error("ar2300_receiver::initialize");
   }
 
   // Set the blocking queue for received data
@@ -121,12 +110,6 @@ void ar2300_receiver::stop() {
     ar2300_close(ar2300);
     ar2300 = NULL;
   }
-  if (read_pipe[PIPE_READ] >= 0) {
-    close(read_pipe[PIPE_READ]);
-    close(read_pipe[PIPE_WRITE]);
-    read_pipe[PIPE_READ] = -1;
-    read_pipe[PIPE_WRITE] = -1;
-  }
 
   if (context != NULL) {
     libusb_exit(context);
@@ -140,7 +123,7 @@ void ar2300_receiver::stop() {
  * Read IQ data from device
  * @return: Number of bytes read
  */
-int ar2300_receiver::read(char* buf, int size) {
+int ar2300_receiver::read(char* buf, int size, int timeout_ms) {
 
   if (err_code != ERROR_CODE_NA) {
     stop();
@@ -148,7 +131,7 @@ int ar2300_receiver::read(char* buf, int size) {
     throw std::runtime_error("ar2300_receiver::read");
   }
 
-  int ret = queue_.pop(buf, size);
+  int ret = queue_.pop(buf, size, timeout_ms);
 
   return ret;
 }

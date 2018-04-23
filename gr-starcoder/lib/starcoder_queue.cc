@@ -18,6 +18,7 @@
  */
 
 #include "starcoder_queue.h"
+#include <chrono>
 
 starcoder_queue::starcoder_queue(int buffer_size) :
   q_(internal_ring_buffer(boost::circular_buffer<char>(buffer_size)))
@@ -35,10 +36,10 @@ size_t starcoder_queue::push(const char *arr, size_t size) {
   return size;
 }
 
-size_t starcoder_queue::pop(char *arr, size_t size) {
+size_t starcoder_queue::pop(char *arr, size_t size, int timeout_ms) {
   std::unique_lock<std::mutex> lock(mutex_);
   while (q_.empty()) {
-    condition_var_.wait(lock);
+    condition_var_.wait_for(lock, std::chrono::milliseconds(timeout_ms));
   }
 
   int popped = 0;
@@ -54,6 +55,6 @@ size_t push_to_queue(starcoder_queue* q, const char *arr, size_t size) {
   return q->push(arr, size);
 }
 
-size_t pop_from_queue(starcoder_queue* q, char *arr, size_t size) {
-  return q->pop(arr, size);
+size_t pop_from_queue(starcoder_queue* q, char *arr, size_t size, int timeout_ms) {
+  return q->pop(arr, size, timeout_ms);
 }

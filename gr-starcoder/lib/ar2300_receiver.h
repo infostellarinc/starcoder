@@ -37,7 +37,7 @@ class ar2300_receiver {
   void start();
   void stop();
   bool check();
-  int read(char* buf, int size);
+  int read(char* buf, int size, int timeout_ms);
   static void set_error_code(int code) { err_code = code; }
 
  private:
@@ -48,9 +48,6 @@ class ar2300_receiver {
 
   // AR2300 handler
   AR2300_HANDLE* ar2300;
-
-  // Pipe for reading data from AR2300
-  int read_pipe[2];
 
   // Blocking queue
   starcoder_queue queue_;
