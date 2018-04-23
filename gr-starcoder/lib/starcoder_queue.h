@@ -21,7 +21,6 @@
 #ifndef STARCODER_QUEUE_H
 #define STARCODER_QUEUE_H
 #ifdef __cplusplus
-#include <queue>
 #include <mutex>
 #include <condition_variable>
 #include <boost/lockfree/spsc_queue.hpp>
@@ -31,6 +30,10 @@ class starcoder_queue {
     size_t push(const char*, size_t);
     size_t pop(char*, size_t, int);
   private:
+    // Although we use the threadsafe spsc_queue here, we still need to keep the
+    // mutex for the sole purpose of waiting for the queue to be non-empty.
+    // This is since GNURadio will repeatedly call the non-blocking pop and
+    // consume 100% CPU.
     boost::lockfree::spsc_queue<char> queue_;
     std::condition_variable condition_var_;
     std::mutex mutex_;

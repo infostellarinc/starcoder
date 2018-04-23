@@ -37,7 +37,11 @@ size_t starcoder_queue::push(const char *arr, size_t size) {
 size_t starcoder_queue::pop(char *arr, size_t size, int timeout_ms) {
   std::unique_lock<std::mutex> lock(mutex_);
   while (queue_.empty()) {
-    condition_var_.wait_for(lock, std::chrono::milliseconds(timeout_ms));
+    std::cv_status stat = condition_var_.wait_for(lock, std::chrono::milliseconds(timeout_ms));
+    if (stat == std::cv_status::timeout) {
+      // Timed out.
+      return 0;
+    }
   }
 
   return queue_.pop(arr, size);
