@@ -31,7 +31,7 @@ extern "C" {
 
 class ar2300_receiver {
  public:
-  ar2300_receiver();
+  ar2300_receiver(int buffer_size);
   ~ar2300_receiver();
 
   void start();

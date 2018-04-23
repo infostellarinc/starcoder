@@ -28,7 +28,7 @@
   typedef std::queue<char, boost::circular_buffer<char>> internal_ring_buffer;
   class starcoder_queue {
   public:
-    starcoder_queue();
+    starcoder_queue(int buffer_size);
     size_t push(const char*, size_t);
     size_t pop(char*, size_t);
   private:
@@ -44,8 +44,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  extern size_t cpp_callback_push(starcoder_queue*, const char*, size_t);
-  extern size_t cpp_callback_pop(starcoder_queue*, char*, size_t);
+  extern size_t push_to_queue(starcoder_queue*, const char*, size_t);
+  extern size_t pop_from_queue(starcoder_queue*, char*, size_t);
 #ifdef __cplusplus
 }
 #endif

@@ -47,7 +47,9 @@ void err_callback(struct libusb_transfer* transfer, int code) {
 /*
  * Constructor
  */
-ar2300_receiver::ar2300_receiver() {
+ar2300_receiver::ar2300_receiver(int buffer_size) :
+  q(buffer_size)
+{
   context = NULL;
   ar2300 = NULL;
   read_pipe[PIPE_READ] = -1;

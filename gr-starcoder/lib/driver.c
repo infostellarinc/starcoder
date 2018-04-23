@@ -51,7 +51,7 @@ int iq_packet_write(AR2300_HANDLE *ar2300, const unsigned char *buffer, int leng
   size_t written;
 
   left = length;
-  written = cpp_callback_push(ar2300->q, buffer, left);
+  written = push_to_queue(ar2300->q, buffer, left);
 
   left -= written;
   return left;
