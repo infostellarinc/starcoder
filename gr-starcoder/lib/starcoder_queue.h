@@ -2,14 +2,18 @@
 #ifndef STARCODER_QUEUE_H
 #define STARCODER_QUEUE_H
 #ifdef __cplusplus
-#include <boost/lockfree/spsc_queue.hpp>
+#include <queue>
+#include <boost/fiber/condition_variable.hpp>
+#include <boost/thread/mutex.hpp>
   class starcoder_queue {
   public:
     starcoder_queue();
     size_t push(const char*, size_t);
     size_t pop(char*, size_t);
   private:
-    boost::lockfree::spsc_queue<char, boost::lockfree::capacity<1048576> > q_;
+    std::queue<char> q_;
+    boost::fibers::condition_variable_any condition_var_;
+    boost::mutex mutex_;
   };
 #else
   typedef
