@@ -48,7 +48,7 @@ void err_callback(struct libusb_transfer* transfer, int code) {
  * Constructor
  */
 ar2300_receiver::ar2300_receiver(int buffer_size) :
-  q(buffer_size)
+  queue_(buffer_size)
 {
   context = NULL;
   ar2300 = NULL;
@@ -90,7 +90,7 @@ void ar2300_receiver::start() {
   }
 
   // Set the blocking queue for received data
-  ar2300_set_q(ar2300, &q);
+  ar2300_set_queue(ar2300, &queue_);
 
   // Set the callback for error handling
   ar2300_set_err_handler(ar2300, err_callback);
@@ -148,7 +148,7 @@ int ar2300_receiver::read(char* buf, int size) {
     throw std::runtime_error("ar2300_receiver::read");
   }
 
-  int ret = q.pop(buf, size);
+  int ret = queue_.pop(buf, size);
 
   return ret;
 }

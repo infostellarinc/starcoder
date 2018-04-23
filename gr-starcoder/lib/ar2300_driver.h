@@ -115,7 +115,7 @@ typedef struct ar2300_handle {
 
   ar2300_bulk_status bulk_status; /**< status of bulk transfer */
 
-  starcoder_queue* q; // Blocking queue for storing IQ data
+  starcoder_queue* queue_; // Blocking queue for storing IQ data
 
   transfer_error_callback_func err_func; /**< error callback */
 
@@ -189,7 +189,7 @@ int ar2300_stop_transfer(AR2300_HANDLE *ar2300);
 /**
  * set the queue to write IQ packets to
  */
-void ar2300_set_q(AR2300_HANDLE *ar2300, starcoder_queue *q);
+void ar2300_set_queue(AR2300_HANDLE *ar2300, starcoder_queue *q);
 
 /**
  * start an event handling thread

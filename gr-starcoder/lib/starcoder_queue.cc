@@ -24,7 +24,7 @@ starcoder_queue::starcoder_queue(int buffer_size) :
 { }
 
 size_t starcoder_queue::push(const char *arr, size_t size) {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::mutex> lock(mutex_);
   bool const was_empty = q_.empty();
   for (int i = 0; i < size; i++) {
     q_.push(arr[i]);
@@ -32,11 +32,12 @@ size_t starcoder_queue::push(const char *arr, size_t size) {
   if (was_empty) {
     condition_var_.notify_one();
   }
+  lock.unlock();
   return size;
 }
 
 size_t starcoder_queue::pop(char *arr, size_t size) {
-  boost::mutex::scoped_lock lock(mutex_);
+  std::unique_lock<std::mutex> lock(mutex_);
   while (q_.empty()) {
     condition_var_.wait(lock);
   }
@@ -47,6 +48,7 @@ size_t starcoder_queue::pop(char *arr, size_t size) {
     q_.pop();
     i++;
   }
+  lock.unlock();
   return i;
 }
 

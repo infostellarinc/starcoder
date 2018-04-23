@@ -53,7 +53,7 @@ class ar2300_receiver {
   int read_pipe[2];
 
   // Blocking queue
-  starcoder_queue q;
+  starcoder_queue queue_;
 
   // Initialization flag
   bool started;

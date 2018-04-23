@@ -23,8 +23,8 @@
 #ifdef __cplusplus
 #include <queue>
 #include <boost/circular_buffer.hpp>
-#include <boost/fiber/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
+#include <mutex>
+#include <condition_variable>
   typedef std::queue<char, boost::circular_buffer<char>> internal_ring_buffer;
   class starcoder_queue {
   public:
@@ -33,8 +33,8 @@
     size_t pop(char*, size_t);
   private:
     internal_ring_buffer q_;
-    boost::fibers::condition_variable_any condition_var_;
-    boost::mutex mutex_;
+    std::condition_variable condition_var_;
+    std::mutex mutex_;
   };
 #else
   typedef
