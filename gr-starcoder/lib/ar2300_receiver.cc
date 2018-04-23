@@ -87,9 +87,6 @@ void ar2300_receiver::start() {
      throw std::runtime_error("ar2300_receiver::initialize");
   }
 
-  // Set the pipe for writing received data
-  ar2300_set_fd(ar2300, read_pipe[PIPE_WRITE]);
-
   // Set the ring buffer for received data
   ar2300_set_q(ar2300, &q);
 
@@ -153,21 +150,4 @@ int ar2300_receiver::read(char* buf, int size) {
   int ret = q.pop(buf, size);
 
   return ret;
-}
-
-/*
- * Select data
- */
-int ar2300_receiver::select_for_read(int timeout) {
-  // Set timeout
-  struct timeval tv;
-  tv.tv_sec = (int)(timeout / 1000.0);
-  tv.tv_usec = (timeout % 1000) * 1000;
-
-  // Initialize file descriptor
-  fd_set rfds;
-  FD_ZERO(&rfds);
-  FD_SET(read_pipe[PIPE_READ], &rfds);
-
-  return ::select(FD_SETSIZE, &rfds, (fd_set*)NULL, (fd_set*)NULL, &tv);
 }

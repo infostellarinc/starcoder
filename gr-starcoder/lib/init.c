@@ -308,7 +308,6 @@ AR2300_HANDLE *ar2300_open(libusb_context *ctx) {
     goto ERR;
   }
   memset(ar2300, 0, sizeof(AR2300_HANDLE));
-  ar2300->outfd = -1;
   ar2300->context = ctx;
   ar2300->device_handle = handle;
   ar2300->err_func = default_error_handler;
@@ -373,13 +372,6 @@ int create_thread() {
 #else
   return AR2300_ERR_THREAD_CREATION;
 #endif
-}
-
-void ar2300_set_fd(AR2300_HANDLE *ar2300, int fd) {
-  if (!ar2300) {
-    return;
-  }
-  ar2300->outfd = fd;
 }
 
 void ar2300_set_q(AR2300_HANDLE *ar2300, starcoder_queue *q) {

@@ -115,8 +115,6 @@ typedef struct ar2300_handle {
 
   ar2300_bulk_status bulk_status; /**< status of bulk transfer */
 
-  int outfd; /**< I/Q output file descriptor */
-
   starcoder_queue* q; // Boost ring buffer for storing IQ data
 
   transfer_error_callback_func err_func; /**< error callback */
@@ -189,17 +187,7 @@ int ar2300_start_transfer(AR2300_HANDLE *ar2300);
 int ar2300_stop_transfer(AR2300_HANDLE *ar2300);
 
 /**
- * set the output file descriptor
- *
- * set the fd to which the output will be written to
- *
- * @param ar2300 handle to the ar2300 device
- * @param fd the file to write I/Q data to
- */
-void ar2300_set_fd(AR2300_HANDLE *ar2300, int fd);
-
-/**
- * set the ring buffer
+ * set the queue to write IQ packets to
  */
 void ar2300_set_q(AR2300_HANDLE *ar2300, starcoder_queue *q);
 
