@@ -42,13 +42,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
   extern size_t cpp_callback_push(starcoder_queue*, const char*, size_t);
   extern size_t cpp_callback_pop(starcoder_queue*, char*, size_t);
-#else
-  //extern void c_function();        /* K&R style */
-  //extern int cplusplus_callback_function();
-#endif
 #ifdef __cplusplus
 }
 #endif
