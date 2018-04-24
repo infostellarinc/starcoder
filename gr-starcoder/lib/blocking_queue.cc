@@ -17,14 +17,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "starcoder_queue.h"
+#include "blocking_queue.h"
 #include <chrono>
 
-starcoder_queue::starcoder_queue(int buffer_size) :
+blocking_queue::blocking_queue(int buffer_size) :
   queue_(buffer_size)
 { }
 
-size_t starcoder_queue::push(const char *arr, size_t size) {
+size_t blocking_queue::push(const char *arr, size_t size) {
   std::unique_lock<std::mutex> lock(mutex_);
   bool const was_empty = queue_.empty();
   int pushed = queue_.push(arr, size);
@@ -34,7 +34,7 @@ size_t starcoder_queue::push(const char *arr, size_t size) {
   return pushed;
 }
 
-size_t starcoder_queue::pop(char *arr, size_t size, int timeout_ms) {
+size_t blocking_queue::pop(char *arr, size_t size, int timeout_ms) {
   std::unique_lock<std::mutex> lock(mutex_);
   while (queue_.empty()) {
     std::cv_status stat = condition_var_.wait_for(lock, std::chrono::milliseconds(timeout_ms));
@@ -47,10 +47,10 @@ size_t starcoder_queue::pop(char *arr, size_t size, int timeout_ms) {
   return queue_.pop(arr, size);
 }
 
-size_t push_to_queue(starcoder_queue* q, const char *arr, size_t size) {
+size_t push_to_queue(blocking_queue* q, const char *arr, size_t size) {
   return q->push(arr, size);
 }
 
-size_t pop_from_queue(starcoder_queue* q, char *arr, size_t size, int timeout_ms) {
+size_t pop_from_queue(blocking_queue* q, char *arr, size_t size, int timeout_ms) {
   return q->pop(arr, size, timeout_ms);
 }

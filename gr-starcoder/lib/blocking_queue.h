@@ -24,30 +24,30 @@
 #include <mutex>
 #include <condition_variable>
 #include <boost/lockfree/spsc_queue.hpp>
-class starcoder_queue {
+class blocking_queue {
   public:
-    starcoder_queue(int buffer_size);
+    blocking_queue(int buffer_size);
     size_t push(const char*, size_t);
     size_t pop(char*, size_t, int);
   private:
     // Although we use the threadsafe spsc_queue here, we still need to keep the
     // mutex for the sole purpose of waiting for the queue to be non-empty.
-    // This is since GNURadio will repeatedly call the non-blocking pop and
-    // consume 100% CPU.
+    // If the pop method were non-blocking, GNURadio would call it as fast as the
+    // CPU can process (consuming 100% CPU), even though the AR2300 only creates 1.125Ms/s.
     boost::lockfree::spsc_queue<char> queue_;
     std::condition_variable condition_var_;
     std::mutex mutex_;
 };
 #else
 typedef
-  struct starcoder_queue
-    starcoder_queue;
+  struct blocking_queue
+    blocking_queue;
 #endif
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern size_t push_to_queue(starcoder_queue* q, const char* arr, size_t size);
-extern size_t pop_from_queue(starcoder_queue* q, char* arr, size_t size, int timeout_ms);
+extern size_t push_to_queue(blocking_queue* q, const char* arr, size_t size);
+extern size_t pop_from_queue(blocking_queue* q, char* arr, size_t size, int timeout_ms);
 #ifdef __cplusplus
 }
 #endif
