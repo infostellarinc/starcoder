@@ -24,9 +24,9 @@
 #include <mutex>
 #include <condition_variable>
 #include <boost/lockfree/spsc_queue.hpp>
-class blocking_queue {
+class blocking_spsc_queue {
   public:
-    blocking_queue(int buffer_size);
+    blocking_spsc_queue(int buffer_size);
     size_t push(const char*, size_t);
     size_t pop(char*, size_t, int);
   private:
@@ -40,14 +40,14 @@ class blocking_queue {
 };
 #else
 typedef
-  struct blocking_queue
-    blocking_queue;
+  struct blocking_spsc_queue
+    blocking_spsc_queue;
 #endif
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern size_t blocking_queue_push(blocking_queue* q, const char* arr, size_t size);
-extern size_t blocking_queue_pop(blocking_queue* q, char* arr, size_t size, int timeout_ms);
+extern size_t blocking_spsc_queue_push(blocking_spsc_queue* q, const char* arr, size_t size);
+extern size_t blocking_spsc_queue_pop(blocking_spsc_queue* q, char* arr, size_t size, int timeout_ms);
 #ifdef __cplusplus
 }
 #endif

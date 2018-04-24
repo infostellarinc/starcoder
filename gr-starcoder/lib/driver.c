@@ -51,7 +51,7 @@ int iq_packet_write(AR2300_HANDLE *ar2300, const unsigned char *buffer, int leng
   size_t written;
 
   left = length;
-  written = blocking_queue_push(ar2300->queue_, buffer, left);
+  written = blocking_spsc_queue_push(ar2300->queue_, buffer, left);
 
   left -= written;
   return left;

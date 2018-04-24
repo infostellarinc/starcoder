@@ -17,24 +17,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "blocking_queue.h"
+#include "blocking_spsc_queue.h"
 #include <chrono>
 
-blocking_queue::blocking_queue(int buffer_size) :
+blocking_spsc_queue::blocking_spsc_queue(int buffer_size) :
   queue_(buffer_size)
 { }
 
-size_t blocking_queue::push(const char *arr, size_t size) {
-  std::unique_lock<std::mutex> lock(mutex_);
-  bool const was_empty = queue_.empty();
+size_t blocking_spsc_queue::push(const char *arr, size_t size) {
   int pushed = queue_.push(arr, size);
-  if (was_empty) {
+  if (pushed > 0) {
     condition_var_.notify_one();
   }
   return pushed;
 }
 
-size_t blocking_queue::pop(char *arr, size_t size, int timeout_ms) {
+size_t blocking_spsc_queue::pop(char *arr, size_t size, int timeout_ms) {
   std::unique_lock<std::mutex> lock(mutex_);
   while (queue_.empty()) {
     std::cv_status stat = condition_var_.wait_for(lock, std::chrono::milliseconds(timeout_ms));
@@ -47,10 +45,10 @@ size_t blocking_queue::pop(char *arr, size_t size, int timeout_ms) {
   return queue_.pop(arr, size);
 }
 
-size_t blocking_queue_push(blocking_queue* q, const char *arr, size_t size) {
+size_t blocking_spsc_queue_push(blocking_spsc_queue* q, const char *arr, size_t size) {
   return q->push(arr, size);
 }
 
-size_t blocking_queue_pop(blocking_queue* q, char *arr, size_t size, int timeout_ms) {
+size_t blocking_spsc_queue_pop(blocking_spsc_queue* q, char *arr, size_t size, int timeout_ms) {
   return q->pop(arr, size, timeout_ms);
 }
