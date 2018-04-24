@@ -22,7 +22,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include "blocking_queue.h"
+#include "blocking_spsc_queue.h"
 
 extern "C" {
 #include <libusb-1.0/libusb.h>
@@ -50,7 +50,7 @@ class ar2300_receiver {
   AR2300_HANDLE* ar2300;
 
   // Blocking queue
-  blocking_queue queue_;
+  blocking_spsc_queue queue_;
 
   // Initialization flag
   bool started;

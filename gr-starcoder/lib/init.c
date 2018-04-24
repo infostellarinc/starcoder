@@ -374,7 +374,7 @@ int create_thread() {
 #endif
 }
 
-void ar2300_set_queue(AR2300_HANDLE *ar2300, blocking_queue *q) {
+void ar2300_set_queue(AR2300_HANDLE *ar2300, blocking_spsc_queue *q) {
   if (!ar2300) {
     return;
   }
