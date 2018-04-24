@@ -33,7 +33,8 @@ list(APPEND starcoder_sources
     ar2300_source_impl.cc
     complex_to_msg_c_impl.cc
     waterfall_heatmap_impl.cc
-    waterfall_plotter_impl.cc )
+    waterfall_plotter_impl.cc
+    enqueue_message_sink_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)

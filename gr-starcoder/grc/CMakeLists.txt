@@ -22,5 +22,6 @@ install(FILES
     starcoder_complex_to_msg_c.xml
     starcoder_waterfall_heatmap.xml
     starcoder_waterfall_plotter.xml
-    starcoder_waterfall_sink.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_waterfall_sink.xml
+    starcoder_enqueue_message_sink.xml DESTINATION share/gnuradio/grc/blocks
 )
