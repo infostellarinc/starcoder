@@ -25,9 +25,8 @@ blocking_spsc_queue::blocking_spsc_queue(int buffer_size) :
 { }
 
 size_t blocking_spsc_queue::push(const char *arr, size_t size) {
-  bool const was_empty = queue_.empty();
   int pushed = queue_.push(arr, size);
-  if (pushed > 0 && was_empty) {
+  if (pushed > 0) {
     condition_var_.notify_one();
   }
   return pushed;
