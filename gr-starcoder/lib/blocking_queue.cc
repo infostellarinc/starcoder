@@ -25,10 +25,9 @@ blocking_queue::blocking_queue(int buffer_size) :
 { }
 
 size_t blocking_queue::push(const char *arr, size_t size) {
-  std::unique_lock<std::mutex> lock(mutex_);
   bool const was_empty = queue_.empty();
   int pushed = queue_.push(arr, size);
-  if (was_empty) {
+  if (pushed > 0 && was_empty) {
     condition_var_.notify_one();
   }
   return pushed;
