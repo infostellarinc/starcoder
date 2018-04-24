@@ -23,7 +23,7 @@
 
 #define AR2300_USE_PTHREAD 1 /**< include threading code for event handler */
 #define AR2300_USE_SYSLOG 1  /**< output debug messages to syslog */
-
+#include "blocking_queue.h"
 /*
  * constants related to receiver spec
  */
@@ -115,7 +115,7 @@ typedef struct ar2300_handle {
 
   ar2300_bulk_status bulk_status; /**< status of bulk transfer */
 
-  int outfd; /**< I/Q output file descriptor */
+  blocking_queue* queue_; // Blocking queue for storing IQ data
 
   transfer_error_callback_func err_func; /**< error callback */
 
@@ -187,14 +187,9 @@ int ar2300_start_transfer(AR2300_HANDLE *ar2300);
 int ar2300_stop_transfer(AR2300_HANDLE *ar2300);
 
 /**
- * set the output file descriptor
- *
- * set the fd to which the output will be written to
- *
- * @param ar2300 handle to the ar2300 device
- * @param fd the file to write I/Q data to
+ * set the queue to write IQ packets to
  */
-void ar2300_set_fd(AR2300_HANDLE *ar2300, int fd);
+void ar2300_set_queue(AR2300_HANDLE *ar2300, blocking_queue *q);
 
 /**
  * start an event handling thread

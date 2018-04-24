@@ -22,6 +22,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include "blocking_queue.h"
 
 extern "C" {
 #include <libusb-1.0/libusb.h>
@@ -30,13 +31,13 @@ extern "C" {
 
 class ar2300_receiver {
  public:
-  ar2300_receiver();
+  ar2300_receiver(int buffer_size);
   ~ar2300_receiver();
 
   void start();
   void stop();
   bool check();
-  int read(char* buf, int size, int timeout);
+  int read(char* buf, int size, int timeout_ms);
   static void set_error_code(int code) { err_code = code; }
 
  private:
@@ -48,8 +49,8 @@ class ar2300_receiver {
   // AR2300 handler
   AR2300_HANDLE* ar2300;
 
-  // Pipe for reading data from AR2300
-  int read_pipe[2];
+  // Blocking queue
+  blocking_queue queue_;
 
   // Initialization flag
   bool started;

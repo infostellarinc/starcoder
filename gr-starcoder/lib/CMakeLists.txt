@@ -28,6 +28,7 @@ list(APPEND starcoder_sources
     init.c
     driver.c
     firmware.c
+    blocking_queue.cc
     ar2300_receiver.cc
     ar2300_source_impl.cc
     complex_to_msg_c_impl.cc

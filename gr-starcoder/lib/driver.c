@@ -48,17 +48,10 @@ extern volatile int event_thread_run;
  */
 int iq_packet_write(AR2300_HANDLE *ar2300, const unsigned char *buffer, int length) {
   int left;
-  ssize_t written;
+  size_t written;
 
   left = length;
-  written = write(ar2300->outfd, buffer, left);
-  if (written <= 0) {
-    if (errno != 0) {
-      return -1;
-    } else {
-      return left;
-    }
-  }
+  written = blocking_queue_push(ar2300->queue_, buffer, left);
 
   left -= written;
   return left;
