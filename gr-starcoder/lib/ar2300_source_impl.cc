@@ -43,7 +43,7 @@ namespace gr {
               gr::io_signature::make(0, 0, 0),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
         receiver(new ar2300_receiver(10485760)), // 10MB buffer
-        timeout_ms(10000)
+        timeout_ms(1000)
     {
       receiver->start();
     }

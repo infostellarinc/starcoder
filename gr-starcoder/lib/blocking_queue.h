@@ -46,8 +46,8 @@ typedef
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern size_t push_to_queue(blocking_queue* q, const char* arr, size_t size);
-extern size_t pop_from_queue(blocking_queue* q, char* arr, size_t size, int timeout_ms);
+extern size_t blocking_queue_push(blocking_queue* q, const char* arr, size_t size);
+extern size_t blocking_queue_pop(blocking_queue* q, char* arr, size_t size, int timeout_ms);
 #ifdef __cplusplus
 }
 #endif

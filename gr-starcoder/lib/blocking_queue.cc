@@ -47,10 +47,10 @@ size_t blocking_queue::pop(char *arr, size_t size, int timeout_ms) {
   return queue_.pop(arr, size);
 }
 
-size_t push_to_queue(blocking_queue* q, const char *arr, size_t size) {
+size_t blocking_queue_push(blocking_queue* q, const char *arr, size_t size) {
   return q->push(arr, size);
 }
 
-size_t pop_from_queue(blocking_queue* q, char *arr, size_t size, int timeout_ms) {
+size_t blocking_queue_pop(blocking_queue* q, char *arr, size_t size, int timeout_ms) {
   return q->pop(arr, size, timeout_ms);
 }
