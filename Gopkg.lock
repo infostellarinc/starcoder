@@ -3,12 +3,28 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/GeertJohan/go.incremental"
+  packages = ["."]
+  revision = "1172aab965109e2a70720a0f144b2a5dfeb92fa5"
+
+[[projects]]
+  branch = "master"
   name = "github.com/GeertJohan/go.rice"
   packages = [
     ".",
-    "embedded"
+    "embedded",
+    "rice"
   ]
   revision = "c02ca9a983da5807ddf7d796784928f5be4afd09"
+
+[[projects]]
+  name = "github.com/akavel/rsrc"
+  packages = [
+    "binutil",
+    "coff"
+  ]
+  revision = "a1fbfaf19b9ec69d75039b2a7cb4b048aecefddf"
+  version = "v2"
 
 [[projects]]
   branch = "master"
@@ -24,7 +40,35 @@
 
 [[projects]]
   name = "github.com/gogo/protobuf"
-  packages = ["proto"]
+  packages = [
+    "gogoproto",
+    "plugin/compare",
+    "plugin/defaultcheck",
+    "plugin/description",
+    "plugin/embedcheck",
+    "plugin/enumstringer",
+    "plugin/equal",
+    "plugin/face",
+    "plugin/gostring",
+    "plugin/marshalto",
+    "plugin/oneofcheck",
+    "plugin/populate",
+    "plugin/size",
+    "plugin/stringer",
+    "plugin/testgen",
+    "plugin/union",
+    "plugin/unmarshal",
+    "proto",
+    "protoc-gen-gofast",
+    "protoc-gen-gogo/descriptor",
+    "protoc-gen-gogo/generator",
+    "protoc-gen-gogo/grpc",
+    "protoc-gen-gogo/plugin",
+    "sortkeys",
+    "types",
+    "vanity",
+    "vanity/command"
+  ]
   revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
   version = "v1.0.0"
 
@@ -62,6 +106,12 @@
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  name = "github.com/jessevdk/go-flags"
+  packages = ["."]
+  revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -229,6 +279,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "24ad54d12f4cb8280f1a2f0512d82a6c75a998b90db25f4038d3a25884331944"
+  inputs-digest = "1daf7cebdc41b1c663eba0e3e12bf0ffb180c498cba6a9cad5a7b152ff712d7d"
   solver-name = "gps-cdcl"
   solver-version = 1

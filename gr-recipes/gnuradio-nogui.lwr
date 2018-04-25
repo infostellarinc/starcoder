@@ -22,6 +22,7 @@ depends:
 - gnuradio
 config:
   config:
+    makewidth: 2
     # git cache causes recursive clone to fail for some reason. With only one prefix, there isn't much
     # point in having it anyways.
     git-cache: ''
@@ -55,7 +56,7 @@ config:
     uhd:
       gitbranch: v3.11.0.1
       vars:
-        config_opt: "-DENABLE_EXAMPLES=off"
+        config_opt: "-DENABLE_EXAMPLES=off -DENABLE_OCTOCLOCK=off"
 
     # All these dependencies are installed through miniconda.
     autoconf:
