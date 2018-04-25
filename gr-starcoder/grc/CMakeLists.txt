@@ -18,7 +18,6 @@
 # Boston, MA 02110-1301, USA.
 install(FILES
     starcoder_ar2300_source.xml
-    starcoder_enqueue_msg_sink.xml
     starcoder_complex_to_msg_c.xml
     starcoder_waterfall_heatmap.xml
     starcoder_waterfall_plotter.xml
