@@ -29,7 +29,7 @@ jobs:
           keys:
           - v1-dependencies
 
-      - run: ./gradlew install
+      - run: ./gradlew --no-daemon install
 
       - save_cache:
           paths:
