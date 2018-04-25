@@ -8,4 +8,7 @@ FROM debian:9-slim
 
 COPY --from=0 /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio
 
-CMD [ "bash", "-c", ". /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio/etc/profile.d/conda.sh && conda activate > /dev/null && /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio/bin/starcoder" ]
+ADD ./tools/builder/run.sh /usr/bin/run-starcoder
+
+ENTRYPOINT [ "run-starcoder" ]
+CMD [ "serve" ]
