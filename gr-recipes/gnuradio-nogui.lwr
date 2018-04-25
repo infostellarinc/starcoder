@@ -22,6 +22,7 @@ depends:
 - gnuradio
 config:
   config:
+    makewidth: 2
     # git cache causes recursive clone to fail for some reason. With only one prefix, there isn't much
     # point in having it anyways.
     git-cache: ''
