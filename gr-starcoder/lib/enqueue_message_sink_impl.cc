@@ -55,6 +55,7 @@ namespace gr {
 
     void enqueue_message_sink_impl::handler(pmt::pmt_t msg)
     {
+      std::unique_lock<std::mutex> lock(mutex_);
       queue_.push(pmt::serialize_str(msg));
     }
 
@@ -67,6 +68,7 @@ namespace gr {
     }
 
     std::string enqueue_message_sink_impl::starcoder_observe() {
+      std::unique_lock<std::mutex> lock(mutex_);
       std::string a;
       if (!queue_.empty()) {
         a = queue_.front();

@@ -23,6 +23,7 @@
 
 #include <starcoder/enqueue_message_sink.h>
 #include <queue>
+#include <mutex>
 
 namespace gr {
   namespace starcoder {
@@ -31,6 +32,7 @@ namespace gr {
     {
      private:
       std::queue<std::string> queue_;
+      std::mutex mutex_;
 
      public:
       enqueue_message_sink_impl();
