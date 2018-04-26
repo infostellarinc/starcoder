@@ -37,7 +37,7 @@ import (
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../c_queue
-#cgo LDFLAGS: -L${SRCDIR}/../c_queue/build -lCQueue -lstdc++
+#cgo LDFLAGS: -L${SRCDIR}/../c_queue/build -Wl,-rpath,${SRCDIR}/../c_queue/build -lCQueue -lstdc++
 #include "c_queue.h"
 */
 import "C"
@@ -552,13 +552,6 @@ func fillDictWithParameters(dict *python.PyObject, params []*pb.RunFlowgraphRequ
 }
 
 func (s *Starcoder) getBytesFromObservableQueue(cQueue *C.c_queue) ([][]byte, error) {
-	runtime.LockOSThread()
-	s.gilState = python.PyGILState_Ensure()
-	defer func() {
-		python.PyGILState_Release(s.gilState)
-		runtime.UnlockOSThread()
-	}()
-
 	var pmtBytes [][]byte
 
 	for {
