@@ -41,16 +41,9 @@ namespace gr {
      public:
       typedef boost::shared_ptr<enqueue_message_sink> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of starcoder::enqueue_message_sink.
-       *
-       * To avoid accidental use of raw pointers, starcoder::enqueue_message_sink's
-       * constructor is in a private implementation
-       * class. starcoder::enqueue_message_sink::make is the public interface for
-       * creating new instances.
-       */
       static sptr make();
       virtual std::string starcoder_observe() = 0;
+      virtual void register_queue_pointer(unsigned long ptr) = 0;
     };
 
   } // namespace starcoder

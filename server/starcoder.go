@@ -29,11 +29,19 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
 )
+
+/*
+#cgo CFLAGS: -I${SRCDIR}/../c_queue
+#cgo LDFLAGS: -L${SRCDIR}/../c_queue/build -lCQueue -lstdc++
+#include "c_queue.h"
+*/
+import "C"
 
 type Starcoder struct {
 	flowgraphDir              string
@@ -53,6 +61,18 @@ type moduleAndClassNames struct {
 }
 
 func NewStarcoderServer(flowgraphDir string) *Starcoder {
+	origQ := C.c_queue_init()
+	ptr := C.c_queue_get_ptr(origQ)
+	log.Println(reflect.TypeOf(ptr))
+	log.Println(ptr)
+	log.Println(ptr)
+	log.Println(uint64(ptr))
+	log.Println(C.ulong(uint64(ptr)))
+	origQPop := C.c_queue_pop(origQ)
+	log.Println(C.GoString(origQPop))
+	newQ := C.c_queue_from_ptr(C.ulong(uint64(ptr)))
+	newQPop := C.c_queue_pop(newQ)
+	log.Println(C.GoString(newQPop))
 	err := python.Initialize()
 	if err != nil {
 		log.Fatalf("failed to initialize python: %v", err)

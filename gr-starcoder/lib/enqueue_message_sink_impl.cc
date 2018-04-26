@@ -41,7 +41,8 @@ namespace gr {
     enqueue_message_sink_impl::enqueue_message_sink_impl()
       : gr::sync_block("enqueue_message_sink",
               gr::io_signature::make(0, 0, 0),
-              gr::io_signature::make(0, 0, 0))
+              gr::io_signature::make(0, 0, 0)),
+        c_queue_(NULL)
     {
       message_port_register_in(pmt::mp("in"));
       set_msg_handler(pmt::mp("in"), boost::bind(&enqueue_message_sink_impl::handler, this, _1));
@@ -55,8 +56,9 @@ namespace gr {
 
     void enqueue_message_sink_impl::handler(pmt::pmt_t msg)
     {
-      std::unique_lock<std::mutex> lock(mutex_);
-      queue_.push(pmt::serialize_str(msg));
+      if (c_queue_ != NULL) {
+        c_queue_->push(pmt::serialize_str(msg));
+      }
     }
 
     int
@@ -75,6 +77,10 @@ namespace gr {
         queue_.pop();
       }
       return a;
+    }
+
+    void enqueue_message_sink_impl::register_queue_pointer(unsigned long ptr) {
+      c_queue_ = reinterpret_cast<c_queue *>(ptr);
     }
 
   } /* namespace starcoder */
