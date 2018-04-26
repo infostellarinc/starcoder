@@ -23,9 +23,8 @@
 include(GrPlatform) #define LIB_SUFFIX
 
 include_directories(${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../c_queue/)
-link_directories(${Boost_LIBRARY_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../c_queue/build/)
 list(APPEND starcoder_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../c_queue/c_queue.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../c_queue/c_queue.cc
     init.c
     driver.c
     firmware.c
@@ -44,7 +43,7 @@ if(NOT starcoder_sources)
 endif(NOT starcoder_sources)
 
 add_library(gnuradio-starcoder SHARED ${starcoder_sources})
-target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${LOG4CPP_LIBRARY} usb-1.0 ${CMAKE_CURRENT_SOURCE_DIR}/../../c_queue/build/libCQueue.so)
+target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${LOG4CPP_LIBRARY} usb-1.0)
 set_target_properties(gnuradio-starcoder PROPERTIES DEFINE_SYMBOL "gnuradio_starcoder_EXPORTS")
 
 if(APPLE)
