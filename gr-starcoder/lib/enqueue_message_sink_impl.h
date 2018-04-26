@@ -32,7 +32,6 @@ namespace gr {
     class enqueue_message_sink_impl : public enqueue_message_sink
     {
      private:
-      std::queue<std::string> queue_;
       std::mutex mutex_;
       c_queue *c_queue_;
 
@@ -44,8 +43,6 @@ namespace gr {
       int work(int noutput_items,
          gr_vector_const_void_star &input_items,
          gr_vector_void_star &output_items);
-
-      std::string starcoder_observe();
 
       void handler(pmt::pmt_t msg);
 

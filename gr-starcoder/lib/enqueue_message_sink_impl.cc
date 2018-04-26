@@ -69,16 +69,6 @@ namespace gr {
       return noutput_items;
     }
 
-    std::string enqueue_message_sink_impl::starcoder_observe() {
-      std::unique_lock<std::mutex> lock(mutex_);
-      std::string a;
-      if (!queue_.empty()) {
-        a = queue_.front();
-        queue_.pop();
-      }
-      return a;
-    }
-
     void enqueue_message_sink_impl::register_queue_pointer(unsigned long ptr) {
       c_queue_ = reinterpret_cast<c_queue *>(ptr);
     }

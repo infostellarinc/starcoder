@@ -19,10 +19,7 @@
 
 #include "c_queue.h"
 
-c_queue::c_queue() {
-  queue_.push("aaa");
-  queue_.push("bbb");
-}
+c_queue::c_queue() {}
 
 void c_queue::push(std::string item) {
   std::unique_lock<std::mutex> lock(mutex_);

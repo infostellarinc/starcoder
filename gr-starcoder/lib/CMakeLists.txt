@@ -22,7 +22,7 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
-include_directories(${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../c_queue/)
+include_directories(${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/)
 list(APPEND starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/c_queue.cc
     init.c
