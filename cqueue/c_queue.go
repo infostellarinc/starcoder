@@ -24,8 +24,8 @@ type CQueue struct {
 	queue SwigcptrC_queue
 }
 
-func NewCQueue() *CQueue {
-	if val, ok := NewC_queue().(SwigcptrC_queue); ok {
+func NewCQueue(buffer_size int) *CQueue {
+	if val, ok := NewC_queue(buffer_size).(SwigcptrC_queue); ok {
 		return &CQueue{
 			queue: val,
 		}
@@ -41,6 +41,14 @@ func (q *CQueue) Pop() string {
 	return q.queue.Pop()
 }
 
-func (q *CQueue) Delete() {
+func (q *CQueue) BlockPop() string {
+	return q.queue.Block_pop()
+}
+
+func (q *CQueue) Wake() {
+	q.queue.Wake()
+}
+
+func (q *CQueue) Close() {
 	DeleteC_queue(q.queue)
 }

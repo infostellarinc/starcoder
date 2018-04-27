@@ -33,8 +33,9 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"time"
 )
+
+const defaultQueueSize = 1048576
 
 type Starcoder struct {
 	flowgraphDir              string
@@ -136,6 +137,7 @@ type streamHandler struct {
 	observableCQueues map[string]*cqueue.CQueue
 	clientFinished    bool
 	streamError       error
+	mustCloseMutex    sync.Mutex
 	wg                sync.WaitGroup
 	closeChannel      chan chan bool
 }
@@ -148,11 +150,11 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		observableCQueues: observableCQueues,
 		clientFinished:    false,
 		streamError:       nil,
+		mustCloseMutex:    sync.Mutex{},
 		wg:                sync.WaitGroup{},
 		closeChannel:      make(chan chan bool),
 	}
 
-	mustCloseChan := make(chan bool)
 	go func() {
 		for {
 			// Beyond the first packet, we don't care what the client
@@ -167,75 +169,68 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 			}
 			if err != nil {
 				log.Printf("Received error from client: %v", err)
-				break
+				sh.finish(err)
+				return
 			}
 		}
-		mustCloseChan <- true
+		sh.finish(nil)
 	}()
 
 	sh.wg.Add(1)
 
+	for k, cQueue := range sh.observableCQueues {
+		blockName := k
+		q := cQueue
+		go func() {
+			sh.wg.Add(1)
+			defer sh.wg.Done()
+			for {
+				// TODO: Convert PMT to a gRPC native data structure.
+				// Use built-in PMT serialization for now.
+				bytes := []byte(q.BlockPop())
+				// Could be woken up spuriously or by something else calling q.Wake()
+				if len(bytes) != 0 {
+					if err := stream.Send(&pb.RunFlowgraphResponse{
+						BlockId: blockName,
+						Payload: bytes,
+					}); err != nil {
+						log.Printf("Error sending stream: %v", err)
+						sh.finish(err)
+						return
+					}
+				}
+				if sh.finished() {
+					// Send the rest of the bytes if any are left
+					for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
+						log.Println(bytes)
+						if err := stream.Send(&pb.RunFlowgraphResponse{
+							BlockId: blockName,
+							Payload: bytes,
+						}); err != nil {
+							log.Printf("Error sending stream: %v", err)
+						}
+					}
+					return
+				}
+			}
+		}()
+	}
+
 	// Streaming loop here
-	ticker := time.NewTicker(time.Millisecond * 100)
 	go func(sh *streamHandler) {
 		defer sh.wg.Done()
 		for {
 			select {
-			case <-ticker.C:
-				if sh.clientFinished || sh.streamError != nil {
-					break
-				}
-				for k, cQueue := range sh.observableCQueues {
-					bytes, err := sh.starcoder.getBytesFromObservableQueue(cQueue)
-					if err != nil {
-						log.Printf("Error getting bytes from queue: %v", err)
-						sh.streamError = err
-						sh.deregister()
-						break
-					}
-					for _, b := range bytes {
-						if err := stream.Send(&pb.RunFlowgraphResponse{
-							BlockId: k,
-							Payload: b,
-						}); err != nil {
-							log.Printf("Error sending stream: %v", err)
-							sh.streamError = err
-							sh.deregister()
-							break
-						}
-					}
-				}
-			case <-mustCloseChan:
-				sh.clientFinished = true
-				sh.deregister()
 			case respChannel := <-sh.closeChannel:
 				// TODO: Make this call unblock by getting rid of `wait`
 				err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
 				if err != nil {
 					log.Printf("Error stopping flowgraph: %v", err)
-					sh.streamError = err
-					respChannel <- true
+					sh.finish(err)
 					return
 				}
-				for k, cQueue := range sh.observableCQueues {
-					bytes, err := sh.starcoder.getBytesFromObservableQueue(cQueue)
-					if err != nil {
-						log.Printf("Error getting bytes from queue: %v", err)
-						sh.streamError = err
-						respChannel <- true
-						return
-					}
-					for _, b := range bytes {
-						if err := stream.Send(&pb.RunFlowgraphResponse{
-							BlockId: k,
-							Payload: b,
-						}); err != nil {
-							log.Printf("Error sending stream: %v", err)
-							sh.streamError = err
-							respChannel <- true
-							return
-						}
-					}
+				for _, cQueue := range sh.observableCQueues {
+					cQueue.Wake()
 				}
 				respChannel <- true
 				return
@@ -249,12 +244,28 @@ func (sh *streamHandler) Wait() {
 	sh.wg.Wait()
 }
 
-func (sh *streamHandler) deregister() {
+// Called within streamHandler whenever an error happens or client finished.
+// Signals starcoder server that it needs to end this stream handler
+func (sh *streamHandler) finish(err error) {
+	sh.mustCloseMutex.Lock()
+	defer sh.mustCloseMutex.Unlock()
+	if err == nil {
+		sh.clientFinished = true
+	}
+	sh.streamError = err
 	go func() {
 		sh.starcoder.deregisterStreamHandler <- sh
 	}()
 }
 
+// Called by goroutines of streamHandler when they want to know when to close
+func (sh *streamHandler) finished() bool {
+	sh.mustCloseMutex.Lock()
+	defer sh.mustCloseMutex.Unlock()
+	return sh.clientFinished || sh.streamError != nil
+}
+
+// Must only be called by starcoder server
 func (sh *streamHandler) Close() {
 	respCh := make(chan bool)
 	sh.closeChannel <- respCh
@@ -287,7 +298,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 			flowGraphInstance.DecRef()
 		})
 		for _, q := range observableCQueues {
-			q.Delete()
+			q.Close()
 		}
 	}()
 
@@ -487,11 +498,12 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 				hasStarcoderObserve := val.HasAttrString("register_queue_pointer")
 				if hasStarcoderObserve == 1 {
 					k := python.PyString_AsString(key)
-					newQ := cqueue.NewCQueue()
+					newQ := cqueue.NewCQueue(defaultQueueSize)
 					pyQPtr := python.PyLong_FromUnsignedLongLong(newQ.GetPtr())
 					result := val.CallMethodObjArgs("register_queue_pointer", pyQPtr)
 					pyQPtr.DecRef()
 					if result == nil {
+						newQ.Close()
 						err = errors.New(getExceptionString())
 						return
 					}
@@ -545,24 +557,6 @@ func fillDictWithParameters(dict *python.PyObject, params []*pb.RunFlowgraphRequ
 		}
 	}
 	return nil
-}
-
-func (s *Starcoder) getBytesFromObservableQueue(cQueue *cqueue.CQueue) ([][]byte, error) {
-	var pmtBytes [][]byte
-
-	for {
-		serializedString := cQueue.Pop()
-
-		// TODO: Convert PMT to a gRPC native data structure.
-		// Use built-in PMT serialization for now.
-		bytes := []byte(serializedString)
-		if len(bytes) == 0 {
-			break
-		}
-		pmtBytes = append(pmtBytes, bytes)
-	}
-
-	return pmtBytes, nil
 }
 
 func (s *Starcoder) stopFlowGraph(flowGraphInstance *python.PyObject) error {

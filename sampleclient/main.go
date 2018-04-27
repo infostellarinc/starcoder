@@ -46,6 +46,7 @@ func main() {
 				return
 			}
 			if err != nil {
+				log.Println("error receiving!")
 				log.Fatalf("%v", err)
 			}
 			log.Println(r.GetBlockId(), r.GetPayload())

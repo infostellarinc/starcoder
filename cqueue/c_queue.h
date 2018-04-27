@@ -18,16 +18,20 @@
 #ifndef C_QUEUE_H
 #define C_QUEUE_H
 #include <mutex>
+#include <condition_variable>
 #include <string>
-#include <queue>
+#include <boost/lockfree/spsc_queue.hpp>
 class c_queue {
   public:
-    c_queue();
+    c_queue(int buffer_size);
     void push(std::string);
     std::string pop();
+    std::string block_pop();
     unsigned long get_ptr();
+    void wake();
   private:
-    std::queue<std::string> queue_;
+    boost::lockfree::spsc_queue<std::string> queue_;
+    std::condition_variable condition_var_;
     std::mutex mutex_;
 };
 c_queue *c_queue_from_ptr(unsigned long ptr);
