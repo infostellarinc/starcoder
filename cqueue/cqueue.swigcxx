@@ -1,8 +1,8 @@
 %module cqueue
 
 %{
-#include "c_queue.h"
+#include "string_queue.h"
 %}
 
 %include <std_string.i>
-%include "c_queue.h"
+%include "string_queue.h"

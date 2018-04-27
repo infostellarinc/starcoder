@@ -15,15 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef C_QUEUE_H
-#define C_QUEUE_H
+#ifndef STRING_QUEUE_H
+#define STRING_QUEUE_H
 #include <mutex>
 #include <condition_variable>
 #include <string>
 #include <boost/lockfree/spsc_queue.hpp>
-class c_queue {
+class string_queue {
   public:
-    c_queue(int buffer_size);
+    string_queue(int buffer_size);
     void push(const std::string &str);
     std::string pop();
     std::string block_pop();
@@ -34,5 +34,5 @@ class c_queue {
     std::condition_variable condition_var_;
     std::mutex mutex_;
 };
-c_queue *c_queue_from_ptr(uint64_t ptr);
-#endif /*C_QUEUE_H*/
+string_queue *string_queue_from_ptr(uint64_t ptr);
+#endif /*STRING_QUEUE_H*/

@@ -27,7 +27,7 @@
 #include <chrono>
 #include <thread>
 #include <starcoder/enqueue_message_sink.h>
-#include <c_queue.h>
+#include <string_queue.h>
 #include <stdio.h>
 
 namespace gr {
@@ -69,7 +69,7 @@ namespace gr {
       // needed to have enqueue_message_sink connected to something.
       gr::block_sptr src = gr::blocks::message_strobe::make(pmt::mp("in"), 1000);
       gr::starcoder::enqueue_message_sink::sptr op = gr::starcoder::enqueue_message_sink::make();
-      c_queue q(10);
+      string_queue q(10);
 
       op->register_queue_pointer(q.get_ptr());
 
