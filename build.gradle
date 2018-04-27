@@ -17,6 +17,9 @@
  *
  */
 
+import de.undercouch.gradle.tasks.download.Download
+import org.apache.tools.ant.taskdefs.condition.Os
+
 buildscript {
     repositories {
         jcenter()
@@ -32,6 +35,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
+        classpath 'de.undercouch:gradle-download-task:3.3.0'
         classpath 'gradle.plugin.com.github.blindpirate:gogradle:0.8.0'
         classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.127'
     }
@@ -41,16 +45,15 @@ apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 apply plugin: 'com.github.blindpirate.gogradle'
 
+def GO_VERSION = '1.10'
+def DEP_VERSION = '0.4.1'
+
 golang {
-    version = '1.10'
+    version = GO_VERSION
     packagePath = 'github.com/infostellarinc/starcoder'
 }
 
 def gopath = System.env['GOPATH'] ?: project.file('.gogradle/project_gopath').toString()
-
-goBuild {
-    outputLocation = 'build/out/${PROJECT_NAME}${GOEXE}'
-}
 
 protobuf {
     generateProtoTasks {
@@ -79,11 +82,6 @@ sourceSets {
             srcDir 'api'
         }
     }
-}
-
-task getProtocGoPlugin(type: com.github.blindpirate.gogradle.Go) {
-    outputs.file project.file("${gopath}/bin/protoc-gen-gofast")
-    go 'get -u github.com/gogo/protobuf/protoc-gen-gofast'
 }
 
 task deleteGeneratedFiles(type: Delete) {
@@ -118,63 +116,131 @@ license {
     }
 }
 
+def arch = 'linux-amd64'
+if (Os.isFamily(Os.FAMILY_MAC)) {
+    arch = 'darwin-amd64'
+} else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    arch = 'windows-amd64'
+}
 
-task depGet(type: com.github.blindpirate.gogradle.Go) {
-    outputs.file project.file("${gopath}/bin/dep")
-    go 'get -u github.com/golang/dep/cmd/dep'
+def bindepsDir = project.file("${gradle.gradleUserHomeDir}/go/bindeps")
+def cachedDep = project.file("${bindepsDir}/dep/v${DEP_VERSION}-${arch}/dep")
+def dep = "${gopath}/bin/dep"
+def depcache = new File(gradle.gradleUserHomeDir, 'go/dep-cache').toString()
+
+ext.gnuradioRoot = gradle.gradleUserHomeDir.toPath().resolve('curiostack/python/bootstrap/miniconda2-gnuradio')
+
+def condaCommand(command) {
+    return """
+    . ${gnuradioRoot.resolve('etc/profile.d/conda.sh')} && \\
+    conda activate > /dev/null && \\
+    ${command}
+    """
+}
+
+goBuild {
+    run "bash -c '${condaCommand('$GOROOT/bin/go build -o build/out/starcoder github.com/infostellarinc/starcoder')}'"
+
+    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+}
+
+task depDownload(type: Download) {
+    src "https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-${arch}"
+    dest cachedDep
+
+    onlyIf { !cachedDep.exists() }
+
     doLast {
-        // Remove dep source code since it contains invalid symlinks that break gradle.
-        project.delete project.file("${gopath}/src/github.com/golang/dep")
+        cachedDep.executable = true
     }
 }
 
-task getRice(type: com.github.blindpirate.gogradle.Go) {
-    go 'get -u github.com/GeertJohan/go.rice/...'
+task depCopy(type: Copy) {
+    dependsOn depDownload
+
+    from cachedDep
+    into "${gopath}/bin"
+
+    inputs.file cachedDep
+    outputs.file dep
 }
 
+def goExecutable = tasks.goBuild.buildManager.goBinaryManager.getBinaryPath()
+
+task installProtocGoPlugin(type: Exec) {
+    dependsOn 'depEnsure'
+
+    inputs.file 'Gopkg.lock'
+    outputs.file project.file("${gopath}/bin/protoc-gen-gofast")
+
+    executable goExecutable
+    args 'install', '.'
+    workingDir project.file("${gopath}/src/github.com/gogo/protobuf/protoc-gen-gofast")
+    environment 'GOPATH', gopath
+}
+tasks.goVendor.dependsOn installProtocGoPlugin
+
+task installRice(type: Exec) {
+    dependsOn 'depEnsure'
+
+    inputs.file 'Gopkg.lock'
+    outputs.file project.file("${gopath}/bin/rice")
+
+    executable goExecutable
+    args 'install', '.'
+    workingDir project.file("${gopath}/src/github.com/GeertJohan/go.rice/rice")
+    environment 'GOPATH', gopath
+}
+tasks.goVendor.dependsOn installRice
+
 task useRice(type:Exec) {
-    dependsOn getRice
+    dependsOn installRice
     inputs.dir 'flowgraphs'
     outputs.file 'cmd/rice-box.go'
 
     workingDir project.file('cmd').toString()
-    commandLine project.file('.gogradle/project_gopath/bin/rice').toString(), 'embed-go'
+    commandLine project.file("${gopath}/bin/rice").toString(), 'embed-go'
 }
 
 tasks.goBuild.dependsOn useRice
 
-def buildManager = tasks.goBuild.buildManager
-
 afterEvaluate {
     task depEnsure(type: Exec) {
-        dependsOn depGet
+        dependsOn depCopy, 'goPrepare'
 
         inputs.file 'Gopkg.toml'
         inputs.file 'Gopkg.lock'
         outputs.dir 'vendor'
 
         // TODO(anuraaga): Figure out why just setting workingDir doesn't work
-        commandLine 'sh', '-c', "cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
-                "${project.file(gopath)}/bin/dep ensure -vendor-only"
+        commandLine 'bash', '-c', condaCommand("cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
+                "${project.file(gopath)}/bin/dep ensure -vendor-only")
         environment = [
-                'DEPCACHEDIR': new File(gradle.gradleUserHomeDir, 'go/dep-cache').toString(),
+                'DEPCACHEDIR': depcache,
                 'GOPATH'     : gopath,
                 'PATH': System.env['PATH']
         ]
         // workingDir "${gopath}/src/github.com/infostellarinc/starcoder"
+
+        doLast {
+            copy {
+                from 'vendor/github.com'
+                into "${gopath}/src/github.com"
+            }
+        }
     }
 
     task depUpdate(type: Exec) {
-        dependsOn depGet
+        dependsOn depCopy
 
         inputs.file 'Gopkg.toml'
         outputs.file 'Gopkg.lock'
 
         // TODO(anuraaga): Figure out why just setting workingDir doesn't work
-        commandLine 'sh', '-c', "cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
-                "${project.file(gopath)}/bin/dep ensure -no-vendor"
+        commandLine 'sh', '-c', condaCommand("cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
+                "${project.file(gopath)}/bin/dep ensure -no-vendor")
         environment = [
-                'DEPCACHEDIR': new File(gradle.gradleUserHomeDir, 'go/dep-cache').toString(),
+                'DEPCACHEDIR': depcache,
                 'GOPATH'     : gopath,
                 'PATH': System.env['PATH']
         ]
@@ -182,9 +248,8 @@ afterEvaluate {
     }
 
     tasks.goVendor.dependsOn depEnsure
-    tasks.depEnsure.dependsOn tasks.generateProto
-    tasks.generateProto.dependsOn getProtocGoPlugin
-    tasks.goBuild.dependsOn tasks.generateProto
+    tasks.generateProto.dependsOn installProtocGoPlugin
+    tasks.goVendor.dependsOn tasks.generateProto
 
     tasks.withType(com.github.blindpirate.gogradle.Go) {
         if (it.name.startsWith('build')) {
@@ -202,12 +267,6 @@ tasks.build.dependsOn tasks.goBuild
 
 envs {
     conda 'miniconda2-gnuradio', 'Miniconda2-4.4.10', [
-            'pybombs',
-            'cheetah',
-            'lxml',
-            'mako',
-            'matplotlib',
-            'requests',
             condaPackage('autoconf'),
             condaPackage('automake'),
             condaPackage('boost'),
@@ -220,25 +279,27 @@ envs {
             condaPackage('libtool'),
             condaPackage('make'),
             condaPackage('numpy'),
+            condaPackage('pkg-config'),
+            condaPackage('subprocess32'),
             condaPackage('swig'),
             condaPackage('wget'),
     ]
 }
 
-ext.gnuradioRoot = gradle.gradleUserHomeDir.toPath().resolve('curiostack/python/bootstrap/miniconda2-gnuradio')
+// We install pip packages after a first conda bootstrap so its build tools are available to compile
+// native extensions.
+task installPipPackages(type: Exec) {
+    dependsOn 'pythonSetup'
 
-def condaCommand(command) {
-    return """
-    . ${gnuradioRoot.resolve('etc/profile.d/conda.sh')} && \\
-    conda activate && \\
-    ${command}
-    """
+    executable 'bash'
+    // Python setuptools uses LDSHARED variable and ignores CC when linking.
+    args '-c', condaCommand('LDSHARED=$CC pip install cheetah lxml mako matplotlib pybombs requests')
 }
 
 task setupPrefix(type: Exec) {
     onlyIf { !project.file("${gnuradioRoot}/lib/libgnuradio-blocks.so").exists() }
 
-    dependsOn 'pythonSetup'
+    dependsOn 'installPipPackages'
     executable 'bash'
     args '-c', condaCommand("""pybombs auto-config && \\
         pybombs -y recipes add-defaults && \\
