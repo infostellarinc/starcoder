@@ -21,7 +21,7 @@
 
 c_queue::c_queue(int buffer_size) : queue_(buffer_size) {}
 
-void c_queue::push(std::string item) {
+void c_queue::push(const std::string &item) {
   bool pushed = queue_.push(item);
   if (pushed) {
     condition_var_.notify_one();
@@ -47,10 +47,10 @@ void c_queue::wake() {
   condition_var_.notify_one();
 }
 
-unsigned long c_queue::get_ptr() {
-  return reinterpret_cast<unsigned long>(this);
+uint64_t c_queue::get_ptr() {
+  return reinterpret_cast<uint64_t>(this);
 }
 
-c_queue *c_queue_from_ptr(unsigned long ptr) {
+c_queue *c_queue_from_ptr(uint64_t ptr) {
     return reinterpret_cast<c_queue *>(ptr);
 }

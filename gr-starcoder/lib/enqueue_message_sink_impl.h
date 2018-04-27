@@ -46,7 +46,7 @@ namespace gr {
 
       void handler(pmt::pmt_t msg);
 
-      void register_queue_pointer(unsigned long ptr);
+      void register_queue_pointer(uint64_t ptr);
     };
 
   } // namespace starcoder

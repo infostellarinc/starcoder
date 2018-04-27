@@ -24,7 +24,7 @@
 class c_queue {
   public:
     c_queue(int buffer_size);
-    void push(std::string);
+    void push(const std::string &str);
     std::string pop();
     std::string block_pop();
     unsigned long get_ptr();
@@ -34,5 +34,5 @@ class c_queue {
     std::condition_variable condition_var_;
     std::mutex mutex_;
 };
-c_queue *c_queue_from_ptr(unsigned long ptr);
+c_queue *c_queue_from_ptr(uint64_t ptr);
 #endif /*C_QUEUE_H*/
