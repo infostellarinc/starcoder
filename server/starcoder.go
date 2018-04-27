@@ -286,6 +286,9 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		s.withPythonInterpreter(func() {
 			flowGraphInstance.DecRef()
 		})
+		for _, q := range observableCQueues {
+			q.Delete()
+		}
 	}()
 
 	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues)

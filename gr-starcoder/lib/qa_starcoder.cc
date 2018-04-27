@@ -33,11 +33,13 @@
 #include <chrono>
 #include <thread>
 #include <stdio.h>
+#include "qa_enqueue_message_sink.h"
 
 CppUnit::TestSuite *
 qa_starcoder::suite()
 {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("starcoder");
+  s->addTest(gr::starcoder::qa_enqueue_message_sink::suite());
   s->addTest( new CppUnit::TestCaller<qa_starcoder>( "run_ar2300_source_block", &qa_starcoder::run_ar2300_source_block ) );
 
   return s;
@@ -53,7 +55,7 @@ void qa_starcoder::run_ar2300_source_block()
   tb->connect(src, 0, dst, 0);
   tb->start();
 
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(2));
 
   tb->stop();
   tb->wait();

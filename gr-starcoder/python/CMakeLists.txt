@@ -52,4 +52,3 @@ ${CMAKE_CURRENT_SOURCE_DIR}/test_waterfall.png
 ${CMAKE_CURRENT_BINARY_DIR}/test_waterfall.png
 COPYONLY
 )
-GR_ADD_TEST(qa_enqueue_message_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.py)

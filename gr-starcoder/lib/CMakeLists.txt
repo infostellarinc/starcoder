@@ -63,11 +63,13 @@ GR_LIBRARY_FOO(gnuradio-starcoder RUNTIME_COMPONENT "starcoder_runtime" DEVEL_CO
 ########################################################################
 include(GrTest)
 
-include_directories( ${CPPUNIT_INCLUDE_DIRS} )
+include_directories( ${CPPUNIT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/ )
 
 list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/c_queue.cc
 )
 
 add_executable(test-starcoder ${test_starcoder_sources})
