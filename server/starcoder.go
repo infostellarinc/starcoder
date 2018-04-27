@@ -176,8 +176,6 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		sh.finish(nil)
 	}()
 
-	sh.wg.Add(1)
-
 	for k, cQueue := range sh.observableCQueues {
 		blockName := k
 		q := cQueue
@@ -216,27 +214,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		}()
 	}
 
-	// Streaming loop here
-	go func(sh *streamHandler) {
-		defer sh.wg.Done()
-		for {
-			select {
-			case respChannel := <-sh.closeChannel:
-				// TODO: Make this call unblock by getting rid of `wait`
-				err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
-				if err != nil {
-					log.Printf("Error stopping flowgraph: %v", err)
-					sh.finish(err)
-					return
-				}
-				for _, cQueue := range sh.observableCQueues {
-					cQueue.Wake()
-				}
-				respChannel <- true
-				return
-			}
-		}
-	}(sh)
+	sh.wg.Add(1)
 	return sh
 }
 
@@ -267,9 +245,18 @@ func (sh *streamHandler) finished() bool {
 
 // Must only be called by starcoder server
 func (sh *streamHandler) Close() {
-	respCh := make(chan bool)
-	sh.closeChannel <- respCh
-	<-respCh
+	defer sh.wg.Done()
+	// TODO: Make this call unblock by getting rid of `wait`
+	err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
+	if err != nil {
+		log.Printf("Error stopping flowgraph: %v", err)
+		sh.finish(err)
+		return
+	}
+	for _, cQueue := range sh.observableCQueues {
+		cQueue.Wake()
+	}
+	return
 }
 
 func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
