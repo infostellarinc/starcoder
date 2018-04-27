@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-/* This header can be read by both C and C++ compilers */
 #ifndef C_QUEUE_H
 #define C_QUEUE_H
 #include <mutex>
