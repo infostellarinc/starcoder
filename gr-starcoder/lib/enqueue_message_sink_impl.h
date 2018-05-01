@@ -33,7 +33,7 @@ namespace gr {
     {
      private:
       std::mutex mutex_;
-      string_queue *string_queue_;
+      string_queue<std::string> *string_queue_;
 
      public:
       enqueue_message_sink_impl();

@@ -21,21 +21,60 @@
 #include <condition_variable>
 #include <string>
 #include <boost/lockfree/spsc_queue.hpp>
+template <class T>
 class string_queue {
   public:
     string_queue(int buffer_size);
-    void push(const std::string &str);
+    void push(const T &str);
     // This form of pop function is exception-unsafe, but is okay since we are returning
     // a std::string. Its copy constructor throws only when the system has run out
     // of memory. https://accu.org/index.php/journals/444
-    std::string pop();
-    std::string block_pop();
+    T pop();
+    T block_pop();
     unsigned long get_ptr();
     void wake();
   private:
-    boost::lockfree::spsc_queue<std::string> queue_;
+    boost::lockfree::spsc_queue<T> queue_;
     std::condition_variable condition_var_;
     std::mutex mutex_;
 };
-string_queue *string_queue_from_ptr(uint64_t ptr);
+
+template <class T>
+string_queue<T>::string_queue(int buffer_size) : queue_(buffer_size) {}
+
+template <class T>
+void string_queue<T>::push(const T &item) {
+  bool pushed = queue_.push(item);
+  if (pushed) {
+    condition_var_.notify_one();
+  }
+}
+
+template <class T>
+T string_queue<T>::pop() {
+  T a;
+  queue_.pop(a);
+  return a;
+}
+
+template <class T>
+T string_queue<T>::block_pop() {
+  T a;
+  std::unique_lock<std::mutex> lock(mutex_);
+  if (queue_.empty())
+    condition_var_.wait(lock);
+  // If woken up spuriously, will return an empty string.
+  queue_.pop(a);
+  return a;
+}
+
+template <class T>
+void string_queue<T>::wake() {
+  condition_var_.notify_one();
+}
+
+template <class T>
+uint64_t string_queue<T>::get_ptr() {
+  return reinterpret_cast<uint64_t>(this);
+}
 #endif /*STRING_QUEUE_H*/

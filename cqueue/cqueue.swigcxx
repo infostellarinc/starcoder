@@ -6,3 +6,4 @@
 
 %include <std_string.i>
 %include "string_queue.h"
+%template(stringQueue) string_queue<std::string>;
