@@ -34,7 +34,7 @@ std::string string_queue::pop() {
   return a;
 }
 
-std::string string_queue::block_pop() {
+std::string string_queue::blocking_pop() {
   std::string a;
   std::unique_lock<std::mutex> lock(mutex_);
   if (queue_.empty())

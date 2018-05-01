@@ -29,7 +29,7 @@ class string_queue {
     // a std::string. Its copy constructor throws only when the system has run out
     // of memory. https://accu.org/index.php/journals/444
     std::string pop();
-    std::string block_pop();
+    std::string blocking_pop();
     unsigned long get_ptr();
     void wake();
   private:

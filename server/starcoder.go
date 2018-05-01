@@ -134,7 +134,7 @@ type streamHandler struct {
 	starcoder         *Starcoder
 	stream            pb.Starcoder_RunFlowgraphServer
 	flowGraphInstance *python.PyObject
-	observableCQueues map[string]*cqueue.CQueue
+	observableCQueues map[string]*cqueue.CStringQueue
 	clientFinished    bool
 	streamError       error
 	mustCloseMutex    sync.Mutex
@@ -142,7 +142,7 @@ type streamHandler struct {
 	closeChannel      chan chan bool
 }
 
-func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CQueue) *streamHandler {
+func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue) *streamHandler {
 	sh := &streamHandler{
 		starcoder:         sc,
 		stream:            stream,
@@ -185,7 +185,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 			for {
 				// TODO: Convert PMT to a gRPC native data structure.
 				// Use built-in PMT serialization for now.
-				bytes := []byte(q.BlockPop())
+				bytes := []byte(q.BlockingPop())
 				// Could be woken up spuriously or by something else calling q.Wake()
 				if len(bytes) != 0 {
 					if err := stream.Send(&pb.RunFlowgraphResponse{
@@ -377,9 +377,9 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 	return retVal, nil
 }
 
-func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.RunFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CQueue, error) {
+func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.RunFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, error) {
 	var flowGraphInstance *python.PyObject
-	var observableCQueue map[string]*cqueue.CQueue
+	var observableCQueue map[string]*cqueue.CStringQueue
 	var err error
 
 	s.withPythonInterpreter(func() {
@@ -460,7 +460,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 		}
 		defer callReturn.DecRef()
 
-		observableCQueue = make(map[string]*cqueue.CQueue)
+		observableCQueue = make(map[string]*cqueue.CStringQueue)
 
 		// Look for any Enqueue Message Sink blocks
 		starcoderModule := python.PyImport_ImportModule("starcoder")
@@ -485,7 +485,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 				hasStarcoderObserve := val.HasAttrString("register_queue_pointer")
 				if hasStarcoderObserve == 1 {
 					k := python.PyString_AsString(key)
-					newQ := cqueue.NewCQueue(defaultQueueSize)
+					newQ := cqueue.NewCStringQueue(defaultQueueSize)
 					pyQPtr := python.PyLong_FromUnsignedLongLong(newQ.GetPtr())
 					result := val.CallMethodObjArgs("register_queue_pointer", pyQPtr)
 					pyQPtr.DecRef()

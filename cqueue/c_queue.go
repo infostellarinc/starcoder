@@ -20,35 +20,35 @@ package cqueue
 
 // Thin wrapper around the c_queue C++ class so
 // we only need to deal with unrecognized variables in this file.
-type CQueue struct {
+type CStringQueue struct {
 	queue SwigcptrString_queue
 }
 
-func NewCQueue(buffer_size int) *CQueue {
+func NewCStringQueue(buffer_size int) *CStringQueue {
 	if val, ok := NewString_queue(buffer_size).(SwigcptrString_queue); ok {
-		return &CQueue{
+		return &CStringQueue{
 			queue: val,
 		}
 	}
 	return nil
 }
 
-func (q *CQueue) GetPtr() uint64 {
+func (q *CStringQueue) GetPtr() uint64 {
 	return q.queue.Get_ptr()
 }
 
-func (q *CQueue) Pop() string {
+func (q *CStringQueue) Pop() string {
 	return q.queue.Pop()
 }
 
-func (q *CQueue) BlockPop() string {
-	return q.queue.Block_pop()
+func (q *CStringQueue) BlockingPop() string {
+	return q.queue.Blocking_pop()
 }
 
-func (q *CQueue) Wake() {
+func (q *CStringQueue) Wake() {
 	q.queue.Wake()
 }
 
-func (q *CQueue) Close() {
+func (q *CStringQueue) Close() {
 	DeleteString_queue(q.queue)
 }
