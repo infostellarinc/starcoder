@@ -142,6 +142,8 @@ goBuild {
     run "bash -c '${condaCommand('$GOROOT/bin/go build -o build/out/starcoder github.com/infostellarinc/starcoder')}'"
 
     environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+
+    environment 'C_INCLUDE_PATH', "${gnuradioRoot}/include"
 }
 
 task depDownload(type: Download) {
@@ -308,8 +310,6 @@ task setupPrefix(type: Exec) {
     """)
     // For some reason, cmake has trouble finding boost in certain situations.
     environment 'BOOST_ROOT', gnuradioRoot
-
-    environment 'C_INCLUDE_PATH', "${gnuradioRoot}/include"
 
     environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
 
