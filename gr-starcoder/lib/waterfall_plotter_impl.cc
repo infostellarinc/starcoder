@@ -203,7 +203,7 @@ error:
       return true;
     }
 
-    void waterfall_plotter_impl::register_queue_pointer(uint64_t ptr) {
+    void waterfall_plotter_impl::register_starcoder_queue(uint64_t ptr) {
       string_queue_ = reinterpret_cast<string_queue *>(ptr);
     }
 

@@ -76,5 +76,5 @@ class waterfall_sink(gr.hier_block2):
         self.connect((s2v, 0), (waterfall_heatmap, 0))
         self.connect((waterfall_heatmap, 0), (self.waterfall_pl, 0))
 
-    def register_queue_pointer(self, ptr):
-        self.waterfall_pl.register_queue_pointer(ptr)
+    def register_starcoder_queue(self, ptr):
+        self.waterfall_pl.register_starcoder_queue(ptr)

@@ -481,13 +481,13 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 			val := python.PyString_FromString("")
 			defer val.DecRef()
 			for python.PyDict_Next(flowGraphDict, &iter, &key, &val) {
-				// Verify instance has register_queue_pointer
-				hasStarcoderObserve := val.HasAttrString("register_queue_pointer")
+				// Verify instance has register_starcoder_queue
+				hasStarcoderObserve := val.HasAttrString("register_starcoder_queue")
 				if hasStarcoderObserve == 1 {
 					k := python.PyString_AsString(key)
 					newQ := cqueue.NewCStringQueue(defaultQueueSize)
 					pyQPtr := python.PyLong_FromUnsignedLongLong(newQ.GetPtr())
-					result := val.CallMethodObjArgs("register_queue_pointer", pyQPtr)
+					result := val.CallMethodObjArgs("register_starcoder_queue", pyQPtr)
 					pyQPtr.DecRef()
 					if result == nil {
 						newQ.Close()
@@ -496,7 +496,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 					}
 					observableCQueue[k] = newQ
 					result.DecRef()
-					fmt.Println("found block with register_queue_pointer:", k)
+					fmt.Println("found block with register_starcoder_queue:", k)
 				}
 			}
 		}

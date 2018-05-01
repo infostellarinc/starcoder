@@ -59,7 +59,7 @@ namespace gr {
       static sptr
       make(double samp_rate, double center_freq,
            int rps, size_t fft_size, char* filename);
-      virtual void register_queue_pointer(uint64_t ptr) = 0;
+      virtual void register_starcoder_queue(uint64_t ptr) = 0;
     };
 
   } // namespace starcoder

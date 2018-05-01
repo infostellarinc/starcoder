@@ -57,7 +57,7 @@ namespace gr {
 
       virtual bool stop();
 
-      void register_queue_pointer(uint64_t ptr);
+      void register_starcoder_queue(uint64_t ptr);
     };
 
   } // namespace starcoder
