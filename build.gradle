@@ -143,7 +143,7 @@ goBuild {
 
     environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
 
-    environment 'C_INCLUDE_PATH', "${gnuradioRoot}/include"
+    environment 'CPLUS_INCLUDE_PATH', "${gnuradioRoot}/include"
 }
 
 task depDownload(type: Download) {
