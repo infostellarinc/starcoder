@@ -37,7 +37,8 @@ std::string string_queue::pop() {
 std::string string_queue::block_pop() {
   std::string a;
   std::unique_lock<std::mutex> lock(mutex_);
-  condition_var_.wait(lock);
+  if (queue_.empty())
+    condition_var_.wait(lock);
   // If woken up spuriously, will return an empty string.
   queue_.pop(a);
   return a;
