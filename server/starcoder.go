@@ -245,18 +245,18 @@ func (sh *streamHandler) finished() bool {
 
 // Must only be called by starcoder server
 func (sh *streamHandler) Close() {
-	defer sh.wg.Done()
+	defer func() {
+		for _, cQueue := range sh.observableCQueues {
+			cQueue.Wake()
+		}
+		sh.wg.Done()
+	}()
 	// TODO: Make this call unblock by getting rid of `wait`
 	err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
 	if err != nil {
 		log.Printf("Error stopping flowgraph: %v", err)
 		sh.finish(err)
-		return
 	}
-	for _, cQueue := range sh.observableCQueues {
-		cQueue.Wake()
-	}
-	return
 }
 
 func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
