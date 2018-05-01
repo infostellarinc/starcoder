@@ -22,9 +22,9 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
-include_directories(${Boost_INCLUDE_DIR})
-link_directories(${Boost_LIBRARY_DIRS})
+include_directories(${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/)
 list(APPEND starcoder_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
     init.c
     driver.c
     firmware.c
@@ -33,7 +33,8 @@ list(APPEND starcoder_sources
     ar2300_source_impl.cc
     complex_to_msg_c_impl.cc
     waterfall_heatmap_impl.cc
-    waterfall_plotter_impl.cc )
+    waterfall_plotter_impl.cc
+    enqueue_message_sink_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)
@@ -62,11 +63,13 @@ GR_LIBRARY_FOO(gnuradio-starcoder RUNTIME_COMPONENT "starcoder_runtime" DEVEL_CO
 ########################################################################
 include(GrTest)
 
-include_directories( ${CPPUNIT_INCLUDE_DIRS} )
+include_directories( ${CPPUNIT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/ )
 
 list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
 )
 
 add_executable(test-starcoder ${test_starcoder_sources})
