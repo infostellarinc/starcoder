@@ -24,7 +24,7 @@ include(GrPlatform) #define LIB_SUFFIX
 
 include_directories(${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/)
 list(APPEND starcoder_sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
     init.c
     driver.c
     firmware.c
@@ -69,7 +69,7 @@ list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
 )
 
 add_executable(test-starcoder ${test_starcoder_sources})

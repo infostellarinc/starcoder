@@ -21,11 +21,11 @@ package cqueue
 // Thin wrapper around the c_queue C++ class so
 // we only need to deal with unrecognized variables in this file.
 type CQueue struct {
-	queue SwigcptrStringQueue
+	queue SwigcptrString_queue
 }
 
 func NewCQueue(buffer_size int) *CQueue {
-	if val, ok := NewStringQueue(buffer_size).(SwigcptrStringQueue); ok {
+	if val, ok := NewString_queue(buffer_size).(SwigcptrString_queue); ok {
 		return &CQueue{
 			queue: val,
 		}
@@ -50,5 +50,5 @@ func (q *CQueue) Wake() {
 }
 
 func (q *CQueue) Close() {
-	DeleteStringQueue(q.queue)
+	DeleteString_queue(q.queue)
 }
