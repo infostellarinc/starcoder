@@ -21,6 +21,12 @@
 #include <condition_variable>
 #include <string>
 #include <boost/lockfree/spsc_queue.hpp>
+/*
+This class is a threadsafe single-producer single-consumer queue
+that provides both a non-blocking and blocking pop.
+Although the blocking_pop does not come with a timeout, external
+code can unblock it via the wake() method.
+*/
 class string_queue {
   public:
     string_queue(int buffer_size);
@@ -30,12 +36,11 @@ class string_queue {
     // of memory. https://accu.org/index.php/journals/444
     std::string pop();
     std::string blocking_pop();
-    unsigned long get_ptr();
+    unsigned long get_ptr() const;
     void wake();
   private:
     boost::lockfree::spsc_queue<std::string> queue_;
     std::condition_variable condition_var_;
     std::mutex mutex_;
 };
-string_queue *string_queue_from_ptr(uint64_t ptr);
 #endif /*STRING_QUEUE_H*/
