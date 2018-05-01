@@ -22,7 +22,9 @@
 string_queue::string_queue(int buffer_size) : queue_(buffer_size) {}
 
 void string_queue::push(const std::string &item) {
+  std::unique_lock<std::mutex> lock(mutex_);
   bool pushed = queue_.push(item);
+  lock.unlock();
   if (pushed) {
     condition_var_.notify_one();
   }
