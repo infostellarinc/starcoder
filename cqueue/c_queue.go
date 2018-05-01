@@ -18,7 +18,7 @@
 
 package cqueue
 
-// Thin wrapper around the c_queue C++ class so
+// Thin wrapper around the string_queue C++ class so
 // we only need to deal with unrecognized variables in this file.
 type CStringQueue struct {
 	queue SwigcptrString_queue
