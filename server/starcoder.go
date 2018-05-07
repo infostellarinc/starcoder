@@ -265,6 +265,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		return nil
 	}
 	if err != nil {
+		log.Printf("Error receiving gRPC: %v", err)
 		return err
 	}
 
@@ -272,11 +273,13 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 
 	modAndClass, err := s.compileGrc(inFileAbsPath)
 	if err != nil {
+		log.Printf("Error compiling flowgraph: %v", err)
 		return err
 	}
 
 	flowGraphInstance, observableCQueues, err := s.startFlowGraph(modAndClass, in)
 	if err != nil {
+		log.Printf("Error starting flowgraph: %v", err)
 		return err
 	}
 
@@ -293,6 +296,9 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	s.registerStreamHandler <- sh
 	sh.Wait()
 
+	if sh.streamError != nil {
+		log.Printf("Finished runFlowgraph with error: %v", err)
+	}
 	return sh.streamError
 }
 
