@@ -26,13 +26,13 @@ import (
 	"github.com/sbinet/go-python"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
+	"go.uber.org/zap"
 )
 
 const defaultQueueSize = 1048576
@@ -47,6 +47,7 @@ type Starcoder struct {
 	tempModule                string
 	filepathToModAndClassName map[string]*moduleAndClassNames
 	compileLock               sync.Mutex
+	log                       *zap.SugaredLogger
 }
 
 type moduleAndClassNames struct {
@@ -54,7 +55,7 @@ type moduleAndClassNames struct {
 	className  string
 }
 
-func NewStarcoderServer(flowgraphDir string) *Starcoder {
+func NewStarcoderServer(flowgraphDir string, log *zap.SugaredLogger) *Starcoder {
 	err := python.Initialize()
 	if err != nil {
 		log.Fatalf("failed to initialize python: %v", err)
@@ -73,6 +74,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 		deregisterStreamHandler:   make(chan *streamHandler),
 		closeAllStreamsChannel:    make(chan chan bool),
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
+		log: log,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -83,7 +85,7 @@ func NewStarcoderServer(flowgraphDir string) *Starcoder {
 
 	s.withPythonInterpreter(func() {
 		// Append module directory to sys.path
-		log.Printf("Appending %v to sys.path", tempDir)
+		log.Infof("Appending %v to sys.path", tempDir)
 		sysPath := python.PySys_GetObject("path")
 		if sysPath == nil {
 			err = errors.New(getExceptionString())
@@ -140,9 +142,10 @@ type streamHandler struct {
 	mustCloseMutex    sync.Mutex
 	wg                sync.WaitGroup
 	closeChannel      chan chan bool
+	log *zap.SugaredLogger
 }
 
-func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue) *streamHandler {
+func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, log *zap.SugaredLogger) *streamHandler {
 	sh := &streamHandler{
 		starcoder:         sc,
 		stream:            stream,
@@ -153,6 +156,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		mustCloseMutex:    sync.Mutex{},
 		wg:                sync.WaitGroup{},
 		closeChannel:      make(chan chan bool),
+		log: log,
 	}
 
 	go func() {
@@ -168,7 +172,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				break
 			}
 			if err != nil {
-				log.Printf("Received error from client: %v", err)
+				log.Errorf("Received error from client: %v", err)
 				sh.finish(err)
 				return
 			}
@@ -192,7 +196,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 						BlockId: blockName,
 						Payload: bytes,
 					}); err != nil {
-						log.Printf("Error sending stream: %v", err)
+						log.Errorf("Error sending stream: %v", err)
 						sh.finish(err)
 						return
 					}
@@ -200,12 +204,12 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				if sh.finished() {
 					// Send the rest of the bytes if any are left
 					for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
-						log.Println(bytes)
+						log.Info(bytes)
 						if err := stream.Send(&pb.RunFlowgraphResponse{
 							BlockId: blockName,
 							Payload: bytes,
 						}); err != nil {
-							log.Printf("Error sending stream: %v", err)
+							log.Errorf("Error sending stream: %v", err)
 						}
 					}
 					return
@@ -254,7 +258,7 @@ func (sh *streamHandler) Close() {
 	// TODO: Make this call unblock by getting rid of `wait`
 	err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
 	if err != nil {
-		log.Printf("Error stopping flowgraph: %v", err)
+		sh.log.Errorf("Error stopping flowgraph: %v", err)
 		sh.finish(err)
 	}
 }
@@ -265,6 +269,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		return nil
 	}
 	if err != nil {
+		s.log.Errorf("Error receiving gRPC: %v", err)
 		return err
 	}
 
@@ -272,11 +277,13 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 
 	modAndClass, err := s.compileGrc(inFileAbsPath)
 	if err != nil {
+		s.log.Errorf("Error compiling flowgraph: %v", err)
 		return err
 	}
 
 	flowGraphInstance, observableCQueues, err := s.startFlowGraph(modAndClass, in)
 	if err != nil {
+		s.log.Errorf("Error starting flowgraph: %v", err)
 		return err
 	}
 
@@ -289,10 +296,13 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		}
 	}()
 
-	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues)
+	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues, s.log)
 	s.registerStreamHandler <- sh
 	sh.Wait()
 
+	if sh.streamError != nil {
+		s.log.Errorf("Finished runFlowgraph with error: %v", sh.streamError)
+	}
 	return sh.streamError
 }
 
@@ -302,7 +312,7 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 	s.compileLock.Lock()
 	defer s.compileLock.Unlock()
 	if val, ok := s.filepathToModAndClassName[path]; ok {
-		log.Printf(
+		s.log.Infof(
 			"Already compiled %v: Using module name %v and class name %v",
 			path, val.moduleName, val.className)
 		return val, nil
@@ -345,7 +355,7 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 				"Unexpected number of files output by GRCC: %v", len(files)))
 		}
 
-		log.Printf("Successfully compiled %v to %v", path, files[0].Name())
+		s.log.Infof("Successfully compiled %v to %v", path, files[0].Name())
 
 		//Rename the moduleName to something unique so it won't overwrite other files
 		f, err := ioutil.TempFile(tempDir, strings.TrimSuffix(files[0].Name(), ".py"))
@@ -359,7 +369,7 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 		if err != nil {
 			return nil, err
 		}
-		log.Printf("Renamed %v to %v", files[0].Name(), uniqueModuleName+".py")
+		s.log.Infof("Renamed %v to %v", files[0].Name(), uniqueModuleName+".py")
 
 		moduleName = uniqueModuleName
 		className = strings.TrimSuffix(files[0].Name(), ".py")
@@ -465,7 +475,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 		// Look for any Enqueue Message Sink blocks
 		starcoderModule := python.PyImport_ImportModule("starcoder")
 		if starcoderModule == nil {
-			log.Println("gr-starcoder module not found. There are no blocks to observe")
+			s.log.Warn("gr-starcoder module not found. There are no blocks to observe")
 		} else {
 			defer starcoderModule.DecRef()
 			flowGraphDict := flowGraphInstance.GetAttrString("__dict__")
@@ -496,7 +506,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 					}
 					observableCQueue[k] = newQ
 					result.DecRef()
-					fmt.Println("found block with register_starcoder_queue:", k)
+					s.log.Infof("found block with register_starcoder_queue: %v", k)
 				}
 			}
 		}

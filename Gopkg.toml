@@ -26,6 +26,7 @@
 
 required = [
   "github.com/golang/protobuf/proto",
+  "github.com/golang/protobuf/jsonpb",
   "github.com/gogo/protobuf/proto",
   "github.com/gogo/protobuf/types",
   "github.com/gogo/protobuf/protoc-gen-gofast",
@@ -34,6 +35,8 @@ required = [
   "github.com/GeertJohan/go.rice/rice",
   "github.com/spf13/cobra",
   "github.com/sbinet/go-python",
+  "go.uber.org/zap",
+  "github.com/grpc-ecosystem/go-grpc-middleware",
 ]
 
 [[constraint]]
@@ -64,6 +67,17 @@ required = [
   name = "github.com/sbinet/go-python"
   branch = "master"
 
+[[constraint]]
+  name = "go.uber.org/zap"
+  version = "1.8.0"
+
+[[constraint]]
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  branch = "master"
+
 [prune]
   go-tests = true
   unused-packages = true
+  [[prune.project]]
+    name = "github.com/grpc-ecosystem/go-grpc-middleware"
+    unused-packages = false

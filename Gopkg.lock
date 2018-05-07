@@ -75,15 +75,30 @@
 [[projects]]
   name = "github.com/golang/protobuf"
   packages = [
+    "jsonpb",
     "proto",
     "protoc-gen-go/descriptor",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/struct",
     "ptypes/timestamp"
   ]
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
-  version = "v1.0.0"
+  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "logging",
+    "logging/zap",
+    "logging/zap/ctxzap",
+    "tags",
+    "tags/zap"
+  ]
+  revision = "c250d6563d4d4c20252cd865923440e829844f4e"
 
 [[projects]]
   branch = "master"
@@ -189,6 +204,31 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "go.uber.org/atomic"
+  packages = ["."]
+  revision = "1ea20fb1cbb1cc08cbd0d913a96dead89aa18289"
+  version = "v1.3.2"
+
+[[projects]]
+  name = "go.uber.org/multierr"
+  packages = ["."]
+  revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
+  version = "v1.1.0"
+
+[[projects]]
+  name = "go.uber.org/zap"
+  packages = [
+    ".",
+    "buffer",
+    "internal/bufferpool",
+    "internal/color",
+    "internal/exit",
+    "zapcore"
+  ]
+  revision = "eeedf312bc6c57391d84767a4cd413f02a917974"
+  version = "v1.8.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = [
@@ -279,6 +319,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1daf7cebdc41b1c663eba0e3e12bf0ffb180c498cba6a9cad5a7b152ff712d7d"
+  inputs-digest = "ae797bc5c5c24978b7d99660ff884e256f63af84b1f073026412242e06e80bf0"
   solver-name = "gps-cdcl"
   solver-version = 1
