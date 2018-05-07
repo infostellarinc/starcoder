@@ -39,8 +39,7 @@ std::string string_queue::pop() {
 std::string string_queue::blocking_pop() {
   std::string a;
   std::unique_lock<std::mutex> lock(mutex_);
-  while (queue_.empty() && !closed_)
-    condition_var_.wait(lock);
+  condition_var_.wait(lock, [this]{return (!queue_.empty() || closed_);});
   queue_.pop(a);
   return a;
 }
