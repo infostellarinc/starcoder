@@ -69,7 +69,7 @@ namespace gr {
       return noutput_items;
     }
 
-    void enqueue_message_sink_impl::register_queue_pointer(uint64_t ptr) {
+    void enqueue_message_sink_impl::register_starcoder_queue(uint64_t ptr) {
       string_queue_ = reinterpret_cast<string_queue *>(ptr);
     }
 

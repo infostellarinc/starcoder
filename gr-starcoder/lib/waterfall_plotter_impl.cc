@@ -58,7 +58,8 @@ namespace gr {
         center_freq_(center_freq),
         rps_(rps),
         fft_size_(fft_size),
-        filename_(filename)
+        filename_(filename),
+        string_queue_(NULL)
     {}
 
     /*
@@ -171,12 +172,14 @@ namespace gr {
       if (result == NULL)
         goto error;
 
-      Py_ssize_t image_size;
-      image_size = PyString_Size(result);
-      char *image_buffer;
-      image_buffer = PyString_AsString(result);
-      if (image_buffer == NULL)
-        goto error;
+      if (string_queue_ != NULL) {
+        Py_ssize_t image_size = PyString_Size(result);
+        char *image_buffer = PyString_AsString(result);
+        if (image_buffer == NULL)
+          goto error;
+        const std::string image_binary(image_buffer, image_size);
+        string_queue_->push(image_binary);
+      }
 
 error:
       /* Cleanup code, shared by success and failure path */
@@ -198,6 +201,10 @@ error:
       PyGILState_Release(gstate);
       delete[] numpy_array_buffer;
       return true;
+    }
+
+    void waterfall_plotter_impl::register_starcoder_queue(uint64_t ptr) {
+      string_queue_ = reinterpret_cast<string_queue *>(ptr);
     }
 
   } /* namespace starcoder */

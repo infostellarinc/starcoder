@@ -23,6 +23,7 @@
 
 #include <list>
 #include <starcoder/waterfall_plotter.h>
+#include <string_queue.h>
 
 namespace gr {
   namespace starcoder {
@@ -42,6 +43,7 @@ namespace gr {
       char* filename_;
       size_t fft_size_;
       void init_numpy_array();
+      string_queue *string_queue_;
 
      public:
       waterfall_plotter_impl(double samp_rate, double center_freq,
@@ -54,6 +56,8 @@ namespace gr {
          gr_vector_void_star &output_items);
 
       virtual bool stop();
+
+      void register_starcoder_queue(uint64_t ptr);
     };
 
   } // namespace starcoder

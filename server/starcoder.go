@@ -186,7 +186,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				// TODO: Convert PMT to a gRPC native data structure.
 				// Use built-in PMT serialization for now.
 				bytes := []byte(q.BlockingPop())
-				// Could be woken up spuriously or by something else calling q.Wake()
+				// Could be woken up spuriously or by something else calling q.Close()
 				if len(bytes) != 0 {
 					if err := stream.Send(&pb.RunFlowgraphResponse{
 						BlockId: blockName,
@@ -247,7 +247,7 @@ func (sh *streamHandler) finished() bool {
 func (sh *streamHandler) Close() {
 	defer func() {
 		for _, cQueue := range sh.observableCQueues {
-			cQueue.Wake()
+			cQueue.Close()
 		}
 		sh.wg.Done()
 	}()
@@ -288,7 +288,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 			flowGraphInstance.DecRef()
 		})
 		for _, q := range observableCQueues {
-			q.Close()
+			q.Delete()
 		}
 	}()
 
@@ -487,22 +487,22 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 			val := python.PyString_FromString("")
 			defer val.DecRef()
 			for python.PyDict_Next(flowGraphDict, &iter, &key, &val) {
-				// Verify instance has register_queue_pointer
-				hasStarcoderObserve := val.HasAttrString("register_queue_pointer")
+				// Verify instance has register_starcoder_queue
+				hasStarcoderObserve := val.HasAttrString("register_starcoder_queue")
 				if hasStarcoderObserve == 1 {
 					k := python.PyString_AsString(key)
 					newQ := cqueue.NewCStringQueue(defaultQueueSize)
 					pyQPtr := python.PyLong_FromUnsignedLongLong(newQ.GetPtr())
-					result := val.CallMethodObjArgs("register_queue_pointer", pyQPtr)
+					result := val.CallMethodObjArgs("register_starcoder_queue", pyQPtr)
 					pyQPtr.DecRef()
 					if result == nil {
-						newQ.Close()
+						newQ.Delete()
 						err = errors.New(getExceptionString())
 						return
 					}
 					observableCQueue[k] = newQ
 					result.DecRef()
-					fmt.Println("found block with register_queue_pointer:", k)
+					fmt.Println("found block with register_starcoder_queue:", k)
 				}
 			}
 		}
