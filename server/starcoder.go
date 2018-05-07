@@ -297,7 +297,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 	sh.Wait()
 
 	if sh.streamError != nil {
-		log.Printf("Finished runFlowgraph with error: %v", err)
+		log.Printf("Finished runFlowgraph with error: %v", sh.streamError)
 	}
 	return sh.streamError
 }
