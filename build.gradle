@@ -239,7 +239,7 @@ afterEvaluate {
         outputs.file 'Gopkg.lock'
 
         // TODO(anuraaga): Figure out why just setting workingDir doesn't work
-        commandLine 'sh', '-c', condaCommand("cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
+        commandLine 'bash', '-c', condaCommand("cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
                 "${project.file(gopath)}/bin/dep ensure -no-vendor")
         environment = [
                 'DEPCACHEDIR': depcache,

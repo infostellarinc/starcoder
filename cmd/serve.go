@@ -27,13 +27,14 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io/ioutil"
-	"log"
+	fatalLog "log"
 	"net"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
+	"go.uber.org/zap"
 )
 
 const (
@@ -54,7 +55,14 @@ var serveCmd = &cobra.Command{
 	Short: "Start the Starcoder server",
 	Long:  `Start the Starcoder server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Printf("serve called, using bind address %v", serveCmdConfig.BindAddress)
+		l, err := zap.NewDevelopment()
+		if err != nil {
+			fatalLog.Fatalf("Failed to create logger: %v", err)
+		}
+		log := l.Sugar()
+		defer log.Sync()
+		
+		log.Infof("serve called, using bind address %v", serveCmdConfig.BindAddress)
 
 		if serveCmdConfig.FlowgraphDir == "" {
 			tempDir, err := ioutil.TempDir("", "starcoder")
@@ -78,7 +86,7 @@ var serveCmd = &cobra.Command{
 			})
 
 			serveCmdConfig.FlowgraphDir = tempDir
-			log.Printf("Using temporary directory %v", serveCmdConfig.FlowgraphDir)
+			log.Infof("Using temporary directory %v", serveCmdConfig.FlowgraphDir)
 		}
 
 		lis, err := net.Listen("tcp", serveCmdConfig.BindAddress)
@@ -86,7 +94,7 @@ var serveCmd = &cobra.Command{
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
-		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir)
+		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, log)
 
 		// Handle OS signals
 		sigs := make(chan os.Signal, 1)
@@ -101,7 +109,7 @@ var serveCmd = &cobra.Command{
 					case syscall.SIGTERM:
 						fallthrough
 					case syscall.SIGQUIT:
-						log.Println("Caught signal", sig)
+						log.Infof("Caught signal: %v", sig)
 						starcoder.Close()
 						s.GracefulStop()
 						return

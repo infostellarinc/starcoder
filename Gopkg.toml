@@ -34,6 +34,7 @@ required = [
   "github.com/GeertJohan/go.rice/rice",
   "github.com/spf13/cobra",
   "github.com/sbinet/go-python",
+  "go.uber.org/zap",
 ]
 
 [[constraint]]
@@ -63,6 +64,10 @@ required = [
 [[constraint]]
   name = "github.com/sbinet/go-python"
   branch = "master"
+
+[[constraint]]
+  name = "go.uber.org/zap"
+  version = "1.8.0"
 
 [prune]
   go-tests = true
