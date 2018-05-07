@@ -45,6 +45,6 @@ class string_queue {
     boost::lockfree::spsc_queue<std::string> queue_;
     std::condition_variable condition_var_;
     std::mutex mutex_;
-    volatile bool closed_;
+    bool closed_;
 };
 #endif /*STRING_QUEUE_H*/
