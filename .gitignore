@@ -94,3 +94,4 @@ flowgraphs/*.py
 # Don't check-in generated go-rice
 *rice-box.go
 
+*.pyc

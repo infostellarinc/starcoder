@@ -313,13 +313,17 @@ task setupPrefix(type: Exec) {
 
     environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
 
-    doLast {
-        // Manually copy GRC since it's installation has a hard dependency on GUI components, even
-        // though we only use the GUI-less grcc.
+    doFirst {
+        // Trick cmake into thinking pygtk exists to allow normal grc installation. We don't actually
+        // use gtk so this shouldn't cause problems.
         copy {
-            from "${gnuradioRoot}/src/gnuradio/grc"
-            into "${gnuradioRoot}/lib/python2.7/site-packages/gnuradio/grc"
+            from project.file('mockpygtk')
+            into "${gnuradioRoot}/lib/python2.7/site-packages/gtk"
         }
+    }
+
+    doLast {
+        delete "${gnuradioRoot}/lib/python2.7/site-packages/gtk"
         delete "${gnuradioRoot}/pkgs"
         delete "${gnuradioRoot}/src"
     }
