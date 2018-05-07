@@ -45,10 +45,10 @@ func (q *CStringQueue) BlockingPop() string {
 	return q.queue.Blocking_pop()
 }
 
-func (q *CStringQueue) Wake() {
-	q.queue.Wake()
+func (q *CStringQueue) Close() {
+	q.queue.Close()
 }
 
-func (q *CStringQueue) Close() {
+func (q *CStringQueue) Delete() {
 	DeleteString_queue(q.queue)
 }

@@ -24,6 +24,7 @@ import (
 	pb "github.com/infostellarinc/starcoder/api"
 	"google.golang.org/grpc"
 	"io"
+	"io/ioutil"
 	"log"
 	"time"
 )
@@ -50,6 +51,9 @@ func main() {
 				log.Fatalf("%v", err)
 			}
 			log.Println(r.GetBlockId(), r.GetPayload())
+			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
+				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPayload(), 0644)
+			}
 		}
 	}()
 	req := &pb.RunFlowgraphRequest{
@@ -64,7 +68,7 @@ func main() {
 			{
 				Key: "waterfall_image_file_path",
 				Value: &pb.Value{
-					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/waterfall"},
+					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/waterfall.png"},
 				},
 			},
 		},

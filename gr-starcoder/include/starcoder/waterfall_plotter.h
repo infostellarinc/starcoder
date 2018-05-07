@@ -56,17 +56,10 @@ namespace gr {
      public:
       typedef boost::shared_ptr<waterfall_plotter> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of starcoder::waterfall_plotter.
-       *
-       * To avoid accidental use of raw pointers, starcoder::waterfall_plotter's
-       * constructor is in a private implementation
-       * class. starcoder::waterfall_plotter::make is the public interface for
-       * creating new instances.
-       */
       static sptr
       make(double samp_rate, double center_freq,
            int rps, size_t fft_size, char* filename);
+      virtual void register_starcoder_queue(uint64_t ptr) = 0;
     };
 
   } // namespace starcoder

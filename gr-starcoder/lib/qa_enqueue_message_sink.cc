@@ -71,7 +71,7 @@ namespace gr {
       gr::starcoder::enqueue_message_sink::sptr op = gr::starcoder::enqueue_message_sink::make();
       string_queue q(10);
 
-      op->register_queue_pointer(q.get_ptr());
+      op->register_starcoder_queue(q.get_ptr());
 
       gr::basic_block_sptr bb = op->to_basic_block();
       bb->_post(pmt::mp("in"), pmt::make_u8vector(10, 97)); // 97 is ascii for 'a'

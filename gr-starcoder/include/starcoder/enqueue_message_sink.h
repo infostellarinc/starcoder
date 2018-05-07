@@ -42,7 +42,7 @@ namespace gr {
       typedef boost::shared_ptr<enqueue_message_sink> sptr;
 
       static sptr make();
-      virtual void register_queue_pointer(uint64_t ptr) = 0;
+      virtual void register_starcoder_queue(uint64_t ptr) = 0;
     };
 
   } // namespace starcoder
