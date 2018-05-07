@@ -186,7 +186,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				// TODO: Convert PMT to a gRPC native data structure.
 				// Use built-in PMT serialization for now.
 				bytes := []byte(q.BlockingPop())
-				// Could be woken up spuriously or by something else calling q.Wake()
+				// Could be woken up spuriously or by something else calling q.Close()
 				if len(bytes) != 0 {
 					if err := stream.Send(&pb.RunFlowgraphResponse{
 						BlockId: blockName,
@@ -247,7 +247,7 @@ func (sh *streamHandler) finished() bool {
 func (sh *streamHandler) Close() {
 	defer func() {
 		for _, cQueue := range sh.observableCQueues {
-			cQueue.Wake()
+			cQueue.Close()
 		}
 		sh.wg.Done()
 	}()
@@ -285,7 +285,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 			flowGraphInstance.DecRef()
 		})
 		for _, q := range observableCQueues {
-			q.Close()
+			q.Delete()
 		}
 	}()
 
@@ -490,7 +490,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 					result := val.CallMethodObjArgs("register_starcoder_queue", pyQPtr)
 					pyQPtr.DecRef()
 					if result == nil {
-						newQ.Close()
+						newQ.Delete()
 						err = errors.New(getExceptionString())
 						return
 					}

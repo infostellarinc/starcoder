@@ -25,8 +25,8 @@
 This class is a threadsafe single-producer single-consumer queue
 that provides both a non-blocking and blocking pop.
 Although the blocking_pop does not come with a timeout, external
-code can unblock it via the wake() method. Note that after calling
-the wake() method, blocking_pop() will no longer block, and it is
+code can unblock it via the close() method. Note that after calling
+the close() method, blocking_pop() will no longer block, and it is
 suggested to use the non-blocking pop() method to avoid mutex locking
 overhead.
 */
@@ -40,11 +40,11 @@ class string_queue {
     std::string pop();
     std::string blocking_pop();
     unsigned long get_ptr() const;
-    void wake();
+    void close();
   private:
     boost::lockfree::spsc_queue<std::string> queue_;
     std::condition_variable condition_var_;
     std::mutex mutex_;
-    bool closed_;
+    volatile bool closed_;
 };
 #endif /*STRING_QUEUE_H*/
