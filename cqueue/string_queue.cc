@@ -19,7 +19,7 @@
 
 #include "string_queue.h"
 
-string_queue::string_queue(int buffer_size) : queue_(buffer_size) {}
+string_queue::string_queue(int buffer_size) : queue_(buffer_size), closed_(false) {}
 
 void string_queue::push(const std::string &item) {
   std::unique_lock<std::mutex> lock(mutex_);
@@ -39,14 +39,16 @@ std::string string_queue::pop() {
 std::string string_queue::blocking_pop() {
   std::string a;
   std::unique_lock<std::mutex> lock(mutex_);
-  if (queue_.empty())
+  while (queue_.empty() && !closed_)
     condition_var_.wait(lock);
-  // If woken up spuriously, will return an empty string.
   queue_.pop(a);
   return a;
 }
 
 void string_queue::wake() {
+  std::unique_lock<std::mutex> lock(mutex_);
+  closed_ = true;
+  lock.unlock();
   condition_var_.notify_one();
 }
 
