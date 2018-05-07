@@ -35,6 +35,9 @@ import (
 	"strings"
 	"syscall"
 	"go.uber.org/zap"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 )
 
 const (
@@ -93,7 +96,12 @@ var serveCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
-		s := grpc.NewServer()
+		s := grpc.NewServer(
+			grpc_middleware.WithStreamServerChain(
+				grpc_ctxtags.StreamServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+				grpc_zap.StreamServerInterceptor(l),
+			),
+		)
 		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, log)
 
 		// Handle OS signals

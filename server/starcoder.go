@@ -312,7 +312,7 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 	s.compileLock.Lock()
 	defer s.compileLock.Unlock()
 	if val, ok := s.filepathToModAndClassName[path]; ok {
-		s.log.Errorf(
+		s.log.Infof(
 			"Already compiled %v: Using module name %v and class name %v",
 			path, val.moduleName, val.className)
 		return val, nil

@@ -35,6 +35,7 @@ required = [
   "github.com/spf13/cobra",
   "github.com/sbinet/go-python",
   "go.uber.org/zap",
+  "github.com/grpc-ecosystem/go-grpc-middleware",
 ]
 
 [[constraint]]
@@ -69,6 +70,13 @@ required = [
   name = "go.uber.org/zap"
   version = "1.8.0"
 
+[[constraint]]
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  branch = "master"
+
 [prune]
   go-tests = true
   unused-packages = true
+  [[prune.project]]
+    name = "github.com/grpc-ecosystem/go-grpc-middleware"
+    unused-packages = false
