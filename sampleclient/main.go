@@ -50,7 +50,11 @@ func main() {
 				log.Println("error receiving!")
 				log.Fatalf("%v", err)
 			}
-			log.Println(r.GetBlockId(), r.GetPayload())
+			if len(r.GetPayload()) > 20 {
+				log.Println(r.GetBlockId(), len(r.GetPayload()))
+			} else {
+				log.Println(r.GetBlockId(), r.GetPayload())
+			}
 			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
 				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPayload(), 0644)
 			}
@@ -76,7 +80,7 @@ func main() {
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("Failed to send: %v", err)
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 	stream.CloseSend()
 	<-waitc
 }
