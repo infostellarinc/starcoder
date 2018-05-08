@@ -111,4 +111,8 @@ def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
 
     buf = io.BytesIO()
     plt.savefig(buf, bbox_inches='tight', pad_inches=0.2, format='png')
-    return buf.getvalue()
+    out = buf.getvalue()
+
+    buf.close()
+    plt.close()
+    return out
