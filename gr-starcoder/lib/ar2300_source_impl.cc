@@ -81,6 +81,23 @@ namespace gr {
                               const int inSize,
                               gr_complex* out)
     {
+      char sample[8];
+      int  out_index = 0;
+
+      if (num_leftover_ > 0) {
+        for (int i = 0; i < num_leftover_; i++) {
+          sample[i] = leftover_[i];
+        }
+        for (int i = 0; i < 8-num_leftover_; i++) {
+          sample[i + num_leftover_] = in[i];
+        }
+        if (!validate_sample(sample)) {
+          GR_LOG_WARN(d_logger, boost::format("Reconstructed sample invalid"));
+        } else {
+          out[out_index++] = parse_sample(sample);
+        }
+      }
+
       int offset = 0;
       bool seen_i_value = false;
 
@@ -93,19 +110,17 @@ namespace gr {
       }
 
       if(!seen_i_value) {
-          return 0;
+          return out_index;
       }
-
-      char sample[8];
       int  sample_index = 0;
-      int  out_index = 0;
 
       for (int i = offset; i < inSize; ++i) {
         sample[sample_index++] = in[i];
         if (sample_index == 8) {
           sample_index = 0;
           if(!validate_sample(sample)) {
-            GR_LOG_WARN(d_logger, boost::format("Sample may be corrupted"));
+            GR_LOG_WARN(d_logger, boost::format("Sample may be corrupted. Adjusting offset"));
+            i -= 7;  // This line adjusts offset by one byte.
             num_of_consecutive_warns++;
             if(num_of_consecutive_warns > CONSECUTIVE_WARNING_LIMIT) {
               GR_LOG_WARN(d_logger, boost::format("Exceeded the limit of consecutive warnings"));
@@ -118,6 +133,11 @@ namespace gr {
           num_of_consecutive_warns = 0;
         }
       }
+
+      for (int i = 0; i < sample_index; i++) {
+        leftover_[i] = sample[i];
+      }
+      num_leftover_ = sample_index;
 
       return out_index;
     }
