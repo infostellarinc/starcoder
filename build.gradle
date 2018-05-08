@@ -323,7 +323,6 @@ task setupPrefix(type: Exec) {
     }
 
     doLast {
-        delete "${gnuradioRoot}/lib/python2.7/site-packages/gtk"
         delete "${gnuradioRoot}/pkgs"
         delete "${gnuradioRoot}/src"
     }
