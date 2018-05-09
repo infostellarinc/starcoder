@@ -62,20 +62,6 @@ func main() {
 	}()
 	req := &pb.RunFlowgraphRequest{
 		Filename: "test.grc",
-		Parameters: []*pb.RunFlowgraphRequest_Parameter{
-			{
-				Key: "full_iq_file_path",
-				Value: &pb.Value{
-					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/full.bin"},
-				},
-			},
-			{
-				Key: "waterfall_image_file_path",
-				Value: &pb.Value{
-					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/waterfall.png"},
-				},
-			},
-		},
 	}
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("Failed to send: %v", err)
