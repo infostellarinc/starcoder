@@ -104,11 +104,9 @@ bool waterfall_plotter_impl::stop() {
   gstate = PyGILState_Ensure();
   init_numpy_array();
 
-  npy_intp dims[2] {
-    static_cast<long int>(total_size_ / (fft_size_ * sizeof(int8_t))),
-        static_cast<long int>(fft_size_)
-  }
-  ;
+  npy_intp dims[2] = { static_cast<long int>(total_size_ /
+                                             (fft_size_ * sizeof(int8_t))),
+                       static_cast<long int>(fft_size_) };
   const int ND = 2;
 
   PyObject *numpy_array = NULL, *module_string = NULL, *module = NULL,
