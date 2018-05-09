@@ -34,7 +34,7 @@ config:
   packages:
     gnuradio:
       forcebuild: true
-      gitbranch: v3.7.11
+      gitbranch: v3.7.12.0
       # No gui dependencies
       depends:
       - boost
@@ -48,7 +48,7 @@ config:
       - lxml
       - liblog4cpp
       vars:
-        config_opt: "-DENABLE_DOXYGEN=OFF -DENABLE_GR_AUDIO=OFF -DENABLE_GR_BLOCKS=ON -DENABLE_GR_DIGITAL=ON -DENABLE_GR_FEC=ON -DENABLE_GR_FFT=ON -DENABLE_GR_FILTER=ON -DENABLE_GR_QTGUI=OFF -DENABLE_GR_UHD=ON -DENABLE_GR_ZEROMQ=OFF -DENABLE_PYTHON=ON -DENABLE_VOLK=ON -DENABLE_GRC=ON"
+        config_opt: "-DCMAKE_CXX_FLAGS=-D__STDC_LIMIT_MACROS -DENABLE_DOXYGEN=OFF -DENABLE_GR_AUDIO=OFF -DENABLE_GR_BLOCKS=ON -DENABLE_GR_DIGITAL=ON -DENABLE_GR_FEC=ON -DENABLE_GR_FFT=ON -DENABLE_GR_FILTER=ON -DENABLE_GR_QTGUI=OFF -DENABLE_GR_UHD=ON -DENABLE_GR_ZEROMQ=OFF -DENABLE_PYTHON=ON -DENABLE_VOLK=ON -DENABLE_GRC=ON"
 
     liblog4cpp:
       # Older versions don't compile on modern gcc.
