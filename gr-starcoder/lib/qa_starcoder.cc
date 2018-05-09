@@ -35,19 +35,16 @@
 #include <stdio.h>
 #include "qa_enqueue_message_sink.h"
 
-CppUnit::TestSuite *
-qa_starcoder::suite()
-{
+CppUnit::TestSuite *qa_starcoder::suite() {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("starcoder");
   s->addTest(gr::starcoder::qa_enqueue_message_sink::suite());
-  s->addTest( new CppUnit::TestCaller<qa_starcoder>( "run_ar2300_source_block", &qa_starcoder::run_ar2300_source_block ) );
+  s->addTest(new CppUnit::TestCaller<qa_starcoder>(
+      "run_ar2300_source_block", &qa_starcoder::run_ar2300_source_block));
 
   return s;
 }
 
-
-void qa_starcoder::run_ar2300_source_block()
-{
+void qa_starcoder::run_ar2300_source_block() {
   gr::top_block_sptr tb = gr::make_top_block("top");
   gr::starcoder::ar2300_source::sptr src = gr::starcoder::ar2300_source::make();
   gr::block_sptr dst = gr::blocks::null_sink::make(sizeof(gr_complex));
