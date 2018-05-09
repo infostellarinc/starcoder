@@ -82,13 +82,13 @@ namespace gr {
                               gr_complex* out)
     {
       char sample[8];
-      int  out_index = 0;
+      int out_index = 0;
 
       if (num_leftover_ > 0) {
         for (int i = 0; i < num_leftover_; i++) {
           sample[i] = leftover_[i];
         }
-        for (int i = 0; i < 8-num_leftover_; i++) {
+        for (int i = 0; i < 8 - num_leftover_; i++) {
           sample[i + num_leftover_] = in[i];
         }
         if (!validate_sample(sample)) {
