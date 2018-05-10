@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -26,53 +26,44 @@
 #include "enqueue_message_sink_impl.h"
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    enqueue_message_sink::sptr
-    enqueue_message_sink::make()
-    {
-      return gnuradio::get_initial_sptr
-        (new enqueue_message_sink_impl());
-    }
+enqueue_message_sink::sptr enqueue_message_sink::make() {
+  return gnuradio::get_initial_sptr(new enqueue_message_sink_impl());
+}
 
-    /*
-     * The private constructor
-     */
-    enqueue_message_sink_impl::enqueue_message_sink_impl()
-      : gr::sync_block("enqueue_message_sink",
-              gr::io_signature::make(0, 0, 0),
-              gr::io_signature::make(0, 0, 0)),
-        string_queue_(NULL)
-    {
-      message_port_register_in(pmt::mp("in"));
-      set_msg_handler(pmt::mp("in"), boost::bind(&enqueue_message_sink_impl::handler, this, _1));
-    }
+/*
+ * The private constructor
+ */
+enqueue_message_sink_impl::enqueue_message_sink_impl()
+    : gr::sync_block("enqueue_message_sink", gr::io_signature::make(0, 0, 0),
+                     gr::io_signature::make(0, 0, 0)),
+      string_queue_(NULL) {
+  message_port_register_in(pmt::mp("in"));
+  set_msg_handler(pmt::mp("in"),
+                  boost::bind(&enqueue_message_sink_impl::handler, this, _1));
+}
 
-    /*
-     * Our virtual destructor.
-     */
-    enqueue_message_sink_impl::~enqueue_message_sink_impl()
-    {}
+/*
+ * Our virtual destructor.
+ */
+enqueue_message_sink_impl::~enqueue_message_sink_impl() {}
 
-    void enqueue_message_sink_impl::handler(pmt::pmt_t msg)
-    {
-      if (string_queue_ != NULL) {
-        string_queue_->push(pmt::serialize_str(msg));
-      }
-    }
+void enqueue_message_sink_impl::handler(pmt::pmt_t msg) {
+  if (string_queue_ != NULL) {
+    string_queue_->push(pmt::serialize_str(msg));
+  }
+}
 
-    int
-    enqueue_message_sink_impl::work(int noutput_items,
-        gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items)
-    {
-      return noutput_items;
-    }
+int enqueue_message_sink_impl::work(int noutput_items,
+                                    gr_vector_const_void_star &input_items,
+                                    gr_vector_void_star &output_items) {
+  return noutput_items;
+}
 
-    void enqueue_message_sink_impl::register_starcoder_queue(uint64_t ptr) {
-      string_queue_ = reinterpret_cast<string_queue *>(ptr);
-    }
+void enqueue_message_sink_impl::register_starcoder_queue(uint64_t ptr) {
+  string_queue_ = reinterpret_cast<string_queue *>(ptr);
+}
 
-  } /* namespace starcoder */
+} /* namespace starcoder */
 } /* namespace gr */
-

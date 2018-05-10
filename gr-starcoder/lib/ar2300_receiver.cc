@@ -45,9 +45,7 @@ void err_callback(struct libusb_transfer* transfer, int code) {
 /*
  * Constructor
  */
-ar2300_receiver::ar2300_receiver(int buffer_size) :
-  queue_(buffer_size)
-{
+ar2300_receiver::ar2300_receiver(int buffer_size) : queue_(buffer_size) {
   context = NULL;
   ar2300 = NULL;
   started = false;
@@ -68,14 +66,18 @@ void ar2300_receiver::start() {
   // Initialize libusb context
   int ret = libusb_init(&context);
   if (ret < 0) {
-    fprintf(stderr, "ar2300_receiver::initialize: failed to initialize libusb. ret=%d\n", ret);
+    fprintf(
+        stderr,
+        "ar2300_receiver::initialize: failed to initialize libusb. ret=%d\n",
+        ret);
     throw std::runtime_error("ar2300_receiver::initialize");
   }
 
   // Open AR2300
   ar2300 = ar2300_open(context);
   if (ar2300 == NULL) {
-    throw std::runtime_error("ar2300_receiver::initialize: couldn't open AR2300.");
+    throw std::runtime_error(
+        "ar2300_receiver::initialize: couldn't open AR2300.");
   }
 
   // Set the blocking queue for received data
@@ -90,7 +92,9 @@ void ar2300_receiver::start() {
   // Start transfer
   ret = ar2300_start_transfer(ar2300);
   if (ret != 0) {
-    fprintf(stderr, "ar2300_receiver::initialize: failed to start transfer. ret=%d\n", ret);
+    fprintf(stderr,
+            "ar2300_receiver::initialize: failed to start transfer. ret=%d\n",
+            ret);
     throw std::runtime_error("ar2300_receiver::initialize");
   }
 
@@ -127,7 +131,9 @@ int ar2300_receiver::read(char* buf, int size, int timeout_ms) {
 
   if (err_code != ERROR_CODE_NA) {
     stop();
-    fprintf(stderr, "ar2300_receiver::read: something error occurred while reading data. err_code=%d\n", err_code);
+    fprintf(stderr, "ar2300_receiver::read: something error occurred while "
+                    "reading data. err_code=%d\n",
+            err_code);
     throw std::runtime_error("ar2300_receiver::read");
   }
 

@@ -20,9 +20,8 @@
 #include "blocking_spsc_queue.h"
 #include <chrono>
 
-blocking_spsc_queue::blocking_spsc_queue(int buffer_size) :
-  queue_(buffer_size)
-{ }
+blocking_spsc_queue::blocking_spsc_queue(int buffer_size)
+    : queue_(buffer_size) {}
 
 size_t blocking_spsc_queue::push(const char *arr, size_t size) {
   int pushed = queue_.push(arr, size);
@@ -36,9 +35,9 @@ size_t blocking_spsc_queue::pop(char *arr, size_t size, int timeout_ms) {
   std::unique_lock<std::mutex> lock(mutex_);
 
   bool stat = condition_var_.wait_for(
-    lock, std::chrono::milliseconds(timeout_ms),
-    [this]{return !queue_.empty();}
-  );
+      lock, std::chrono::milliseconds(timeout_ms), [this] {
+    return !queue_.empty();
+  });
 
   if (!stat)
     // Timed out and queue is still empty.
@@ -47,10 +46,12 @@ size_t blocking_spsc_queue::pop(char *arr, size_t size, int timeout_ms) {
   return queue_.pop(arr, size);
 }
 
-size_t blocking_spsc_queue_push(blocking_spsc_queue* q, const char *arr, size_t size) {
+size_t blocking_spsc_queue_push(blocking_spsc_queue *q, const char *arr,
+                                size_t size) {
   return q->push(arr, size);
 }
 
-size_t blocking_spsc_queue_pop(blocking_spsc_queue* q, char *arr, size_t size, int timeout_ms) {
+size_t blocking_spsc_queue_pop(blocking_spsc_queue *q, char *arr, size_t size,
+                               int timeout_ms) {
   return q->pop(arr, size, timeout_ms);
 }
