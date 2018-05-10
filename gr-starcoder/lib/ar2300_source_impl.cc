@@ -51,6 +51,7 @@ ar2300_source_impl::~ar2300_source_impl() { receiver->stop(); }
 int ar2300_source_impl::work(int n_output_items,
                              gr_vector_const_void_star &input_items,
                              gr_vector_void_star &output_items) {
+  num_work_call_++;
   gr_complex *out = (gr_complex *)output_items[0];
   int buf_size = n_output_items * 8;
   char buf[buf_size];
@@ -70,44 +71,30 @@ int ar2300_source_impl::encode_ar2300(const char *in, const int inSize,
                                       gr_complex *out) {
   char sample[8];
   int out_index = 0;
+  int start_index = 0;
 
   if (num_leftover_ > 0) {
-    for (int i = 0; i < num_leftover_; i++) {
-      sample[i] = leftover_[i];
-    }
-    for (int i = 0; i < 8 - num_leftover_; i++) {
-      sample[i + num_leftover_] = in[i];
-    }
+    std::copy(leftover_, leftover_ + num_leftover_, sample);
+    std::copy(in, in + 8 - num_leftover_, sample + num_leftover_);
     if (!validate_sample(sample)) {
       GR_LOG_WARN(d_logger, boost::format("Reconstructed sample invalid"));
     } else {
       out[out_index++] = parse_sample(sample);
+      start_index = 8 - num_leftover_;
     }
   }
 
-  int offset = 0;
-  bool seen_i_value = false;
-
-  for (int i = 1; i < inSize; i += 2) {
-    if (in[i] & 0x1) {
-      offset = i - 1;
-      seen_i_value = true;
-      break;
-    }
-  }
-
-  if (!seen_i_value) {
-    return out_index;
-  }
   int sample_index = 0;
 
-  for (int i = offset; i < inSize; ++i) {
+  for (int i = start_index; i < inSize; ++i) {
     sample[sample_index++] = in[i];
     if (sample_index == 8) {
       sample_index = 0;
       if (!validate_sample(sample)) {
         GR_LOG_WARN(d_logger,
-                    boost::format("Sample may be corrupted. Adjusting offset"));
+                    boost::format("Byte %1% work() call %2% is not the correct "
+                                  "starting byte. Adjusting offset") % (i - 7) %
+                        num_work_call_);
         i -= 7;  // This line adjusts offset by one byte.
         num_of_consecutive_warns++;
         if (num_of_consecutive_warns > CONSECUTIVE_WARNING_LIMIT) {
@@ -124,9 +111,7 @@ int ar2300_source_impl::encode_ar2300(const char *in, const int inSize,
     }
   }
 
-  for (int i = 0; i < sample_index; i++) {
-    leftover_[i] = sample[i];
-  }
+  std::copy(sample, sample + sample_index, leftover_);
   num_leftover_ = sample_index;
 
   return out_index;

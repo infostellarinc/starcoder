@@ -38,6 +38,7 @@ namespace gr {
       int   num_of_consecutive_warns = 0;
       char leftover_[8];
       int num_leftover_ = 0;
+      unsigned int num_work_call_ = 0;
 
       int encode_ar2300(const char* in, int size, gr_complex* out);
       gr_complex parse_sample(const char (&in)[8]) const;
