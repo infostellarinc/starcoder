@@ -103,9 +103,9 @@ bool waterfall_plotter_impl::stop() {
   gstate = PyGILState_Ensure();
   init_numpy_array();
 
-  npy_intp dims[2] = {
-      static_cast<long int>(total_size_ / (fft_size_ * sizeof(int8_t))),
-      static_cast<long int>(fft_size_)};
+  npy_intp dims[2] = { static_cast<long int>(total_size_ /
+                                             (fft_size_ * sizeof(int8_t))),
+                       static_cast<long int>(fft_size_) };
   const int ND = 2;
 
   PyObject *numpy_array = NULL, *module_string = NULL, *module = NULL,
@@ -133,7 +133,7 @@ bool waterfall_plotter_impl::stop() {
   py_center_freq = PyFloat_FromDouble(center_freq_);
   if (py_center_freq == NULL) goto error;
 
-  py_rps = PyInt_FromLong((long)rps_);
+  py_rps = PyInt_FromLong((long) rps_);
   if (py_rps == NULL) goto error;
 
   py_fft_size = PyInt_FromSize_t(fft_size_);

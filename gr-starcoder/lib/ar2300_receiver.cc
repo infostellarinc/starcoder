@@ -130,9 +130,8 @@ void ar2300_receiver::stop() {
 int ar2300_receiver::read(char* buf, int size, int timeout_ms) {
   if (err_code != ERROR_CODE_NA) {
     stop();
-    fprintf(stderr,
-            "ar2300_receiver::read: something error occurred while "
-            "reading data. err_code=%d\n",
+    fprintf(stderr, "ar2300_receiver::read: something error occurred while "
+                    "reading data. err_code=%d\n",
             err_code);
     throw std::runtime_error("ar2300_receiver::read");
   }

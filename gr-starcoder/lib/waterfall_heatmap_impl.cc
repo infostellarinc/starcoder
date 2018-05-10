@@ -68,7 +68,7 @@ waterfall_heatmap_impl::waterfall_heatmap_impl(double samp_rate,
       d_samp_rate(samp_rate),
       d_rps(rps),
       fft_size_(fft_size),
-      d_mode((wf_mode_t)mode),
+      d_mode((wf_mode_t) mode),
       d_refresh((d_samp_rate / fft_size) / rps),
       d_fft_cnt(0),
       d_fft_shift((size_t)(ceil(fft_size / 2.0))),
@@ -166,7 +166,8 @@ size_t waterfall_heatmap_impl::compute_decimation(int8_t *out,
 
       /* Compute the energy in dB */
       volk_32fc_s32f_x2_power_spectral_density_32f(
-          d_shift_buffer, d_fft.get_outbuf(), (float)fft_size_, 1.0, fft_size_);
+          d_shift_buffer, d_fft.get_outbuf(), (float) fft_size_, 1.0,
+          fft_size_);
       /* Perform FFT shift */
       memcpy(d_hold_buffer, d_shift_buffer + d_fft_shift,
              sizeof(float) * (fft_size_ - d_fft_shift));

@@ -134,11 +134,9 @@ int ar2300_source_impl::encode_ar2300(const char *in, const int inSize,
 
 gr_complex ar2300_source_impl::parse_sample(const char (&in)[8]) const {
   float real = ((in[0] << 24) | (in[1] << 16 & 0xFE0000) |
-                (in[2] << 9 & 0x1FE00) | (in[3] << 1 & 0x1FC)) >>
-               2;
+                (in[2] << 9 & 0x1FE00) | (in[3] << 1 & 0x1FC)) >> 2;
   float imag = ((in[4] << 24) | (in[5] << 16 & 0xFE0000) |
-                (in[6] << 9 & 0x1FE00) | (in[7] << 1 & 0x1FC)) >>
-               2;
+                (in[6] << 9 & 0x1FE00) | (in[7] << 1 & 0x1FC)) >> 2;
   return gr_complex(real * AR2300_SCALE_FACTOR, imag * AR2300_SCALE_FACTOR);
 }
 

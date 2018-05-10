@@ -34,9 +34,10 @@ size_t blocking_spsc_queue::push(const char *arr, size_t size) {
 size_t blocking_spsc_queue::pop(char *arr, size_t size, int timeout_ms) {
   std::unique_lock<std::mutex> lock(mutex_);
 
-  bool stat =
-      condition_var_.wait_for(lock, std::chrono::milliseconds(timeout_ms),
-                              [this] { return !queue_.empty(); });
+  bool stat = condition_var_.wait_for(
+      lock, std::chrono::milliseconds(timeout_ms), [this] {
+    return !queue_.empty();
+  });
 
   if (!stat)
     // Timed out and queue is still empty.
