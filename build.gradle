@@ -279,6 +279,7 @@ envs {
             condaPackage('git'),
             condaPackage('gsl'),
             condaPackage('libtool'),
+            condaPackage('llvm'),
             condaPackage('make'),
             condaPackage('numpy'),
             condaPackage('pkg-config'),
@@ -352,4 +353,11 @@ task installStarcoder(type: Copy) {
 
 task install {
     dependsOn installGrStarcoder, installStarcoder
+}
+
+task clangFormat(type: Exec) {
+    dependsOn 'pythonSetup'
+    executable 'bash'
+    def ccFiles = fileTree('.').filter { it.isFile() && it.name.endsWith('.cc') }.files.path.join(' ')
+    args '-c', condaCommand("clang-format -style=Google -i ${ccFiles}")
 }
