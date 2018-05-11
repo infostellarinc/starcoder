@@ -50,7 +50,11 @@ func main() {
 				log.Println("error receiving!")
 				log.Fatalf("%v", err)
 			}
-			log.Println(r.GetBlockId(), r.GetPayload())
+			if len(r.GetPayload()) > 20 {
+				log.Println(r.GetBlockId(), len(r.GetPayload()))
+			} else {
+				log.Println(r.GetBlockId(), r.GetPayload())
+			}
 			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
 				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPayload(), 0644)
 			}
@@ -58,20 +62,6 @@ func main() {
 	}()
 	req := &pb.RunFlowgraphRequest{
 		Filename: "test.grc",
-		Parameters: []*pb.RunFlowgraphRequest_Parameter{
-			{
-				Key: "full_iq_file_path",
-				Value: &pb.Value{
-					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/full.bin"},
-				},
-			},
-			{
-				Key: "waterfall_image_file_path",
-				Value: &pb.Value{
-					Val: &pb.Value_StringValue{StringValue: "/home/rei/sampleAR2300IQ/waterfall.png"},
-				},
-			},
-		},
 	}
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("Failed to send: %v", err)

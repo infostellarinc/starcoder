@@ -128,7 +128,6 @@ void ar2300_receiver::stop() {
  * @return: Number of bytes read
  */
 int ar2300_receiver::read(char* buf, int size, int timeout_ms) {
-
   if (err_code != ERROR_CODE_NA) {
     stop();
     fprintf(stderr, "ar2300_receiver::read: something error occurred while "

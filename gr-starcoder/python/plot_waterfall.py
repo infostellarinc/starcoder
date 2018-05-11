@@ -109,6 +109,8 @@ def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
     if filename != '':
         plt.savefig(filename, bbox_inches='tight', pad_inches=0.2, format='png')
 
-    buf = io.BytesIO()
-    plt.savefig(buf, bbox_inches='tight', pad_inches=0.2, format='png')
-    return buf.getvalue()
+    with io.BytesIO() as buf:
+        buf = io.BytesIO()
+        plt.savefig(buf, bbox_inches='tight', pad_inches=0.2, format='png')
+        plt.close()
+        return buf.getvalue()

@@ -26,13 +26,13 @@
  */
 
 #include "qa_starcoder.h"
-#include <gnuradio/top_block.h>
-#include <gnuradio/blocks/null_sink.h>
-#include <starcoder/ar2300_source.h>
 #include <cppunit/TestCaller.h>
+#include <gnuradio/blocks/null_sink.h>
+#include <gnuradio/top_block.h>
+#include <starcoder/ar2300_source.h>
+#include <stdio.h>
 #include <chrono>
 #include <thread>
-#include <stdio.h>
 #include "qa_enqueue_message_sink.h"
 
 CppUnit::TestSuite *qa_starcoder::suite() {

@@ -1,17 +1,17 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2018 Infostellar, Inc.
- * 
+ *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street,
@@ -25,10 +25,10 @@
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
 #include <Python.h>
-#include "numpy/arrayobject.h"
 #include <gnuradio/io_signature.h>
-#include "waterfall_plotter_impl.h"
 #include <iostream>
+#include "numpy/arrayobject.h"
+#include "waterfall_plotter_impl.h"
 
 namespace gr {
 namespace starcoder {
@@ -86,7 +86,6 @@ int waterfall_plotter_impl::work(int noutput_items,
 void waterfall_plotter_impl::init_numpy_array() { import_array(); }
 
 bool waterfall_plotter_impl::stop() {
-
   if (list_of_arrays_.begin() == list_of_arrays_.end()) {
     return true;
   }

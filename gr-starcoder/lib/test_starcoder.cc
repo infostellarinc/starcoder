@@ -28,9 +28,9 @@
 #include <cppunit/XmlOutputter.h>
 
 #include <gnuradio/unittests.h>
-#include "qa_starcoder.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include "qa_starcoder.h"
 
 int main(int argc, char **argv) {
   CppUnit::TextTestRunner runner;
