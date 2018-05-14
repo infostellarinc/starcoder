@@ -13,6 +13,7 @@
 #include "starcoder/waterfall_heatmap.h"
 #include "starcoder/waterfall_plotter.h"
 #include "starcoder/enqueue_message_sink.h"
+#include "starcoder/ax25_decoder_bm.h"
 %}
 
 
@@ -27,3 +28,5 @@ GR_SWIG_BLOCK_MAGIC2(starcoder, waterfall_heatmap);
 GR_SWIG_BLOCK_MAGIC2(starcoder, waterfall_plotter);
 %include "starcoder/enqueue_message_sink.h"
 GR_SWIG_BLOCK_MAGIC2(starcoder, enqueue_message_sink);
+%include "starcoder/ax25_decoder_bm.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, ax25_decoder_bm);

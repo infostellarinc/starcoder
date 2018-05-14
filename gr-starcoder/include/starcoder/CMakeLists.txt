@@ -22,9 +22,11 @@
 ########################################################################
 install(FILES
     api.h
+    ax25.h
     ar2300_source.h
     complex_to_msg_c.h
     waterfall_heatmap.h
     waterfall_plotter.h
-    enqueue_message_sink.h DESTINATION include/starcoder
+    enqueue_message_sink.h
+    ax25_decoder_bm.h DESTINATION include/starcoder
 )
