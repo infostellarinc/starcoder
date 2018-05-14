@@ -2,6 +2,7 @@
 <block>
   <name>AX.25 Decoder</name>
   <key>starcoder_ax25_decoder_bm</key>
+  <category>[starcoder]</category>
   <import>import starcoder</import>
   <make>starcoder.ax25_decoder_bm($addr, $ssid, $promisc, $descrambling, $max_frame_len)</make>
 
@@ -19,11 +20,10 @@
     <type>int</type>
   </param>
 
-
   <param>
     <name>Promiscuous mode</name>
     <key>promisc</key>
-    <type>enum</type>
+    <type>bool</type>
     <option>
       <name>No</name>
       <key>False</key>
@@ -37,7 +37,7 @@
   <param>
     <name>G3RUH descrambling</name>
     <key>descrambling</key>
-    <type>enum</type>
+    <type>bool</type>
     <option>
       <name>Yes</name>
       <key>True</key>
@@ -51,7 +51,7 @@
   <param>
     <name>Maximum frame length</name>
     <key>max_frame_len</key>
-    <value>256</value>
+    <value>1024</value>
     <type>int</type>
   </param>
 
