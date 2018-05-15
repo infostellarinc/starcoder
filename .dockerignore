@@ -23,6 +23,7 @@ cmake-build-release/
 *.iml
 *.ipr
 
+build/
 # IntelliJ
 out/
 

@@ -1,8 +1,17 @@
 FROM openjdk:9-slim
 
-ADD . /workspace
+ADD build.gradle /workspace/gnuradio/build.gradle
+ADD gradle.properties /workspace/gnuradio/gradle.properties
+ADD gradle /workspace/gnuradio/gradle
+ADD gradlew /workspace/gnuradio/gradlew
+ADD gr-recipes /workspace/gnuradio/gr-recipes
+ADD mockpygtk /workspace/gnuradio/mockpygtk
 
-RUN cd /workspace && ./gradlew install
+RUN cd /workspace/gnuradio && ./gradlew setupPrefix
+
+ADD . /workspace/starcoder
+
+RUN cd /workspace/starcoder && ./gradlew install
 
 FROM debian:9-slim
 
