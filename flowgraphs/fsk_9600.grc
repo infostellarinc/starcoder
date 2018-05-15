@@ -101,33 +101,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 524)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>ax_25_leading_sync_flags</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>3</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(8, 460)</value>
     </param>
     <param>
@@ -141,33 +114,6 @@
     <param>
       <key>value</key>
       <value>9600</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 588)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>decoded_path</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>"/home/rei/IdeaProjects/gr-stellarstation/examples/decoded_fsk_ax25/"</value>
     </param>
   </block>
   <block>
@@ -317,7 +263,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 652)</value>
+      <value>(8, 524)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -329,7 +275,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/fsk_9600_iq.bin"</value>
+      <value>"/home/rei/sampleAR2300IQ/full.bin"</value>
     </param>
   </block>
   <block>
@@ -352,7 +298,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 316)</value>
+      <value>(456, 316)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -360,7 +306,7 @@
     </param>
     <param>
       <key>gain</key>
-      <value>samp_rate/(20*math.pi*fsk_deviation_hz/8.0)</value>
+      <value>samp_rate/(initial_decim*20*math.pi*fsk_deviation_hz/8.0)</value>
     </param>
     <param>
       <key>id</key>
@@ -373,57 +319,6 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_file_sink</key>
-    <param>
-      <key>append</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>"" + full_iq_file_path</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(608, 220)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_file_sink_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>unbuffered</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
     </param>
   </block>
   <block>
@@ -446,7 +341,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>file</key>
@@ -501,11 +396,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 28)</value>
+      <value>(456, 28)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -529,7 +424,7 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>samp_rate</value>
+      <value>samp_rate/10</value>
     </param>
     <param>
       <key>type</key>
@@ -560,7 +455,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 452)</value>
+      <value>(248, 452)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -592,6 +487,53 @@
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 668)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>descramble</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>digital_binary_slicer_fb</key>
     <param>
       <key>alias</key>
@@ -611,7 +553,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 736)</value>
+      <value>(496, 584)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -650,7 +592,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 564)</value>
+      <value>(248, 548)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -694,7 +636,7 @@
     </param>
   </block>
   <block>
-    <key>parameter</key>
+    <key>fir_filter_xxx</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -704,12 +646,20 @@
       <value></value>
     </param>
     <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>decim</key>
+      <value>initial_decim</value>
+    </param>
+    <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 796)</value>
+      <value>(432, 140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -717,27 +667,58 @@
     </param>
     <param>
       <key>id</key>
-      <value>full_iq_file_path</value>
+      <value>fir_filter_xxx_0</value>
     </param>
     <param>
-      <key>label</key>
-      <value></value>
+      <key>maxoutbuf</key>
+      <value>0</value>
     </param>
     <param>
-      <key>short_id</key>
-      <value></value>
+      <key>minoutbuf</key>
+      <value>0</value>
     </param>
     <param>
-      <key>hide</key>
-      <value>none</value>
+      <key>samp_delay</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>firdes.low_pass(1.0, 1125000, 20000, 76000)</value>
     </param>
     <param>
       <key>type</key>
-      <value>string</value>
+      <value>ccc</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_enqueue_message_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
     </param>
     <param>
-      <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/full.bin"</value>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(520, 720)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fsk_9600_decoded</value>
     </param>
   </block>
   <block>
@@ -847,11 +828,7 @@
     </param>
   </block>
   <block>
-    <key>low_pass_filter</key>
-    <param>
-      <key>beta</key>
-      <value>6.76</value>
-    </param>
+    <key>starcoder_enqueue_message_sink</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -865,60 +842,20 @@
       <value></value>
     </param>
     <param>
-      <key>cutoff_freq</key>
-      <value>20000</value>
-    </param>
-    <param>
-      <key>decim</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>_enabled</key>
       <value>1</value>
     </param>
     <param>
-      <key>type</key>
-      <value>fir_filter_fff</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(456, 412)</value>
+      <value>(688, 256)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
     <param>
-      <key>gain</key>
-      <value>1</value>
-    </param>
-    <param>
       <key>id</key>
-      <value>low_pass_filter_1</value>
-    </param>
-    <param>
-      <key>interp</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_rate</key>
-      <value>samp_rate/initial_decim</value>
-    </param>
-    <param>
-      <key>width</key>
-      <value>samp_rate/initial_decim*0.15</value>
-    </param>
-    <param>
-      <key>win</key>
-      <value>firdes.WIN_HAMMING</value>
+      <value>partial_iq_sink</value>
     </param>
   </block>
   <block>
@@ -949,7 +886,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(232, 572)</value>
+      <value>(456, 436)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -981,7 +918,7 @@
     </param>
   </block>
   <block>
-    <key>rational_resampler_xxx</key>
+    <key>starcoder_ar2300_source</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -995,20 +932,12 @@
       <value></value>
     </param>
     <param>
-      <key>decim</key>
-      <value>10</value>
-    </param>
-    <param>
       <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>fbw</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 148)</value>
+      <value>(248, 152)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1016,11 +945,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>rational_resampler_xxx_0_0</value>
-    </param>
-    <param>
-      <key>interp</key>
-      <value>1</value>
+      <value>starcoder_ar2300_source_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1030,17 +955,9 @@
       <key>minoutbuf</key>
       <value>0</value>
     </param>
-    <param>
-      <key>taps</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>ccc</value>
-    </param>
   </block>
   <block>
-    <key>satnogs_ax25_decoder_bm</key>
+    <key>starcoder_ax25_decoder_bm</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1055,15 +972,15 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>descrambling</key>
       <value>True</value>
     </param>
     <param>
+      <key>descrambling</key>
+      <value>bool(descramble)</value>
+    </param>
+    <param>
       <key>_coordinate</key>
-      <value>(384, 692)</value>
+      <value>(248, 700)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1071,7 +988,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>satnogs_ax25_decoder_bm_0</value>
+      <value>starcoder_ax25_decoder_bm_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1099,7 +1016,7 @@
     </param>
   </block>
   <block>
-    <key>satnogs_frame_file_sink</key>
+    <key>starcoder_complex_to_msg_c</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1118,7 +1035,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(736, 708)</value>
+      <value>(688, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1126,46 +1043,19 @@
     </param>
     <param>
       <key>id</key>
-      <value>satnogs_frame_file_sink_0_1_0</value>
+      <value>starcoder_complex_to_msg_c_0</value>
     </param>
     <param>
-      <key>output_type</key>
+      <key>maxoutbuf</key>
       <value>0</value>
     </param>
     <param>
-      <key>prefix_name</key>
-      <value>decoded_path</value>
-    </param>
-  </block>
-  <block>
-    <key>starcoder_enqueue_message_sink</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(736, 784)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
+      <key>minoutbuf</key>
       <value>0</value>
     </param>
     <param>
-      <key>id</key>
-      <value>starcoder_enqueue_message_sink_0</value>
+      <key>num_items</key>
+      <value>131072</value>
     </param>
   </block>
   <block>
@@ -1200,7 +1090,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(608, 84)</value>
+      <value>(688, 60)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1239,7 +1129,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 716)</value>
+      <value>(8, 588)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1267,7 +1157,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/waterfall"</value>
+      <value>""</value>
     </param>
   </block>
   <connection>
@@ -1284,19 +1174,31 @@
   </connection>
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
-    <sink_block_id>rational_resampler_xxx_0_0</sink_block_id>
+    <sink_block_id>low_pass_filter_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_throttle_0</source_block_id>
+    <sink_block_id>starcoder_complex_to_msg_c_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_throttle_0</source_block_id>
+    <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>dc_blocker_xx_0</source_block_id>
-    <sink_block_id>low_pass_filter_1</sink_block_id>
+    <sink_block_id>rational_resampler_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>digital_binary_slicer_fb_0</source_block_id>
-    <sink_block_id>satnogs_ax25_decoder_bm_0</sink_block_id>
+    <sink_block_id>starcoder_ax25_decoder_bm_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1307,14 +1209,26 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>low_pass_filter_0</source_block_id>
-    <sink_block_id>analog_quadrature_demod_cf_0</sink_block_id>
+    <source_block_id>fir_filter_xxx_0</source_block_id>
+    <sink_block_id>low_pass_filter_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>low_pass_filter_1</source_block_id>
-    <sink_block_id>rational_resampler_xxx_0</sink_block_id>
+    <source_block_id>fir_filter_xxx_0</source_block_id>
+    <sink_block_id>starcoder_complex_to_msg_c_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fir_filter_xxx_0</source_block_id>
+    <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>low_pass_filter_0</source_block_id>
+    <sink_block_id>analog_quadrature_demod_cf_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1325,33 +1239,21 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>rational_resampler_xxx_0_0</source_block_id>
-    <sink_block_id>blocks_file_sink_0</sink_block_id>
+    <source_block_id>starcoder_ar2300_source_0</source_block_id>
+    <sink_block_id>fir_filter_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>rational_resampler_xxx_0_0</source_block_id>
-    <sink_block_id>low_pass_filter_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rational_resampler_xxx_0_0</source_block_id>
-    <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>satnogs_ax25_decoder_bm_0</source_block_id>
-    <sink_block_id>satnogs_frame_file_sink_0_1_0</sink_block_id>
+    <source_block_id>starcoder_ax25_decoder_bm_0</source_block_id>
+    <sink_block_id>fsk_9600_decoded</sink_block_id>
     <source_key>pdu</source_key>
-    <sink_key>frame</sink_key>
+    <sink_key>in</sink_key>
   </connection>
   <connection>
-    <source_block_id>satnogs_ax25_decoder_bm_0</source_block_id>
-    <sink_block_id>starcoder_enqueue_message_sink_0</sink_block_id>
-    <source_key>pdu</source_key>
+    <source_block_id>starcoder_complex_to_msg_c_0</source_block_id>
+    <sink_block_id>partial_iq_sink</sink_block_id>
+    <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
 </flow_graph>
