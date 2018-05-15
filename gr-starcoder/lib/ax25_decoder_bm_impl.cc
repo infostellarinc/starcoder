@@ -126,16 +126,12 @@ size_t ax25_decoder_bm_impl::descramble_and_decode(const uint8_t* in,
       for (i = 0; i < nitems; i++) {
         descramble_and_decode_1b(in[i]);
         if (d_shift_reg == AX25_SYNC_FLAG) {
-          GR_LOG_DEBUG(d_logger, "Found frame end");
           enter_frame_end();
           return i + 1;
         } else if ((d_shift_reg & 0xfc) == 0x7c) {
           /*This was a stuffed bit */
           d_dec_b <<= 1;
         } else if ((d_shift_reg & 0xfe) == 0xfe) {
-          GR_LOG_DEBUG(d_logger,
-                       boost::format("Invalid shift register value %1%") %
-                           d_received_bytes);
           reset_state();
           return i + 1;
         } else {
@@ -152,7 +148,6 @@ size_t ax25_decoder_bm_impl::descramble_and_decode(const uint8_t* in,
 
             /*Check if the frame limit was reached */
             if (d_received_bytes >= d_max_frame_len) {
-              GR_LOG_DEBUG(d_logger, "Wrong size");
               message_port_pub(pmt::mp("failed_pdu"),
                                pmt::make_blob(d_frame_buffer, d_max_frame_len));
               reset_state();
@@ -226,7 +221,6 @@ size_t ax25_decoder_bm_impl::decode(const uint8_t* in, size_t nitems) {
           /*This was a stuffed bit */
           d_dec_b <<= 1;
         } else if ((d_shift_reg & 0xfe) == 0xfe) {
-          GR_LOG_DEBUG(d_logger, "Invalid shift register value");
           reset_state();
           return i + 1;
         } else {
@@ -243,7 +237,6 @@ size_t ax25_decoder_bm_impl::decode(const uint8_t* in, size_t nitems) {
 
             /*Check if the frame limit was reached */
             if (d_received_bytes >= d_max_frame_len) {
-              GR_LOG_DEBUG(d_logger, "Wrong size");
               message_port_pub(pmt::mp("failed_pdu"),
                                pmt::make_blob(d_frame_buffer, d_max_frame_len));
               reset_state();
@@ -356,7 +349,6 @@ void ax25_decoder_bm_impl::enter_frame_end() {
     message_port_pub(
         pmt::mp("failed_pdu"),
         pmt::make_blob(d_frame_buffer, d_received_bytes - sizeof(uint16_t)));
-    GR_LOG_DEBUG(d_logger, "Wrong crc");
   }
   d_dec_b = 0x0;
   d_shift_reg = 0x0;
