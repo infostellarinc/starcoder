@@ -27,5 +27,6 @@
 pmt::pmt_t convert_pmt_proto(const starcoder::PMT &grpc_msg);
 pmt::pmt_t convert_pmt_tuple(const starcoder::PMTTuple &grpc_pmt_tuple);
 pmt::pmt_t convert_pmt_vector(const starcoder::PMTVector &grpc_pmt_vector);
+pmt::pmt_t convert_pmt_uniform_vector(const starcoder::PMTUniformVector &grpc_pmt_uniform_vector);
 
 #endif /* INCLUDED_PROTO_TO_PMT_H */
