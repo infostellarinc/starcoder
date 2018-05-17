@@ -53,7 +53,7 @@ message Command {
   PMT pmt = 2;
 }
 
-// Protobuf format of GNURadio PMT
+// Protobuf format of GNURadio PMT (Polymorphic Message Type)
 message PMT {
   oneof pmt_oneof {
     bool boolean_value = 1;
