@@ -43,6 +43,8 @@ pmt::pmt_t convert_pmt_proto(const starcoder::PMT &grpc_msg) {
       return convert_pmt_vector(grpc_msg.pmt_vector_value());
     case starcoder::PMT::PmtOneofCase::kPmtUniformVectorValue:
       return convert_pmt_uniform_vector(grpc_msg.pmt_uniform_vector_value());
+    case starcoder::PMT::PmtOneofCase::kPmtDictValue:
+      return convert_pmt_dict(grpc_msg.pmt_dict_value());
   }
   return pmt::get_PMT_NIL();
 }
@@ -227,6 +229,15 @@ pmt::pmt_t convert_pmt_uniform_vector(
           grpc_pmt_uniform_vector.c64_value().payload().size(), vec);
     }
     default:
-      return pmt::get_PMT_NIL();
+      throw("Type of uniform vector not set");
   }
+}
+
+pmt::pmt_t convert_pmt_dict(const starcoder::PMTDict &grpc_pmt_dict) {
+  pmt::pmt_t dict = pmt::make_dict();
+  for (int i = 0; i < grpc_pmt_dict.entries_size(); i++) {
+    pmt::dict_add(dict, convert_pmt_proto(grpc_pmt_dict.entries(i).key()),
+                  convert_pmt_proto(grpc_pmt_dict.entries(i).value()));
+  }
+  return dict;
 }
