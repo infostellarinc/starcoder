@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2018 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ namespace gr {
   namespace starcoder {
 
     /*!
-     * \brief <+description of block+>
-     * \ingroup starcoder
+     * This block is used directly by Starcoder to send PMTs to any
+     * blocks with a message input.
      *
      */
     class STARCODER_API command_source : virtual public gr::block
@@ -38,14 +38,6 @@ namespace gr {
      public:
       typedef boost::shared_ptr<command_source> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of starcoder::command_source.
-       *
-       * To avoid accidental use of raw pointers, starcoder::command_source's
-       * constructor is in a private implementation
-       * class. starcoder::command_source::make is the public interface for
-       * creating new instances.
-       */
       static sptr make();
       virtual void push(const std::string &message) = 0;
       virtual uint64_t get_queue_ptr() = 0;
@@ -55,4 +47,3 @@ namespace gr {
 } // namespace gr
 
 #endif /* INCLUDED_STARCODER_COMMAND_SOURCE_H */
-
