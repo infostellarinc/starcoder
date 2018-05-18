@@ -81,6 +81,14 @@ namespace gr {
       }
     }
 
+    void command_source_impl::push(const std::string &message) {
+      queue_.push(message);
+    }
+
+    uint64_t command_source_impl::get_queue_ptr() {
+      return reinterpret_cast<uint64_t>(&queue_);
+    }
+
     /*
      * Our virtual destructor.
      */

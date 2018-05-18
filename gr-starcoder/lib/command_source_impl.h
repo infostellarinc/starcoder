@@ -45,6 +45,9 @@ namespace gr {
 
       bool start();
       bool stop();
+
+      void push(const std::string &message);
+      virtual uint64_t get_queue_ptr();
     };
 
   } // namespace starcoder

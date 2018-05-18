@@ -47,6 +47,8 @@ namespace gr {
        * creating new instances.
        */
       static sptr make();
+      virtual void push(const std::string &message) = 0;
+      virtual uint64_t get_queue_ptr() = 0;
     };
 
   } // namespace starcoder

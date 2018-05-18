@@ -22,6 +22,8 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import starcoder_swig as starcoder
+import time
+import starcoder_pb2
 
 class qa_command_source (gr_unittest.TestCase):
 
@@ -32,8 +34,17 @@ class qa_command_source (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-        # set up fg
-        self.tb.run ()
+        cs = starcoder.command_source()
+        snk = blocks.message_debug()
+        self.tb.msg_connect((cs, 'out'), (snk, 'print'))
+        self.tb.start()
+        msg = starcoder_pb2.PMT()
+        msg.pmt_pair_value.cdr.symbol_value = "testtransmission"
+        msg.pmt_pair_value.car.double_value = 23.2
+        cs.push(msg.SerializeToString())
+        time.sleep(1)
+        self.tb.stop()
+        self.tb.wait()
         # check data
 
 

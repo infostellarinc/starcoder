@@ -106,9 +106,7 @@ list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/qa_command_source.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
-    ${hw_proto_srcs}
 )
 
 add_executable(test-starcoder ${test_starcoder_sources})
