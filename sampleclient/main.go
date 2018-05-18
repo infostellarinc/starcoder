@@ -71,9 +71,7 @@ func main() {
 		Filename: "test.grc",
 		Command: &pb.Command{
 			BlockId: "starcoder_command_source_0",
-			Pmt: &pb.PMT{
-				PmtOneof: &pb.PMT_DoubleValue{32.23},
-			},
+			Pmt: constructPDU(),
 		},
 	}
 	if err := stream.Send(req); err != nil {
@@ -82,4 +80,39 @@ func main() {
 	time.Sleep(9 * time.Second)
 	stream.CloseSend()
 	<-waitc
+}
+
+func constructPDU() *pb.PMT {
+	pmtDict := &pb.PMTDict{
+		Entries: []*pb.PMTDict_Entry{
+			{
+				Key: &pb.PMT{
+					PmtOneof: &pb.PMT_SymbolValue{"metadata1"},
+				},
+				Value: &pb.PMT{
+					PmtOneof: &pb.PMT_IntegerValue{1},
+				},
+			},
+		},
+	}
+	pmtUVector := &pb.PMTUniformVector{
+		PmtUniformVectorOneof: &pb.PMTUniformVector_U8Value{
+			U8Value: &pb.PMTU8Vector{
+				Payload: []byte("Uint 8 payload."),
+			},
+		},
+	}
+	pmtPair := &pb.PMTPair{
+		Car: &pb.PMT{
+			PmtOneof: &pb.PMT_PmtDictValue{pmtDict},
+		},
+		Cdr: &pb.PMT{
+			PmtOneof: &pb.PMT_PmtUniformVectorValue{
+				pmtUVector,
+			},
+		},
+	}
+	return &pb.PMT{
+		PmtOneof: &pb.PMT_PmtPairValue{pmtPair},
+	}
 }
