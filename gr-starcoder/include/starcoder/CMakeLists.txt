@@ -28,5 +28,6 @@ install(FILES
     waterfall_heatmap.h
     waterfall_plotter.h
     enqueue_message_sink.h
-    ax25_decoder_bm.h DESTINATION include/starcoder
+    ax25_decoder_bm.h
+    command_source.h DESTINATION include/starcoder
 )

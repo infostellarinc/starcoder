@@ -69,7 +69,8 @@ list(APPEND starcoder_sources
     waterfall_heatmap_impl.cc
     waterfall_plotter_impl.cc
     enqueue_message_sink_impl.cc
-    ax25_decoder_bm_impl.cc )
+    ax25_decoder_bm_impl.cc
+    command_source_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)
@@ -98,13 +99,16 @@ GR_LIBRARY_FOO(gnuradio-starcoder RUNTIME_COMPONENT "starcoder_runtime" DEVEL_CO
 ########################################################################
 include(GrTest)
 
+
 include_directories( ${CPPUNIT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/ )
 
 list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_command_source.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
+    ${hw_proto_srcs}
 )
 
 add_executable(test-starcoder ${test_starcoder_sources})

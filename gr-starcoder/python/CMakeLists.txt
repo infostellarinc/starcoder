@@ -52,3 +52,4 @@ ${CMAKE_CURRENT_SOURCE_DIR}/test_waterfall.png
 ${CMAKE_CURRENT_BINARY_DIR}/test_waterfall.png
 COPYONLY
 )
+GR_ADD_TEST(qa_command_source ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_command_source.py)
