@@ -57,3 +57,7 @@ void string_queue::close() {
 uint64_t string_queue::get_ptr() const {
   return reinterpret_cast<uint64_t>(this);
 }
+
+string_queue *string_queue::queue_from_pointer(unsigned long long ptr) {
+  return reinterpret_cast<string_queue *>(ptr);
+}

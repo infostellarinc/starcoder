@@ -66,7 +66,20 @@ func main() {
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("Failed to send: %v", err)
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
+	req = &pb.RunFlowgraphRequest{
+		Filename: "test.grc",
+		Command: &pb.Command{
+			BlockId: "starcoder_command_source_0",
+			Pmt: &pb.PMT{
+				PmtOneof: &pb.PMT_DoubleValue{32.23},
+			},
+		},
+	}
+	if err := stream.Send(req); err != nil {
+		log.Fatalf("Failed to send: %v", err)
+	}
+	time.Sleep(9 * time.Second)
 	stream.CloseSend()
 	<-waitc
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>command_source</name>
+  <name>Starcoder Command Source</name>
   <key>starcoder_command_source</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>

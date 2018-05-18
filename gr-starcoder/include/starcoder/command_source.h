@@ -40,7 +40,7 @@ namespace gr {
 
       static sptr make();
       virtual void push(const std::string &message) = 0;
-      virtual uint64_t get_queue_ptr() = 0;
+      virtual uint64_t get_starcoder_queue_ptr() = 0;
     };
 
   } // namespace starcoder
