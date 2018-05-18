@@ -236,8 +236,9 @@ pmt::pmt_t convert_pmt_uniform_vector(
 pmt::pmt_t convert_pmt_dict(const starcoder::PMTDict &grpc_pmt_dict) {
   pmt::pmt_t dict = pmt::make_dict();
   for (int i = 0; i < grpc_pmt_dict.entries_size(); i++) {
-    pmt::dict_add(dict, convert_pmt_proto(grpc_pmt_dict.entries(i).key()),
-                  convert_pmt_proto(grpc_pmt_dict.entries(i).value()));
+    dict =
+        pmt::dict_add(dict, convert_pmt_proto(grpc_pmt_dict.entries(i).key()),
+                      convert_pmt_proto(grpc_pmt_dict.entries(i).value()));
   }
   return dict;
 }
