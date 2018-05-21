@@ -52,17 +52,20 @@ message StartFlowgraphRequest {
   repeated string block_id = 3;
 }
 
-// Command message sent to the flowgraph. This only works with the custom
-// Starcoder block for sending PMTs.
+// Command message sent to the flowgraph. This currently only works for the Starcoder 
+// command_source block which will forward the messages as is to any other 
+// block it is connected to.
 message SendCommandRequest {
   // Block ID to send the command message to.
   string block_id = 1;
 
-  PMT pmt = 2;
+  // Will be sent to the message passing port of the command_source block with
+  // id block_id.
+  PmtMessage pmt = 2;
 }
 
-// Protobuf format of GNURadio PMT (Polymorphic Message Type)
-message PMT {
+// A GNURadio PMT (Polymorphic Message Type)
+message PmtMessage {
   oneof pmt_oneof {
     bool boolean_value = 1;
 
@@ -86,41 +89,41 @@ message PMT {
   }
 }
 
-// Protobuf format of a PMT pair. The `car` and `cdr` variable names are defined by
+// A PMT pair. The `car` and `cdr` variable names are defined by
 // GNURadio.
 message Pair {
   // First object of the pair
-  PMT car = 1;
+  PmtMessage car = 1;
 
   // Second object of the pair
-  PMT cdr = 2;
+  PmtMessage cdr = 2;
 }
 
-// Protobuf format of a PMT tuple.
+// A PMT tuple.
 message Tuple {
-  repeated PMT pmt = 1;
+  repeated PmtMessage pmt = 1;
 }
 
-// Protobuf format of a PMT dictionary.
+// A PMT dictionary.
 message Dict {
   // Key value pair representing entry in PMT dictionary
   message Entry {
     // Key
-    PMT key = 1;
+    PmtMessage key = 1;
 
     // Value assigned to key
-    PMT value = 2;
+    PmtMessage value = 2;
   }
 
   repeated Entry entries = 1;
 }
 
-// Protobuf format of a PMT Vector
+// A PMT Vector
 message Vector {
-  repeated PMT pmt = 1;
+  repeated PmtMessage pmt = 1;
 }
 
-// Protobuf format of a PMT Uniform Vector
+// A PMT Uniform Vector
 message UniformVector {
   oneof pmt_uniform_vector_oneof {
     bytes u8_value = 1;
@@ -149,64 +152,64 @@ message UniformVector {
   }
 }
 
-// Protobuf format of a PMT Uint8 Vector
+// A PMT Uint8 Vector
 message U8Vector {
-  bytes payload = 1;
+  bytes value = 1;
 }
 
-// Protobuf format of a PMT Int8 Vector
+// A PMT Int8 Vector
 message I8Vector {
-  repeated sint32 payload = 1;
+  repeated sint32 value = 1;
 }
 
-// Protobuf format of a PMT Uint16 Vector
+// A PMT Uint16 Vector
 message U16Vector {
-  repeated uint32 payload = 1;
+  repeated uint32 value = 1;
 }
 
-// Protobuf format of a PMT Int16 Vector
+// A PMT Int16 Vector
 message I16Vector {
-  repeated sint32 payload = 1;
+  repeated sint32 value = 1;
 }
 
-// Protobuf format of a PMT Uint32 Vector
+// A PMT Uint32 Vector
 message U32Vector {
-  repeated uint32 payload = 1;
+  repeated uint32 value = 1;
 }
 
-// Protobuf format of a PMT Int32 Vector
+// A PMT Int32 Vector
 message I32Vector {
-  repeated sint32 payload = 1;
+  repeated sint32 value = 1;
 }
 
-// Protobuf format of a PMT Uint64 Vector
+// A PMT Uint64 Vector
 message U64Vector {
-  repeated uint64 payload = 1;
+  repeated uint64 value = 1;
 }
 
-// Protobuf format of a PMT Int64 Vector
+// A PMT Int64 Vector
 message I64Vector {
-  repeated sint64 payload = 1;
+  repeated sint64 value = 1;
 }
 
-// Protobuf format of a PMT Float32 Vector
+// A PMT Float32 Vector
 message F32Vector {
-  repeated float payload = 1;
+  repeated float value = 1;
 }
 
-// Protobuf format of a PMT Float64 Vector
+// A PMT Float64 Vector
 message F64Vector {
-  repeated double payload = 1;
+  repeated double value = 1;
 }
 
-// Protobuf format of a PMT Complex32 Vector
+// A PMT Complex32 Vector
 message C32Vector {
-  repeated Complex32 payload = 1;
+  repeated Complex32 value = 1;
 }
 
-// Protobuf format of a PMT Complex64 Vector
+// A PMT Complex64 Vector
 message C64Vector {
-  repeated Complex payload = 1;
+  repeated Complex value = 1;
 }
 
 message RunFlowgraphResponse {
