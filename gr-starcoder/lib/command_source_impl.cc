@@ -64,7 +64,7 @@ void command_source_impl::readloop() {
   while (!finished_) {
     for (std::string s = queue_.blocking_pop(); s.size() != 0;
          s = queue_.pop()) {
-      ::starcoder::PMT grpc_pmt;
+      ::starcoder::BlockMessage grpc_pmt;
       if (!grpc_pmt.ParseFromString(s)) {
         GR_LOG_WARN(d_logger, "Failed to deserialize gRPC");
         continue;
@@ -80,7 +80,8 @@ void command_source_impl::push(const std::string &message) {
 }
 
 uint64_t command_source_impl::get_starcoder_queue_ptr() {
-  return reinterpret_cast<uint64_t>(&queue_);;
+  return reinterpret_cast<uint64_t>(&queue_);
+  ;
 }
 
 /*
