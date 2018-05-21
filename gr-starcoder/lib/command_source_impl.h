@@ -22,7 +22,7 @@
 #define INCLUDED_STARCODER_COMMAND_SOURCE_IMPL_H
 
 #include <starcoder/command_source.h>
-#include <boost/thread/thread.hpp>
+#include <thread>
 #include "string_queue.h"
 
 namespace gr {
@@ -31,7 +31,7 @@ namespace gr {
     class command_source_impl : public command_source
     {
      private:
-      boost::thread *thread_;
+      std::thread *thread_;
       const pmt::pmt_t port_;
       string_queue queue_;
 

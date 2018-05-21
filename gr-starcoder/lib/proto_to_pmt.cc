@@ -50,8 +50,7 @@ pmt::pmt_t convert_pmt_proto(const starcoder::BlockMessage &proto_msg) {
 
 pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
   int size = proto_pmt_list.value_size();
-  if (proto_pmt_list.type() == starcoder::List::TUPLE)
-    switch (size) {
+  if (proto_pmt_list.type() == starcoder::List::TUPLE) switch (size) {
       case 0:
         return pmt::make_tuple();
       case 1:
@@ -129,8 +128,7 @@ pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
       pmt::vector_set(vec, i, convert_pmt_proto(proto_pmt_list.value(i)));
     }
     return vec;
-  }
-  else
+  } else
     throw("Invalid List type");
 }
 

@@ -48,8 +48,7 @@ command_source_impl::command_source_impl()
 
 bool command_source_impl::start() {
   finished_ = false;
-  thread_ =
-      new boost::thread(boost::bind(&command_source_impl::readloop, this));
+  thread_ = new std::thread(std::bind(&command_source_impl::readloop, this));
   return true;
 }
 
