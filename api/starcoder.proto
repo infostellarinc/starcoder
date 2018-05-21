@@ -126,60 +126,42 @@ message Vector {
 // A PMT Uniform Vector
 message UniformVector {
   oneof pmt_uniform_vector_oneof {
-    U8Vector u8_value = 1;
+    UVector u_value = 1;
 
-    I8Vector i8_value = 2;
+    IVector i_value = 2;
 
-    U16Vector u16_value = 3;
+    U64Vector u64_value = 3;
 
-    I16Vector i16_value = 4;
+    I64Vector i64_value = 4;
 
-    U32Vector u32_value = 5;
+    F32Vector f32_value = 5;
 
-    I32Vector i32_value = 6;
+    F64Vector f64_value = 6;
 
-    U64Vector u64_value = 7;
+    C32Vector c32_value = 7;
 
-    I64Vector i64_value = 8;
-
-    F32Vector f32_value = 9;
-
-    F64Vector f64_value = 10;
-
-    C32Vector c32_value = 11;
-
-    C64Vector c64_value = 12;
+    C64Vector c64_value = 8;
   }
 }
 
-// A PMT Uint8 Vector
-message U8Vector {
+// Represents number of bits of Vector element
+enum IntSize {
+  Size8 = 0;
+  Size16 = 1;
+  Size32 = 2;
+}
+
+// A PMT UVector of element size <=32
+message UVector {
   repeated uint32 value = 1;
+  IntSize size = 2;
 }
 
-// A PMT Int8 Vector
-message I8Vector {
+
+// A PMT IVector of element size <=32
+message IVector {
   repeated sint32 value = 1;
-}
-
-// A PMT Uint16 Vector
-message U16Vector {
-  repeated uint32 value = 1;
-}
-
-// A PMT Int16 Vector
-message I16Vector {
-  repeated sint32 value = 1;
-}
-
-// A PMT Uint32 Vector
-message U32Vector {
-  repeated uint32 value = 1;
-}
-
-// A PMT Int32 Vector
-message I32Vector {
-  repeated sint32 value = 1;
+  IntSize size = 2;
 }
 
 // A PMT Uint64 Vector
