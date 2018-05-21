@@ -21,7 +21,18 @@ package starcoder;
 
 option go_package = "/api";
 
+// Request to run a flowgraph. Can be StartFlowgraphRequest for flowgraph
+// starting parameters or SendCommandRequest to send commands dynamically
+// while flowgraph is running.
 message RunFlowgraphRequest {
+  oneof Request {
+    StartFlowgraphRequest startFlowgraphRequest = 1;
+    SendCommandRequest sendCommandRequest = 2;
+  }
+}
+
+// Request to start a flowgraph. This is the first request sent in a stream.
+message StartFlowgraphRequest {
   // Filename of GNURadio script to run
   string filename = 1;
 
@@ -199,6 +210,152 @@ message PMTC32Vector {
 // Protobuf format of a PMT Complex64 Vector
 message PMTC64Vector {
   repeated Complex payload = 1;
+}
+
+// Command message sent to the flowgraph. This currently only works for the Starcoder 
+// command_source block which will forward the messages as is to any other 
+// block it is connected to.
+message SendCommandRequest {
+  // Block ID to send the command message to.
+  string block_id = 1;
+
+  // Will be sent to the message passing port of the command_source block with
+  // id block_id.
+  BlockMessage pmt = 2;
+}
+
+// A GNURadio PMT (Polymorphic Message Type)
+message BlockMessage {
+  oneof message_oneof {
+    bool boolean_value = 1;
+
+    string symbol_value = 2;
+
+    int64 integer_value = 3;
+
+    double double_value = 4;
+
+    Complex complex_value = 5;
+
+    Pair pair_value = 6;
+
+    List list_value = 7;
+
+    UniformVector uniform_vector_value = 9;
+
+    Dict dict_value = 10;
+  }
+}
+
+// A PMT pair. The `car` and `cdr` variable names are defined by
+// GNURadio.
+message Pair {
+  // First object of the pair
+  BlockMessage car = 1;
+
+  // Second object of the pair
+  BlockMessage cdr = 2;
+}
+
+// Represents a PMT Tuple or Vector. A Tuple is an immutable list of PMTs.
+// It can only hold 10 elements. A Vector is a mutable list of PMTs.
+message List {
+  repeated BlockMessage values = 1;
+
+  enum Type {
+    // A PMT Tuple
+    TUPLE = 0;
+
+    // A PMT Vector
+    VECTOR = 1;
+  }
+
+  Type type = 2;
+}
+
+// A PMT dictionary.
+message Dict {
+  // Key value pair representing entry in PMT dictionary
+  message Entry {
+    // Key
+    BlockMessage key = 1;
+
+    // Value assigned to key
+    BlockMessage value = 2;
+  }
+
+  repeated Entry entries = 1;
+}
+
+// A PMT Uniform Vector
+message UniformVector {
+  oneof uniform_vector_oneof {
+    UVector u_value = 1;
+
+    IVector i_value = 2;
+
+    U64Vector u64_value = 3;
+
+    I64Vector i64_value = 4;
+
+    F32Vector f32_value = 5;
+
+    F64Vector f64_value = 6;
+
+    C32Vector c32_value = 7;
+
+    C64Vector c64_value = 8;
+  }
+}
+
+// Represents number of bits of Vector element
+enum IntSize {
+  Size8 = 0;
+  Size16 = 1;
+  Size32 = 2;
+}
+
+// A PMT UVector of element size <=32
+message UVector {
+  repeated uint32 value = 1;
+  IntSize size = 2;
+}
+
+
+// A PMT IVector of element size <=32
+message IVector {
+  repeated sint32 value = 1;
+  IntSize size = 2;
+}
+
+// A PMT Uint64 Vector
+message U64Vector {
+  repeated uint64 value = 1;
+}
+
+// A PMT Int64 Vector
+message I64Vector {
+  repeated sint64 value = 1;
+}
+
+// A PMT Float32 Vector
+message F32Vector {
+  repeated float value = 1;
+}
+
+// A PMT Float64 Vector
+message F64Vector {
+  repeated double value = 1;
+}
+
+// A PMT Complex32 Vector
+message C32Vector {
+  repeated Complex32 value = 1;
+}
+
+// A PMT Complex64 Vector
+message C64Vector {
+  repeated Complex value = 1;
 }
 
 message RunFlowgraphResponse {
