@@ -99,7 +99,8 @@ message Pair {
   BlockMessage cdr = 2;
 }
 
-// A PMT tuple.
+// A PMT tuple. A Tuple is an immutable list of PMTs. It can only hold 10
+// PMTs.
 message Tuple {
   repeated BlockMessage pmt = 1;
 }
@@ -118,7 +119,7 @@ message Dict {
   repeated Entry entries = 1;
 }
 
-// A PMT Vector
+// A PMT Vector. A Vector is a mutable list of PMTs.
 message Vector {
   repeated BlockMessage pmt = 1;
 }
