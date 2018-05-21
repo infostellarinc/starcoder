@@ -40,7 +40,7 @@ class qa_command_source (gr_unittest.TestCase):
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
+        msg = starcoder_pb2.BlockMessage()
         msg.complex_value.real_value = 1.2
         msg.complex_value.imaginary_value = 2.3
 
@@ -61,9 +61,9 @@ class qa_command_source (gr_unittest.TestCase):
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
-        msg.pmt_pair_value.car.symbol_value = "testtransmission"
-        msg.pmt_pair_value.cdr.double_value = 23.2
+        msg = starcoder_pb2.BlockMessage()
+        msg.pair_value.car.symbol_value = "testtransmission"
+        msg.pair_value.cdr.double_value = 23.2
 
         expected = pmt.cons(pmt.intern("testtransmission"),
                             pmt.from_double(23.2))
@@ -78,15 +78,41 @@ class qa_command_source (gr_unittest.TestCase):
         self.assertTrue(pmt.is_pair(snk.get_message(0)))
         self.assertTrue(pmt.equal(snk.get_message(0), expected))
 
+    def test_tuple(self):
+        cs = starcoder.command_source()
+        snk = blocks.message_debug()
+        self.tb.msg_connect((cs, 'out'), (snk, 'store'))
+
+        msg = starcoder_pb2.BlockMessage()
+        v = msg.list_value.value.add()
+        v.symbol_value = "testtransmission"
+        v = msg.list_value.value.add()
+        v.double_value = 23.2
+        msg.list_value.type = starcoder_pb2.List.TUPLE
+
+        expected = pmt.make_tuple(pmt.intern("testtransmission"),
+                                  pmt.from_double(23.2))
+
+        self.tb.start()
+        cs.push(msg.SerializeToString())
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.is_tuple(snk.get_message(0)))
+        self.assertTrue(pmt.equal(snk.get_message(0), expected))
+
     def test_u8_vector(self):
         cs = starcoder.command_source()
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
-        msg.pmt_uniform_vector_value.u8_value.payload = 'by\0by'
+        msg = starcoder_pb2.BlockMessage()
+        msg.uniform_vector_value.u_value.value.extend([12, 0, 3])
+        msg.uniform_vector_value.u_value.size = starcoder_pb2.Size8
 
-        expected = pmt.init_u8vector(5, map(ord, ['b', 'y', '\0', 'b', 'y']))
+        expected = pmt.init_s32vector(3, [12, 0, 3])
 
         self.tb.start()
         cs.push(msg.SerializeToString())
@@ -103,8 +129,9 @@ class qa_command_source (gr_unittest.TestCase):
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
-        msg.pmt_uniform_vector_value.i32_value.payload.extend([12, -2, 3])
+        msg = starcoder_pb2.BlockMessage()
+        msg.uniform_vector_value.i_value.value.extend([12, -2, 3])
+        msg.uniform_vector_value.i_value.size = starcoder_pb2.Size32
 
         expected = pmt.init_s32vector(3, [12, -2, 3])
 
@@ -123,8 +150,8 @@ class qa_command_source (gr_unittest.TestCase):
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
-        msg.pmt_uniform_vector_value.f64_value.payload.extend([2.4, -12.3, 21.2])
+        msg = starcoder_pb2.BlockMessage()
+        msg.uniform_vector_value.f64_value.value.extend([2.4, -12.3, 21.2])
 
         expected = pmt.init_f64vector(3, [2.4, -12.3, 21.2])
 
@@ -143,14 +170,14 @@ class qa_command_source (gr_unittest.TestCase):
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
-        pl = msg.pmt_uniform_vector_value.c64_value.payload.add()
+        msg = starcoder_pb2.BlockMessage()
+        pl = msg.uniform_vector_value.c64_value.value.add()
         pl.real_value = 1.2
         pl.imaginary_value = -2.3
-        pl = msg.pmt_uniform_vector_value.c64_value.payload.add()
+        pl = msg.uniform_vector_value.c64_value.value.add()
         pl.real_value = 3.2
         pl.imaginary_value = -1
-        pl = msg.pmt_uniform_vector_value.c64_value.payload.add()
+        pl = msg.uniform_vector_value.c64_value.value.add()
         pl.real_value = 0
         pl.imaginary_value = -1
 
@@ -171,8 +198,8 @@ class qa_command_source (gr_unittest.TestCase):
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
-        pl = msg.pmt_dict_value.entries.add()
+        msg = starcoder_pb2.BlockMessage()
+        pl = msg.dict_value.entries.add()
         pl.key.symbol_value = 'key'
         pl.value.double_value = -2.3
 
@@ -195,15 +222,15 @@ class qa_command_source (gr_unittest.TestCase):
         snk = blocks.message_debug()
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
-        msg = starcoder_pb2.PMT()
-        md = msg.pmt_pair_value.car.pmt_dict_value.entries.add()
+        msg = starcoder_pb2.BlockMessage()
+        md = msg.pair_value.car.dict_value.entries.add()
         md.key.symbol_value = 'metadata_1'
         md.value.integer_value = -2
-        md = msg.pmt_pair_value.car.pmt_dict_value.entries.add()
+        md = msg.pair_value.car.dict_value.entries.add()
         md.key.symbol_value = 'metadata_2'
         md.value.symbol_value = 'val'
 
-        msg.pmt_pair_value.cdr.pmt_uniform_vector_value.f64_value.payload.extend([2.4, -12.3, 21.2])
+        msg.pair_value.cdr.uniform_vector_value.f64_value.value.extend([2.4, -12.3, 21.2])
 
         pmt_dict = pmt.make_dict()
         pmt_dict = pmt.dict_add(pmt_dict, pmt.intern('metadata_1'), pmt.from_long(-2))
