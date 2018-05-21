@@ -126,7 +126,7 @@ message Vector {
 // A PMT Uniform Vector
 message UniformVector {
   oneof pmt_uniform_vector_oneof {
-    bytes u8_value = 1;
+    U8Vector u8_value = 1;
 
     I8Vector i8_value = 2;
 
@@ -154,7 +154,7 @@ message UniformVector {
 
 // A PMT Uint8 Vector
 message U8Vector {
-  bytes value = 1;
+  repeated uint32 value = 1;
 }
 
 // A PMT Int8 Vector
