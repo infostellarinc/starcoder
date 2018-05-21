@@ -61,11 +61,11 @@ message SendCommandRequest {
 
   // Will be sent to the message passing port of the command_source block with
   // id block_id.
-  PmtMessage pmt = 2;
+  BlockMessage pmt = 2;
 }
 
 // A GNURadio PMT (Polymorphic Message Type)
-message PmtMessage {
+message BlockMessage {
   oneof pmt_oneof {
     bool boolean_value = 1;
 
@@ -93,15 +93,15 @@ message PmtMessage {
 // GNURadio.
 message Pair {
   // First object of the pair
-  PmtMessage car = 1;
+  BlockMessage car = 1;
 
   // Second object of the pair
-  PmtMessage cdr = 2;
+  BlockMessage cdr = 2;
 }
 
 // A PMT tuple.
 message Tuple {
-  repeated PmtMessage pmt = 1;
+  repeated BlockMessage pmt = 1;
 }
 
 // A PMT dictionary.
@@ -109,10 +109,10 @@ message Dict {
   // Key value pair representing entry in PMT dictionary
   message Entry {
     // Key
-    PmtMessage key = 1;
+    BlockMessage key = 1;
 
     // Value assigned to key
-    PmtMessage value = 2;
+    BlockMessage value = 2;
   }
 
   repeated Entry entries = 1;
@@ -120,7 +120,7 @@ message Dict {
 
 // A PMT Vector
 message Vector {
-  repeated PmtMessage pmt = 1;
+  repeated BlockMessage pmt = 1;
 }
 
 // A PMT Uniform Vector
