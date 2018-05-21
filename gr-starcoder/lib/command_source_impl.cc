@@ -80,7 +80,6 @@ void command_source_impl::push(const std::string &message) {
 
 uint64_t command_source_impl::get_starcoder_queue_ptr() {
   return reinterpret_cast<uint64_t>(&queue_);
-  ;
 }
 
 /*
