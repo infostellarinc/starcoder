@@ -199,7 +199,7 @@ class qa_command_source (gr_unittest.TestCase):
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
         msg = starcoder_pb2.BlockMessage()
-        pl = msg.dict_value.entries.add()
+        pl = msg.dict_value.entry.add()
         pl.key.symbol_value = 'key'
         pl.value.double_value = -2.3
 
@@ -223,10 +223,10 @@ class qa_command_source (gr_unittest.TestCase):
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
         msg = starcoder_pb2.BlockMessage()
-        md = msg.pair_value.car.dict_value.entries.add()
+        md = msg.pair_value.car.dict_value.entry.add()
         md.key.symbol_value = 'metadata_1'
         md.value.integer_value = -2
-        md = msg.pair_value.car.dict_value.entries.add()
+        md = msg.pair_value.car.dict_value.entry.add()
         md.key.symbol_value = 'metadata_2'
         md.value.symbol_value = 'val'
 

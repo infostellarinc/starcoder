@@ -50,7 +50,8 @@ pmt::pmt_t convert_pmt_proto(const starcoder::BlockMessage &proto_msg) {
 
 pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
   int size = proto_pmt_list.value_size();
-  if (proto_pmt_list.type() == starcoder::List::TUPLE) switch (size) {
+  if (proto_pmt_list.type() == starcoder::List::TUPLE) {
+    switch (size) {
       case 0:
         return pmt::make_tuple();
       case 1:
@@ -121,7 +122,7 @@ pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
       default:
         throw("PMT tuple sizes >10 not supported");
     }
-  else if (proto_pmt_list.type() == starcoder::List::VECTOR) {
+  } else if (proto_pmt_list.type() == starcoder::List::VECTOR) {
     pmt::pmt_t vec =
         pmt::make_vector(proto_pmt_list.value_size(), pmt::get_PMT_NIL());
     for (int i = 0; i < proto_pmt_list.value_size(); i++) {
@@ -244,7 +245,7 @@ pmt::pmt_t convert_pmt_uniform_vector(
 
 pmt::pmt_t convert_pmt_dict(const starcoder::Dict &proto_pmt_dict) {
   pmt::pmt_t dict = pmt::make_dict();
-  for (const starcoder::Dict_Entry &entry : proto_pmt_dict.entries()) {
+  for (const starcoder::Dict_Entry &entry : proto_pmt_dict.entry()) {
     dict = pmt::dict_add(dict, convert_pmt_proto(entry.key()),
                          convert_pmt_proto(entry.value()));
   }

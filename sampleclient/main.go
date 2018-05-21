@@ -91,7 +91,7 @@ func main() {
 
 func constructPDU() *pb.BlockMessage {
 	pmtDict := &pb.Dict{
-		Entries: []*pb.Dict_Entry{
+		Entry: []*pb.Dict_Entry{
 			{
 				Key: &pb.BlockMessage{
 					MessageOneof: &pb.BlockMessage_SymbolValue{"metadata1"},

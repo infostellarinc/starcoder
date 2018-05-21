@@ -124,7 +124,7 @@ message Dict {
     BlockMessage value = 2;
   }
 
-  repeated Entry entries = 1;
+  repeated Entry entry = 1;
 }
 
 // A PMT Uniform Vector
