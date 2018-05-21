@@ -283,6 +283,7 @@ envs {
             condaPackage('make'),
             condaPackage('numpy'),
             condaPackage('pkg-config'),
+            condaPackage('protobuf'),
             condaPackage('subprocess32'),
             condaPackage('swig'),
             condaPackage('wget'),
