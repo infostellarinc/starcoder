@@ -79,9 +79,7 @@ message BlockMessage {
 
     Pair pair_value = 6;
 
-    Tuple tuple_value = 7;
-
-    Vector vector_value = 8;
+    List list_value = 7;
 
     UniformVector uniform_vector_value = 9;
 
@@ -99,10 +97,20 @@ message Pair {
   BlockMessage cdr = 2;
 }
 
-// A PMT tuple. A Tuple is an immutable list of PMTs. It can only hold 10
-// PMTs.
-message Tuple {
-  repeated BlockMessage pmt = 1;
+// Represents a PMT Tuple or Vector. A Tuple is an immutable list of PMTs.
+// It can only hold 10 elements. A Vector is a mutable list of PMTs.
+message List {
+  repeated BlockMessage values = 1;
+
+  enum Type {
+    // A PMT Tuple
+    TUPLE = 0;
+
+    // A PMT Vector
+    VECTOR = 1;
+  }
+
+  Type type = 2;
 }
 
 // A PMT dictionary.
@@ -117,11 +125,6 @@ message Dict {
   }
 
   repeated Entry entries = 1;
-}
-
-// A PMT Vector. A Vector is a mutable list of PMTs.
-message Vector {
-  repeated BlockMessage pmt = 1;
 }
 
 // A PMT Uniform Vector
