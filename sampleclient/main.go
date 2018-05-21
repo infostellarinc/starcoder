@@ -60,8 +60,13 @@ func main() {
 			}
 		}
 	}()
-	req := &pb.RunFlowgraphRequest{
+	startReq := &pb.StartFlowgraphRequest{
 		Filename: "test.grc",
+	}
+	req := &pb.RunFlowgraphRequest{
+		Request: &pb.RunFlowgraphRequest_StartFlowgraphRequest{
+			StartFlowgraphRequest: startReq,
+		},
 	}
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("Failed to send: %v", err)
