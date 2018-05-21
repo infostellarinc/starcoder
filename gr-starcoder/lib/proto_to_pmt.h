@@ -24,10 +24,10 @@
 #include <pmt/pmt.h>
 #include "starcoder.pb.h"
 
-pmt::pmt_t convert_pmt_proto(const starcoder::BlockMessage &grpc_msg);
-pmt::pmt_t convert_pmt_tuple(const starcoder::List &grpc_pmt_tuple);
-pmt::pmt_t convert_pmt_vector(const starcoder::List &grpc_pmt_vector);
-pmt::pmt_t convert_pmt_uniform_vector(const starcoder::UniformVector &grpc_pmt_uniform_vector);
-pmt::pmt_t convert_pmt_dict(const starcoder::Dict &grpc_pmt_dict);
+pmt::pmt_t convert_pmt_proto(const starcoder::BlockMessage &proto_msg);
+pmt::pmt_t convert_pmt_tuple(const starcoder::List &proto_pmt_tuple);
+pmt::pmt_t convert_pmt_vector(const starcoder::List &proto_pmt_vector);
+pmt::pmt_t convert_pmt_uniform_vector(const starcoder::UniformVector &proto_pmt_uniform_vector);
+pmt::pmt_t convert_pmt_dict(const starcoder::Dict &proto_pmt_dict);
 
 #endif /* INCLUDED_PROTO_TO_PMT_H */
