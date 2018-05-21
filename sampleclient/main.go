@@ -72,11 +72,13 @@ func main() {
 		log.Fatalf("Failed to send: %v", err)
 	}
 	time.Sleep(1 * time.Second)
+	commandReq := &pb.SendCommandRequest{
+		BlockId: "starcoder_command_source_0",
+		Pmt: constructPDU(),
+	}
 	req = &pb.RunFlowgraphRequest{
-		Filename: "test.grc",
-		Command: &pb.Command{
-			BlockId: "starcoder_command_source_0",
-			Pmt: constructPDU(),
+		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
+			SendCommandRequest: commandReq,
 		},
 	}
 	if err := stream.Send(req); err != nil {
@@ -87,37 +89,38 @@ func main() {
 	<-waitc
 }
 
-func constructPDU() *pb.PMT {
-	pmtDict := &pb.PMTDict{
-		Entries: []*pb.PMTDict_Entry{
+func constructPDU() *pb.BlockMessage {
+	pmtDict := &pb.Dict{
+		Entries: []*pb.Dict_Entry{
 			{
-				Key: &pb.PMT{
-					PmtOneof: &pb.PMT_SymbolValue{"metadata1"},
+				Key: &pb.BlockMessage{
+					MessageOneof: &pb.BlockMessage_SymbolValue{"metadata1"},
 				},
-				Value: &pb.PMT{
-					PmtOneof: &pb.PMT_IntegerValue{1},
+				Value: &pb.BlockMessage{
+					MessageOneof: &pb.BlockMessage_IntegerValue{1},
 				},
 			},
 		},
 	}
-	pmtUVector := &pb.PMTUniformVector{
-		PmtUniformVectorOneof: &pb.PMTUniformVector_U8Value{
-			U8Value: &pb.PMTU8Vector{
-				Payload: []byte("Uint 8 payload."),
+	pmtUVector := &pb.UniformVector{
+		UniformVectorOneof: &pb.UniformVector_UValue{
+			UValue: &pb.UVector{
+				Value: []uint32{117, 105, 110, 116, 56, 20, 112, 97, 121, 108, 111, 97, 100},
+				Size_: pb.IntSize_Size8,
 			},
 		},
 	}
-	pmtPair := &pb.PMTPair{
-		Car: &pb.PMT{
-			PmtOneof: &pb.PMT_PmtDictValue{pmtDict},
+	pmtPair := &pb.Pair{
+		Car: &pb.BlockMessage{
+			MessageOneof: &pb.BlockMessage_DictValue{pmtDict},
 		},
-		Cdr: &pb.PMT{
-			PmtOneof: &pb.PMT_PmtUniformVectorValue{
+		Cdr: &pb.BlockMessage{
+			MessageOneof: &pb.BlockMessage_UniformVectorValue{
 				pmtUVector,
 			},
 		},
 	}
-	return &pb.PMT{
-		PmtOneof: &pb.PMT_PmtPairValue{pmtPair},
+	return &pb.BlockMessage{
+		MessageOneof: &pb.BlockMessage_PairValue{pmtPair},
 	}
 }
