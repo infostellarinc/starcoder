@@ -273,7 +273,15 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		return err
 	}
 
-	inFileAbsPath := filepath.Join(s.flowgraphDir, in.GetFilename())
+	var startRequest *pb.StartFlowgraphRequest
+
+	if x, ok := in.Request.(*pb.RunFlowgraphRequest_StartFlowgraphRequest); !ok {
+		return errors.New("first request in stream is not StartFlowgraphRequest")
+	} else {
+		startRequest = x.StartFlowgraphRequest
+	}
+
+	inFileAbsPath := filepath.Join(s.flowgraphDir, startRequest.GetFilename())
 
 	modAndClass, err := s.compileGrc(inFileAbsPath)
 	if err != nil {
@@ -281,7 +289,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		return err
 	}
 
-	flowGraphInstance, observableCQueues, err := s.startFlowGraph(modAndClass, in)
+	flowGraphInstance, observableCQueues, err := s.startFlowGraph(modAndClass, startRequest)
 	if err != nil {
 		s.log.Errorf("Error starting flowgraph: %v", err)
 		return err
@@ -387,7 +395,7 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 	return retVal, nil
 }
 
-func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.RunFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, error) {
+func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.StartFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, error) {
 	var flowGraphInstance *python.PyObject
 	var observableCQueue map[string]*cqueue.CStringQueue
 	var err error
@@ -514,7 +522,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 	return flowGraphInstance, observableCQueue, err
 }
 
-func fillDictWithParameters(dict *python.PyObject, params []*pb.RunFlowgraphRequest_Parameter) error {
+func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter) error {
 	for _, param := range params {
 		err := func() error {
 			pyKey := python.PyString_FromString(param.GetKey())

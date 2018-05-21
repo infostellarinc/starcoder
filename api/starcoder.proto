@@ -21,7 +21,18 @@ package starcoder;
 
 option go_package = "/api";
 
+// Request to run a flowgraph. Can be StartFlowgraphRequest for flowgraph
+// starting parameters or SendCommandRequest to send commands dynamically
+// while flowgraph is running.
 message RunFlowgraphRequest {
+  oneof Request {
+    StartFlowgraphRequest startFlowgraphRequest = 1;
+    SendCommandRequest sendCommandRequest = 2;
+  }
+}
+
+// Request to start a flowgraph. This is the first request sent in a stream.
+message StartFlowgraphRequest {
   // Filename of GNURadio script to run
   string filename = 1;
 
@@ -41,6 +52,163 @@ message RunFlowgraphRequest {
   repeated string block_id = 3;
 }
 
+// Command message sent to the flowgraph. This only works with the custom
+// Starcoder block for sending PMTs.
+message SendCommandRequest {
+  // Block ID to send the command message to.
+  string block_id = 1;
+
+  PMT pmt = 2;
+}
+
+// Protobuf format of GNURadio PMT (Polymorphic Message Type)
+message PMT {
+  oneof pmt_oneof {
+    bool boolean_value = 1;
+
+    string symbol_value = 2;
+
+    int64 integer_value = 3;
+
+    double double_value = 4;
+
+    Complex complex_value = 5;
+
+    Pair pair_value = 6;
+
+    Tuple tuple_value = 7;
+
+    Vector vector_value = 8;
+
+    UniformVector uniform_vector_value = 9;
+
+    Dict dict_value = 10;
+  }
+}
+
+// Protobuf format of a PMT pair. The `car` and `cdr` variable names are defined by
+// GNURadio.
+message Pair {
+  // First object of the pair
+  PMT car = 1;
+
+  // Second object of the pair
+  PMT cdr = 2;
+}
+
+// Protobuf format of a PMT tuple.
+message Tuple {
+  repeated PMT pmt = 1;
+}
+
+// Protobuf format of a PMT dictionary.
+message Dict {
+  // Key value pair representing entry in PMT dictionary
+  message Entry {
+    // Key
+    PMT key = 1;
+
+    // Value assigned to key
+    PMT value = 2;
+  }
+
+  repeated Entry entries = 1;
+}
+
+// Protobuf format of a PMT Vector
+message Vector {
+  repeated PMT pmt = 1;
+}
+
+// Protobuf format of a PMT Uniform Vector
+message UniformVector {
+  oneof pmt_uniform_vector_oneof {
+    bytes u8_value = 1;
+
+    I8Vector i8_value = 2;
+
+    U16Vector u16_value = 3;
+
+    I16Vector i16_value = 4;
+
+    U32Vector u32_value = 5;
+
+    I32Vector i32_value = 6;
+
+    U64Vector u64_value = 7;
+
+    I64Vector i64_value = 8;
+
+    F32Vector f32_value = 9;
+
+    F64Vector f64_value = 10;
+
+    C32Vector c32_value = 11;
+
+    C64Vector c64_value = 12;
+  }
+}
+
+// Protobuf format of a PMT Uint8 Vector
+message U8Vector {
+  bytes payload = 1;
+}
+
+// Protobuf format of a PMT Int8 Vector
+message I8Vector {
+  repeated sint32 payload = 1;
+}
+
+// Protobuf format of a PMT Uint16 Vector
+message U16Vector {
+  repeated uint32 payload = 1;
+}
+
+// Protobuf format of a PMT Int16 Vector
+message I16Vector {
+  repeated sint32 payload = 1;
+}
+
+// Protobuf format of a PMT Uint32 Vector
+message U32Vector {
+  repeated uint32 payload = 1;
+}
+
+// Protobuf format of a PMT Int32 Vector
+message I32Vector {
+  repeated sint32 payload = 1;
+}
+
+// Protobuf format of a PMT Uint64 Vector
+message U64Vector {
+  repeated uint64 payload = 1;
+}
+
+// Protobuf format of a PMT Int64 Vector
+message I64Vector {
+  repeated sint64 payload = 1;
+}
+
+// Protobuf format of a PMT Float32 Vector
+message F32Vector {
+  repeated float payload = 1;
+}
+
+// Protobuf format of a PMT Float64 Vector
+message F64Vector {
+  repeated double payload = 1;
+}
+
+// Protobuf format of a PMT Complex32 Vector
+message C32Vector {
+  repeated Complex32 payload = 1;
+}
+
+// Protobuf format of a PMT Complex64 Vector
+message C64Vector {
+  repeated Complex payload = 1;
+}
+
 message RunFlowgraphResponse {
   // Block ID to which this response belongs
   string block_id = 1;
@@ -56,6 +224,15 @@ message Complex {
 
   // Imaginary part of the complex number
   double imaginary_value = 2;
+}
+
+// Complex 32 number
+message Complex32 {
+  // Real part
+  float real_value = 1;
+
+  // Imaginary part
+  float imaginary_value = 2;
 }
 
 // GNURadio parameter values
