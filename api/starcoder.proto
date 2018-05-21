@@ -66,7 +66,7 @@ message SendCommandRequest {
 
 // A GNURadio PMT (Polymorphic Message Type)
 message BlockMessage {
-  oneof pmt_oneof {
+  oneof message_oneof {
     bool boolean_value = 1;
 
     string symbol_value = 2;
