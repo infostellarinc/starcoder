@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 InfoStellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_STARCODER_COMPLEX_TO_MSG_C_H
 #define INCLUDED_STARCODER_COMPLEX_TO_MSG_C_H
 
@@ -26,31 +25,30 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    /*!
-     * This block takes in a stream of complex floats and packs them together
-     * into a PMT blob containing `num_items` items.
-     *
-     */
-    class STARCODER_API complex_to_msg_c : virtual public gr::sync_block
-    {
-     public:
-      typedef boost::shared_ptr<complex_to_msg_c> sptr;
+/*!
+ * This block takes in a stream of complex floats and packs them together
+ * into a PMT blob containing `num_items` items.
+ *
+ */
+class STARCODER_API complex_to_msg_c : virtual public gr::sync_block {
+ public:
+  typedef boost::shared_ptr<complex_to_msg_c> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of starcoder::complex_to_msg_c.
-       *
-       * To avoid accidental use of raw pointers, starcoder::complex_to_msg_c's
-       * constructor is in a private implementation
-       * class. starcoder::complex_to_msg_c::make is the public interface for
-       * creating new instances.
-       */
-      static sptr make(int num_items);
-    };
+  /*!
+   * \brief Return a shared_ptr to a new instance of
+   * starcoder::complex_to_msg_c.
+   *
+   * To avoid accidental use of raw pointers, starcoder::complex_to_msg_c's
+   * constructor is in a private implementation
+   * class. starcoder::complex_to_msg_c::make is the public interface for
+   * creating new instances.
+   */
+  static sptr make(int num_items);
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_COMPLEX_TO_MSG_C_H */
-

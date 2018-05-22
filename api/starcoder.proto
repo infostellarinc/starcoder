@@ -52,8 +52,8 @@ message StartFlowgraphRequest {
   repeated string block_id = 3;
 }
 
-// Command message sent to the flowgraph. This currently only works for the Starcoder 
-// command_source block which will forward the messages as is to any other 
+// Command message sent to the flowgraph. This currently only works for the Starcoder
+// command_source block which will forward the messages as is to any other
 // block it is connected to.
 message SendCommandRequest {
   // Block ID to send the command message to.
@@ -100,7 +100,7 @@ message Pair {
 // Represents a PMT Tuple or Vector. A Tuple is an immutable list of PMTs.
 // It can only hold 10 elements. A Vector is a mutable list of PMTs.
 message List {
-  repeated BlockMessage values = 1;
+  repeated BlockMessage value = 1;
 
   enum Type {
     // A PMT Tuple
@@ -124,7 +124,7 @@ message Dict {
     BlockMessage value = 2;
   }
 
-  repeated Entry entries = 1;
+  repeated Entry entry = 1;
 }
 
 // A PMT Uniform Vector

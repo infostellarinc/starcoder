@@ -41,6 +41,8 @@ class string_queue {
     std::string blocking_pop();
     unsigned long get_ptr() const;
     void close();
+    // TODO: Make this uint64_t
+    static string_queue *queue_from_pointer(unsigned long long ptr);
   private:
     boost::lockfree::spsc_queue<std::string> queue_;
     std::condition_variable condition_var_;

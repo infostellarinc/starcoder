@@ -150,6 +150,12 @@ if(NOT CPPUNIT_FOUND)
 endif()
 
 ########################################################################
+# Find protobuf dependencies
+########################################################################
+find_package(Protobuf REQUIRED)
+message(STATUS "Using protobuf ${protobuf_VERSION}")
+
+########################################################################
 # Setup doxygen option
 ########################################################################
 if(DOXYGEN_FOUND)

@@ -22,9 +22,43 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
-include_directories(${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/)
+include_directories(
+  ${Boost_INCLUDE_DIR}
+  ${Protobuf_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/
+)
+
+########################################################################
+# Generate Protobuf sources
+########################################################################
+# {Protobuf,PROTOBUF}_FOUND is defined based on find_package type ("MODULE" vs "CONFIG").
+# For "MODULE", the case has also changed between cmake 3.5 and 3.6.
+# We use the legacy uppercase version for *_LIBRARIES AND *_INCLUDE_DIRS variables
+# as newer cmake versions provide them too for backward compatibility.
+if(Protobuf_FOUND OR PROTOBUF_FOUND)
+  if(TARGET protobuf::libprotobuf)
+    set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+  else()
+    set(_PROTOBUF_LIBPROTOBUF ${PROTOBUF_LIBRARIES})
+    include_directories(${PROTOBUF_INCLUDE_DIRS})
+  endif()
+  if(TARGET protobuf::protoc)
+    set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+  else()
+    set(_PROTOBUF_PROTOC ${PROTOBUF_PROTOC_EXECUTABLE})
+  endif()
+else()
+  message(WARNING "Failed to locate libprotobuf and protoc!")
+endif()
+
+get_filename_component(hw_proto "${CMAKE_CURRENT_SOURCE_DIR}/../../api/starcoder.proto" ABSOLUTE)
+
+protobuf_generate_cpp(hw_proto_srcs hw_proto_hdrs "${hw_proto}")
+
 list(APPEND starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
+    ${hw_proto_srcs}
+    proto_to_pmt.cc
     init.c
     driver.c
     firmware.c
@@ -35,7 +69,8 @@ list(APPEND starcoder_sources
     waterfall_heatmap_impl.cc
     waterfall_plotter_impl.cc
     enqueue_message_sink_impl.cc
-    ax25_decoder_bm_impl.cc )
+    ax25_decoder_bm_impl.cc
+    command_source_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)
@@ -44,7 +79,7 @@ if(NOT starcoder_sources)
 endif(NOT starcoder_sources)
 
 add_library(gnuradio-starcoder SHARED ${starcoder_sources})
-target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${LOG4CPP_LIBRARY} usb-1.0)
+target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${LOG4CPP_LIBRARY} ${_PROTOBUF_LIBPROTOBUF} usb-1.0)
 set_target_properties(gnuradio-starcoder PROPERTIES DEFINE_SYMBOL "gnuradio_starcoder_EXPORTS")
 
 if(APPLE)
@@ -63,6 +98,7 @@ GR_LIBRARY_FOO(gnuradio-starcoder RUNTIME_COMPONENT "starcoder_runtime" DEVEL_CO
 # Build and register unit test
 ########################################################################
 include(GrTest)
+
 
 include_directories( ${CPPUNIT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/ )
 

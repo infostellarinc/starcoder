@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_STARCODER_AR2300_SOURCE_H
 #define INCLUDED_STARCODER_AR2300_SOURCE_H
 
@@ -26,31 +25,29 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    /*!
-     * \brief Read IQ stream from AR2300
-     * \ingroup starcoder
-     *
-     */
-    class STARCODER_API ar2300_source : virtual public gr::sync_block
-    {
-     public:
-      typedef boost::shared_ptr<ar2300_source> sptr;
+/*!
+ * \brief Read IQ stream from AR2300
+ * \ingroup starcoder
+ *
+ */
+class STARCODER_API ar2300_source : virtual public gr::sync_block {
+ public:
+  typedef boost::shared_ptr<ar2300_source> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of starcoder::ar2300_source.
-       *
-       * To avoid accidental use of raw pointers, starcoder::ar2300_source's
-       * constructor is in a private implementation
-       * class. starcoder::ar2300_source::make is the public interface for
-       * creating new instances.
-       */
-      static sptr make();
-    };
+  /*!
+   * \brief Return a shared_ptr to a new instance of starcoder::ar2300_source.
+   *
+   * To avoid accidental use of raw pointers, starcoder::ar2300_source's
+   * constructor is in a private implementation
+   * class. starcoder::ar2300_source::make is the public interface for
+   * creating new instances.
+   */
+  static sptr make();
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_AR2300_SOURCE_H */
-

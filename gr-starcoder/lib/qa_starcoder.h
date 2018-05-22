@@ -28,8 +28,7 @@
 #include <cppunit/TestFixture.h>
 
 //! collect all the tests for the gr-filter directory
-class __GR_ATTR_EXPORT qa_starcoder : public CppUnit::TestFixture
-{
+class __GR_ATTR_EXPORT qa_starcoder : public CppUnit::TestFixture {
  public:
   //! return suite of tests for all of gr-filter directory
   static CppUnit::TestSuite *suite();

@@ -18,36 +18,38 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_IMPL_H
-#define INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_IMPL_H
+#ifndef INCLUDED_STARCODER_COMMAND_SOURCE_IMPL_H
+#define INCLUDED_STARCODER_COMMAND_SOURCE_IMPL_H
 
-#include <starcoder/enqueue_message_sink.h>
-#include <queue>
-#include <mutex>
-#include <string_queue.h>
+#include <starcoder/command_source.h>
+#include <thread>
+#include "string_queue.h"
 
 namespace gr {
 namespace starcoder {
 
-class enqueue_message_sink_impl : public enqueue_message_sink {
- private:
-  std::mutex mutex_;
-  string_queue *string_queue_;
-
+class command_source_impl : public command_source {
  public:
-  enqueue_message_sink_impl();
-  ~enqueue_message_sink_impl();
+  command_source_impl();
+  ~command_source_impl();
 
-  // Where all the action really happens
-  int work(int noutput_items, gr_vector_const_void_star &input_items,
-           gr_vector_void_star &output_items);
+  bool start();
+  bool stop();
 
-  void handler(pmt::pmt_t msg);
+  void push(const std::string &message);
+  virtual uint64_t get_starcoder_queue_ptr();
 
-  void register_starcoder_queue(uint64_t ptr);
+ private:
+  void readloop();
+
+  std::thread *thread_;
+  const pmt::pmt_t port_;
+  string_queue queue_;
+  bool finished_;
+
 };
 
 }  // namespace starcoder
 }  // namespace gr
 
-#endif /* INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_IMPL_H */
+#endif /* INCLUDED_STARCODER_COMMAND_SOURCE_IMPL_H */

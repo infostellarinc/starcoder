@@ -49,6 +49,19 @@ func (q *CStringQueue) Close() {
 	q.queue.Close()
 }
 
+func (q *CStringQueue) Push(str string) {
+	q.queue.Push(str)
+}
+
 func (q *CStringQueue) Delete() {
 	DeleteString_queue(q.queue)
+}
+
+func CStringQueueFromPtr(ptr uint64) *CStringQueue {
+	if val, ok := String_queueQueue_from_pointer(ptr).(SwigcptrString_queue); ok {
+		return &CStringQueue{
+			queue: val,
+		}
+	}
+	return nil
 }

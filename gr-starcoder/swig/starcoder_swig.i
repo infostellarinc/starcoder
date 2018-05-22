@@ -14,6 +14,7 @@
 #include "starcoder/waterfall_plotter.h"
 #include "starcoder/enqueue_message_sink.h"
 #include "starcoder/ax25_decoder_bm.h"
+#include "starcoder/command_source.h"
 %}
 
 
@@ -30,3 +31,5 @@ GR_SWIG_BLOCK_MAGIC2(starcoder, waterfall_plotter);
 GR_SWIG_BLOCK_MAGIC2(starcoder, enqueue_message_sink);
 %include "starcoder/ax25_decoder_bm.h"
 GR_SWIG_BLOCK_MAGIC2(starcoder, ax25_decoder_bm);
+%include "starcoder/command_source.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, command_source);

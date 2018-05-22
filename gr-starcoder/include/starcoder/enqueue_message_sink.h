@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  *
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_H
 #define INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_H
 
@@ -26,27 +25,27 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    /*!
-     * This block can be "observed" by outside objects using its `starcoder_observe` method.
-     * Each PMT received by this block is serialized and queued internally.
-     * Calling `starcoder_observe` will let users retrieve the queued binary data as
-     * std::string (or str in Python). If the queue is empty, `starcoder_observe` returns
-     * an empty string.
-     *
-     */
-    class STARCODER_API enqueue_message_sink : virtual public gr::sync_block
-    {
-     public:
-      typedef boost::shared_ptr<enqueue_message_sink> sptr;
+/*!
+ * This block can be "observed" by outside objects using its `starcoder_observe`
+ * method.
+ * Each PMT received by this block is serialized and queued internally.
+ * Calling `starcoder_observe` will let users retrieve the queued binary data as
+ * std::string (or str in Python). If the queue is empty, `starcoder_observe`
+ * returns
+ * an empty string.
+ *
+ */
+class STARCODER_API enqueue_message_sink : virtual public gr::sync_block {
+ public:
+  typedef boost::shared_ptr<enqueue_message_sink> sptr;
 
-      static sptr make();
-      virtual void register_starcoder_queue(uint64_t ptr) = 0;
-    };
+  static sptr make();
+  virtual void register_starcoder_queue(uint64_t ptr) = 0;
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_H */
-

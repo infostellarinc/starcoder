@@ -71,7 +71,56 @@ func main() {
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("Failed to send: %v", err)
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
+	commandReq := &pb.SendCommandRequest{
+		BlockId: "starcoder_command_source_0",
+		Pmt: constructPDU(),
+	}
+	req = &pb.RunFlowgraphRequest{
+		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
+			SendCommandRequest: commandReq,
+		},
+	}
+	if err := stream.Send(req); err != nil {
+		log.Fatalf("Failed to send: %v", err)
+	}
+	time.Sleep(9 * time.Second)
 	stream.CloseSend()
 	<-waitc
+}
+
+func constructPDU() *pb.BlockMessage {
+	pmtDict := &pb.Dict{
+		Entry: []*pb.Dict_Entry{
+			{
+				Key: &pb.BlockMessage{
+					MessageOneof: &pb.BlockMessage_SymbolValue{"metadata1"},
+				},
+				Value: &pb.BlockMessage{
+					MessageOneof: &pb.BlockMessage_IntegerValue{1},
+				},
+			},
+		},
+	}
+	pmtUVector := &pb.UniformVector{
+		UniformVectorOneof: &pb.UniformVector_UValue{
+			UValue: &pb.UVector{
+				Value: []uint32{117, 105, 110, 116, 56, 20, 112, 97, 121, 108, 111, 97, 100},
+				Size_: pb.IntSize_Size8,
+			},
+		},
+	}
+	pmtPair := &pb.Pair{
+		Car: &pb.BlockMessage{
+			MessageOneof: &pb.BlockMessage_DictValue{pmtDict},
+		},
+		Cdr: &pb.BlockMessage{
+			MessageOneof: &pb.BlockMessage_UniformVectorValue{
+				pmtUVector,
+			},
+		},
+	}
+	return &pb.BlockMessage{
+		MessageOneof: &pb.BlockMessage_PairValue{pmtPair},
+	}
 }

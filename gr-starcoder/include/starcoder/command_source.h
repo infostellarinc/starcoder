@@ -18,36 +18,30 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_IMPL_H
-#define INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_IMPL_H
+#ifndef INCLUDED_STARCODER_COMMAND_SOURCE_H
+#define INCLUDED_STARCODER_COMMAND_SOURCE_H
 
-#include <starcoder/enqueue_message_sink.h>
-#include <queue>
-#include <mutex>
-#include <string_queue.h>
+#include <starcoder/api.h>
+#include <gnuradio/block.h>
 
 namespace gr {
 namespace starcoder {
 
-class enqueue_message_sink_impl : public enqueue_message_sink {
- private:
-  std::mutex mutex_;
-  string_queue *string_queue_;
-
+/*!
+ * This block is used directly by Starcoder to send PMTs to any
+ * blocks with a message input.
+ *
+ */
+class STARCODER_API command_source : virtual public gr::block {
  public:
-  enqueue_message_sink_impl();
-  ~enqueue_message_sink_impl();
+  typedef boost::shared_ptr<command_source> sptr;
 
-  // Where all the action really happens
-  int work(int noutput_items, gr_vector_const_void_star &input_items,
-           gr_vector_void_star &output_items);
-
-  void handler(pmt::pmt_t msg);
-
-  void register_starcoder_queue(uint64_t ptr);
+  static sptr make();
+  virtual void push(const std::string &message) = 0;
+  virtual uint64_t get_starcoder_queue_ptr() = 0;
 };
 
 }  // namespace starcoder
 }  // namespace gr
 
-#endif /* INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_IMPL_H */
+#endif /* INCLUDED_STARCODER_COMMAND_SOURCE_H */

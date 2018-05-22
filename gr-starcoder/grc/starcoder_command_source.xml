@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<block>
+  <name>Starcoder Command Source</name>
+  <key>starcoder_command_source</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.command_source()</make>
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

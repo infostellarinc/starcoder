@@ -33,6 +33,7 @@ import (
 	"strings"
 	"sync"
 	"go.uber.org/zap"
+	"github.com/gogo/protobuf/proto"
 )
 
 const defaultQueueSize = 1048576
@@ -137,6 +138,7 @@ type streamHandler struct {
 	stream            pb.Starcoder_RunFlowgraphServer
 	flowGraphInstance *python.PyObject
 	observableCQueues map[string]*cqueue.CStringQueue
+	commandCQueues    map[string]*cqueue.CStringQueue
 	clientFinished    bool
 	streamError       error
 	mustCloseMutex    sync.Mutex
@@ -145,12 +147,13 @@ type streamHandler struct {
 	log *zap.SugaredLogger
 }
 
-func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, log *zap.SugaredLogger) *streamHandler {
+func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, commandCQueues map[string]*cqueue.CStringQueue, log *zap.SugaredLogger) *streamHandler {
 	sh := &streamHandler{
 		starcoder:         sc,
 		stream:            stream,
 		flowGraphInstance: fgInstance,
 		observableCQueues: observableCQueues,
+		commandCQueues:    commandCQueues,
 		clientFinished:    false,
 		streamError:       nil,
 		mustCloseMutex:    sync.Mutex{},
@@ -166,7 +169,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 			// TODO: Eventually we would want to let the client send
 			// info to the flow graph during runtime. This will be the
 			// ideal place to receive/process it.
-			_, err := stream.Recv()
+			req, err := stream.Recv()
 			if err == io.EOF {
 				// Client is done listening
 				break
@@ -175,6 +178,18 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				log.Errorf("Received error from client: %v", err)
 				sh.finish(err)
 				return
+			}
+
+			if x, ok := req.Request.(*pb.RunFlowgraphRequest_SendCommandRequest); !ok {
+				sh.log.Warnw("Non-initial request in stream is StartFlowgraphRequest")
+				continue
+			} else {
+				commandRequest := x.SendCommandRequest
+				data, err := proto.Marshal(commandRequest.GetPmt())
+				if err != nil {
+					sh.log.Errorw("Failed to marshal", "error", err)
+				}
+				commandCQueues[commandRequest.GetBlockId()].Push(string(data))
 			}
 		}
 		sh.finish(nil)
@@ -289,7 +304,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		return err
 	}
 
-	flowGraphInstance, observableCQueues, err := s.startFlowGraph(modAndClass, startRequest)
+	flowGraphInstance, observableCQueues, commandCQueues, err := s.startFlowGraph(modAndClass, startRequest)
 	if err != nil {
 		s.log.Errorf("Error starting flowgraph: %v", err)
 		return err
@@ -304,7 +319,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		}
 	}()
 
-	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues, s.log)
+	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues, commandCQueues, s.log)
 	s.registerStreamHandler <- sh
 	sh.Wait()
 
@@ -395,9 +410,10 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 	return retVal, nil
 }
 
-func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.StartFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, error) {
+func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.StartFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, map[string]*cqueue.CStringQueue, error) {
 	var flowGraphInstance *python.PyObject
 	var observableCQueue map[string]*cqueue.CStringQueue
+	var commandCQueues map[string]*cqueue.CStringQueue
 	var err error
 
 	s.withPythonInterpreter(func() {
@@ -479,6 +495,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 		defer callReturn.DecRef()
 
 		observableCQueue = make(map[string]*cqueue.CStringQueue)
+		commandCQueues = make(map[string]*cqueue.CStringQueue)
 
 		// Look for any Enqueue Message Sink blocks
 		starcoderModule := python.PyImport_ImportModule("starcoder")
@@ -516,10 +533,24 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 					result.DecRef()
 					s.log.Infof("found block with register_starcoder_queue: %v", k)
 				}
+				// Verify instance has get_starcoder_queue_ptr
+				hasStarcoderPtr := val.HasAttrString("get_starcoder_queue_ptr")
+				if hasStarcoderPtr == 1 {
+					k := python.PyString_AsString(key)
+					result := val.CallMethodObjArgs("get_starcoder_queue_ptr")
+					if result == nil {
+						err = errors.New(getExceptionString())
+						return
+					}
+					ptr := python.PyLong_AsUnsignedLong(result)
+					commandCQueues[k] = cqueue.CStringQueueFromPtr(ptr)
+					result.DecRef()
+					s.log.Infof("found block with get_starcoder_queue_ptr: %v", k)
+				}
 			}
 		}
 	})
-	return flowGraphInstance, observableCQueue, err
+	return flowGraphInstance, observableCQueue, commandCQueues, err
 }
 
 func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter) error {

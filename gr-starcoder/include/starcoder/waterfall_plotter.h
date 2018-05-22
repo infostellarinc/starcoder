@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -20,7 +20,8 @@
 /*
  * gr-satnogs: SatNOGS GNU Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2017, Libre Space Foundation <http://librespacefoundation.org/>
+ *  Copyright (C) 2017, Libre Space Foundation
+ * <http://librespacefoundation.org/>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +37,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef INCLUDED_STARCODER_WATERFALL_PLOTTER_H
 #define INCLUDED_STARCODER_WATERFALL_PLOTTER_H
 
@@ -44,26 +44,23 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    /*!
-     * \brief <+description of block+>
-     * \ingroup starcoder
-     *
-     */
-    class STARCODER_API waterfall_plotter : virtual public gr::sync_block
-    {
-     public:
-      typedef boost::shared_ptr<waterfall_plotter> sptr;
+/*!
+ * \brief <+description of block+>
+ * \ingroup starcoder
+ *
+ */
+class STARCODER_API waterfall_plotter : virtual public gr::sync_block {
+ public:
+  typedef boost::shared_ptr<waterfall_plotter> sptr;
 
-      static sptr
-      make(double samp_rate, double center_freq,
-           int rps, size_t fft_size, char* filename);
-      virtual void register_starcoder_queue(uint64_t ptr) = 0;
-    };
+  static sptr make(double samp_rate, double center_freq, int rps,
+                   size_t fft_size, char* filename);
+  virtual void register_starcoder_queue(uint64_t ptr) = 0;
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_WATERFALL_PLOTTER_H */
-

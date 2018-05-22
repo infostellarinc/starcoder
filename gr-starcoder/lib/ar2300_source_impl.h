@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -28,33 +28,31 @@
 #define AR2300_SCALE_FACTOR 1E-7
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    class ar2300_source_impl : public ar2300_source
-    {
-     private:
-      std::unique_ptr<ar2300_receiver> receiver;
-      int   timeout_ms;
-      int   num_of_consecutive_warns = 0;
-      char leftover_[8];
-      int num_leftover_ = 0;
-      unsigned int num_work_call_ = 0;
+class ar2300_source_impl : public ar2300_source {
+ private:
+  std::unique_ptr<ar2300_receiver> receiver;
+  int timeout_ms;
+  int num_of_consecutive_warns = 0;
+  char leftover_[8];
+  int num_leftover_ = 0;
+  unsigned int num_work_call_ = 0;
 
-      int encode_ar2300(const char* in, int size, gr_complex* out);
-      gr_complex parse_sample(const char (&in)[8]) const;
-      bool validate_sample(const char (&in)[8]) const;
+  int encode_ar2300(const char* in, int size, gr_complex* out);
+  gr_complex parse_sample(const char (&in)[8]) const;
+  bool validate_sample(const char (&in)[8]) const;
 
-     public:
-      ar2300_source_impl();
-      ~ar2300_source_impl();
+ public:
+  ar2300_source_impl();
+  ~ar2300_source_impl();
 
-      // Where all the action really happens
-      int work(int n_output_items,
-         gr_vector_const_void_star &input_items,
-         gr_vector_void_star &output_items) override;
-    };
+  // Where all the action really happens
+  int work(int n_output_items, gr_vector_const_void_star& input_items,
+           gr_vector_void_star& output_items) override;
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_AR2300_SOURCE_IMPL_H */
