@@ -21,13 +21,13 @@
 #ifndef AR2300_DRIVER_H
 #define AR2300_DRIVER_H
 
-#define AR2300_USE_PTHREAD 1 /**< include threading code for event handler */
-#define AR2300_USE_SYSLOG 1  /**< output debug messages to syslog */
+#define AR2300_USE_PTHREAD 1    /**< include threading code for event handler */
+#define AR2300_USE_SYSLOG 1     /**< output debug messages to syslog */
 #include "blocking_spsc_queue.h"
-/*
+                                /*
  * constants related to receiver spec
  */
-#define AR2300_VENDOR_ID 0x08d0  /**< AOR-2300 USB vendor ID */
+#define AR2300_VENDOR_ID 0x08d0 /**< AOR-2300 USB vendor ID */
 #define AR2300_PRODUCT_ID 0xa001 /**< AOR-2300 product ID */
 #define AR2300_BULK_EP 0x02      /**< endpoint of bulk command */
 #define AR2300_ISO_EP 0x86       /**< endpoint of isochronous data */
@@ -64,8 +64,8 @@ struct ar2300_handle;
  */
 typedef struct ar2300_packet_info {
   struct libusb_transfer *usb_transfer; /**< the isochronous transfer */
-                                        /** the size of the buffer is
-                                         *  MAX_AR2300_ISO_PACKETS * AR2300_ISO_PACKET_SIZE */
+  /** the size of the buffer is
+   *  MAX_AR2300_ISO_PACKETS * AR2300_ISO_PACKET_SIZE */
   unsigned char *iso_buffer;
 } AR2300_PACKET_INFO;
 
@@ -115,7 +115,7 @@ typedef struct ar2300_handle {
 
   ar2300_bulk_status bulk_status; /**< status of bulk transfer */
 
-  blocking_spsc_queue* queue_; // Blocking queue for storing IQ data
+  blocking_spsc_queue *queue_;  // Blocking queue for storing IQ data
 
   transfer_error_callback_func err_func; /**< error callback */
 

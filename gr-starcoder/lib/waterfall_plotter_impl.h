@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -26,42 +26,39 @@
 #include <string_queue.h>
 
 namespace gr {
-  namespace starcoder {
-    struct item {
-      size_t size;
-      char *arr;
-    };
+namespace starcoder {
+struct item {
+  size_t size;
+  char *arr;
+};
 
-    class waterfall_plotter_impl : public waterfall_plotter
-    {
-     private:
-      std::list<item> list_of_arrays_;
-      int total_size_;
-      double samp_rate_;
-      double center_freq_;
-      int rps_;
-      char* filename_;
-      size_t fft_size_;
-      void init_numpy_array();
-      string_queue *string_queue_;
+class waterfall_plotter_impl : public waterfall_plotter {
+ private:
+  std::list<item> list_of_arrays_;
+  int total_size_;
+  double samp_rate_;
+  double center_freq_;
+  int rps_;
+  char *filename_;
+  size_t fft_size_;
+  void init_numpy_array();
+  string_queue *string_queue_;
 
-     public:
-      waterfall_plotter_impl(double samp_rate, double center_freq,
-                             int rps, size_t fft_size, char* filename);
-      ~waterfall_plotter_impl();
+ public:
+  waterfall_plotter_impl(double samp_rate, double center_freq, int rps,
+                         size_t fft_size, char *filename);
+  ~waterfall_plotter_impl();
 
-      // Where all the action really happens
-      int work(int noutput_items,
-         gr_vector_const_void_star &input_items,
-         gr_vector_void_star &output_items);
+  // Where all the action really happens
+  int work(int noutput_items, gr_vector_const_void_star &input_items,
+           gr_vector_void_star &output_items);
 
-      virtual bool stop();
+  virtual bool stop();
 
-      void register_starcoder_queue(uint64_t ptr);
-    };
+  void register_starcoder_queue(uint64_t ptr);
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_WATERFALL_PLOTTER_IMPL_H */
-

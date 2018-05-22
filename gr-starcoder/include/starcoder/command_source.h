@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_STARCODER_COMMAND_SOURCE_H
 #define INCLUDED_STARCODER_COMMAND_SOURCE_H
 
@@ -26,24 +25,23 @@
 #include <gnuradio/block.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    /*!
-     * This block is used directly by Starcoder to send PMTs to any
-     * blocks with a message input.
-     *
-     */
-    class STARCODER_API command_source : virtual public gr::block
-    {
-     public:
-      typedef boost::shared_ptr<command_source> sptr;
+/*!
+ * This block is used directly by Starcoder to send PMTs to any
+ * blocks with a message input.
+ *
+ */
+class STARCODER_API command_source : virtual public gr::block {
+ public:
+  typedef boost::shared_ptr<command_source> sptr;
 
-      static sptr make();
-      virtual void push(const std::string &message) = 0;
-      virtual uint64_t get_starcoder_queue_ptr() = 0;
-    };
+  static sptr make();
+  virtual void push(const std::string &message) = 0;
+  virtual uint64_t get_starcoder_queue_ptr() = 0;
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_COMMAND_SOURCE_H */

@@ -360,5 +360,7 @@ task clangFormat(type: Exec) {
     dependsOn 'pythonSetup'
     executable 'bash'
     def ccFiles = fileTree('.').filter { it.isFile() && it.name.endsWith('.cc') }.files.path.join(' ')
-    args '-c', condaCommand("clang-format -style=Google -i ${ccFiles}")
+    def hFiles = fileTree('.').filter { it.isFile() && it.name.endsWith('.h') && (it.name.startsWith('gr-starcoder/lib/') || it.name.startsWith('gr-starcoder/include/')) }.files.path.join(' ')
+
+    args '-c', condaCommand("clang-format -style=Google -i ${ccFiles} ${hFiles}")
 }

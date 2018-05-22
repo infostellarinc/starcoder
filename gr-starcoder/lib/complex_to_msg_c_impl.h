@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 InfoStellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -24,25 +24,22 @@
 #include <starcoder/complex_to_msg_c.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    class complex_to_msg_c_impl : public complex_to_msg_c
-    {
-     private:
-      int num_items;
+class complex_to_msg_c_impl : public complex_to_msg_c {
+ private:
+  int num_items;
 
-     public:
-      complex_to_msg_c_impl(int num_items);
-      ~complex_to_msg_c_impl();
+ public:
+  complex_to_msg_c_impl(int num_items);
+  ~complex_to_msg_c_impl();
 
-      // Where all the action really happens
-      int work(int noutput_items,
-         gr_vector_const_void_star &input_items,
-         gr_vector_void_star &output_items);
-    };
+  // Where all the action really happens
+  int work(int noutput_items, gr_vector_const_void_star &input_items,
+           gr_vector_void_star &output_items);
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_COMPLEX_TO_MSG_C_IMPL_H */
-

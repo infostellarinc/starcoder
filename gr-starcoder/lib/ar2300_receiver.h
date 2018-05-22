@@ -60,5 +60,4 @@ class ar2300_receiver {
 
 };
 
-
 #endif /* AR2300_RECEIVER_H */

@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -26,32 +26,30 @@
 #include "string_queue.h"
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    class command_source_impl : public command_source
-    {
-     private:
-      std::thread *thread_;
-      const pmt::pmt_t port_;
-      string_queue queue_;
+class command_source_impl : public command_source {
+ public:
+  command_source_impl();
+  ~command_source_impl();
 
-      void readloop();
+  bool start();
+  bool stop();
 
-     public:
-      bool finished_;
+  void push(const std::string &message);
+  virtual uint64_t get_starcoder_queue_ptr();
 
-      command_source_impl();
-      ~command_source_impl();
+ private:
+  void readloop();
 
-      bool start();
-      bool stop();
+  std::thread *thread_;
+  const pmt::pmt_t port_;
+  string_queue queue_;
+  bool finished_;
 
-      void push(const std::string &message);
-      virtual uint64_t get_starcoder_queue_ptr();
-    };
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_COMMAND_SOURCE_IMPL_H */
-

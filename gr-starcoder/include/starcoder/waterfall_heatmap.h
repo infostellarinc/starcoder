@@ -20,7 +20,8 @@
 /*
  * gr-satnogs: SatNOGS GNU Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2017, Libre Space Foundation <http://librespacefoundation.org/>
+ *  Copyright (C) 2017, Libre Space Foundation
+ * <http://librespacefoundation.org/>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,7 +37,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef INCLUDED_STARCODER_WATERFALL_HEATMAP_H
 #define INCLUDED_STARCODER_WATERFALL_HEATMAP_H
 
@@ -44,43 +44,41 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    /*!
-     * \brief This block computes the waterfall of the incoming signal
-     * and outputs the dB quantized in the range [-128, 127], using a single
-     * byte for each carrier.
-     * \ingroup starcoder
-     *
-     */
-    class STARCODER_API waterfall_heatmap : virtual public gr::block
-    {
-     public:
-      typedef boost::shared_ptr<waterfall_heatmap> sptr;
+/*!
+ * \brief This block computes the waterfall of the incoming signal
+ * and outputs the dB quantized in the range [-128, 127], using a single
+ * byte for each carrier.
+ * \ingroup starcoder
+ *
+ */
+class STARCODER_API waterfall_heatmap : virtual public gr::block {
+ public:
+  typedef boost::shared_ptr<waterfall_heatmap> sptr;
 
-      /**
-       * This block computes the waterfall of the incoming signal
-       * and propagates the result for plotting.
-       *
-       *
-       * @param samp_rate the sampling rate
-       * @param center_freq the observation center frequency. Used only for
-       * plotting reasons. For a normalized frequency x-axis set it to 0.
-       * @param rps rows per second
-       * @param fft_size FFT size
-       * @param mode the mode that the waterfall.
-       * - 0: Simple decimation
-       * - 1: Max hold
-       * - 2: Mean energy
-       *
-       * @return shared pointer to the object
-       */
-      static sptr
-      make (double samp_rate, double center_freq,
-            double rps, size_t fft_size, int mode = 0);
-    };
+  /**
+   * This block computes the waterfall of the incoming signal
+   * and propagates the result for plotting.
+   *
+   *
+   * @param samp_rate the sampling rate
+   * @param center_freq the observation center frequency. Used only for
+   * plotting reasons. For a normalized frequency x-axis set it to 0.
+   * @param rps rows per second
+   * @param fft_size FFT size
+   * @param mode the mode that the waterfall.
+   * - 0: Simple decimation
+   * - 1: Max hold
+   * - 2: Mean energy
+   *
+   * @return shared pointer to the object
+   */
+  static sptr make(double samp_rate, double center_freq, double rps,
+                   size_t fft_size, int mode = 0);
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_WATERFALL_HEATMAP_H */

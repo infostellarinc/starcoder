@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef _QA_ENQUEUE_MESSAGE_SINK_H_
 #define _QA_ENQUEUE_MESSAGE_SINK_H_
 
@@ -26,23 +25,21 @@
 #include <cppunit/TestCase.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    class qa_enqueue_message_sink : public CppUnit::TestCase
-    {
-    public:
-      CPPUNIT_TEST_SUITE(qa_enqueue_message_sink);
-      CPPUNIT_TEST(test_no_registered_queue);
-      CPPUNIT_TEST(test_registered_queue);
-      CPPUNIT_TEST_SUITE_END();
+class qa_enqueue_message_sink : public CppUnit::TestCase {
+ public:
+  CPPUNIT_TEST_SUITE(qa_enqueue_message_sink);
+  CPPUNIT_TEST(test_no_registered_queue);
+  CPPUNIT_TEST(test_registered_queue);
+  CPPUNIT_TEST_SUITE_END();
 
-    private:
-      void test_no_registered_queue();
-      void test_registered_queue();
-    };
+ private:
+  void test_no_registered_queue();
+  void test_registered_queue();
+};
 
-  } /* namespace starcoder */
+} /* namespace starcoder */
 } /* namespace gr */
 
 #endif /* _QA_ENQUEUE_MESSAGE_SINK_H_ */
-

@@ -26,7 +26,8 @@
 
 pmt::pmt_t convert_pmt_proto(const starcoder::BlockMessage &proto_msg);
 pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list);
-pmt::pmt_t convert_pmt_uniform_vector(const starcoder::UniformVector &proto_pmt_uniform_vector);
+pmt::pmt_t convert_pmt_uniform_vector(
+    const starcoder::UniformVector &proto_pmt_uniform_vector);
 pmt::pmt_t convert_pmt_dict(const starcoder::Dict &proto_pmt_dict);
 
 #endif /* INCLUDED_PROTO_TO_PMT_H */

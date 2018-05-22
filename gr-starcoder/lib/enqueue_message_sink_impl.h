@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -27,30 +27,27 @@
 #include <string_queue.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    class enqueue_message_sink_impl : public enqueue_message_sink
-    {
-     private:
-      std::mutex mutex_;
-      string_queue *string_queue_;
+class enqueue_message_sink_impl : public enqueue_message_sink {
+ private:
+  std::mutex mutex_;
+  string_queue *string_queue_;
 
-     public:
-      enqueue_message_sink_impl();
-      ~enqueue_message_sink_impl();
+ public:
+  enqueue_message_sink_impl();
+  ~enqueue_message_sink_impl();
 
-      // Where all the action really happens
-      int work(int noutput_items,
-         gr_vector_const_void_star &input_items,
-         gr_vector_void_star &output_items);
+  // Where all the action really happens
+  int work(int noutput_items, gr_vector_const_void_star &input_items,
+           gr_vector_void_star &output_items);
 
-      void handler(pmt::pmt_t msg);
+  void handler(pmt::pmt_t msg);
 
-      void register_starcoder_queue(uint64_t ptr);
-    };
+  void register_starcoder_queue(uint64_t ptr);
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_ENQUEUE_MESSAGE_SINK_IMPL_H */
-
