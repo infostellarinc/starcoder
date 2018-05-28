@@ -64,7 +64,7 @@ def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
     fig = Figure(figsize=(12.8, 20.8), dpi=200)
     FigureCanvas(fig)
 
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(1, 1, 1)
 
     im = ax.imshow(arr, cmap=cm.nipy_spectral,
                interpolation='none', vmin=int(np.mean(arr)), vmax=arr.max(),
