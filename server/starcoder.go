@@ -164,11 +164,6 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 
 	go func() {
 		for {
-			// Beyond the first packet, we don't care what the client
-			// is sending us until it wants to end the connection.
-			// TODO: Eventually we would want to let the client send
-			// info to the flow graph during runtime. This will be the
-			// ideal place to receive/process it.
 			req, err := stream.Recv()
 			if err == io.EOF {
 				// Client is done listening
@@ -185,11 +180,18 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				continue
 			} else {
 				commandRequest := x.SendCommandRequest
-				data, err := proto.Marshal(commandRequest.GetPmt())
-				if err != nil {
-					sh.log.Errorw("Failed to marshal", "error", err)
+				if commandCQueue, ok := commandCQueues[commandRequest.GetBlockId()]; !ok {
+					sh.log.Warnw("Block for commanding does not exist",
+						"key", commandRequest.GetBlockId())
+					continue
+				} else {
+					data, err := proto.Marshal(commandRequest.GetPmt())
+					if err != nil {
+						sh.log.Errorw("Failed to marshal", "error", err)
+						continue
+					}
+					commandCQueue.Push(string(data))
 				}
-				commandCQueues[commandRequest.GetBlockId()].Push(string(data))
 			}
 		}
 		sh.finish(nil)
