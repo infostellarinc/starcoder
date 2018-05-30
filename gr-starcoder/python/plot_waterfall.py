@@ -40,7 +40,7 @@ import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import cm
-from matplotlib.ticker import IndexLocator, AutoMinorLocator, AutoLocator
+from matplotlib.ticker import IndexLocator, AutoMinorLocator
 
 
 def float_to_str(f):
