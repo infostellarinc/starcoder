@@ -89,7 +89,7 @@ def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
     y_ticks = []
     y_tick_labels = []
     j = 0
-    for i in range(len(arr), 0, -n_rows_per_tick):
+    for i in range(0, len(arr), n_rows_per_tick):
         y_ticks.append(i)
         y_tick_labels.append(j * 60)
         j = j + 1
@@ -101,8 +101,8 @@ def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
         ax.set_yticklabels(y_tick_labels, size='x-large')
     ax.grid(b='on', linestyle='dashed', linewidth=1,
             color='#000000', alpha=0.3)
-    minor_locator_y = IndexLocator(10 * rps, len(arr) % (10 * rps))
-    ax.get_yaxis().set_minor_locator(minor_locator_y)
+    ax.get_yaxis().set_minor_locator(IndexLocator(10 * rps, 0))
+    ax.get_yaxis().set_major_locator(IndexLocator(60 * rps, 0))
     ax.get_yaxis().grid(which='minor', color='black', linestyle='-', linewidth=0.05, alpha=0.7)
     ax.get_xaxis().grid(which='minor', color='black', linestyle='-', linewidth=0.1, alpha=0.6)
     ax.get_xaxis().set_minor_locator(AutoMinorLocator(10))
