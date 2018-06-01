@@ -102,6 +102,18 @@ func constructPDU() *pb.BlockMessage {
 			},
 		},
 	}
+	pmtPair := &pb.Pair{
+		Car: &pb.BlockMessage{
+			MessageOneof: &pb.BlockMessage_DictValue{pmtDict},
+		},
+		Cdr: constructU8Vector(),
+	}
+	return &pb.BlockMessage{
+		MessageOneof: &pb.BlockMessage_PairValue{pmtPair},
+	}
+}
+
+func constructU8Vector() *pb.BlockMessage {
 	pmtUVector := &pb.UniformVector{
 		UniformVectorOneof: &pb.UniformVector_UValue{
 			UValue: &pb.UVector{
@@ -110,17 +122,7 @@ func constructPDU() *pb.BlockMessage {
 			},
 		},
 	}
-	pmtPair := &pb.Pair{
-		Car: &pb.BlockMessage{
-			MessageOneof: &pb.BlockMessage_DictValue{pmtDict},
-		},
-		Cdr: &pb.BlockMessage{
-			MessageOneof: &pb.BlockMessage_UniformVectorValue{
-				pmtUVector,
-			},
-		},
-	}
 	return &pb.BlockMessage{
-		MessageOneof: &pb.BlockMessage_PairValue{pmtPair},
+		MessageOneof: &pb.BlockMessage_UniformVectorValue{pmtUVector},
 	}
 }

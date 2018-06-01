@@ -19,7 +19,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /*
- * Copyright 2018 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

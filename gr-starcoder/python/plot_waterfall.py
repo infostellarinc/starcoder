@@ -120,5 +120,5 @@ def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
 
 # Used for debugging
 if __name__ == '__main__':
-    arr = np.random.randint(0, 256, [60*60, 1024], dtype=np.uint8)
-    plot_waterfall(arr, 112500., 0., 10, 1024, '')
+    arr = np.random.randint(0, 256, [60*120, 1024], dtype=np.uint8)
+    plot_waterfall(arr, 112500., 0., 10, 1024, 'debug_waterfall.png')
