@@ -70,7 +70,8 @@ list(APPEND starcoder_sources
     waterfall_plotter_impl.cc
     enqueue_message_sink_impl.cc
     ax25_decoder_bm_impl.cc
-    command_source_impl.cc )
+    command_source_impl.cc
+    ax25_encoder_mb_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)
