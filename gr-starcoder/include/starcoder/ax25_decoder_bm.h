@@ -19,7 +19,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /*
- * Copyright 2018 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2018 Infostellar, Inc.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ namespace starcoder {
  * the right destination Callsign will be accepted. This feature can be
  * disabled using the promisc parameter.
  *
- * \ingroup satnogs
+ * \ingroup starcoder
  *
  */
 class STARCODER_API ax25_decoder_bm : virtual public gr::sync_block {

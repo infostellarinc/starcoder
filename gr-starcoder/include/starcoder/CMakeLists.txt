@@ -29,5 +29,6 @@ install(FILES
     waterfall_plotter.h
     enqueue_message_sink.h
     ax25_decoder_bm.h
-    command_source.h DESTINATION include/starcoder
+    command_source.h
+    ax25_encoder_mb.h DESTINATION include/starcoder
 )
