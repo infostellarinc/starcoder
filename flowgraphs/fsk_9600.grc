@@ -298,7 +298,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 316)</value>
+      <value>(456, 388)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -319,6 +319,69 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>analog_sig_source_x</key>
+    <param>
+      <key>amp</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>freq</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(248, 156)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>analog_sig_source_x_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>offset</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>waveform</key>
+      <value>analog.GR_COS_WAVE</value>
     </param>
   </block>
   <block>
@@ -374,6 +437,57 @@
     <param>
       <key>repeat</key>
       <value>True</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_multiply_xx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(456, 136)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_multiply_xx_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>2</value>
     </param>
     <param>
       <key>vlen</key>
@@ -455,7 +569,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 452)</value>
+      <value>(248, 524)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -553,7 +667,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 584)</value>
+      <value>(496, 656)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -592,7 +706,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 548)</value>
+      <value>(248, 620)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -636,6 +750,45 @@
     </param>
   </block>
   <block>
+    <key>starcoder_command_source</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(248, 264)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>doppler_command_source</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>fir_filter_xxx</key>
     <param>
       <key>alias</key>
@@ -659,7 +812,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(432, 140)</value>
+      <value>(560, 140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -710,7 +863,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 720)</value>
+      <value>(520, 792)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -788,7 +941,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 268)</value>
+      <value>(248, 340)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -847,11 +1000,11 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(688, 256)</value>
+      <value>(776, 256)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>0</value>
+      <value>180</value>
     </param>
     <param>
       <key>id</key>
@@ -886,7 +1039,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 436)</value>
+      <value>(456, 508)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -937,7 +1090,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 152)</value>
+      <value>(248, 112)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -980,7 +1133,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 700)</value>
+      <value>(248, 772)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1035,7 +1188,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(688, 196)</value>
+      <value>(776, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1090,7 +1243,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(688, 60)</value>
+      <value>(776, 60)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1129,7 +1282,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 588)</value>
+      <value>(8, 604)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1167,8 +1320,20 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>analog_sig_source_x_0</source_block_id>
+    <sink_block_id>blocks_multiply_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_file_source_0</source_block_id>
     <sink_block_id>blocks_throttle_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_multiply_xx_0</source_block_id>
+    <sink_block_id>fir_filter_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1209,6 +1374,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>doppler_command_source</source_block_id>
+    <sink_block_id>analog_sig_source_x_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>freq</sink_key>
+  </connection>
+  <connection>
     <source_block_id>fir_filter_xxx_0</source_block_id>
     <sink_block_id>low_pass_filter_0</sink_block_id>
     <source_key>0</source_key>
@@ -1240,7 +1411,7 @@
   </connection>
   <connection>
     <source_block_id>starcoder_ar2300_source_0</source_block_id>
-    <sink_block_id>fir_filter_xxx_0</sink_block_id>
+    <sink_block_id>blocks_multiply_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -91,10 +91,12 @@ int ar2300_source_impl::encode_ar2300(const char *in, const int inSize,
     if (sample_index == 8) {
       sample_index = 0;
       if (!validate_sample(sample)) {
-        GR_LOG_WARN(d_logger,
-                    boost::format("Byte %1% work() call %2% is not the correct "
-                                  "starting byte. Adjusting offset") % (i - 7) %
-                        num_work_call_);
+        if (num_work_call_ > 1)
+          GR_LOG_WARN(
+              d_logger,
+              boost::format("Byte %1% work() call %2% is not the correct "
+                            "starting byte. Adjusting offset") % (i - 7) %
+                  num_work_call_);
         i -= 7;  // This line adjusts offset by one byte.
         num_of_consecutive_warns++;
         if (num_of_consecutive_warns > CONSECUTIVE_WARNING_LIMIT) {
