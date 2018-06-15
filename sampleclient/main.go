@@ -58,6 +58,9 @@ func main() {
 			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
 				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPayload(), 0644)
 			}
+			if r.GetBlockId() == "noaa_apt_decoded" {
+				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", r.GetPayload(), 0644)
+			}
 		}
 	}()
 	startReq := &pb.StartFlowgraphRequest{
