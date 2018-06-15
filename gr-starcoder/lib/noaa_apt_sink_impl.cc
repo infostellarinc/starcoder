@@ -134,10 +134,8 @@ void noaa_apt_sink_impl::write_image(png::image<png::gray_pixel> image,
       flipped.write_stream(stream);
       string_queue_->push(stream.str());
     }
-  }
-      // In case the flip option is not set
-      else {
-    // Write out the original
+  } else {
+    // In case the flip option is not set, write out the original
     if (d_filename_png != "") image.write(filename);
     if (string_queue_ != NULL) {
       std::ostringstream stream;
