@@ -127,6 +127,8 @@ void noaa_apt_sink_impl::write_image(std::string filename) {
   }
 
   if (string_queue_ != NULL) {
+    // TODO: Writes out to /tmp since Boost GIL doesn't support writing to streams.
+    // This should be fixed moving forward
     boost::filesystem::path temp = boost::filesystem::unique_path();
     boost::filesystem::path dir("/tmp");
     temp = dir / temp;
