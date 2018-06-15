@@ -41,10 +41,16 @@
 #include "config.h"
 #endif
 
+#define png_infopp_NULL (png_infopp) NULL
+#define int_p_NULL (int *)NULL
+
 #include <gnuradio/io_signature.h>
 #include "noaa_apt_sink_impl.h"
 
 #include <cmath>
+#include <stdio.h>
+#include <boost/gil/extension/io/png_io.hpp>
+#include <boost/filesystem.hpp>
 
 namespace gr {
 namespace starcoder {
@@ -100,9 +106,10 @@ noaa_apt_sink_impl::noaa_apt_sink_impl(const char *filename_png, size_t width,
       f_max_level(0.0),
       f_min_level(1.0),
       f_average(0.0),
+      image_received_(width, height),
       string_queue_(NULL) {
   set_history(d_history_length);
-  d_full_image = png::image<png::gray_pixel>(d_width, d_height);
+  image_received_view_ = view(image_received_);
 }
 
 /*
@@ -110,44 +117,40 @@ noaa_apt_sink_impl::noaa_apt_sink_impl(const char *filename_png, size_t width,
  */
 noaa_apt_sink_impl::~noaa_apt_sink_impl() {}
 
-void noaa_apt_sink_impl::write_image(png::image<png::gray_pixel> image,
-                                     std::string filename) {
-  // In case the flip option is set
-  if (d_flip) {
-    size_t width = image.get_width();
-    size_t height = image.get_height();
+void noaa_apt_sink_impl::write_image(std::string filename) {
+  if (d_filename_png != "") {
+    boost::gil::detail::png_writer w(filename.c_str());
+    if (!d_flip)
+      w.apply(const_view(image_received_));
+    else
+      w.apply(flipped_up_down_view(view(image_received_)));
+  }
 
-    // An image of same size is created ...
-    png::image<png::gray_pixel> flipped(width, height);
+  if (string_queue_ != NULL) {
+    boost::filesystem::path temp = boost::filesystem::unique_path();
+    boost::filesystem::path dir("/tmp");
+    temp = dir / temp;
+    GR_LOG_DEBUG(d_logger, temp.native());
 
-    // ... and all the lines are copied over reverse  order
-    for (size_t y = 0; y < height; y++) {
-      for (size_t x = 0; x < width; x++) {
-        png::gray_pixel pixel = image.get_pixel(x, height - y - 1);
-        flipped.set_pixel(x, y, pixel);
-      }
-    }
-    // Write out the flipped image
-    if (d_filename_png != "") flipped.write(filename);
-    if (string_queue_ != NULL) {
-      std::ostringstream stream;
-      flipped.write_stream(stream);
-      string_queue_->push(stream.str());
-    }
-  } else {
-    // In case the flip option is not set, write out the original
-    if (d_filename_png != "") image.write(filename);
-    if (string_queue_ != NULL) {
-      std::ostringstream stream;
-      image.write_stream(stream);
-      string_queue_->push(stream.str());
-    }
+    boost::gil::detail::png_writer w(temp.native().c_str());
+
+    if (!d_flip)
+      w.apply(const_view(image_received_));
+    else
+      w.apply(flipped_up_down_view(view(image_received_)));
+
+    std::ifstream t(temp.native());
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+
+    string_queue_->push(buffer.str());
+    boost::filesystem::remove(temp);
   }
 }
 
 bool noaa_apt_sink_impl::stop() {
   if (!d_image_received) {
-    write_image(d_full_image, d_filename_png);
+    write_image(d_filename_png);
   }
   return true;
 }
@@ -156,7 +159,7 @@ void noaa_apt_sink_impl::set_pixel(size_t x, size_t y, float sample) {
   // Adjust dynamic range, using minimum and maximum values
   sample = (sample - f_min_level) / (f_max_level - f_min_level) * 255;
   // Set the pixel in the full image
-  d_full_image.set_pixel(x, y, sample);
+  image_received_view_(x, y) = boost::gil::gray8_pixel_t(sample);
 }
 
 void noaa_apt_sink_impl::skip_to(size_t new_x, size_t pos,
@@ -279,7 +282,7 @@ int noaa_apt_sink_impl::work(int noutput_items,
         d_current_y = 0;
         d_num_images += 1;
         // Write out the full image
-        write_image(d_full_image, d_filename_png);
+        write_image(d_filename_png);
         d_image_received = true;
       }
     }

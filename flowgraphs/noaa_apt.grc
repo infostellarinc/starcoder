@@ -536,7 +536,7 @@ the quadrature demodulation</value>
     </param>
     <param>
       <key>repeat</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>vlen</key>

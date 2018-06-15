@@ -180,7 +180,6 @@ find_package(NumPy REQUIRED)
 # Set up PNG dependencies
 ########################################################################
 find_package(PNG REQUIRED)
-find_package(png++ REQUIRED)
 
 ########################################################################
 # Setup the include and linker paths

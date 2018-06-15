@@ -27,7 +27,6 @@ include_directories(
   ${Protobuf_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/
   ${PNG_INCLUDE_DIR}
-  ${png++_INCLUDE_DIRS}
 )
 
 ########################################################################
@@ -89,7 +88,6 @@ target_link_libraries(gnuradio-starcoder
     ${LOG4CPP_LIBRARY}
     ${_PROTOBUF_LIBPROTOBUF}
     ${PNG_LIBRARIES}
-    ${png++_LIBRARIES}
     usb-1.0
 )
 set_target_properties(gnuradio-starcoder PROPERTIES DEFINE_SYMBOL "gnuradio_starcoder_EXPORTS")

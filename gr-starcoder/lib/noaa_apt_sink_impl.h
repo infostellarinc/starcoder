@@ -42,9 +42,9 @@
 
 #include <starcoder/noaa_apt_sink.h>
 #define PNG_DEBUG 3
-#include <png++/png.hpp>
 #include <chrono>
 #include <string_queue.h>
+#include <boost/gil/gil_all.hpp>
 
 namespace gr {
 namespace starcoder {
@@ -83,7 +83,7 @@ class noaa_apt_sink_impl : public noaa_apt_sink {
   void skip_to(size_t new_x, size_t pos, const float *samples);
 
   // Writes a single image to disk, also takes care of flipping
-  void write_image(png::image<png::gray_pixel> image, std::string filename);
+  void write_image(std::string filename);
 
   // Factor exponential smoothing average,
   // which is used for sync pattern detection
@@ -99,8 +99,9 @@ class noaa_apt_sink_impl : public noaa_apt_sink {
   size_t d_history_length;
   bool d_has_sync;
   bool d_image_received;
+  boost::gil::gray8_image_t image_received_;
+  boost::gil::gray8_image_t::view_t image_received_view_;
 
-  png::image<png::gray_pixel> d_full_image;
   std::string d_full_filename;
   std::string d_left_filename;
   std::string d_right_filename;
