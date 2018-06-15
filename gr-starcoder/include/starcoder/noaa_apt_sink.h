@@ -2,8 +2,8 @@
 /*
  * gr-satnogs: SatNOGS GNU Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2016, 2017, 2018
- *  Libre Space Foundation <http://librespacefoundation.org/>
+ *  Copyright (C) 2017, Libre Space Foundation
+ * <http://librespacefoundation.org/>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,8 +37,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_STARCODER_AX25_ENCODER_MB_H
-#define INCLUDED_STARCODER_AX25_ENCODER_MB_H
+#ifndef INCLUDED_STARCODER_NOAA_APT_SINK_H
+#define INCLUDED_STARCODER_NOAA_APT_SINK_H
 
 #include <starcoder/api.h>
 #include <gnuradio/sync_block.h>
@@ -47,46 +47,41 @@ namespace gr {
 namespace starcoder {
 
 /*!
- * \brief AX.25 encoder block that supports the legacy hardware radios.
- *
- * The block takes as inputs blob PMT messages and generates a byte stream.
- * Each output byte contains only one LSB, thus the output can be directly
- * used for FM modulation.
- *
+ * Sink block for NOAA satellites
  * \ingroup starcoder
  *
  */
-class STARCODER_API ax25_encoder_mb : virtual public gr::sync_block {
+class STARCODER_API noaa_apt_sink : virtual public gr::sync_block {
  public:
-  typedef boost::shared_ptr<ax25_encoder_mb> sptr;
+  typedef boost::shared_ptr<noaa_apt_sink> sptr;
 
-  /**
-   * AX.25 encoder block that supports the legacy hardware radios.
+  /*!
+   * Accepts a stream of floats in the range [0,1] which
+   * correspond to one sample per symbol (pixel) and
+   * outputs a grayscale PNG image. This block performs normalization on the
+   * input
+   * float values based on the max and min values observed in the stream.
+   * Adding to that, the user has the option to synchronize to the first of the
+   * two training sequences used by the NOAA APT protocol so that
+   * the two images are displayed one next to the other. The user
+   * can also select to rotate the image 180 degrees in case the captured one
+   * is upside down.
    *
-   * The block takes as inputs blob PMT messages and generates a byte stream.
-   * Each output byte contains only one LSB, thus the output can be directly
-   * used for FM modulation.
    *
-   * @param dest_addr the destination callsign
-   * @param dest_ssid the destination SSID
-   * @param src_addr the source callsign
-   * @param src_ssid the source SSID
-   * @param preamble_len the number of times that the AX.25 synchronization
-   * flags
-   * should be repeated in front of the frame.
-   * @param postamble_len the number of times that the AX.25 synchronization
-   * flags
-   * should be repeated at the end of the frame.
-   * @param scramble if set to true, G3RUH scrambling will be performed
-   * after bit stuffing
+   * @param filename_png the base filename of the output PNG file(s)
+   * @param width the width of the image in the APT transmission
+   * @param height the height of the image in the APT transmission
+   * @param sync user option for synchronizing to the first of the
+   * two training sequences
+   * @param flip user option to rotate the image(s) 180 degrees
+   *
    */
-  static sptr make(const std::string& dest_addr, uint8_t dest_ssid,
-                   const std::string& src_addr, uint8_t src_ssid,
-                   size_t preamble_len = 16, size_t postamble_len = 16,
-                   bool scramble = true);
+  static sptr make(const char *filename_png, size_t width, size_t height,
+                   bool sync, bool flip);
+  virtual void register_starcoder_queue(uint64_t ptr) = 0;
 };
 
 }  // namespace starcoder
 }  // namespace gr
 
-#endif /* INCLUDED_STARCODER_AX25_ENCODER_MB_H */
+#endif /* INCLUDED_STARCODER_NOAA_APT_SINK_H */
