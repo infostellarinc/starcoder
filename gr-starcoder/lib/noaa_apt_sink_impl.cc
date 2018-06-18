@@ -48,7 +48,6 @@
 #include "noaa_apt_sink_impl.h"
 
 #include <cmath>
-#include <stdio.h>
 #include <boost/gil/extension/io/png_io.hpp>
 #include <boost/filesystem.hpp>
 
@@ -121,25 +120,23 @@ void noaa_apt_sink_impl::write_image(std::string filename) {
   if (d_filename_png != "") {
     boost::gil::detail::png_writer w(filename.c_str());
     if (!d_flip)
-      w.apply(const_view(image_received_));
+      w.apply(image_received_view_);
     else
-      w.apply(flipped_up_down_view(view(image_received_)));
+      w.apply(flipped_up_down_view(image_received_view_));
   }
 
   if (string_queue_ != NULL) {
     // TODO: Writes out to /tmp since Boost GIL doesn't support writing to streams.
     // This should be fixed moving forward
-    boost::filesystem::path temp = boost::filesystem::unique_path();
-    boost::filesystem::path dir("/tmp");
-    temp = dir / temp;
+    boost::filesystem::path temp = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
     GR_LOG_DEBUG(d_logger, temp.native());
 
     boost::gil::detail::png_writer w(temp.native().c_str());
 
     if (!d_flip)
-      w.apply(const_view(image_received_));
+      w.apply(image_received_view_);
     else
-      w.apply(flipped_up_down_view(view(image_received_)));
+      w.apply(flipped_up_down_view(image_received_view_));
 
     std::ifstream t(temp.native());
     std::stringstream buffer;
