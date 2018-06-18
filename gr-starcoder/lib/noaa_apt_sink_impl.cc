@@ -48,8 +48,9 @@
 #include "noaa_apt_sink_impl.h"
 
 #include <cmath>
-#include <boost/gil/extension/io/png_io.hpp>
+
 #include <boost/filesystem.hpp>
+#include <boost/gil/extension/io/png_io.hpp>
 
 namespace gr {
 namespace starcoder {
@@ -118,11 +119,11 @@ noaa_apt_sink_impl::~noaa_apt_sink_impl() {}
 
 void noaa_apt_sink_impl::write_image(std::string filename) {
   if (d_filename_png != "") {
-    boost::gil::detail::png_writer w(filename.c_str());
+    boost::gil::detail::png_writer writer(filename.c_str());
     if (!d_flip)
-      w.apply(image_received_view_);
+      writer.apply(image_received_view_);
     else
-      w.apply(flipped_up_down_view(image_received_view_));
+      writer.apply(flipped_up_down_view(image_received_view_));
   }
 
   if (string_queue_ != NULL) {
@@ -131,12 +132,12 @@ void noaa_apt_sink_impl::write_image(std::string filename) {
     boost::filesystem::path temp = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
     GR_LOG_DEBUG(d_logger, temp.native());
 
-    boost::gil::detail::png_writer w(temp.native().c_str());
+    boost::gil::detail::png_writer writer(temp.native().c_str());
 
     if (!d_flip)
-      w.apply(image_received_view_);
+      writer.apply(image_received_view_);
     else
-      w.apply(flipped_up_down_view(image_received_view_));
+      writer.apply(flipped_up_down_view(image_received_view_));
 
     std::ifstream t(temp.native());
     std::stringstream buffer;
