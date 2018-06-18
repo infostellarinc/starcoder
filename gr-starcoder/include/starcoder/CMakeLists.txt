@@ -30,5 +30,6 @@ install(FILES
     enqueue_message_sink.h
     ax25_decoder_bm.h
     command_source.h
-    ax25_encoder_mb.h DESTINATION include/starcoder
+    ax25_encoder_mb.h
+    noaa_apt_sink.h DESTINATION include/starcoder
 )

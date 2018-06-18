@@ -26,6 +26,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
   ${Protobuf_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/
+  ${PNG_INCLUDE_DIR}
 )
 
 ########################################################################
@@ -71,7 +72,8 @@ list(APPEND starcoder_sources
     enqueue_message_sink_impl.cc
     ax25_decoder_bm_impl.cc
     command_source_impl.cc
-    ax25_encoder_mb_impl.cc )
+    ax25_encoder_mb_impl.cc
+    noaa_apt_sink_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)
@@ -80,7 +82,14 @@ if(NOT starcoder_sources)
 endif(NOT starcoder_sources)
 
 add_library(gnuradio-starcoder SHARED ${starcoder_sources})
-target_link_libraries(gnuradio-starcoder ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${LOG4CPP_LIBRARY} ${_PROTOBUF_LIBPROTOBUF} usb-1.0)
+target_link_libraries(gnuradio-starcoder
+    ${Boost_LIBRARIES}
+    ${GNURADIO_ALL_LIBRARIES}
+    ${LOG4CPP_LIBRARY}
+    ${_PROTOBUF_LIBPROTOBUF}
+    ${PNG_LIBRARIES}
+    usb-1.0
+)
 set_target_properties(gnuradio-starcoder PROPERTIES DEFINE_SYMBOL "gnuradio_starcoder_EXPORTS")
 
 if(APPLE)

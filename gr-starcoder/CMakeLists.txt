@@ -177,6 +177,11 @@ find_package(PythonLibs 2 REQUIRED)
 find_package(NumPy REQUIRED)
 
 ########################################################################
+# Set up PNG dependencies
+########################################################################
+find_package(PNG REQUIRED)
+
+########################################################################
 # Setup the include and linker paths
 ########################################################################
 include_directories(
