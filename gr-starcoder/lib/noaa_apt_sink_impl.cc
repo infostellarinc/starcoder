@@ -140,6 +140,7 @@ void noaa_apt_sink_impl::write_image(std::string filename) {
       writer.apply(flipped_up_down_view(image_received_view_));
 
     std::ifstream t(temp.native());
+    // Using std::string directly as the buffer breaks the generated .png.
     std::stringstream buffer;
     buffer << t.rdbuf();
 
