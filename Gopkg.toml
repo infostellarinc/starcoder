@@ -33,6 +33,8 @@ required = [
   "google.golang.org/genproto",
   "github.com/GeertJohan/go.rice",
   "github.com/GeertJohan/go.rice/rice",
+  "github.com/prometheus/client_golang/prometheus",
+  "github.com/prometheus/client_golang/prometheus/promhttp",
   "github.com/spf13/cobra",
   "github.com/sbinet/go-python",
   "go.uber.org/zap",
@@ -43,7 +45,7 @@ required = [
   name = "github.com/gogo/protobuf"
   version = "1.0.0"
 
-[[constraint]]
+[[override]]
   name = "github.com/golang/protobuf"
   version = "1.0.0"
 
@@ -73,7 +75,11 @@ required = [
 
 [[constraint]]
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
-  branch = "master"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/prometheus/client_golang"
+  version = "0.8.0"
 
 [prune]
   go-tests = true

@@ -36,6 +36,7 @@
 
 import io
 import numpy as np
+import gc
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -60,6 +61,7 @@ def float_to_str(f):
 
 
 def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
+    gc.collect()
 
     fig = Figure(figsize=(12.8, 20.8), dpi=200)
     FigureCanvas(fig)

@@ -38,16 +38,19 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/infostellarinc/starcoder/monitoring"
 )
 
 const (
 	defaultBindAddress = ":50051"
+	defaultExporterAddress = ":9999"
 )
 
 // Local flags used to configure the serve command
 type serveCmdConfiguration struct {
 	BindAddress  string
 	FlowgraphDir string
+	ExporterAddress string
 }
 
 var serveCmdConfig = serveCmdConfiguration{}
@@ -66,6 +69,20 @@ var serveCmd = &cobra.Command{
 		defer log.Sync()
 		
 		log.Infof("serve called, using bind address %v", serveCmdConfig.BindAddress)
+
+		// Set up metrics endpoint
+		metrics := monitoring.NewMetrics()
+		exporter, err := monitoring.NewExporter(serveCmdConfig.ExporterAddress, log)
+		if err != nil {
+			log.Errorw("Couldn't start Prometheus metrics exporter", "error", err)
+		}
+		defer func() {
+			if exporter != nil {
+				exporter.Close()
+			}
+		}()
+		log.Infow("Started Prometheus metrics exporter",
+			"address", serveCmdConfig.ExporterAddress)
 
 		if serveCmdConfig.FlowgraphDir == "" {
 			tempDir, err := ioutil.TempDir("", "starcoder")
@@ -102,7 +119,7 @@ var serveCmd = &cobra.Command{
 				grpc_zap.StreamServerInterceptor(l),
 			),
 		)
-		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, log)
+		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, log, metrics)
 
 		// Handle OS signals
 		sigs := make(chan os.Signal, 1)
@@ -149,6 +166,7 @@ func init() {
 	// is called directly, e.g.:
 	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bind-address", defaultBindAddress, "Address to bind to")
 	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraph-dir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
+	serveCmd.Flags().StringVar(&serveCmdConfig.ExporterAddress, "exporter-address", defaultExporterAddress, "Address where exported Prometheus metrics will be served")
 
 	viper.BindPFlags(serveCmd.Flags())
 }
