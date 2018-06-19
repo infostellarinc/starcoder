@@ -34,6 +34,7 @@ import (
 	"sync"
 	"go.uber.org/zap"
 	"github.com/gogo/protobuf/proto"
+	"github.com/infostellarinc/starcoder/monitoring"
 )
 
 const defaultQueueSize = 1048576
@@ -56,7 +57,7 @@ type moduleAndClassNames struct {
 	className  string
 }
 
-func NewStarcoderServer(flowgraphDir string, log *zap.SugaredLogger) *Starcoder {
+func NewStarcoderServer(flowgraphDir string, log *zap.SugaredLogger, metrics *monitoring.Metrics) *Starcoder {
 	err := python.Initialize()
 	if err != nil {
 		log.Fatalf("failed to initialize python: %v", err)
@@ -109,10 +110,12 @@ func NewStarcoderServer(flowgraphDir string, log *zap.SugaredLogger) *Starcoder 
 			select {
 			case sh := <-s.registerStreamHandler:
 				s.streamHandlers[sh] = true
+				metrics.FlowgraphCount.Add(1)
 			case sh := <-s.deregisterStreamHandler:
 				if _, ok := s.streamHandlers[sh]; ok {
 					sh.Close()
 					delete(s.streamHandlers, sh)
+					metrics.FlowgraphCount.Sub(1)
 				}
 			case respCh := <-s.closeAllStreamsChannel:
 				for sh := range s.streamHandlers {
