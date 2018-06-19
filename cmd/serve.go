@@ -81,6 +81,8 @@ var serveCmd = &cobra.Command{
 				exporter.Close()
 			}
 		}()
+		log.Infow("Started Prometheus metrics exporter",
+			"address", serveCmdConfig.ExporterAddress)
 
 		if serveCmdConfig.FlowgraphDir == "" {
 			tempDir, err := ioutil.TempDir("", "starcoder")
