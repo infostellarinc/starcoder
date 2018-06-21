@@ -35,6 +35,8 @@ import (
 	"go.uber.org/zap"
 	"github.com/gogo/protobuf/proto"
 	"github.com/infostellarinc/starcoder/monitoring"
+	"github.com/prometheus/client_golang/prometheus"
+	"time"
 )
 
 const defaultQueueSize = 1048576
@@ -142,26 +144,27 @@ type streamHandler struct {
 	flowGraphInstance *python.PyObject
 	observableCQueues map[string]*cqueue.CStringQueue
 	commandCQueues    map[string]*cqueue.CStringQueue
+	perfCtrBlocks     map[string]*python.PyObject
 	clientFinished    bool
 	streamError       error
 	mustCloseMutex    sync.Mutex
 	wg                sync.WaitGroup
-	closeChannel      chan chan bool
+	perfCtrStopChannels []chan bool
 	log *zap.SugaredLogger
 }
 
-func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, commandCQueues map[string]*cqueue.CStringQueue, log *zap.SugaredLogger) *streamHandler {
+func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, commandCQueues map[string]*cqueue.CStringQueue, perfCtrBlocks map[string]*python.PyObject, log *zap.SugaredLogger) *streamHandler {
 	sh := &streamHandler{
 		starcoder:         sc,
 		stream:            stream,
 		flowGraphInstance: fgInstance,
 		observableCQueues: observableCQueues,
 		commandCQueues:    commandCQueues,
+		perfCtrBlocks:     perfCtrBlocks,
 		clientFinished:    false,
 		streamError:       nil,
 		mustCloseMutex:    sync.Mutex{},
 		wg:                sync.WaitGroup{},
-		closeChannel:      make(chan chan bool),
 		log: log,
 	}
 
@@ -238,6 +241,50 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		}()
 	}
 
+	// Processing loops for performance counters
+	for k, block := range sh.perfCtrBlocks {
+		blockName := k
+		obj := block
+		ticker := time.NewTicker(time.Second * 15)
+		stopChannel := make(chan bool)
+		sh.perfCtrStopChannels = append(sh.perfCtrStopChannels, stopChannel)
+		gauge := prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "starcoder_" + blockName,
+			Help: "starcoder_" + blockName,
+		})
+		err := prometheus.Register(gauge)
+		if err != nil {
+			if val, ok := err.(prometheus.AlreadyRegisteredError); ok {
+				gauge = val.ExistingCollector.(prometheus.Gauge)
+			} else {
+				log.Errorw("Error registering gauge", "error", err)
+			}
+		}
+		go func() {
+			sh.wg.Add(1)
+			defer sh.wg.Done()
+			defer ticker.Stop()
+			for {
+				select {
+				case <-ticker.C:
+					var result float64
+					sh.starcoder.withPythonInterpreter(func() {
+						pyResult := obj.CallMethodObjArgs("pc_work_time_total")
+						if pyResult == nil {
+							sh.finish(errors.New(getExceptionString()))
+							return
+						}
+						result = python.PyFloat_AsDouble(pyResult)
+					})
+					gauge.Set(result)
+				case <-stopChannel:
+					gauge.Set(0)
+					return
+				}
+			}
+		}()
+	}
+
 	sh.wg.Add(1)
 	return sh
 }
@@ -272,6 +319,9 @@ func (sh *streamHandler) Close() {
 	defer func() {
 		for _, cQueue := range sh.observableCQueues {
 			cQueue.Close()
+		}
+		for _, stopChannel := range sh.perfCtrStopChannels {
+			stopChannel <- true
 		}
 		sh.wg.Done()
 	}()
@@ -309,7 +359,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		return err
 	}
 
-	flowGraphInstance, observableCQueues, commandCQueues, err := s.startFlowGraph(modAndClass, startRequest)
+	flowGraphInstance, observableCQueues, commandCQueues, perfCtrBlocks, err := s.startFlowGraph(modAndClass, startRequest)
 	if err != nil {
 		s.log.Errorf("Error starting flowgraph: %v", err)
 		return err
@@ -324,7 +374,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		}
 	}()
 
-	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues, commandCQueues, s.log)
+	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues, commandCQueues, perfCtrBlocks, s.log)
 	s.registerStreamHandler <- sh
 	sh.Wait()
 
@@ -415,10 +465,11 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 	return retVal, nil
 }
 
-func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.StartFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, map[string]*cqueue.CStringQueue, error) {
+func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.StartFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, map[string]*cqueue.CStringQueue, map[string]*python.PyObject, error) {
 	var flowGraphInstance *python.PyObject
 	var observableCQueue map[string]*cqueue.CStringQueue
 	var commandCQueues map[string]*cqueue.CStringQueue
+	var perfCtrBlocks map[string]*python.PyObject
 	var err error
 
 	s.withPythonInterpreter(func() {
@@ -501,6 +552,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 
 		observableCQueue = make(map[string]*cqueue.CStringQueue)
 		commandCQueues = make(map[string]*cqueue.CStringQueue)
+		perfCtrBlocks = make(map[string]*python.PyObject)
 
 		// Look for any Enqueue Message Sink blocks
 		starcoderModule := python.PyImport_ImportModule("starcoder")
@@ -552,10 +604,15 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 					result.DecRef()
 					s.log.Infof("found block with get_starcoder_queue_ptr: %v", k)
 				}
+				// Verify if instance has performance counters enabled
+				hasPerfCtr := val.HasAttrString("pc_throughput_avg")
+				if hasPerfCtr == 1 {
+					perfCtrBlocks[python.PyString_AsString(key)] = val
+				}
 			}
 		}
 	})
-	return flowGraphInstance, observableCQueue, commandCQueues, err
+	return flowGraphInstance, observableCQueue, commandCQueues, perfCtrBlocks, err
 }
 
 func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter) error {
