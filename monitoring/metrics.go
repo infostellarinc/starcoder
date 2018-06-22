@@ -19,10 +19,26 @@
 package monitoring
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
+	"sync"
 )
 
-const metricsPrefix string = "starcoder_"
+const metricsPrefix = "starcoder_"
+
+var PerformanceCountersToCollect = []string{
+	"pc_work_time_total",
+	"pc_work_time_avg",
+	"pc_work_time",
+	"pc_work_time_var",
+	"pc_throughput_avg",
+	"pc_nproduced",
+	"pc_nproduced_avg",
+	"pc_nproduced_var",
+}
+
+var mtx sync.Mutex
+var performanceCounterGaugeVecs = map[string]*prometheus.GaugeVec{}
 
 type Metrics struct {
 	FlowgraphCount prometheus.Gauge
@@ -45,4 +61,34 @@ func (m *Metrics) init() {
 
 func getMetricsName(name string) string {
 	return metricsPrefix + name
+}
+
+// Registers a new gauge. If gauge already exists, returns that.
+func GetPerfCtrGauge(flowgraphName string, blockName string, counterName string) (prometheus.Gauge, error) {
+	mtx.Lock()
+	defer mtx.Unlock()
+	if val, ok := performanceCounterGaugeVecs[flowgraphName]; ok {
+		return val.GetMetricWith(prometheus.Labels{
+			"block_name":               blockName,
+			"performance_counter_name": counterName,
+		})
+	}
+	gaugeVec := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: getMetricsName(flowgraphName),
+			Help: fmt.Sprintf(
+				"Gauge for performance counter %v of block %v in flowgraph %v",
+				counterName, blockName, flowgraphName,
+			),
+		},
+		[]string{
+			"block_name",
+			"performance_counter_name",
+		})
+	prometheus.MustRegister(gaugeVec)
+	performanceCounterGaugeVecs[flowgraphName] = gaugeVec
+	return gaugeVec.GetMetricWith(prometheus.Labels{
+		"block_name":               blockName,
+		"performance_counter_name": counterName,
+	})
 }

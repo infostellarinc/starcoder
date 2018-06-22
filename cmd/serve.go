@@ -20,10 +20,15 @@ package cmd
 
 import (
 	"github.com/GeertJohan/go.rice"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	pb "github.com/infostellarinc/starcoder/api"
+	"github.com/infostellarinc/starcoder/monitoring"
 	"github.com/infostellarinc/starcoder/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io/ioutil"
@@ -34,23 +39,21 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-	"go.uber.org/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/infostellarinc/starcoder/monitoring"
+	"time"
 )
 
 const (
-	defaultBindAddress = ":50051"
-	defaultExporterAddress = ":9999"
+	defaultBindAddress               = ":50051"
+	defaultExporterAddress           = ":9999"
+	defaultPerfCtrCollectionInterval = time.Second * 15
 )
 
 // Local flags used to configure the serve command
 type serveCmdConfiguration struct {
-	BindAddress  string
-	FlowgraphDir string
-	ExporterAddress string
+	BindAddress               string
+	FlowgraphDir              string
+	ExporterAddress           string
+	PerfCtrCollectionInterval time.Duration
 }
 
 var serveCmdConfig = serveCmdConfiguration{}
@@ -67,7 +70,7 @@ var serveCmd = &cobra.Command{
 		}
 		log := l.Sugar()
 		defer log.Sync()
-		
+
 		log.Infof("serve called, using bind address %v", serveCmdConfig.BindAddress)
 
 		// Set up metrics endpoint
@@ -119,7 +122,7 @@ var serveCmd = &cobra.Command{
 				grpc_zap.StreamServerInterceptor(l),
 			),
 		)
-		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, log, metrics)
+		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, serveCmdConfig.PerfCtrCollectionInterval, log, metrics)
 
 		// Handle OS signals
 		sigs := make(chan os.Signal, 1)
@@ -167,6 +170,7 @@ func init() {
 	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bind-address", defaultBindAddress, "Address to bind to")
 	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraph-dir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
 	serveCmd.Flags().StringVar(&serveCmdConfig.ExporterAddress, "exporter-address", defaultExporterAddress, "Address where exported Prometheus metrics will be served")
+	serveCmd.Flags().DurationVar(&serveCmdConfig.PerfCtrCollectionInterval, "perf-ctr-interval", defaultPerfCtrCollectionInterval, "Time interval for exporting GNURadio performance metrics to Prometheus. If set to 0, this will be disabled. Default 15s.")
 
 	viper.BindPFlags(serveCmd.Flags())
 }
