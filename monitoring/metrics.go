@@ -19,8 +19,8 @@
 package monitoring
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
 	"sync"
 )
 
@@ -69,7 +69,7 @@ func GetPerfCtrGauge(flowgraphName string, blockName string, counterName string)
 	defer mtx.Unlock()
 	if val, ok := performanceCounterGaugeVecs[flowgraphName]; ok {
 		return val.GetMetricWith(prometheus.Labels{
-			"block_name": blockName,
+			"block_name":               blockName,
 			"performance_counter_name": counterName,
 		})
 	}
@@ -88,7 +88,7 @@ func GetPerfCtrGauge(flowgraphName string, blockName string, counterName string)
 	prometheus.MustRegister(gaugeVec)
 	performanceCounterGaugeVecs[flowgraphName] = gaugeVec
 	return gaugeVec.GetMetricWith(prometheus.Labels{
-		"block_name": blockName,
+		"block_name":               blockName,
 		"performance_counter_name": counterName,
 	})
 }

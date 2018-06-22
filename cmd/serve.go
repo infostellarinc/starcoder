@@ -20,10 +20,15 @@ package cmd
 
 import (
 	"github.com/GeertJohan/go.rice"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	pb "github.com/infostellarinc/starcoder/api"
+	"github.com/infostellarinc/starcoder/monitoring"
 	"github.com/infostellarinc/starcoder/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io/ioutil"
@@ -34,25 +39,20 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-	"go.uber.org/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/infostellarinc/starcoder/monitoring"
 	"time"
 )
 
 const (
-	defaultBindAddress = ":50051"
-	defaultExporterAddress = ":9999"
+	defaultBindAddress               = ":50051"
+	defaultExporterAddress           = ":9999"
 	defaultPerfCtrCollectionInterval = time.Second * 15
 )
 
 // Local flags used to configure the serve command
 type serveCmdConfiguration struct {
-	BindAddress  string
-	FlowgraphDir string
-	ExporterAddress string
+	BindAddress               string
+	FlowgraphDir              string
+	ExporterAddress           string
 	PerfCtrCollectionInterval time.Duration
 }
 
@@ -70,7 +70,7 @@ var serveCmd = &cobra.Command{
 		}
 		log := l.Sugar()
 		defer log.Sync()
-		
+
 		log.Infof("serve called, using bind address %v", serveCmdConfig.BindAddress)
 
 		// Set up metrics endpoint

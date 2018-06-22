@@ -21,9 +21,13 @@ package server
 import (
 	"errors"
 	"fmt"
+	"github.com/gogo/protobuf/proto"
 	pb "github.com/infostellarinc/starcoder/api"
 	"github.com/infostellarinc/starcoder/cqueue"
+	"github.com/infostellarinc/starcoder/monitoring"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sbinet/go-python"
+	"go.uber.org/zap"
 	"io"
 	"io/ioutil"
 	"os"
@@ -32,11 +36,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"go.uber.org/zap"
-	"github.com/gogo/protobuf/proto"
-	"github.com/infostellarinc/starcoder/monitoring"
 	"time"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 const defaultQueueSize = 1048576
@@ -79,7 +79,7 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, log 
 		deregisterStreamHandler:   make(chan *streamHandler),
 		closeAllStreamsChannel:    make(chan chan bool),
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
-		log: log,
+		log:             log,
 		perfCtrInterval: perfCtrInterval,
 	}
 
@@ -141,37 +141,37 @@ func (s *Starcoder) closeAllStreams() {
 }
 
 type flowgraphProperties struct {
-	name string
-	pyInstance *python.PyObject
+	name              string
+	pyInstance        *python.PyObject
 	observableCQueues map[string]*cqueue.CStringQueue
 	commandCQueues    map[string]*cqueue.CStringQueue
 	perfCtrBlocks     map[string]*python.PyObject
 }
 
 type streamHandler struct {
-	starcoder         *Starcoder
-	stream            pb.Starcoder_RunFlowgraphServer
-	flowGraphName     string
-	flowgraphProps    *flowgraphProperties
+	starcoder          *Starcoder
+	stream             pb.Starcoder_RunFlowgraphServer
+	flowGraphName      string
+	flowgraphProps     *flowgraphProperties
 	perfCtrStopChannel chan struct{}
-	clientFinished    bool
-	streamError       error
-	mustCloseMutex    sync.Mutex
-	wg                sync.WaitGroup
-	log *zap.SugaredLogger
+	clientFinished     bool
+	streamError        error
+	mustCloseMutex     sync.Mutex
+	wg                 sync.WaitGroup
+	log                *zap.SugaredLogger
 }
 
 func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, flowgraphProps *flowgraphProperties, log *zap.SugaredLogger) *streamHandler {
 	sh := &streamHandler{
-		starcoder:         sc,
-		stream:            stream,
-		flowgraphProps:    flowgraphProps,
+		starcoder:          sc,
+		stream:             stream,
+		flowgraphProps:     flowgraphProps,
 		perfCtrStopChannel: make(chan struct{}),
-		clientFinished:    false,
-		streamError:       nil,
-		mustCloseMutex:    sync.Mutex{},
-		wg:                sync.WaitGroup{},
-		log: log,
+		clientFinished:     false,
+		streamError:        nil,
+		mustCloseMutex:     sync.Mutex{},
+		wg:                 sync.WaitGroup{},
+		log:                log,
 	}
 
 	go sh.clientReceiveLoop()
@@ -312,7 +312,7 @@ func (sh *streamHandler) performanceCounterCollectionLoop() {
 			}
 		case <-sh.perfCtrStopChannel:
 			for _, blockGauges := range gauges {
-				for _, gauge := range blockGauges{
+				for _, gauge := range blockGauges {
 					gauge.Set(0)
 				}
 			}
@@ -646,10 +646,10 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 		name: strings.TrimSuffix(
 			request.GetFilename(),
 			filepath.Ext(request.GetFilename())),
-		pyInstance: flowGraphInstance,
+		pyInstance:        flowGraphInstance,
 		observableCQueues: observableCQueue,
-		commandCQueues: commandCQueues,
-		perfCtrBlocks: perfCtrBlocks,
+		commandCQueues:    commandCQueues,
+		perfCtrBlocks:     perfCtrBlocks,
 	}, err
 }
 

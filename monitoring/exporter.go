@@ -27,7 +27,7 @@ import (
 
 type Exporter struct {
 	httpServer *http.Server
-	log *zap.SugaredLogger
+	log        *zap.SugaredLogger
 }
 
 func NewExporter(address string, l *zap.SugaredLogger) (*Exporter, error) {
@@ -38,7 +38,7 @@ func NewExporter(address string, l *zap.SugaredLogger) (*Exporter, error) {
 	handlers := http.NewServeMux()
 
 	e.httpServer = &http.Server{
-		Addr: address,
+		Addr:    address,
 		Handler: handlers,
 	}
 	handlers.Handle("/metrics", promhttp.Handler())
