@@ -35,8 +35,8 @@ import (
 	"go.uber.org/zap"
 	"github.com/gogo/protobuf/proto"
 	"github.com/infostellarinc/starcoder/monitoring"
-	"github.com/prometheus/client_golang/prometheus"
 	"time"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const defaultQueueSize = 1048576
@@ -145,11 +145,11 @@ type streamHandler struct {
 	observableCQueues map[string]*cqueue.CStringQueue
 	commandCQueues    map[string]*cqueue.CStringQueue
 	perfCtrBlocks     map[string]*python.PyObject
+	perfCtrStopChannel chan bool
 	clientFinished    bool
 	streamError       error
 	mustCloseMutex    sync.Mutex
 	wg                sync.WaitGroup
-	perfCtrStopChannels []chan bool
 	log *zap.SugaredLogger
 }
 
@@ -161,6 +161,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		observableCQueues: observableCQueues,
 		commandCQueues:    commandCQueues,
 		perfCtrBlocks:     perfCtrBlocks,
+		perfCtrStopChannel: make(chan bool),
 		clientFinished:    false,
 		streamError:       nil,
 		mustCloseMutex:    sync.Mutex{},
@@ -241,49 +242,57 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		}()
 	}
 
-	// Processing loops for performance counters
-	for k, block := range sh.perfCtrBlocks {
-		blockName := k
-		obj := block
+	// Processing loop for performance counters
+	go func() {
+		sh.wg.Add(1)
+		defer sh.wg.Done()
+
 		ticker := time.NewTicker(time.Second * 15)
-		stopChannel := make(chan bool)
-		sh.perfCtrStopChannels = append(sh.perfCtrStopChannels, stopChannel)
-		gauge := prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "starcoder_" + blockName,
-			Help: "starcoder_" + blockName,
-		})
-		err := prometheus.Register(gauge)
-		if err != nil {
-			if val, ok := err.(prometheus.AlreadyRegisteredError); ok {
-				gauge = val.ExistingCollector.(prometheus.Gauge)
-			} else {
-				log.Errorw("Error registering gauge", "error", err)
+		defer ticker.Stop()
+
+		// Get gauges
+		gauges := make(map[string]prometheus.Gauge)
+		for blockName, _ := range sh.perfCtrBlocks {
+			gauge, err := monitoring.GetPerfCtrGauge(
+				"flowgraph",
+				blockName,
+				"pc_work_time_total")
+			if err != nil {
+				log.Errorw("Error retrieving gauge", "error", err)
+				return
 			}
+			gauges[blockName] = gauge
 		}
-		go func() {
-			sh.wg.Add(1)
-			defer sh.wg.Done()
-			defer ticker.Stop()
-			for {
-				select {
-				case <-ticker.C:
-					var result float64
-					sh.starcoder.withPythonInterpreter(func() {
+
+		for {
+			select {
+			case <-ticker.C:
+				var err error
+
+				sh.starcoder.withPythonInterpreter(func() {
+					for blockName, obj := range sh.perfCtrBlocks {
 						pyResult := obj.CallMethodObjArgs("pc_work_time_total")
 						if pyResult == nil {
-							sh.finish(errors.New(getExceptionString()))
+							err = errors.New(getExceptionString())
 							return
 						}
-						result = python.PyFloat_AsDouble(pyResult)
-					})
-					gauge.Set(result)
-				case <-stopChannel:
-					gauge.Set(0)
+						gauges[blockName].Set(python.PyFloat_AsDouble(pyResult))
+						pyResult.DecRef()
+					}
+				})
+
+				if err != nil {
+					sh.finish(errors.New(getExceptionString()))
 					return
 				}
+			case <-sh.perfCtrStopChannel:
+				for _, gauge := range gauges {
+					gauge.Set(0)
+				}
+				return
 			}
-		}()
-	}
+		}
+	}()
 
 	sh.wg.Add(1)
 	return sh
@@ -320,9 +329,7 @@ func (sh *streamHandler) Close() {
 		for _, cQueue := range sh.observableCQueues {
 			cQueue.Close()
 		}
-		for _, stopChannel := range sh.perfCtrStopChannels {
-			stopChannel <- true
-		}
+		sh.perfCtrStopChannel <- true
 		sh.wg.Done()
 	}()
 	// TODO: Make this call unblock by getting rid of `wait`

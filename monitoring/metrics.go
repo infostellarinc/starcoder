@@ -20,6 +20,7 @@ package monitoring
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
+	"fmt"
 )
 
 const metricsPrefix string = "starcoder_"
@@ -45,4 +46,24 @@ func (m *Metrics) init() {
 
 func getMetricsName(name string) string {
 	return metricsPrefix + name
+}
+
+// Registers a new gauge. If gauge already exists, returns that.
+func GetPerfCtrGauge(flowgraphName string, blockName string, counterName string) (prometheus.Gauge, error) {
+	gauge := prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: getMetricsName(flowgraphName + "_" + blockName + "_" + counterName),
+		Help: fmt.Sprintf(
+			"Gauge for performance counter %v of block %v in flowgraph %v",
+			counterName, blockName, flowgraphName,
+			),
+	})
+	err := prometheus.Register(gauge)
+	if err != nil {
+		if val, ok := err.(prometheus.AlreadyRegisteredError); ok {
+			gauge = val.ExistingCollector.(prometheus.Gauge)
+		} else {
+			return nil, err
+		}
+	}
+	return gauge, nil
 }
