@@ -174,145 +174,151 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, flo
 		log: log,
 	}
 
-	go func() {
-		for {
-			req, err := stream.Recv()
-			if err == io.EOF {
-				// Client is done listening
-				break
-			}
-			if err != nil {
-				log.Errorf("Received error from client: %v", err)
-				sh.finish(err)
-				return
-			}
-
-			if x, ok := req.Request.(*pb.RunFlowgraphRequest_SendCommandRequest); !ok {
-				sh.log.Warnw("Non-initial request in stream is StartFlowgraphRequest")
-				continue
-			} else {
-				commandRequest := x.SendCommandRequest
-				if commandCQueue, ok := flowgraphProps.commandCQueues[commandRequest.GetBlockId()]; !ok {
-					sh.log.Warnw("Block for commanding does not exist",
-						"key", commandRequest.GetBlockId())
-					continue
-				} else {
-					data, err := proto.Marshal(commandRequest.GetPmt())
-					if err != nil {
-						sh.log.Errorw("Failed to marshal", "error", err)
-						continue
-					}
-					commandCQueue.Push(string(data))
-				}
-			}
-		}
-		sh.finish(nil)
-	}()
+	go sh.clientReceiveLoop()
 
 	// Processing loop for observable C queues
 	for k, cQueue := range sh.flowgraphProps.observableCQueues {
 		blockName := k
 		q := cQueue
-		go func() {
-			sh.wg.Add(1)
-			defer sh.wg.Done()
-			for {
-				// TODO: Convert PMT to a gRPC native data structure.
-				// Use built-in PMT serialization for now.
-				bytes := []byte(q.BlockingPop())
-				// Could be woken up spuriously or by something else calling q.Close()
-				if len(bytes) != 0 {
-					if err := stream.Send(&pb.RunFlowgraphResponse{
-						BlockId: blockName,
-						Payload: bytes,
-					}); err != nil {
-						log.Errorf("Error sending stream: %v", err)
-						sh.finish(err)
-						return
-					}
-				}
-				if sh.finished() {
-					// Send the rest of the bytes if any are left
-					for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
-						log.Info(bytes)
-						if err := stream.Send(&pb.RunFlowgraphResponse{
-							BlockId: blockName,
-							Payload: bytes,
-						}); err != nil {
-							log.Errorf("Error sending stream: %v", err)
-						}
-					}
-					return
-				}
-			}
-		}()
+		go sh.observableQueueLoop(blockName, q)
 	}
 
 	// Processing loop for performance counters
-	go func() {
-		if sh.starcoder.perfCtrInterval == 0 {
-			return
-		}
-
-		sh.wg.Add(1)
-		defer sh.wg.Done()
-
-		ticker := time.NewTicker(sh.starcoder.perfCtrInterval)
-		defer ticker.Stop()
-
-		// Get gauge for each block and performance counter
-		gauges := make(map[string]map[string]prometheus.Gauge)
-		for blockName, _ := range sh.flowgraphProps.perfCtrBlocks {
-			gauges[blockName] = make(map[string]prometheus.Gauge)
-			for _, pc := range monitoring.PerformanceCountersToCollect {
-				gauge, err := monitoring.GetPerfCtrGauge(
-					sh.flowgraphProps.name,
-					blockName,
-					pc)
-				if err != nil {
-					log.Errorw("Error retrieving gauge", "error", err)
-					return
-				}
-				gauges[blockName][pc] = gauge
-			}
-		}
-
-		for {
-			select {
-			case <-ticker.C:
-				var err error
-
-				sh.starcoder.withPythonInterpreter(func() {
-					for blockName, obj := range sh.flowgraphProps.perfCtrBlocks {
-						for _, pc := range monitoring.PerformanceCountersToCollect {
-							pyResult := obj.CallMethodObjArgs(pc)
-							if pyResult == nil {
-								err = errors.New(getExceptionString())
-								return
-							}
-							gauges[blockName][pc].Set(python.PyFloat_AsDouble(pyResult))
-							pyResult.DecRef()
-						}
-					}
-				})
-
-				if err != nil {
-					sh.finish(errors.New(getExceptionString()))
-					return
-				}
-			case <-sh.perfCtrStopChannel:
-				for _, blockGauges := range gauges {
-					for _, gauge := range blockGauges{
-						gauge.Set(0)
-					}
-				}
-				return
-			}
-		}
-	}()
+	go sh.performanceCounterCollectionLoop()
 
 	sh.wg.Add(1)
 	return sh
+}
+
+func (sh *streamHandler) clientReceiveLoop() {
+	for {
+		req, err := sh.stream.Recv()
+		if err == io.EOF {
+			// Client is done listening
+			break
+		}
+		if err != nil {
+			sh.log.Errorf("Received error from client: %v", err)
+			sh.finish(err)
+			return
+		}
+
+		if x, ok := req.Request.(*pb.RunFlowgraphRequest_SendCommandRequest); !ok {
+			sh.log.Warnw("Non-initial request in stream is StartFlowgraphRequest")
+			continue
+		} else {
+			commandRequest := x.SendCommandRequest
+			if commandCQueue, ok := sh.flowgraphProps.commandCQueues[commandRequest.GetBlockId()]; !ok {
+				sh.log.Warnw("Block for commanding does not exist",
+					"key", commandRequest.GetBlockId())
+				continue
+			} else {
+				data, err := proto.Marshal(commandRequest.GetPmt())
+				if err != nil {
+					sh.log.Errorw("Failed to marshal", "error", err)
+					continue
+				}
+				commandCQueue.Push(string(data))
+			}
+		}
+	}
+	sh.finish(nil)
+}
+
+func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CStringQueue) {
+	sh.wg.Add(1)
+	defer sh.wg.Done()
+	for {
+		// TODO: Convert PMT to a gRPC native data structure.
+		// Use built-in PMT serialization for now.
+		bytes := []byte(q.BlockingPop())
+		// Could be woken up spuriously or by something else calling q.Close()
+		if len(bytes) != 0 {
+			if err := sh.stream.Send(&pb.RunFlowgraphResponse{
+				BlockId: blockName,
+				Payload: bytes,
+			}); err != nil {
+				sh.log.Errorf("Error sending stream: %v", err)
+				sh.finish(err)
+				return
+			}
+		}
+		if sh.finished() {
+			// Send the rest of the bytes if any are left
+			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
+				sh.log.Info(bytes)
+				if err := sh.stream.Send(&pb.RunFlowgraphResponse{
+					BlockId: blockName,
+					Payload: bytes,
+				}); err != nil {
+					sh.log.Errorf("Error sending stream: %v", err)
+				}
+			}
+			return
+		}
+	}
+}
+
+func (sh *streamHandler) performanceCounterCollectionLoop() {
+	if sh.starcoder.perfCtrInterval == 0 {
+		return
+	}
+
+	sh.wg.Add(1)
+	defer sh.wg.Done()
+
+	ticker := time.NewTicker(sh.starcoder.perfCtrInterval)
+	defer ticker.Stop()
+
+	// Get gauge for each block and performance counter
+	gauges := make(map[string]map[string]prometheus.Gauge)
+	for blockName, _ := range sh.flowgraphProps.perfCtrBlocks {
+		gauges[blockName] = make(map[string]prometheus.Gauge)
+		for _, pc := range monitoring.PerformanceCountersToCollect {
+			gauge, err := monitoring.GetPerfCtrGauge(
+				sh.flowgraphProps.name,
+				blockName,
+				pc)
+			if err != nil {
+				sh.log.Errorw("Error retrieving gauge", "error", err)
+				return
+			}
+			gauges[blockName][pc] = gauge
+		}
+	}
+
+	for {
+		select {
+		case <-ticker.C:
+			var err error
+
+			sh.starcoder.withPythonInterpreter(func() {
+				for blockName, obj := range sh.flowgraphProps.perfCtrBlocks {
+					for _, pc := range monitoring.PerformanceCountersToCollect {
+						pyResult := obj.CallMethodObjArgs(pc)
+						if pyResult == nil {
+							err = errors.New(getExceptionString())
+							return
+						}
+						gauges[blockName][pc].Set(python.PyFloat_AsDouble(pyResult))
+						pyResult.DecRef()
+					}
+				}
+			})
+
+			if err != nil {
+				sh.finish(errors.New(getExceptionString()))
+				return
+			}
+		case <-sh.perfCtrStopChannel:
+			for _, blockGauges := range gauges {
+				for _, gauge := range blockGauges{
+					gauge.Set(0)
+				}
+			}
+			return
+		}
+	}
 }
 
 func (sh *streamHandler) Wait() {
