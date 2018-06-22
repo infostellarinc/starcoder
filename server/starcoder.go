@@ -141,6 +141,7 @@ func (s *Starcoder) closeAllStreams() {
 type streamHandler struct {
 	starcoder         *Starcoder
 	stream            pb.Starcoder_RunFlowgraphServer
+	flowGraphName     string
 	flowGraphInstance *python.PyObject
 	observableCQueues map[string]*cqueue.CStringQueue
 	commandCQueues    map[string]*cqueue.CStringQueue
@@ -153,10 +154,11 @@ type streamHandler struct {
 	log *zap.SugaredLogger
 }
 
-func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, commandCQueues map[string]*cqueue.CStringQueue, perfCtrBlocks map[string]*python.PyObject, log *zap.SugaredLogger) *streamHandler {
+func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, commandCQueues map[string]*cqueue.CStringQueue, perfCtrBlocks map[string]*python.PyObject, flowGraphName string, log *zap.SugaredLogger) *streamHandler {
 	sh := &streamHandler{
 		starcoder:         sc,
 		stream:            stream,
+		flowGraphName:     flowGraphName,
 		flowGraphInstance: fgInstance,
 		observableCQueues: observableCQueues,
 		commandCQueues:    commandCQueues,
@@ -204,6 +206,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		sh.finish(nil)
 	}()
 
+	// Processing loop for observable C queues
 	for k, cQueue := range sh.observableCQueues {
 		blockName := k
 		q := cQueue
@@ -250,18 +253,21 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		ticker := time.NewTicker(time.Second * 15)
 		defer ticker.Stop()
 
-		// Get gauges
-		gauges := make(map[string]prometheus.Gauge)
+		// Get gauge for each block and performance counter
+		gauges := make(map[string]map[string]prometheus.Gauge)
 		for blockName, _ := range sh.perfCtrBlocks {
-			gauge, err := monitoring.GetPerfCtrGauge(
-				"flowgraph",
-				blockName,
-				"pc_work_time_total")
-			if err != nil {
-				log.Errorw("Error retrieving gauge", "error", err)
-				return
+			gauges[blockName] = make(map[string]prometheus.Gauge)
+			for _, pc := range monitoring.PerformanceCountersToCollect {
+				gauge, err := monitoring.GetPerfCtrGauge(
+					sh.flowGraphName,
+					blockName,
+					pc)
+				if err != nil {
+					log.Errorw("Error retrieving gauge", "error", err)
+					return
+				}
+				gauges[blockName][pc] = gauge
 			}
-			gauges[blockName] = gauge
 		}
 
 		for {
@@ -271,13 +277,15 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 
 				sh.starcoder.withPythonInterpreter(func() {
 					for blockName, obj := range sh.perfCtrBlocks {
-						pyResult := obj.CallMethodObjArgs("pc_work_time_total")
-						if pyResult == nil {
-							err = errors.New(getExceptionString())
-							return
+						for _, pc := range monitoring.PerformanceCountersToCollect {
+							pyResult := obj.CallMethodObjArgs(pc)
+							if pyResult == nil {
+								err = errors.New(getExceptionString())
+								return
+							}
+							gauges[blockName][pc].Set(python.PyFloat_AsDouble(pyResult))
+							pyResult.DecRef()
 						}
-						gauges[blockName].Set(python.PyFloat_AsDouble(pyResult))
-						pyResult.DecRef()
 					}
 				})
 
@@ -286,8 +294,10 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 					return
 				}
 			case <-sh.perfCtrStopChannel:
-				for _, gauge := range gauges {
-					gauge.Set(0)
+				for _, blockGauges := range gauges {
+					for _, gauge := range blockGauges{
+						gauge.Set(0)
+					}
 				}
 				return
 			}
@@ -381,7 +391,15 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		}
 	}()
 
-	sh := newStreamHandler(s, stream, flowGraphInstance, observableCQueues, commandCQueues, perfCtrBlocks, s.log)
+	sh := newStreamHandler(
+		s,
+		stream,
+		flowGraphInstance,
+		observableCQueues,
+		commandCQueues,
+		perfCtrBlocks,
+		strings.TrimSuffix(startRequest.GetFilename(), filepath.Ext(startRequest.GetFilename())),
+		s.log)
 	s.registerStreamHandler <- sh
 	sh.Wait()
 

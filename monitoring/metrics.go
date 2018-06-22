@@ -23,7 +23,18 @@ import (
 	"fmt"
 )
 
-const metricsPrefix string = "starcoder_"
+const metricsPrefix = "starcoder_"
+
+var PerformanceCountersToCollect = []string{
+	"pc_work_time_total",
+	"pc_work_time_avg",
+	"pc_work_time",
+	"pc_work_time_var",
+	"pc_throughput_avg",
+	"pc_nproduced",
+	"pc_nproduced_avg",
+	"pc_nproduced_var",
+}
 
 type Metrics struct {
 	FlowgraphCount prometheus.Gauge
