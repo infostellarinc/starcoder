@@ -140,14 +140,19 @@ func (s *Starcoder) closeAllStreams() {
 	<-respCh
 }
 
+type flowgraphProperties struct {
+	name string
+	pyInstance *python.PyObject
+	observableCQueues map[string]*cqueue.CStringQueue
+	commandCQueues    map[string]*cqueue.CStringQueue
+	perfCtrBlocks     map[string]*python.PyObject
+}
+
 type streamHandler struct {
 	starcoder         *Starcoder
 	stream            pb.Starcoder_RunFlowgraphServer
 	flowGraphName     string
-	flowGraphInstance *python.PyObject
-	observableCQueues map[string]*cqueue.CStringQueue
-	commandCQueues    map[string]*cqueue.CStringQueue
-	perfCtrBlocks     map[string]*python.PyObject
+	flowgraphProps    *flowgraphProperties
 	perfCtrStopChannel chan struct{}
 	clientFinished    bool
 	streamError       error
@@ -156,15 +161,11 @@ type streamHandler struct {
 	log *zap.SugaredLogger
 }
 
-func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgInstance *python.PyObject, observableCQueues map[string]*cqueue.CStringQueue, commandCQueues map[string]*cqueue.CStringQueue, perfCtrBlocks map[string]*python.PyObject, flowGraphName string, log *zap.SugaredLogger) *streamHandler {
+func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, flowgraphProps *flowgraphProperties, log *zap.SugaredLogger) *streamHandler {
 	sh := &streamHandler{
 		starcoder:         sc,
 		stream:            stream,
-		flowGraphName:     flowGraphName,
-		flowGraphInstance: fgInstance,
-		observableCQueues: observableCQueues,
-		commandCQueues:    commandCQueues,
-		perfCtrBlocks:     perfCtrBlocks,
+		flowgraphProps:    flowgraphProps,
 		perfCtrStopChannel: make(chan struct{}),
 		clientFinished:    false,
 		streamError:       nil,
@@ -191,7 +192,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				continue
 			} else {
 				commandRequest := x.SendCommandRequest
-				if commandCQueue, ok := commandCQueues[commandRequest.GetBlockId()]; !ok {
+				if commandCQueue, ok := flowgraphProps.commandCQueues[commandRequest.GetBlockId()]; !ok {
 					sh.log.Warnw("Block for commanding does not exist",
 						"key", commandRequest.GetBlockId())
 					continue
@@ -209,7 +210,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 	}()
 
 	// Processing loop for observable C queues
-	for k, cQueue := range sh.observableCQueues {
+	for k, cQueue := range sh.flowgraphProps.observableCQueues {
 		blockName := k
 		q := cQueue
 		go func() {
@@ -261,11 +262,11 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 
 		// Get gauge for each block and performance counter
 		gauges := make(map[string]map[string]prometheus.Gauge)
-		for blockName, _ := range sh.perfCtrBlocks {
+		for blockName, _ := range sh.flowgraphProps.perfCtrBlocks {
 			gauges[blockName] = make(map[string]prometheus.Gauge)
 			for _, pc := range monitoring.PerformanceCountersToCollect {
 				gauge, err := monitoring.GetPerfCtrGauge(
-					sh.flowGraphName,
+					sh.flowgraphProps.name,
 					blockName,
 					pc)
 				if err != nil {
@@ -282,7 +283,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 				var err error
 
 				sh.starcoder.withPythonInterpreter(func() {
-					for blockName, obj := range sh.perfCtrBlocks {
+					for blockName, obj := range sh.flowgraphProps.perfCtrBlocks {
 						for _, pc := range monitoring.PerformanceCountersToCollect {
 							pyResult := obj.CallMethodObjArgs(pc)
 							if pyResult == nil {
@@ -342,14 +343,14 @@ func (sh *streamHandler) finished() bool {
 // Must only be called by starcoder server
 func (sh *streamHandler) Close() {
 	defer func() {
-		for _, cQueue := range sh.observableCQueues {
+		for _, cQueue := range sh.flowgraphProps.observableCQueues {
 			cQueue.Close()
 		}
 		close(sh.perfCtrStopChannel)
 		sh.wg.Done()
 	}()
 	// TODO: Make this call unblock by getting rid of `wait`
-	err := sh.starcoder.stopFlowGraph(sh.flowGraphInstance)
+	err := sh.starcoder.stopFlowGraph(sh.flowgraphProps.pyInstance)
 	if err != nil {
 		sh.log.Errorf("Error stopping flowgraph: %v", err)
 		sh.finish(err)
@@ -382,7 +383,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		return err
 	}
 
-	flowGraphInstance, observableCQueues, commandCQueues, perfCtrBlocks, err := s.startFlowGraph(modAndClass, startRequest)
+	flowgraphProps, err := s.startFlowGraph(modAndClass, startRequest)
 	if err != nil {
 		s.log.Errorf("Error starting flowgraph: %v", err)
 		return err
@@ -390,22 +391,14 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 
 	defer func() {
 		s.withPythonInterpreter(func() {
-			flowGraphInstance.DecRef()
+			flowgraphProps.pyInstance.DecRef()
 		})
-		for _, q := range observableCQueues {
+		for _, q := range flowgraphProps.observableCQueues {
 			q.Delete()
 		}
 	}()
 
-	sh := newStreamHandler(
-		s,
-		stream,
-		flowGraphInstance,
-		observableCQueues,
-		commandCQueues,
-		perfCtrBlocks,
-		strings.TrimSuffix(startRequest.GetFilename(), filepath.Ext(startRequest.GetFilename())),
-		s.log)
+	sh := newStreamHandler(s, stream, flowgraphProps, s.log)
 	s.registerStreamHandler <- sh
 	sh.Wait()
 
@@ -496,7 +489,7 @@ func (s *Starcoder) compileGrc(path string) (*moduleAndClassNames, error) {
 	return retVal, nil
 }
 
-func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.StartFlowgraphRequest) (*python.PyObject, map[string]*cqueue.CStringQueue, map[string]*cqueue.CStringQueue, map[string]*python.PyObject, error) {
+func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *pb.StartFlowgraphRequest) (*flowgraphProperties, error) {
 	var flowGraphInstance *python.PyObject
 	var observableCQueue map[string]*cqueue.CStringQueue
 	var commandCQueues map[string]*cqueue.CStringQueue
@@ -643,7 +636,15 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 			}
 		}
 	})
-	return flowGraphInstance, observableCQueue, commandCQueues, perfCtrBlocks, err
+	return &flowgraphProperties{
+		name: strings.TrimSuffix(
+			request.GetFilename(),
+			filepath.Ext(request.GetFilename())),
+		pyInstance: flowGraphInstance,
+		observableCQueues: observableCQueue,
+		commandCQueues: commandCQueues,
+		perfCtrBlocks: perfCtrBlocks,
+	}, err
 }
 
 func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter) error {
