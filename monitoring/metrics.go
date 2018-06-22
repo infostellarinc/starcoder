@@ -62,7 +62,9 @@ func getMetricsName(name string) string {
 // Registers a new gauge. If gauge already exists, returns that.
 func GetPerfCtrGauge(flowgraphName string, blockName string, counterName string) (prometheus.Gauge, error) {
 	gauge := prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: getMetricsName(flowgraphName + "_" + blockName + "_" + counterName),
+		Namespace: getMetricsName(flowgraphName),
+		Subsystem: blockName,
+		Name: counterName,
 		Help: fmt.Sprintf(
 			"Gauge for performance counter %v of block %v in flowgraph %v",
 			counterName, blockName, flowgraphName,
