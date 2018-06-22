@@ -50,6 +50,7 @@ type Starcoder struct {
 	closeAllStreamsChannel    chan chan bool
 	tempModule                string
 	filepathToModAndClassName map[string]*moduleAndClassNames
+	perfCtrInterval           time.Duration
 	compileLock               sync.Mutex
 	log                       *zap.SugaredLogger
 }
@@ -59,7 +60,7 @@ type moduleAndClassNames struct {
 	className  string
 }
 
-func NewStarcoderServer(flowgraphDir string, log *zap.SugaredLogger, metrics *monitoring.Metrics) *Starcoder {
+func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, log *zap.SugaredLogger, metrics *monitoring.Metrics) *Starcoder {
 	err := python.Initialize()
 	if err != nil {
 		log.Fatalf("failed to initialize python: %v", err)
@@ -79,6 +80,7 @@ func NewStarcoderServer(flowgraphDir string, log *zap.SugaredLogger, metrics *mo
 		closeAllStreamsChannel:    make(chan chan bool),
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
 		log: log,
+		perfCtrInterval: perfCtrInterval,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -146,7 +148,7 @@ type streamHandler struct {
 	observableCQueues map[string]*cqueue.CStringQueue
 	commandCQueues    map[string]*cqueue.CStringQueue
 	perfCtrBlocks     map[string]*python.PyObject
-	perfCtrStopChannel chan bool
+	perfCtrStopChannel chan struct{}
 	clientFinished    bool
 	streamError       error
 	mustCloseMutex    sync.Mutex
@@ -163,7 +165,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 		observableCQueues: observableCQueues,
 		commandCQueues:    commandCQueues,
 		perfCtrBlocks:     perfCtrBlocks,
-		perfCtrStopChannel: make(chan bool),
+		perfCtrStopChannel: make(chan struct{}),
 		clientFinished:    false,
 		streamError:       nil,
 		mustCloseMutex:    sync.Mutex{},
@@ -247,10 +249,14 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, fgI
 
 	// Processing loop for performance counters
 	go func() {
+		if sh.starcoder.perfCtrInterval == 0 {
+			return
+		}
+
 		sh.wg.Add(1)
 		defer sh.wg.Done()
 
-		ticker := time.NewTicker(time.Second * 15)
+		ticker := time.NewTicker(sh.starcoder.perfCtrInterval)
 		defer ticker.Stop()
 
 		// Get gauge for each block and performance counter
@@ -339,7 +345,7 @@ func (sh *streamHandler) Close() {
 		for _, cQueue := range sh.observableCQueues {
 			cQueue.Close()
 		}
-		sh.perfCtrStopChannel <- true
+		close(sh.perfCtrStopChannel)
 		sh.wg.Done()
 	}()
 	// TODO: Make this call unblock by getting rid of `wait`
