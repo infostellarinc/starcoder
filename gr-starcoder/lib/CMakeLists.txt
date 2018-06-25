@@ -29,6 +29,8 @@ include_directories(
   ${PNG_INCLUDE_DIR}
 )
 
+add_executable(hey meteor_correlator.cc)
+
 ########################################################################
 # Generate Protobuf sources
 ########################################################################
