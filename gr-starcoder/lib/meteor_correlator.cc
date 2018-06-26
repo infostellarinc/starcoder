@@ -21,6 +21,7 @@
 #include "meteor_correlator.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace gr {
 namespace starcoder {
@@ -118,6 +119,40 @@ void meteor_correlator::fix_packet(unsigned char *data, int len, int shift) {
     }
     break;
   }
+}
+
+void meteor_correlator::corr_reset() {
+  correlation_.fill(0);
+  position_.fill(0);
+  tmp_corr_.fill(0);
+}
+
+std::tuple<uint32_t, uint32_t, uint32_t> meteor_correlator::corr_correlate(unsigned char *data, uint32_t len) {
+  corr_reset();
+
+  for (int i=0; i < len-PATTERN_SIZE; i++) {
+
+    tmp_corr_.fill(0);
+
+    for (int k=0; k<PATTERN_SIZE; k++) {
+      for (int l=0; l<PATTERN_COUNT; l++)
+        tmp_corr_[l] += corr_table_[data[i+k]][patts_[k][l]];
+    }
+
+    for (int n=0; n<PATTERN_COUNT; n++) {
+      if (tmp_corr_[n] > correlation_[n]) {
+        correlation_[n] = tmp_corr_[n];
+        position_[n] = i;
+        tmp_corr_[n] = 0;
+        if (correlation_[n] > CORR_LIMIT) {
+          return std::make_tuple(n, position_[n], correlation_[n]);
+        }
+      }
+    }
+  }
+
+  int result = std::distance(correlation_.begin(), std::max_element(correlation_.begin(), correlation_.end()));
+  return std::make_tuple(result, position_[result], correlation_[result]);
 }
 
 } // namespace starcoder

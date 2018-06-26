@@ -48,13 +48,34 @@ void meteor_decoder::do_next_correlate(unsigned char *raw, unsigned char *aligne
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
+void meteor_decoder::do_full_correlate(unsigned char *raw, unsigned char *aligned) {
+  std::tie(word_, cpos_, corr_) = correlator_.corr_correlate(raw + pos_, SOFT_FRAME_LEN);
+}
+
+bool meteor_decoder::try_frame(unsigned char *aligned) {
+  // TODO: Do something
+}
+
 bool meteor_decoder::decode_one_frame(unsigned char *raw) {
   unsigned char *aligned = new unsigned char[SOFT_FRAME_LEN];
+  bool result = false;
 
   if (cpos_ == 0) {
     do_next_correlate(raw, aligned);
+
+    result = try_frame(aligned);
+
+    if (!result) pos_ -= SOFT_FRAME_LEN;
   }
+
+  if (!result) {
+    do_full_correlate(raw, aligned);
+
+    result = try_frame(aligned);
+  }
+
   delete[] aligned;
+  return result;
 }
 
 } // namespace starcoder

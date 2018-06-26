@@ -22,6 +22,7 @@
 #define INCLUDED_METEOR_CORRELATOR_H
 
 #include <array>
+#include <tuple>
 
 namespace gr {
 namespace starcoder {
@@ -42,12 +43,14 @@ class meteor_correlator {
     uint64_t flip_iq_qw(uint64_t data);
     uint64_t rotate_iq_qw(uint64_t data, int shift);
     void corr_set_patt(int n, uint64_t p);
+    void corr_reset();
 
   public:
     meteor_correlator(uint64_t q_word);
     ~meteor_correlator();
 
     void fix_packet(unsigned char *data, int len, int shift);
+    std::tuple<uint32_t, uint32_t, uint32_t> corr_correlate(unsigned char *data, uint32_t d_word);
 };
 
 } // namespace starcoder

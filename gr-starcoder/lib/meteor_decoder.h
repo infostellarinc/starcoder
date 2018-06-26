@@ -43,7 +43,9 @@ class meteor_decoder {
 
   public:
     bool decode_one_frame(unsigned char *raw);
+    void do_full_correlate(unsigned char *raw, unsigned char *aligned);
     void do_next_correlate(unsigned char *raw, unsigned char *aligned);
+    bool try_frame(unsigned char *aligned);
 
     meteor_decoder();
     ~meteor_decoder();
