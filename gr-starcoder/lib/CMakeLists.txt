@@ -32,6 +32,7 @@ include_directories(
 add_executable(hey
   meteor_correlator.cc
   meteor_decoder.cc
+  meteor_viterbi.cc
 )
 
 ########################################################################
