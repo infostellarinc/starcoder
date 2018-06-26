@@ -88,9 +88,41 @@ void meteor_correlator::corr_set_patt(int n, uint64_t p) {
   }
 }
 
+void meteor_correlator::fix_packet(unsigned char *data, int len, int shift) {
+  signed char *d = reinterpret_cast<signed char*>(data);
+  signed char b;
+
+  switch (shift) {
+  case 4:
+    for (int j=0; j<(len/2); j++) {
+      b = d[j*2];
+      d[j*2] = d[j*2+1];
+      d[j*2+1] = b;
+    }
+    break;
+  case 5:
+    for (int j=0; j<(len/2); j++) {
+      d[j*2] = -d[j*2];
+    }
+    break;
+  case 6:
+    for (int j=0; j<(len/2); j++) {
+      b = d[j*2];
+      d[j*2] = -d[j*2+1];
+      d[j*2+1] = -b;
+    }
+    break;
+  case 7:
+    for (int j=0; j<(len/2); j++) {
+      d[j*2+1] = -d[j*2+1];
+    }
+    break;
+  }
+}
+
 } // namespace starcoder
 } // namespace gr
 
-int main() {
-  gr::starcoder::meteor_correlator a(0xfca2b63db00d9794);
-}
+//int main() {
+//  gr::starcoder::meteor_correlator a(0xfca2b63db00d9794);
+//}

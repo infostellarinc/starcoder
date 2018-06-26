@@ -18,39 +18,38 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_METEOR_CORRELATOR_H
-#define INCLUDED_METEOR_CORRELATOR_H
+#ifndef INCLUDED_METEOR_DECODER_H
+#define INCLUDED_METEOR_DECODER_H
 
 #include <array>
+#include "meteor_correlator.h"
 
 namespace gr {
 namespace starcoder {
 
-const int PATTERN_SIZE = 64;
-const int PATTERN_COUNT = 8;
-const int CORR_LIMIT = 55;
+const int HARD_FRAME_LEN=1024;
+const int FRAME_BITS=HARD_FRAME_LEN*8;
+const int SOFT_FRAME_LEN=FRAME_BITS*2;
+const int MIN_CORRELATION=45;
 
-class meteor_correlator {
+class meteor_decoder {
   private:
-    std::array<std::array<unsigned char, PATTERN_COUNT>, PATTERN_SIZE> patts_{};
-    std::array<int, PATTERN_COUNT> correlation_{}, tmp_corr_{}, position_{};
-    std::array<unsigned char, 256> rotate_iq_table_{}, invert_iq_table_{};
-    std::array<std::array<int, 256>, 256> corr_table_{};
-
-    void init_corr_tables();
-    unsigned char rotate_iq(unsigned char data, int shift);
-    uint64_t flip_iq_qw(uint64_t data);
-    uint64_t rotate_iq_qw(uint64_t data, int shift);
-    void corr_set_patt(int n, uint64_t p);
+    meteor_correlator correlator_;
+    int pos_, prev_pos_;
+    std::array<unsigned char, HARD_FRAME_LEN> ecced_data_{};
+    uint32_t word_, cpos_, corr_, last_sync_;
+    std::array<int, 4> r_;
+    int sig_q_;
 
   public:
-    meteor_correlator(uint64_t q_word);
-    ~meteor_correlator();
+    bool decode_one_frame(unsigned char *raw);
+    void do_next_correlate(unsigned char *raw, unsigned char *aligned);
 
-    void fix_packet(unsigned char *data, int len, int shift);
+    meteor_decoder();
+    ~meteor_decoder();
 };
 
 } // namespace starcoder
 } // namespace gr
 
-#endif /* INCLUDED_METEOR_CORRELATOR_H */
+#endif /* INCLUDED_METEOR_DECODER_H */
