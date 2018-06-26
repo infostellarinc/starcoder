@@ -50,6 +50,18 @@ void meteor_decoder::do_next_correlate(unsigned char *raw, unsigned char *aligne
 
 void meteor_decoder::do_full_correlate(unsigned char *raw, unsigned char *aligned) {
   std::tie(word_, cpos_, corr_) = correlator_.corr_correlate(raw + pos_, SOFT_FRAME_LEN);
+
+  if (corr_ < MIN_CORRELATION) {
+    prev_pos_ = pos_;
+    std::cout << "Not even " << MIN_CORRELATION << " bits found!";
+    std::copy(raw + pos_, raw + pos_ + SOFT_FRAME_LEN, aligned);
+    pos_ += SOFT_FRAME_LEN/4;
+  } else {
+    prev_pos_ = pos_ +  cpos_;
+    std::copy(raw + pos_ + cpos_, raw + pos_ + cpos_ + SOFT_FRAME_LEN, aligned);
+    pos_ += SOFT_FRAME_LEN + cpos_;
+  }
+  correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
 bool meteor_decoder::try_frame(unsigned char *aligned) {
@@ -84,9 +96,20 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw) {
 int main() {
   gr::starcoder::meteor_decoder a;
   gr::starcoder::meteor_correlator c(0xfca2b63db00d9794);
+  /* // fix_packet
   unsigned char *p = new unsigned char[10];
   for (int i=0; i<10; i++) p[i] = i;
   c.fix_packet(p, 10, 7);
   for (int i=0; i<10; i++) std::cout << std::hex << (int)(p[i]) << ' ';
+  delete[] p;
+  */
+  // corr_correlate
+  unsigned char *p = new unsigned char[120];
+  *reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3 35
+  for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
+  std::cout << std::endl;
+  int word, pos, corr;
+  std::tie(word, pos, corr) = c.corr_correlate(p, 120);
+  std::cout << std::dec << word << " " << pos << " " << corr;
   delete[] p;
 }
