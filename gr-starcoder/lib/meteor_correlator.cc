@@ -27,7 +27,16 @@ namespace starcoder {
 
 meteor_correlator::meteor_correlator(uint64_t q_word) {
   init_corr_tables();
-  for (auto x : rotate_iq_table_) std::cout << std::hex << (int)(x) << ' ';
+  for (int i=0; i<4; i++) {
+    corr_set_patt(i, rotate_iq_qw(q_word, i));
+  }
+  for (int i=0; i<4; i++) {
+    corr_set_patt(i+4, rotate_iq_qw(flip_iq_qw(q_word), i));
+  }
+  //for (auto x : corr_table_[0]) std::cout << std::hex << (int)(x) << ' ';
+  //for (auto x : rotate_iq_table_) std::cout << std::hex << (int)(x) << ' ';
+  //for (auto x : invert_iq_table_) std::cout << std::hex << (int)(x) << ' ';
+  //for (auto x : patts_) std::cout << std::hex << (int)(x[0]) << ' ';
 }
 
 meteor_correlator::~meteor_correlator() {}
@@ -42,8 +51,41 @@ void meteor_correlator::init_corr_tables() {
   }
 }
 
-uint64_t meteor_correlator::rotate_iq_qw(uint64_t data, int shift) {
+unsigned char meteor_correlator::rotate_iq(unsigned char data, int shift) {
+  if (shift == 1 || shift == 3) {
+    data = rotate_iq_table_[data];
+  }
+  if (shift == 2 || shift == 3) {
+    data = data ^ 0xff;
+  }
+  return data;
+}
 
+uint64_t meteor_correlator::rotate_iq_qw(uint64_t data, int shift) {
+  uint64_t result = 0;
+  unsigned char *presult = reinterpret_cast<unsigned char *>(&result);
+  unsigned char *pdata = reinterpret_cast<unsigned char *>(&data);
+  for (int i =0; i<PATTERN_COUNT; i++) {
+    presult[i] = rotate_iq(pdata[i], shift);
+  }
+  return result;
+}
+
+uint64_t meteor_correlator::flip_iq_qw(uint64_t data) {
+  uint64_t result = 0;
+  unsigned char *presult = reinterpret_cast<unsigned char *>(&result);
+  unsigned char *pdata = reinterpret_cast<unsigned char *>(&data);
+  for (int i =0; i<PATTERN_COUNT; i++) {
+    presult[i] = invert_iq_table_[pdata[i]];
+  }
+  return result;
+}
+
+void meteor_correlator::corr_set_patt(int n, uint64_t p) {
+  for (int i=0; i<PATTERN_SIZE; i++) {
+    if (((p >> (PATTERN_SIZE - i - 1)) & 1) != 0) patts_[i][n] = 0xff;
+    else patts_[i][n] = 0;
+  }
 }
 
 } // namespace starcoder

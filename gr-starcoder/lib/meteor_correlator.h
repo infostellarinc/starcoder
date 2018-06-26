@@ -38,7 +38,10 @@ class meteor_correlator {
     std::array<std::array<int, 256>, 256> corr_table_{};
 
     void init_corr_tables();
+    unsigned char rotate_iq(unsigned char data, int shift);
+    uint64_t flip_iq_qw(uint64_t data);
     uint64_t rotate_iq_qw(uint64_t data, int shift);
+    void corr_set_patt(int n, uint64_t p);
 
   public:
     meteor_correlator(uint64_t q_word);
