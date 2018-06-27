@@ -33,6 +33,7 @@ add_executable(hey
   meteor_correlator.cc
   meteor_decoder.cc
   meteor_viterbi.cc
+  meteor_bit_io.cc
 )
 
 ########################################################################

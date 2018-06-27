@@ -208,7 +208,7 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
       base += 4;
     }
 
-    // todo history buffer process skip
+    history_buffer_process_skip(1);
     error_buffer_swap();
   }
 }
