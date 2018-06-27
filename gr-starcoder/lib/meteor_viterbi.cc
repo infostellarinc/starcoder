@@ -46,6 +46,9 @@ meteor_viterbi::meteor_viterbi() :
     if ((count_bits(i & VITERBI27_POLYB) % 2) != 0) table_[i] = table_[i] | 2;
   }
 
+  errors_[0] = new uint16_t[NUM_STATES];
+  errors_[1] = new uint16_t[NUM_STATES];
+
   pair_lookup_create();
 
   // for (auto x : dist_table_) std::cout << std::hex << (int)(x[60000]) << ' ';
@@ -54,7 +57,10 @@ meteor_viterbi::meteor_viterbi() :
   // for (auto x: pair_outputs_) std::cout << std::hex << (int)(x) << ' ';
 }
 
-meteor_viterbi::~meteor_viterbi() {}
+meteor_viterbi::~meteor_viterbi() {
+  delete[] errors_[0];
+  delete[] errors_[1];
+}
 
 uint16_t meteor_viterbi::metric_soft_distance(unsigned char hard, unsigned char soft_y0, unsigned char soft_y1) {
   const int mag = 255;
@@ -122,8 +128,8 @@ void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded, unsigned char 
   hist_index_ = 0;
   renormalize_counter_ = 0;
 
-  errors_[0].fill(0);
-  errors_[1].fill(0);
+  std::fill(errors_[0], errors_[0] + NUM_STATES, 0);
+  std::fill(errors_[1], errors_[1] + NUM_STATES, 0);
   err_index_ = 0;
   read_errors_ = errors_[0];
   write_errors_ = errors_[1];
@@ -371,8 +377,8 @@ int main() {
   int soft_frame_len = 1024*8*2;
   unsigned char *p = new unsigned char[soft_frame_len];
   unsigned char *out = new unsigned char[1024];
-  *reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3 35
-  for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
+  for (int i=0; i<soft_frame_len; i++) p[i] = (uint8_t)(i + 7);
+  for (int i=1000; i< 1120; i++) std::cout << std::hex << int(p[i]) << " ";
   std::cout << std::endl;
   std::cout << std::endl;
   v.vit_conv_decode(p, out);

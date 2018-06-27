@@ -63,9 +63,9 @@ class meteor_viterbi {
     int hist_index_, len_, renormalize_counter_;
 
     int err_index_;
-    std::array<std::array<uint16_t, NUM_STATES>, 2> errors_;
-    std::array<uint16_t, NUM_STATES> read_errors_;
-    std::array<uint16_t, NUM_STATES> write_errors_;
+    std::array<uint16_t *, 2> errors_{};
+    uint16_t *read_errors_;
+    uint16_t *write_errors_;
 
     uint16_t metric_soft_distance(unsigned char hard, unsigned char soft_y0, unsigned char soft_y1);
     void pair_lookup_create();
