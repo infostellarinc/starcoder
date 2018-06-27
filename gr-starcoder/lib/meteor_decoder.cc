@@ -93,7 +93,7 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw) {
 } // namespace starcoder
 } // namespace gr
 
-
+/*
 int main() {
   gr::starcoder::meteor_decoder a;
   gr::starcoder::meteor_correlator c(0xfca2b63db00d9794);
@@ -115,4 +115,4 @@ int main() {
   std::cout << std::dec << word << " " << pos << " " << corr;
   delete[] p;
   */
-}
+//}
