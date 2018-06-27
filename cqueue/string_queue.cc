@@ -36,7 +36,8 @@ std::string string_queue::pop() {
   std::string a;
   queue_.pop(a);
   if (a.length() > 10485760) {
-    std::cerr << "Popped large packet of length " << a.length() << " from string_queue::pop\n";
+    std::cerr << "Popped large packet of length " << a.length()
+              << " from string_queue::pop\n";
     return "";
   }
   return a;
@@ -50,7 +51,8 @@ std::string string_queue::blocking_pop() {
   });
   queue_.pop(a);
   if (a.length() > 10485760) {
-    std::cerr << "Popped large packet of length " << a.length() << " from string_queue::blocking_pop\n";
+    std::cerr << "Popped large packet of length " << a.length()
+              << " from string_queue::blocking_pop\n";
     return "";
   }
   return a;

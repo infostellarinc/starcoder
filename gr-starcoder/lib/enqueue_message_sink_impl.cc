@@ -54,7 +54,9 @@ void enqueue_message_sink_impl::handler(pmt::pmt_t msg) {
     std::string serialized = pmt::serialize_str(msg);
     if (serialized.length() > 10485760) {
       GR_LOG_ERROR(d_logger,
-      boost::format("Received large packet of length %d in enqueue_message_sink_impl::handler") % serialized.length());
+                   boost::format("Received large packet of length %d in "
+                                 "enqueue_message_sink_impl::handler") %
+                       serialized.length());
       return;
     }
     string_queue_->push(serialized);
