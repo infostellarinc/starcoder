@@ -69,6 +69,8 @@ class meteor_viterbi {
     void vit_inner(unsigned char *soft);
     void error_buffer_swap();
     void pair_lookup_fill_distance();
+    void history_buffer_process_skip(int skip);
+    uint32_t history_buffer_search(int search_every);
 
   public:
     meteor_viterbi();

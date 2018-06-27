@@ -213,6 +213,41 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
   }
 }
 
+void meteor_viterbi::history_buffer_process_skip(int skip) {
+  uint32_t bestpath;
+
+  hist_index_++;
+  if (hist_index_ == MIN_TRACEBACK + TRACEBACK_LENGTH) hist_index_ = 0;
+
+  renormalize_counter_++;
+  len_++;
+
+  if (renormalize_counter_ == RENORMALIZE_INTERVAL) {
+    renormalize_counter_ = 0;
+    bestpath = history_buffer_search(skip);
+    // todo history_buffer_renormalize(bestpath);
+    // todo if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH) history_buffer_traceback(bestpath, MIN_TRACEBACK);
+  } else if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH) {
+    bestpath = history_buffer_search(skip);
+    // todo history_buffer_traceback(bestpath, MIN_TRACEBACK)
+  }
+}
+
+uint32_t meteor_viterbi::history_buffer_search(int search_every) {
+  uint32_t bestpath = 0;
+  uint32_t least = 0xFFFF;
+  int state = 0;
+
+  while (state < NUM_STATES / 2) {
+    if (write_errors_[state] < least) {
+      least = write_errors_[state];
+      bestpath = state;
+    }
+    state += search_every;
+  }
+  return bestpath;
+}
+
 void meteor_viterbi::pair_lookup_fill_distance() {
   for (int i=1; i<pair_outputs_len_; i++) {
     uint32_t c = pair_outputs_[i];
