@@ -232,8 +232,12 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 		// TODO: Convert PMT to a gRPC native data structure.
 		// Use built-in PMT serialization for now.
 		bytes := []byte(q.BlockingPop())
-		// Could be woken up spuriously or by something else calling q.Close()
-		if len(bytes) != 0 {
+		if len(bytes) > 10485760 {
+			sh.log.Errorw(
+				"Length of packet received from Starcoder much bigger than expected.",
+				"block", blockName, "size", len(bytes))
+		} else if len(bytes) != 0 {
+			// Could be woken up spuriously or by something else calling q.Close()
 			if err := sh.stream.Send(&pb.RunFlowgraphResponse{
 				BlockId: blockName,
 				Payload: bytes,
@@ -246,7 +250,12 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 		if sh.finished() {
 			// Send the rest of the bytes if any are left
 			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
-				sh.log.Info(bytes)
+				if len(bytes) > 10485760 {
+					sh.log.Errorw(
+						"Length of packet received from Starcoder much bigger than expected.",
+						"block", blockName, "size", len(bytes))
+					continue
+				}
 				if err := sh.stream.Send(&pb.RunFlowgraphResponse{
 					BlockId: blockName,
 					Payload: bytes,
