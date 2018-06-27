@@ -367,5 +367,16 @@ void meteor_viterbi::error_buffer_swap() {
 
 int main() {
   gr::starcoder::meteor_viterbi v;
-}
 
+  int soft_frame_len = 1024*8*2;
+  unsigned char *p = new unsigned char[soft_frame_len];
+  unsigned char *out = new unsigned char[1024];
+  *reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3 35
+  for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
+  std::cout << std::endl;
+  std::cout << std::endl;
+  v.vit_conv_decode(p, out);
+  for (int i=0; i<120; i++) std::cout << std::hex << int(out[i]) << " ";
+  delete[] p;
+  delete[] out;
+}
