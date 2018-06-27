@@ -225,11 +225,11 @@ void meteor_viterbi::history_buffer_process_skip(int skip) {
   if (renormalize_counter_ == RENORMALIZE_INTERVAL) {
     renormalize_counter_ = 0;
     bestpath = history_buffer_search(skip);
-    // todo history_buffer_renormalize(bestpath);
-    // todo if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH) history_buffer_traceback(bestpath, MIN_TRACEBACK);
+    history_buffer_renormalize(bestpath);
+    if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH) history_buffer_traceback(bestpath, MIN_TRACEBACK);
   } else if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH) {
     bestpath = history_buffer_search(skip);
-    // todo history_buffer_traceback(bestpath, MIN_TRACEBACK)
+    history_buffer_traceback(bestpath, MIN_TRACEBACK);
   }
 }
 
@@ -246,6 +246,48 @@ uint32_t meteor_viterbi::history_buffer_search(int search_every) {
     state += search_every;
   }
   return bestpath;
+}
+
+void meteor_viterbi::history_buffer_renormalize(uint32_t min_register) {
+  uint16_t min_distance = write_errors_[min_register];
+  for (int i=0; i< NUM_STATES / 2; i++) {
+    write_errors_[i] -= min_distance;
+  }
+}
+
+void meteor_viterbi::history_buffer_traceback(uint32_t bestpath, uint32_t min_traceback_length) {
+  uint32_t index, fetched_index, pathbit, prefetch_index, len;
+  uint8_t history;
+
+  fetched_index = 0;
+  index = hist_index_;
+
+  for (int j=0; j< min_traceback_length; j++) {
+    if (index == 0) index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
+    else index--;
+    history = history_[index][bestpath];
+    if (history != 0) pathbit = HIGH_BIT;
+    else pathbit = 0;
+    bestpath = (bestpath | pathbit) >> 1;
+  }
+  prefetch_index = index;
+  if(prefetch_index == 0) prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
+  else prefetch_index--;
+  len = len_;
+  for(int j=min_traceback_length; j < len; j++) {
+    index = prefetch_index;
+    if(prefetch_index == 0) prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
+    else prefetch_index--;
+    history = history_[index][bestpath];
+    if (history !=0) pathbit = HIGH_BIT;
+    else pathbit = 0;
+    bestpath = (bestpath | pathbit) >> 1;
+    if (pathbit != 0) fetched_[fetched_index] = 1;
+    else fetched_[fetched_index] = 0;
+    fetched_index++;
+  }
+  // todo biowritebitlistreversed
+  len_ -= fetched_index;
 }
 
 void meteor_viterbi::pair_lookup_fill_distance() {

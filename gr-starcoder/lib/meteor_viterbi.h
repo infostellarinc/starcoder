@@ -71,6 +71,8 @@ class meteor_viterbi {
     void pair_lookup_fill_distance();
     void history_buffer_process_skip(int skip);
     uint32_t history_buffer_search(int search_every);
+    void history_buffer_renormalize(uint32_t min_register);
+    void history_buffer_traceback(uint32_t bestpath, uint32_t min_traceback);
 
   public:
     meteor_viterbi();
