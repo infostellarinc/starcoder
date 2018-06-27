@@ -69,6 +69,7 @@ class meteor_viterbi {
     ~meteor_viterbi();
 
     int count_bits(uint32_t i);
+    void vit_decode();
 };
 
 } // namespace starcoder

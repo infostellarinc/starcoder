@@ -113,7 +113,8 @@ meteor_viterbi::~meteor_viterbi() {}
 } // namespace starcoder
 } // namespace gr
 
-
+/*
 int main() {
   gr::starcoder::meteor_viterbi v;
 }
+*/

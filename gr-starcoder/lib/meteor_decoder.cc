@@ -93,7 +93,7 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw) {
 } // namespace starcoder
 } // namespace gr
 
-/*
+
 int main() {
   gr::starcoder::meteor_decoder a;
   gr::starcoder::meteor_correlator c(0xfca2b63db00d9794);
@@ -104,8 +104,8 @@ int main() {
   for (int i=0; i<10; i++) std::cout << std::hex << (int)(p[i]) << ' ';
   delete[] p;
   */
-  /*
-  // corr_correlate
+
+  /* // corr_correlate
   unsigned char *p = new unsigned char[120];
   *reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3 35
   for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
@@ -114,5 +114,5 @@ int main() {
   std::tie(word, pos, corr) = c.corr_correlate(p, 120);
   std::cout << std::dec << word << " " << pos << " " << corr;
   delete[] p;
+  */
 }
-*/
