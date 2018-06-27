@@ -32,7 +32,8 @@ meteor_viterbi::meteor_viterbi() :
     hist_index_(0),
     len_(0),
     pair_outputs_len_(5),
-    renormalize_counter_(0)
+    renormalize_counter_(0),
+    writer_(NULL, 0)
 {
   for (int i=0;i<4;i++) {
     for (int j=0;j<65536;j++) {
@@ -115,7 +116,8 @@ void meteor_viterbi::vit_decode(unsigned char *in, unsigned char *out) {
 }
 
 void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded, unsigned char *decoded) {
-  // TODO: bit writer create
+  writer_ = meteor_bit_io(decoded, FRAME_BITS*2/8);
+
   len_ = 0;
   hist_index_ = 0;
   renormalize_counter_ = 0;
@@ -126,10 +128,10 @@ void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded, unsigned char 
   read_errors_ = errors_[0];
   write_errors_ = errors_[1];
 
-  // TODO: vit inner
-  // TODO: vit tail
+  vit_inner(soft_encoded);
+  vit_tail(soft_encoded);
 
-  // TODO: history buffer traceback
+  history_buffer_traceback(0, 0);
 }
 
 void meteor_viterbi::vit_inner(unsigned char *soft) {
@@ -213,6 +215,59 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
   }
 }
 
+void meteor_viterbi::vit_tail(unsigned char *soft) {
+  uint32_t skip, base_skip, highbase, low, high, base, low_output, high_output;
+  uint16_t low_dist, high_dist, low_past_error, high_past_error, low_error, high_error;
+  uint32_t successor;
+  uint16_t error;
+  uint8_t history_mask;
+
+  for (int i=FRAME_BITS-6; i<FRAME_BITS; i++) {
+    for (int j=0; j<4; j++) {
+      distances_[j] = dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i*2)];
+    }
+
+    skip = 1 << (7 - (FRAME_BITS-i));
+    base_skip = skip >> 1;
+
+    highbase = HIGH_BIT >> 1;
+    low = 0;
+    high = HIGH_BIT;
+    base = 0;
+    while (high < NUM_ITER) {
+      low_output = table_[low];
+      high_output = table_[high];
+
+      low_dist = distances_[low_output];
+      high_dist = distances_[high_output];
+
+      low_past_error = read_errors_[base];
+      high_past_error = read_errors_[highbase + base];
+
+      low_error = low_dist + low_past_error;
+      high_error = high_dist + high_past_error;
+
+      successor = low;
+      if (low_error < high_error) {
+        error = low_error;
+        history_mask = 0;
+      } else {
+        error = high_error;
+        history_mask = 1;
+      }
+      write_errors_[successor] = error;
+      history_[hist_index_][successor] = history_mask;
+
+      low += skip;
+      high += skip;
+      base += base_skip;
+    }
+
+    history_buffer_process_skip(skip);
+    error_buffer_swap();
+  }
+}
+
 void meteor_viterbi::history_buffer_process_skip(int skip) {
   uint32_t bestpath;
 
@@ -286,7 +341,7 @@ void meteor_viterbi::history_buffer_traceback(uint32_t bestpath, uint32_t min_tr
     else fetched_[fetched_index] = 0;
     fetched_index++;
   }
-  // todo biowritebitlistreversed
+  writer_.bio_write_bitlist_reversed(fetched_.data(), fetched_index);
   len_ -= fetched_index;
 }
 

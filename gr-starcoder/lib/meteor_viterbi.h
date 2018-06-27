@@ -23,6 +23,8 @@
 
 #include <array>
 
+#include "meteor_bit_io.h"
+
 namespace gr {
 namespace starcoder {
 
@@ -44,6 +46,8 @@ const unsigned int RENORMALIZE_INTERVAL=DISTANCE_MAX / (2*SOFT_MAX);
 class meteor_viterbi {
   private:
     int ber_;
+
+    meteor_bit_io writer_;
 
     std::array<std::array<uint16_t, 65536>, 4> dist_table_{};
     std::array<unsigned char, NUM_STATES> table_{};
@@ -67,6 +71,7 @@ class meteor_viterbi {
     void pair_lookup_create();
     void vit_conv_decode(unsigned char *soft_encoded, unsigned char *decoded);
     void vit_inner(unsigned char *soft);
+    void vit_tail(unsigned char *soft);
     void error_buffer_swap();
     void pair_lookup_fill_distance();
     void history_buffer_process_skip(int skip);
