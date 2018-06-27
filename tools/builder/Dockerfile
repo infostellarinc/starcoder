@@ -19,5 +19,7 @@ COPY --from=0 /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio /roo
 
 ADD ./tools/builder/run.sh /usr/bin/run-starcoder
 
+ENV GR_CONF_PERFCOUNTERS_ON True
+
 ENTRYPOINT [ "run-starcoder" ]
 CMD [ "serve" ]

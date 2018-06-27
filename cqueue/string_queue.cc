@@ -18,6 +18,7 @@
  */
 
 #include "string_queue.h"
+#include <iostream>
 
 string_queue::string_queue(int buffer_size)
     : queue_(buffer_size), closed_(false) {}
@@ -34,6 +35,11 @@ void string_queue::push(const std::string &item) {
 std::string string_queue::pop() {
   std::string a;
   queue_.pop(a);
+  if (a.length() > 10485760) {
+    std::cerr << "Popped large packet of length " << a.length()
+              << " from string_queue::pop\n";
+    return "";
+  }
   return a;
 }
 
@@ -44,6 +50,11 @@ std::string string_queue::blocking_pop() {
     return (!queue_.empty() || closed_);
   });
   queue_.pop(a);
+  if (a.length() > 10485760) {
+    std::cerr << "Popped large packet of length " << a.length()
+              << " from string_queue::blocking_pop\n";
+    return "";
+  }
   return a;
 }
 
