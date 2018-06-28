@@ -27,11 +27,15 @@ namespace gr {
 namespace starcoder {
 
 meteor_packet::meteor_packet()
-    : last_frame_(0), partial_packet_(false), packet_off_(0), first_time_(0), last_time_(0), no_time_yet_(true), packet_buf_(new uint8_t[2048]) {}
+    : last_frame_(0),
+      partial_packet_(false),
+      packet_off_(0),
+      first_time_(0),
+      last_time_(0),
+      no_time_yet_(true),
+      packet_buf_(new uint8_t[2048]) {}
 
-meteor_packet::~meteor_packet() {
-  delete[] packet_buf_;
-}
+meteor_packet::~meteor_packet() { delete[] packet_buf_; }
 
 void meteor_packet::parse_70(uint8_t *packet, int len) {
   int h = packet[8];
@@ -39,13 +43,14 @@ void meteor_packet::parse_70(uint8_t *packet, int len) {
   int s = packet[10];
   int ms = packet[11] * 4;
 
-  last_time_ = h*3600*1000+m*60*1000+s*1000+ms;
+  last_time_ = h * 3600 * 1000 + m * 60 * 1000 + s * 1000 + ms;
   if (no_time_yet_) {
     no_time_yet_ = false;
     first_time_ = last_time_;
   }
 
-  std::cout << "Onboard time: " << h << ":" << m << ":" << s << "." << ms << std::endl;
+  std::cout << "Onboard time: " << h << ":" << m << ":" << s << "." << ms
+            << std::endl;
 }
 
 void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
@@ -54,8 +59,9 @@ void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
   int seg_hdr = (packet[3] << 8) | packet[4];
   int q = packet[5];
 
-  std::cout << std::dec << "apd=" << apd << " pck_cnt=" << pck_cnt << " mcu_id=" << mcu_id
-   << " scan_hdr=" << scan_hdr << " seg_hdr=" << seg_hdr << " q=" << q << std::endl;
+  std::cout << std::dec << "apd=" << apd << " pck_cnt=" << pck_cnt
+            << " mcu_id=" << mcu_id << " scan_hdr=" << scan_hdr
+            << " seg_hdr=" << seg_hdr << " q=" << q << std::endl;
 
   // todo: mj_dec_mcus
 }
@@ -68,12 +74,16 @@ void meteor_packet::parse_apd(uint8_t *packet, int len) {
   int pck_cnt = ((packet[2] << 8) | packet[3]) & 0x3fff;
   int len_pck = (packet[4] << 8) | packet[5];
 
-  int ms = (packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
+  int ms =
+      (packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
 
-  std::cout << "sec=" << sec << " (pck:" << len_pck+1 << "/total:" << len << " ms=" << ms << std::endl;
+  std::cout << "sec=" << sec << " (pck:" << len_pck + 1 << "/total:" << len
+            << " ms=" << ms << std::endl;
 
-  if (apd == 70) parse_70(packet + 14, len -14);
-  else act_apd(packet + 14, len - 14, apd, pck_cnt);
+  if (apd == 70)
+    parse_70(packet + 14, len - 14);
+  else
+    act_apd(packet + 14, len - 14, apd, pck_cnt);
 }
 
 int meteor_packet::parse_partial(uint8_t *packet, int len) {
@@ -83,7 +93,7 @@ int meteor_packet::parse_partial(uint8_t *packet, int len) {
   }
 
   int len_pck = (packet[4] << 8) | packet[5];
-  if (len_pck >= len-6) {
+  if (len_pck >= len - 6) {
     partial_packet_ = true;
     return 0;
   }
@@ -91,7 +101,7 @@ int meteor_packet::parse_partial(uint8_t *packet, int len) {
   parse_apd(packet, len_pck + 1);
 
   partial_packet_ = false;
-  return len_pck+6+1;
+  return len_pck + 6 + 1;
 }
 
 void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
@@ -108,13 +118,14 @@ void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
   uint8_t hdr_mark = w >> 11;
   uint16_t hdr_off = w & 0x7ff;
 
-  std::cout << std::dec << "ver=" << ver << " ssid=" << ssid << " fid=" << fid << " frame_cnt=" <<
-    frame_cnt << " hdr_mark=" << int(hdr_mark) << " hdr_off=" << hdr_off << std::endl;
+  std::cout << std::dec << "ver=" << ver << " ssid=" << ssid << " fid=" << fid
+            << " frame_cnt=" << frame_cnt << " hdr_mark=" << int(hdr_mark)
+            << " hdr_off=" << hdr_off << std::endl;
 
-  if (ver == 0 || fid == 0) return; // Empty packet
+  if (ver == 0 || fid == 0) return;  // Empty packet
 
   int data_len = len - 10;
-  if (frame_cnt == last_frame_+1) {
+  if (frame_cnt == last_frame_ + 1) {
     if (partial_packet_) {
       if (hdr_off == PACKET_FULL_MARK) {
         hdr_off = len - 10;

@@ -165,7 +165,7 @@ int main() {
     if (res)
       std::cout << std::dec << 100. * a.pos_ / buffer.size() << "% "
                 << a.prev_pos_ << " " << std::hex << a.last_sync_ << std::endl;
-      packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN-4-128);
+    packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
   }
 
   delete[] ecced_data;

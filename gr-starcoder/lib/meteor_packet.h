@@ -30,23 +30,23 @@ const int PACKET_FULL_MARK = 2047;
 
 class meteor_packet {
  private:
-   int last_frame_;
-   bool partial_packet_;
-   uint8_t *packet_buf_;
-   int packet_off_;
-   int first_time_, last_time_;
-   bool no_time_yet_;
+  int last_frame_;
+  bool partial_packet_;
+  uint8_t *packet_buf_;
+  int packet_off_;
+  int first_time_, last_time_;
+  bool no_time_yet_;
 
-   int parse_partial(uint8_t *packet, int len);
-   void parse_apd(uint8_t *packet, int len);
-   void act_apd(uint8_t *packet, int len, int apd, int pck_cnt);
-   void parse_70(uint8_t *packet, int len);
+  int parse_partial(uint8_t *packet, int len);
+  void parse_apd(uint8_t *packet, int len);
+  void act_apd(uint8_t *packet, int len, int apd, int pck_cnt);
+  void parse_70(uint8_t *packet, int len);
 
  public:
-   meteor_packet();
-   ~meteor_packet();
+  meteor_packet();
+  ~meteor_packet();
 
-   void parse_cvcdu(uint8_t *frame, int len);
+  void parse_cvcdu(uint8_t *frame, int len);
 };
 
 }  // namespace starcoder
