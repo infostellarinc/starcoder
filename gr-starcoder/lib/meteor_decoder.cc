@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include "meteor_ecc.h"
+#include "meteor_packet.h"
 
 namespace gr {
 namespace starcoder {
@@ -130,6 +131,7 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw, uint8_t *ecced_data) {
 int main() {
   gr::starcoder::meteor_decoder a;
   gr::starcoder::meteor_correlator c(0xfca2b63db00d9794);
+  gr::starcoder::meteor_packet packeter;
   /* // fix_packet
   unsigned char *p = new unsigned char[10];
   for (int i=0; i<10; i++) p[i] = i;
@@ -163,6 +165,7 @@ int main() {
     if (res)
       std::cout << std::dec << 100. * a.pos_ / buffer.size() << "% "
                 << a.prev_pos_ << " " << std::hex << a.last_sync_ << std::endl;
+      packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN-4-128);
   }
 
   delete[] ecced_data;
