@@ -62,7 +62,7 @@ std::array<uint8_t, 256> ALPHA_ARR{
  0xee,0x5b,0xb6,0xeb,0x51,0xa2,0xc3,0x00
 };
 
-std::array<uint8_t, 256> IDX_ARR{
+const std::array<uint8_t, 256> IDX_ARR{
  255,  0,  1, 99,  2,198,100,106,
    3,205,199,188,101,126,107, 42,
    4,141,206, 78,200,212,189,225,
@@ -97,11 +97,21 @@ std::array<uint8_t, 256> IDX_ARR{
  246,135,165, 23, 58,163, 60,183
 };
 
+const std::array<uint8_t, 33> POLY_ARR{
+  0,249,59 ,66 ,4  ,43 ,126,251,
+ 97,30 ,3  ,213,50 ,66 ,170,5  ,
+ 24,5  ,170,66 ,50 ,213,3  ,30 ,
+ 97,251,126,43 ,4  ,66 ,59 ,249,
+  0
+};
+
 void ecc_deinterleave(uint8_t *data, uint8_t *output, int pos, int n);
 
 void ecc_interleave(uint8_t *data, uint8_t *output, int pos, int n);
 
 int ecc_decode(uint8_t *data, int pad);
+
+void ecc_encode(uint8_t *data, int pad);
 
 } // namespace starcoder
 } // namespace gr

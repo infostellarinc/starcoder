@@ -39,12 +39,31 @@ void ecc_interleave(uint8_t *data, uint8_t *output, int pos, int n) {
   }
 }
 
+void ecc_encode(uint8_t *data, int pad) {
+  uint8_t *bb = data + 255 -32 - pad;
+
+  std::fill(bb, bb+32, 0);
+
+  for (int i=0; i< 223-pad; i++) {
+    uint8_t feedback = IDX_ARR[data[i] ^ bb[0]];
+    if (feedback != 255) {
+      for (int j=1; j< 32; j++) {
+        bb[j] = bb[j] ^ ALPHA_ARR[(feedback+POLY_ARR[32-j]) % 255];
+      }
+    }
+    std::move(bb + 1, bb + 32, bb);
+    if (feedback != 255) bb[31] = ALPHA_ARR[(feedback+POLY_ARR[0]) % 255];
+    else bb[31] = 0;
+  }
+}
+
 int ecc_decode(uint8_t *data, int pad) {
   std::array<uint8_t, 32> root{};
   std::array<uint8_t, 32> s{};
   std::array<uint8_t, 32> loc{};
   std::array<uint8_t, 33> lambda{} , b{}, reg{}, t{}, omega{};
-  uint8_t q,tmp,num1,num2,den,discr_r;
+  uint8_t q;
+  int result = 0;
 
   for (int i=0; i<32; i++) s[i] = data[0];
   for (int j=1; j < 255-pad; j++) {
@@ -74,7 +93,7 @@ int ecc_decode(uint8_t *data, int pad) {
   int el=0;
 
   while (r <= 32) {
-    discr_r = 0;
+    uint8_t discr_r = 0;
     for (int i=0; i<r; i++) {
       if(lambda[i] !=0 && s[r-i-1] != 255) {
         discr_r = discr_r ^ ALPHA_ARR[(IDX_ARR[lambda[i]]+s[r-i-1]) % 255];
@@ -112,7 +131,6 @@ int ecc_decode(uint8_t *data, int pad) {
   }
 
   std::move(lambda.begin() + 1, lambda.end(), reg.begin() + 1);
-  int result = 0;
 
   int i = 1;
   int k = 115;
@@ -146,7 +164,7 @@ int ecc_decode(uint8_t *data, int pad) {
 
   int deg_omega = deg_lambda-1;
   for (int i=0; i<deg_omega+1; i++) {
-    tmp = 0;
+    uint8_t tmp = 0;
     for (int j=i; j>-1; j--) {
       if (s[i-j]!=255 && lambda[j]!=255) tmp = tmp ^ ALPHA_ARR[(s[i-j]+lambda[j])%255];
     }
@@ -154,12 +172,12 @@ int ecc_decode(uint8_t *data, int pad) {
   }
 
   for (int j=result-1; j > -1; j--) {
-    num1 = 0;
+    uint8_t num1 = 0;
     for(int i=deg_omega; i > -1; i--) {
       if (omega[i] !=255) num1 = num1 ^ ALPHA_ARR[(omega[i] + i*root[j])%255];
     }
-    num2 = ALPHA_ARR[(root[j]*111+255) % 255];
-    den = 0;
+    uint8_t num2 = ALPHA_ARR[(root[j]*111+255) % 255];
+    uint8_t den = 0;
 
     if (deg_lambda < 31) i = deg_lambda;
     else i=31;
@@ -183,11 +201,19 @@ int ecc_decode(uint8_t *data, int pad) {
 } // namespace gr
 
 int main() {
-  std::array<uint8_t, 33> gah{};
-  for (int i=0; i<33; i++) gah[i] = i;
-  for (int i=0; i<33; i++) std::cout << int(gah[i]) << " ";
+  int ecc_len = 255;
+  unsigned char *p = new unsigned char[ecc_len];
+  for (int i=0; i<ecc_len; i++) p[i] = (uint8_t)(i);
+  for (int i=0; i< ecc_len; i++) std::cout << std::hex << int(p[i]) << " ";
   std::cout << std::endl;
-  std::move_backward(gah.begin(), gah.end()-1, gah.end());
-  for (int i=0; i<33; i++) std::cout << int(gah[i]) << " ";
   std::cout << std::endl;
+  gr::starcoder::ecc_encode(p, 0);
+  p[20] = 0xff;
+  p[40] = 0x3a;
+  p[254] = 0xff;
+  for (int i=0; i< ecc_len; i++) std::cout << std::hex << int(p[i]) << " ";
+  std::cout << std::endl;
+  std::cout << std::dec << gr::starcoder::ecc_decode(p, 0) << " errors" << std::endl;
+  for (int i=0; i< ecc_len; i++) std::cout << std::hex << int(p[i]) << " ";
+  delete[] p;
 }
