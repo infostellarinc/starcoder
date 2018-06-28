@@ -33,6 +33,30 @@ meteor_packet::~meteor_packet() {
   delete[] packet_buf_;
 }
 
+void meteor_packet::parse_70(uint8_t *packet, int len) {
+
+}
+
+void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
+
+}
+
+void meteor_packet::parse_apd(uint8_t *packet, int len) {
+  uint16_t w = (packet[0] << 8) | packet[1];
+  int sec = (w >> 11) & 1;
+  int apd = w & 0x7ff;
+
+  int pck_cnt = ((packet[2] << 8) | packet[3]) & 0x3fff;
+  int len_pck = (packet[4] << 8) | packet[5];
+
+  int ms = (packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
+
+  std::cout << "sec=" << sec << " (pck:" << len_pck+1 << "/total:" << len << " ms=" << ms << std::endl;
+
+  if (apd == 70) parse_70(packet + 14, len -14);
+  else act_apd(packet + 14, len - 14, apd, pck_cnt);
+}
+
 int meteor_packet::parse_partial(uint8_t *packet, int len) {
   if (len < 6) {
     partial_packet_ = true;
@@ -45,7 +69,7 @@ int meteor_packet::parse_partial(uint8_t *packet, int len) {
     return 0;
   }
 
-  //todo parse apd
+  parse_apd(packet, len_pck + 1);
 
   partial_packet_ = false;
   return len_pck+6+1;

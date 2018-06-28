@@ -36,6 +36,9 @@ class meteor_packet {
    int packet_off_;
 
    int parse_partial(uint8_t *packet, int len);
+   void parse_apd(uint8_t *packet, int len);
+   void act_apd(uint8_t *packet, int len, int apd, int pck_cnt);
+   void parse_70(uint8_t *packet, int len);
 
  public:
    meteor_packet();
