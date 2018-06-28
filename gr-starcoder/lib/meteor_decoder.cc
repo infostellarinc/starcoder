@@ -21,7 +21,11 @@
 #include "meteor_decoder.h"
 
 #include <iostream>
+#include <fstream>
+#include <vector>
 #include <algorithm>
+
+#include "meteor_ecc.h"
 
 namespace gr {
 namespace starcoder {
@@ -66,18 +70,46 @@ void meteor_decoder::do_full_correlate(unsigned char *raw,
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
-bool meteor_decoder::try_frame(unsigned char *aligned) {
-  // TODO: Do something
+bool meteor_decoder::try_frame(unsigned char *aligned, uint8_t *ecced_data) {
+  uint8_t *decoded = new uint8_t[HARD_FRAME_LEN];
+  uint8_t *ecc_buf = new uint8_t[255];
+
+  viterbi_.vit_decode(aligned, decoded);
+
+  last_sync_ = *reinterpret_cast<uint32_t *>(decoded);
+
+  if (viterbi_.count_bits(last_sync_ ^ 0xE20330E5) <
+      viterbi_.count_bits(last_sync_ ^ 0x1DFCCF1A)) {
+    for (int j = 0; j < HARD_FRAME_LEN; j++) {
+      decoded[j] = decoded[j] ^ 0xFFFFFFFF;
+    }
+    last_sync_ = last_sync_ ^ 0xFFFFFFFF;
+  }
+
+  for (int j = 0; j < HARD_FRAME_LEN - 4; j++) {
+    decoded[4 + j] = decoded[4 + j] ^ PRAND[j % 255];
+  }
+  for (int j = 0; j < 4; j++) {
+    ecc_deinterleave(decoded + 4, ecc_buf, j, 4);
+    ecc_results_[j] = ecc_decode(ecc_buf, 0);
+    ecc_interleave(ecc_buf, ecced_data, j, 4);
+  }
+
+  delete[] decoded;
+  delete[] ecc_buf;
+
+  return (ecc_results_[0] != -1) && (ecc_results_[1] != -1) &&
+         (ecc_results_[2] != -1) && (ecc_results_[3] != -1);
 }
 
-bool meteor_decoder::decode_one_frame(unsigned char *raw) {
+bool meteor_decoder::decode_one_frame(unsigned char *raw, uint8_t *ecced_data) {
   unsigned char *aligned = new unsigned char[SOFT_FRAME_LEN];
   bool result = false;
 
   if (cpos_ == 0) {
     do_next_correlate(raw, aligned);
 
-    result = try_frame(aligned);
+    result = try_frame(aligned, ecced_data);
 
     if (!result) pos_ -= SOFT_FRAME_LEN;
   }
@@ -85,7 +117,7 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw) {
   if (!result) {
     do_full_correlate(raw, aligned);
 
-    result = try_frame(aligned);
+    result = try_frame(aligned, ecced_data);
   }
 
   delete[] aligned;
@@ -95,7 +127,6 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw) {
 }  // namespace starcoder
 }  // namespace gr
 
-/*
 int main() {
   gr::starcoder::meteor_decoder a;
   gr::starcoder::meteor_correlator c(0xfca2b63db00d9794);
@@ -107,15 +138,32 @@ int main() {
   delete[] p;
   */
 
-/* // corr_correlate
-unsigned char *p = new unsigned char[120];
-*reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3
-35
-for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
-std::cout << std::endl;
-int word, pos, corr;
-std::tie(word, pos, corr) = c.corr_correlate(p, 120);
-std::cout << std::dec << word << " " << pos << " " << corr;
-delete[] p;
-*/
-//}
+  /* // corr_correlate
+  unsigned char *p = new unsigned char[120];
+  *reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3
+  35
+  for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
+  std::cout << std::endl;
+  int word, pos, corr;
+  std::tie(word, pos, corr) = c.corr_correlate(p, 120);
+  std::cout << std::dec << word << " " << pos << " " << corr;
+  delete[] p;
+  */
+
+  std::ifstream in("/home/rei/sampleAR2300IQ/meteorstream.s", std::ios::binary);
+  std::vector<char> buffer((std::istreambuf_iterator<char>(in)),
+                           (std::istreambuf_iterator<char>()));
+  std::cout << "Raw Size " << buffer.size() << std::endl;
+
+  uint8_t *raw = reinterpret_cast<uint8_t *>(buffer.data());
+  uint8_t *ecced_data = new uint8_t[gr::starcoder::HARD_FRAME_LEN];
+
+  while (a.pos_ < buffer.size() - gr::starcoder::SOFT_FRAME_LEN) {
+    bool res = a.decode_one_frame(raw, ecced_data);
+    if (res)
+      std::cout << std::dec << 100. * a.pos_ / buffer.size() << "% "
+                << a.prev_pos_ << " " << std::hex << a.last_sync_ << std::endl;
+  }
+
+  delete[] ecced_data;
+}

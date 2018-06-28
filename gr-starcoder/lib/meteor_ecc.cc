@@ -222,7 +222,7 @@ int ecc_decode(uint8_t *data, int pad) {
 
 }  // namespace starcoder
 }  // namespace gr
-
+/*
 int main() {
   int ecc_len = 255;
   unsigned char *p = new unsigned char[ecc_len];
@@ -245,3 +245,4 @@ int main() {
     std::cout << std::hex << int(p[i]) << " ";
   delete[] p;
 }
+*/

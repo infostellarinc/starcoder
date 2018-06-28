@@ -119,11 +119,15 @@ int meteor_viterbi::count_bits(uint32_t i) {
   return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-void meteor_viterbi::vit_decode(unsigned char *in, unsigned char *out) {}
+void meteor_viterbi::vit_decode(unsigned char *in, unsigned char *out) {
+  vit_conv_decode(in, out);
+
+  // TODO: Calculate BER
+}
 
 void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded,
                                      unsigned char *decoded) {
-  writer_ = meteor_bit_io(decoded, FRAME_BITS * 2 / 8);
+  writer_ = meteor_bit_io(decoded, NUM_FRAME_BITS * 2 / 8);
 
   len_ = 0;
   hist_index_ = 0;
@@ -151,7 +155,7 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
     error_buffer_swap();
   }
 
-  for (int i = 6; i < FRAME_BITS - 6; i++) {
+  for (int i = 6; i < NUM_FRAME_BITS - 6; i++) {
     for (int j = 0; j < 4; j++) {
       distances_[j] =
           dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
@@ -233,13 +237,13 @@ void meteor_viterbi::vit_tail(unsigned char *soft) {
   uint16_t error;
   uint8_t history_mask;
 
-  for (int i = FRAME_BITS - 6; i < FRAME_BITS; i++) {
+  for (int i = NUM_FRAME_BITS - 6; i < NUM_FRAME_BITS; i++) {
     for (int j = 0; j < 4; j++) {
       distances_[j] =
           dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
     }
 
-    skip = 1 << (7 - (FRAME_BITS - i));
+    skip = 1 << (7 - (NUM_FRAME_BITS - i));
     base_skip = skip >> 1;
 
     highbase = HIGH_BIT >> 1;

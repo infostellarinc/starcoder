@@ -33,10 +33,10 @@ const unsigned char VITERBI27_POLYB = 109;
 
 const unsigned int SOFT_MAX = 255;
 const unsigned int DISTANCE_MAX = 65535;
-const unsigned int FRAME_BITS = 1024 * 8;
+const unsigned int NUM_FRAME_BITS = 1024 * 8;
 const unsigned int NUM_STATES = 128;
 const unsigned int HIGH_BIT = 64;
-const unsigned int ENCODE_LEN = 2 * (FRAME_BITS + 8);
+const unsigned int ENCODE_LEN = 2 * (NUM_FRAME_BITS + 8);
 const unsigned int NUM_ITER = HIGH_BIT << 1;
 
 const unsigned int MIN_TRACEBACK = 5 * 7;
