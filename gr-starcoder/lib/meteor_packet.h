@@ -34,6 +34,8 @@ class meteor_packet {
    bool partial_packet_;
    uint8_t *packet_buf_;
    int packet_off_;
+   int first_time_, last_time_;
+   bool no_time_yet_;
 
    int parse_partial(uint8_t *packet, int len);
    void parse_apd(uint8_t *packet, int len);

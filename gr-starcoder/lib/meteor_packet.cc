@@ -27,18 +27,37 @@ namespace gr {
 namespace starcoder {
 
 meteor_packet::meteor_packet()
-    : last_frame_(0), partial_packet_(false), packet_off_(0), packet_buf_(new uint8_t[2048]) {}
+    : last_frame_(0), partial_packet_(false), packet_off_(0), first_time_(0), last_time_(0), no_time_yet_(true), packet_buf_(new uint8_t[2048]) {}
 
 meteor_packet::~meteor_packet() {
   delete[] packet_buf_;
 }
 
 void meteor_packet::parse_70(uint8_t *packet, int len) {
+  int h = packet[8];
+  int m = packet[9];
+  int s = packet[10];
+  int ms = packet[11] * 4;
 
+  last_time_ = h*3600*1000+m*60*1000+s*1000+ms;
+  if (no_time_yet_) {
+    no_time_yet_ = false;
+    first_time_ = last_time_;
+  }
+
+  std::cout << "Onboard time: " << h << ":" << m << ":" << s << "." << ms << std::endl;
 }
 
 void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
+  int mcu_id = packet[0];
+  int scan_hdr = (packet[1] << 8) | packet[2];
+  int seg_hdr = (packet[3] << 8) | packet[4];
+  int q = packet[5];
 
+  std::cout << std::dec << "apd=" << apd << " pck_cnt=" << pck_cnt << " mcu_id=" << mcu_id
+   << " scan_hdr=" << scan_hdr << " seg_hdr=" << seg_hdr << " q=" << q << std::endl;
+
+  // todo: mj_dec_mcus
 }
 
 void meteor_packet::parse_apd(uint8_t *packet, int len) {
