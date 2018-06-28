@@ -32,28 +32,36 @@ const int PATTERN_COUNT = 8;
 const int CORR_LIMIT = 55;
 
 class meteor_correlator {
-  private:
-    std::array<std::array<unsigned char, PATTERN_COUNT>, PATTERN_SIZE> patts_{};
-    std::array<int, PATTERN_COUNT> correlation_{}, tmp_corr_{}, position_{};
-    std::array<unsigned char, 256> rotate_iq_table_{}, invert_iq_table_{};
-    std::array<std::array<int, 256>, 256> corr_table_{};
+ private:
+  std::array<std::array<unsigned char, PATTERN_COUNT>, PATTERN_SIZE> patts_ {}
+  ;
+  std::array<int, PATTERN_COUNT> correlation_ {}
+  , tmp_corr_ {}
+  , position_ {}
+  ;
+  std::array<unsigned char, 256> rotate_iq_table_ {}
+  , invert_iq_table_ {}
+  ;
+  std::array<std::array<int, 256>, 256> corr_table_ {}
+  ;
 
-    void init_corr_tables();
-    unsigned char rotate_iq(unsigned char data, int shift);
-    uint64_t flip_iq_qw(uint64_t data);
-    uint64_t rotate_iq_qw(uint64_t data, int shift);
-    void corr_set_patt(int n, uint64_t p);
-    void corr_reset();
+  void init_corr_tables();
+  unsigned char rotate_iq(unsigned char data, int shift);
+  uint64_t flip_iq_qw(uint64_t data);
+  uint64_t rotate_iq_qw(uint64_t data, int shift);
+  void corr_set_patt(int n, uint64_t p);
+  void corr_reset();
 
-  public:
-    meteor_correlator(uint64_t q_word);
-    ~meteor_correlator();
+ public:
+  meteor_correlator(uint64_t q_word);
+  ~meteor_correlator();
 
-    void fix_packet(unsigned char *data, int len, int shift);
-    std::tuple<uint32_t, uint32_t, uint32_t> corr_correlate(unsigned char *data, uint32_t d_word);
+  void fix_packet(unsigned char *data, int len, int shift);
+  std::tuple<uint32_t, uint32_t, uint32_t> corr_correlate(unsigned char *data,
+                                                          uint32_t d_word);
 };
 
-} // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_METEOR_CORRELATOR_H */

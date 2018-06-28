@@ -27,31 +27,32 @@
 namespace gr {
 namespace starcoder {
 
-const int HARD_FRAME_LEN=1024;
-const int FRAME_BITS=HARD_FRAME_LEN*8;
-const int SOFT_FRAME_LEN=FRAME_BITS*2;
-const int MIN_CORRELATION=45;
+const int HARD_FRAME_LEN = 1024;
+const int FRAME_BITS = HARD_FRAME_LEN * 8;
+const int SOFT_FRAME_LEN = FRAME_BITS * 2;
+const int MIN_CORRELATION = 45;
 
 class meteor_decoder {
-  private:
-    meteor_correlator correlator_;
-    int pos_, prev_pos_;
-    std::array<unsigned char, HARD_FRAME_LEN> ecced_data_{};
-    uint32_t word_, cpos_, corr_, last_sync_;
-    std::array<int, 4> r_;
-    int sig_q_;
+ private:
+  meteor_correlator correlator_;
+  int pos_, prev_pos_;
+  std::array<unsigned char, HARD_FRAME_LEN> ecced_data_ {}
+  ;
+  uint32_t word_, cpos_, corr_, last_sync_;
+  std::array<int, 4> r_;
+  int sig_q_;
 
-  public:
-    bool decode_one_frame(unsigned char *raw);
-    void do_full_correlate(unsigned char *raw, unsigned char *aligned);
-    void do_next_correlate(unsigned char *raw, unsigned char *aligned);
-    bool try_frame(unsigned char *aligned);
+ public:
+  bool decode_one_frame(unsigned char *raw);
+  void do_full_correlate(unsigned char *raw, unsigned char *aligned);
+  void do_next_correlate(unsigned char *raw, unsigned char *aligned);
+  bool try_frame(unsigned char *aligned);
 
-    meteor_decoder();
-    ~meteor_decoder();
+  meteor_decoder();
+  ~meteor_decoder();
 };
 
-} // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_METEOR_DECODER_H */

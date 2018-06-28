@@ -25,13 +25,8 @@
 namespace gr {
 namespace starcoder {
 
-meteor_bit_io::meteor_bit_io(uint8_t *bytes, int len) :
-    bytes_(bytes),
-    len_(len),
-    cur_(0),
-    cur_len_(0),
-    pos_(0)
-{}
+meteor_bit_io::meteor_bit_io(uint8_t *bytes, int len)
+    : bytes_(bytes), len_(len), cur_(0), cur_len_(0), pos_(0) {}
 
 meteor_bit_io::~meteor_bit_io() {}
 
@@ -49,7 +44,7 @@ void meteor_bit_io::bio_write_bitlist_reversed(uint8_t *list, int len) {
 
     b = cur_;
 
-    for (int i=0; i<close_len; i++) {
+    for (int i = 0; i < close_len; i++) {
       b |= list[0];
       b = b << 1;
       list--;
@@ -69,21 +64,22 @@ void meteor_bit_io::bio_write_bitlist_reversed(uint8_t *list, int len) {
 
   int full_bytes = len / 8;
 
-  for (int i=0; i<full_bytes; i++) {
-    bytes[byte_index] = (*(list - 0) << 7) | (*(list - 1) << 6) | (*(list - 2) << 5) |
-                        (*(list - 3) << 4) | (*(list - 4) << 3) | (*(list - 5) << 2) |
-                        (*(list - 6) << 1) | (*(list - 7));
+  for (int i = 0; i < full_bytes; i++) {
+    bytes[byte_index] =
+        (*(list - 0) << 7) | (*(list - 1) << 6) | (*(list - 2) << 5) |
+        (*(list - 3) << 4) | (*(list - 4) << 3) | (*(list - 5) << 2) |
+        (*(list - 6) << 1) | (*(list - 7));
     byte_index++;
-    list-=8;
+    list -= 8;
   }
 
-  len -= 8*full_bytes;
+  len -= 8 * full_bytes;
 
   b = 0;
-  for (int i=0; i< len; i++) {
-      b |= list[0];
-      b = b << 1;
-      list--;
+  for (int i = 0; i < len; i++) {
+    b |= list[0];
+    b = b << 1;
+    list--;
   }
 
   cur_ = b;
@@ -91,5 +87,5 @@ void meteor_bit_io::bio_write_bitlist_reversed(uint8_t *list, int len) {
   cur_len_ = len;
 }
 
-} // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr

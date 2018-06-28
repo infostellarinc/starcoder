@@ -26,22 +26,21 @@
 namespace gr {
 namespace starcoder {
 
-meteor_viterbi::meteor_viterbi() :
-    ber_(0),
-    err_index_(0),
-    hist_index_(0),
-    len_(0),
-    pair_outputs_len_(5),
-    renormalize_counter_(0),
-    writer_(NULL, 0)
-{
-  for (int i=0;i<4;i++) {
-    for (int j=0;j<65536;j++) {
+meteor_viterbi::meteor_viterbi()
+    : ber_(0),
+      err_index_(0),
+      hist_index_(0),
+      len_(0),
+      pair_outputs_len_(5),
+      renormalize_counter_(0),
+      writer_(NULL, 0) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 65536; j++) {
       dist_table_[i][j] = metric_soft_distance(i, j & 0xff, j >> 8);
     }
   }
 
-  for (int i=0; i< 128; i++) {
+  for (int i = 0; i < 128; i++) {
     if ((count_bits(i & VITERBI27_POLYA) % 2) != 0) table_[i] = table_[i] | 1;
     if ((count_bits(i & VITERBI27_POLYB) % 2) != 0) table_[i] = table_[i] | 2;
   }
@@ -62,45 +61,48 @@ meteor_viterbi::~meteor_viterbi() {
   delete[] errors_[1];
 }
 
-uint16_t meteor_viterbi::metric_soft_distance(unsigned char hard, unsigned char soft_y0, unsigned char soft_y1) {
+uint16_t meteor_viterbi::metric_soft_distance(unsigned char hard,
+                                              unsigned char soft_y0,
+                                              unsigned char soft_y1) {
   const int mag = 255;
   int soft_x0, soft_x1;
   switch (hard & 3) {
-  case 0:
-    soft_x0 = mag;
-    soft_x1 = mag;
-    break;
-  case 1:
-    soft_x0 = -mag;
-    soft_x1 = mag;
-    break;
-  case 2:
-    soft_x0 = mag;
-    soft_x1 = -mag;
-    break;
-  case 3:
-    soft_x0 = -mag;
-    soft_x1 = -mag;
-    break;
-  default:
-    // Warn?
-    soft_x0 = 0;
-    soft_x1 = 0;
+    case 0:
+      soft_x0 = mag;
+      soft_x1 = mag;
+      break;
+    case 1:
+      soft_x0 = -mag;
+      soft_x1 = mag;
+      break;
+    case 2:
+      soft_x0 = mag;
+      soft_x1 = -mag;
+      break;
+    case 3:
+      soft_x0 = -mag;
+      soft_x1 = -mag;
+      break;
+    default:
+      // Warn?
+      soft_x0 = 0;
+      soft_x1 = 0;
   }
 
-  signed char y0 = reinterpret_cast<signed char&>(soft_y0);
-  signed char y1 = reinterpret_cast<signed char&>(soft_y1);
+  signed char y0 = reinterpret_cast<signed char &>(soft_y0);
+  signed char y1 = reinterpret_cast<signed char &>(soft_y1);
 
   return abs(y0 - soft_x0) + abs(y1 - soft_x1);
 }
 
 void meteor_viterbi::pair_lookup_create() {
-  std::array<uint32_t, 16> inv_outputs{};
+  std::array<uint32_t, 16> inv_outputs {}
+  ;
   uint32_t output_counter = 1;
   uint32_t o;
 
-  for (int i=0;i<64;i++) {
-    o = (table_[i*2 + 1] << 2) | table_[i*2];
+  for (int i = 0; i < 64; i++) {
+    o = (table_[i * 2 + 1] << 2) | table_[i * 2];
     if (inv_outputs[o] == 0) {
       inv_outputs[o] = output_counter;
       pair_outputs_[output_counter] = o;
@@ -117,12 +119,11 @@ int meteor_viterbi::count_bits(uint32_t i) {
   return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-void meteor_viterbi::vit_decode(unsigned char *in, unsigned char *out) {
+void meteor_viterbi::vit_decode(unsigned char *in, unsigned char *out) {}
 
-}
-
-void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded, unsigned char *decoded) {
-  writer_ = meteor_bit_io(decoded, FRAME_BITS*2/8);
+void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded,
+                                     unsigned char *decoded) {
+  writer_ = meteor_bit_io(decoded, FRAME_BITS * 2 / 8);
 
   len_ = 0;
   hist_index_ = 0;
@@ -141,17 +142,19 @@ void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded, unsigned char 
 }
 
 void meteor_viterbi::vit_inner(unsigned char *soft) {
-  for (int i=0; i<6; i++) {
-    for (int j=0; j<(1 << (i+1)); j++) {
+  for (int i = 0; i < 6; i++) {
+    for (int j = 0; j < (1 << (i + 1)); j++) {
       write_errors_[j] =
-          dist_table_[table_[j]][*reinterpret_cast<uint16_t *>(soft + i*2)] + read_errors_[j >> 1];
+          dist_table_[table_[j]][*reinterpret_cast<uint16_t *>(soft + i * 2)] +
+          read_errors_[j >> 1];
     }
     error_buffer_swap();
   }
 
-  for (int i=6; i < FRAME_BITS-6; i++) {
-    for(int j=0; j<4; j++) {
-      distances_[j] = dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i*2)];
+  for (int i = 6; i < FRAME_BITS - 6; i++) {
+    for (int j = 0; j < 4; j++) {
+      distances_[j] =
+          dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
     }
     pair_lookup_fill_distance();
 
@@ -192,7 +195,8 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
         uint32_t low_plus_one = low + offset + 1;
 
         uint16_t low_plus_one_error = (low_concat_dist >> 16) + low_past_error;
-        uint16_t high_plus_one_error = (high_concat_dist >> 16) + high_past_error;
+        uint16_t high_plus_one_error =
+            (high_concat_dist >> 16) + high_past_error;
 
         uint32_t plus_one_successor = low_plus_one;
         uint16_t plus_one_error;
@@ -223,17 +227,19 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
 
 void meteor_viterbi::vit_tail(unsigned char *soft) {
   uint32_t skip, base_skip, highbase, low, high, base, low_output, high_output;
-  uint16_t low_dist, high_dist, low_past_error, high_past_error, low_error, high_error;
+  uint16_t low_dist, high_dist, low_past_error, high_past_error, low_error,
+      high_error;
   uint32_t successor;
   uint16_t error;
   uint8_t history_mask;
 
-  for (int i=FRAME_BITS-6; i<FRAME_BITS; i++) {
-    for (int j=0; j<4; j++) {
-      distances_[j] = dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i*2)];
+  for (int i = FRAME_BITS - 6; i < FRAME_BITS; i++) {
+    for (int j = 0; j < 4; j++) {
+      distances_[j] =
+          dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
     }
 
-    skip = 1 << (7 - (FRAME_BITS-i));
+    skip = 1 << (7 - (FRAME_BITS - i));
     base_skip = skip >> 1;
 
     highbase = HIGH_BIT >> 1;
@@ -287,7 +293,8 @@ void meteor_viterbi::history_buffer_process_skip(int skip) {
     renormalize_counter_ = 0;
     bestpath = history_buffer_search(skip);
     history_buffer_renormalize(bestpath);
-    if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH) history_buffer_traceback(bestpath, MIN_TRACEBACK);
+    if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH)
+      history_buffer_traceback(bestpath, MIN_TRACEBACK);
   } else if (len_ == MIN_TRACEBACK + TRACEBACK_LENGTH) {
     bestpath = history_buffer_search(skip);
     history_buffer_traceback(bestpath, MIN_TRACEBACK);
@@ -311,40 +318,53 @@ uint32_t meteor_viterbi::history_buffer_search(int search_every) {
 
 void meteor_viterbi::history_buffer_renormalize(uint32_t min_register) {
   uint16_t min_distance = write_errors_[min_register];
-  for (int i=0; i< NUM_STATES / 2; i++) {
+  for (int i = 0; i < NUM_STATES / 2; i++) {
     write_errors_[i] -= min_distance;
   }
 }
 
-void meteor_viterbi::history_buffer_traceback(uint32_t bestpath, uint32_t min_traceback_length) {
+void meteor_viterbi::history_buffer_traceback(uint32_t bestpath,
+                                              uint32_t min_traceback_length) {
   uint32_t index, fetched_index, pathbit, prefetch_index, len;
   uint8_t history;
 
   fetched_index = 0;
   index = hist_index_;
 
-  for (int j=0; j< min_traceback_length; j++) {
-    if (index == 0) index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
-    else index--;
+  for (int j = 0; j < min_traceback_length; j++) {
+    if (index == 0)
+      index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
+    else
+      index--;
     history = history_[index][bestpath];
-    if (history != 0) pathbit = HIGH_BIT;
-    else pathbit = 0;
+    if (history != 0)
+      pathbit = HIGH_BIT;
+    else
+      pathbit = 0;
     bestpath = (bestpath | pathbit) >> 1;
   }
   prefetch_index = index;
-  if(prefetch_index == 0) prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
-  else prefetch_index--;
+  if (prefetch_index == 0)
+    prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
+  else
+    prefetch_index--;
   len = len_;
-  for(int j=min_traceback_length; j < len; j++) {
+  for (int j = min_traceback_length; j < len; j++) {
     index = prefetch_index;
-    if(prefetch_index == 0) prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
-    else prefetch_index--;
+    if (prefetch_index == 0)
+      prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
+    else
+      prefetch_index--;
     history = history_[index][bestpath];
-    if (history !=0) pathbit = HIGH_BIT;
-    else pathbit = 0;
+    if (history != 0)
+      pathbit = HIGH_BIT;
+    else
+      pathbit = 0;
     bestpath = (bestpath | pathbit) >> 1;
-    if (pathbit != 0) fetched_[fetched_index] = 1;
-    else fetched_[fetched_index] = 0;
+    if (pathbit != 0)
+      fetched_[fetched_index] = 1;
+    else
+      fetched_[fetched_index] = 0;
     fetched_index++;
   }
   writer_.bio_write_bitlist_reversed(fetched_.data(), fetched_index);
@@ -352,7 +372,7 @@ void meteor_viterbi::history_buffer_traceback(uint32_t bestpath, uint32_t min_tr
 }
 
 void meteor_viterbi::pair_lookup_fill_distance() {
-  for (int i=1; i<pair_outputs_len_; i++) {
+  for (int i = 1; i < pair_outputs_len_; i++) {
     uint32_t c = pair_outputs_[i];
     uint32_t i0 = c & 3;
     uint32_t i1 = c >> 2;
@@ -363,17 +383,21 @@ void meteor_viterbi::pair_lookup_fill_distance() {
 
 void meteor_viterbi::error_buffer_swap() {
   read_errors_ = errors_[err_index_];
-  err_index_ = (err_index_+1) % 2;
+  err_index_ = (err_index_ + 1) % 2;
   write_errors_ = errors_[err_index_];
 }
 
-} // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 /*
 int main() {
   gr::starcoder::meteor_viterbi v;
-  // test viterbi result must be 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff
+  // test viterbi result must be 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0
+0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0
+0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff
+c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff
+ff c0 0 0 0 0 0 0 33 ff
   int soft_frame_len = 1024*8*2;
   unsigned char *p = new unsigned char[soft_frame_len];
   unsigned char *out = new unsigned char[1024];

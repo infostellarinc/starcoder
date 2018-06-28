@@ -26,21 +26,21 @@
 namespace gr {
 namespace starcoder {
 class meteor_bit_io {
-  private:
-    uint8_t *bytes_;
-    int pos_, len_;
+ private:
+  uint8_t *bytes_;
+  int pos_, len_;
 
-    uint8_t cur_;
-    int cur_len_;
+  uint8_t cur_;
+  int cur_len_;
 
-  public:
-    meteor_bit_io(uint8_t *bytes, int len);
-    ~meteor_bit_io();
+ public:
+  meteor_bit_io(uint8_t *bytes, int len);
+  ~meteor_bit_io();
 
-    void bio_write_bitlist_reversed(uint8_t *list, int len);
+  void bio_write_bitlist_reversed(uint8_t *list, int len);
 };
 
-} // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_METEOR_BIT_IO_H */
