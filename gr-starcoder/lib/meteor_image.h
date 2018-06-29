@@ -92,7 +92,8 @@ class meteor_image {
   ;
   std::array<ac_table_rec, 162> ac_table_ {}
   ;
-  std::array<std::array<float, 8>, 8> cosine_{};
+  std::array<std::array<float, 8>, 8> cosine_ {}
+  ;
   std::array<float, 8> alpha_;
 
   void init_huffman_table();
@@ -109,7 +110,8 @@ class meteor_image {
   meteor_image(int red_apid, int green_apid, int blue_apid);
   ~meteor_image();
 
-  void mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id, uint8_t q);
+  void mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id,
+                   uint8_t q);
 
 };
 
