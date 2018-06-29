@@ -38,6 +38,7 @@ class meteor_bit_io {
   ~meteor_bit_io();
 
   void bio_write_bitlist_reversed(uint8_t *list, int len);
+  uint32_t bio_peek_n_bits(int n);
 };
 
 }  // namespace starcoder

@@ -30,6 +30,16 @@ meteor_bit_io::meteor_bit_io(uint8_t *bytes, int len)
 
 meteor_bit_io::~meteor_bit_io() {}
 
+uint32_t meteor_bit_io::bio_peek_n_bits(int n) {
+  uint32_t result = 0;
+  for (int i=0; i<n; i++) {
+    int p = pos_ + i;
+    int bit = (bytes_[p >> 3] >> (7-(p & 7))) & 1;
+    result = (result << 1) | bit;
+  }
+  return result;
+}
+
 void meteor_bit_io::bio_write_bitlist_reversed(uint8_t *list, int len) {
   list = list + len - 1;
 

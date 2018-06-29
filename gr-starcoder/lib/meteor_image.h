@@ -93,6 +93,7 @@ class meteor_image {
   int get_dc_real(uint16_t word);
   int get_ac_real(uint16_t word);
   bool progress_image(int apd, int mcu_id, int pck_cnt);
+  void fill_dqt_by_q(std::array<int, 64> &dqt, int q);
 
  public:
   meteor_image(int red_apid, int green_apid, int blue_apid);

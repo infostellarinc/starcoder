@@ -22,6 +22,7 @@
 #include "meteor_bit_io.h"
 
 #include <iostream>
+#include <cmath>
 
 namespace gr {
 namespace starcoder {
@@ -161,15 +162,43 @@ bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
   return true;
 }
 
+void meteor_image::fill_dqt_by_q(std::array<int, 64> &dqt, int q) {
+  float f;
+  if (q > 20 && q < 50)
+    f = 5000./q;
+  else
+    f = 200. - 2*q;
+
+  for (int i=0; i < 64; i++) {
+    dqt[i] = (int)round(f/100.*STANDARD_QUANTIZATION_TABLE[i]);
+    if (dqt[i] < 1) dqt[i] = 1;
+  }
+}
+
 void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id, uint8_t q) {
   meteor_bit_io b(packet, 0);
 
   if (!progress_image(apd, mcu_id, pck_cnt)) return;
 
+  std::array<int, 64> dqt{}, z_dct{};
+  fill_dqt_by_q(dqt, q);
+
+  float prev_dc = 0;
+  int m =0;
+  while (m < MCU_PER_PACKET) {
+    int dc_cat = dc_lookup_[b.bio_peek_n_bits(16)];
+    if (dc_cat == -1) {
+      std::cerr << "Bad DC Huffman code!" << std::endl;
+      return;
+    }
+
+  }
 
 }
 
 }  // namespace starcoder
 }  // namespace gr
 
-int main() { gr::starcoder::meteor_image m(68, 65, 64); }
+int main() {
+  gr::starcoder::meteor_image m(68, 65, 64);
+}
