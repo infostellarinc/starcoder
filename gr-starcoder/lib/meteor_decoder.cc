@@ -140,17 +140,17 @@ int main() {
   delete[] p;
   */
 
-  /* // corr_correlate
-  unsigned char *p = new unsigned char[120];
-  *reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3
-  35
-  for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
-  std::cout << std::endl;
-  int word, pos, corr;
-  std::tie(word, pos, corr) = c.corr_correlate(p, 120);
-  std::cout << std::dec << word << " " << pos << " " << corr;
-  delete[] p;
-  */
+/* // corr_correlate
+unsigned char *p = new unsigned char[120];
+*reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3
+35
+for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
+std::cout << std::endl;
+int word, pos, corr;
+std::tie(word, pos, corr) = c.corr_correlate(p, 120);
+std::cout << std::dec << word << " " << pos << " " << corr;
+delete[] p;
+*/
 /*
   std::ifstream in("/home/rei/sampleAR2300IQ/meteorstream.s", std::ios::binary);
   std::vector<char> buffer((std::istreambuf_iterator<char>(in)),
