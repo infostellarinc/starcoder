@@ -23,6 +23,8 @@
 
 #include <cstdint>
 
+#include "meteor_image.h"
+
 namespace gr {
 namespace starcoder {
 
@@ -36,6 +38,7 @@ class meteor_packet {
   int packet_off_;
   int first_time_, last_time_;
   bool no_time_yet_;
+  meteor_image meteor_image_;
 
   int parse_partial(uint8_t *packet, int len);
   void parse_apd(uint8_t *packet, int len);

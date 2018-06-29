@@ -33,7 +33,8 @@ meteor_packet::meteor_packet()
       first_time_(0),
       last_time_(0),
       no_time_yet_(true),
-      packet_buf_(new uint8_t[2048]) {}
+      packet_buf_(new uint8_t[2048]),
+      meteor_image_(68, 65, 64) {}
 
 meteor_packet::~meteor_packet() { delete[] packet_buf_; }
 
@@ -63,7 +64,7 @@ void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
             << " mcu_id=" << mcu_id << " scan_hdr=" << scan_hdr
             << " seg_hdr=" << seg_hdr << " q=" << q << std::endl;
 
-  // todo: mj_dec_mcus
+  meteor_image_.dec_mcus(packet + 6, len-6, apd, pck_cnt, mcu_id, q);
 }
 
 void meteor_packet::parse_apd(uint8_t *packet, int len) {

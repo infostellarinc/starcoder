@@ -127,7 +127,7 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw, uint8_t *ecced_data) {
 
 }  // namespace starcoder
 }  // namespace gr
-/*
+
 int main() {
   gr::starcoder::meteor_decoder a;
   gr::starcoder::meteor_correlator c(0xfca2b63db00d9794);
@@ -151,7 +151,7 @@ std::tie(word, pos, corr) = c.corr_correlate(p, 120);
 std::cout << std::dec << word << " " << pos << " " << corr;
 delete[] p;
 */
-/*
+
   std::ifstream in("/home/rei/sampleAR2300IQ/meteorstream.s", std::ios::binary);
   std::vector<char> buffer((std::istreambuf_iterator<char>(in)),
                            (std::istreambuf_iterator<char>()));
@@ -170,4 +170,3 @@ delete[] p;
 
   delete[] ecced_data;
 }
-*/

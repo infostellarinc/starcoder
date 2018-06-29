@@ -110,8 +110,8 @@ class meteor_image {
   meteor_image(int red_apid, int green_apid, int blue_apid);
   ~meteor_image();
 
-  void mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id,
-                   uint8_t q);
+  void dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id,
+                uint8_t q);
 
 };
 

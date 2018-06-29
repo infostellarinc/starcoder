@@ -155,6 +155,8 @@ int meteor_image::get_ac_real(uint16_t word) {
 
 meteor_image::~meteor_image() {}
 
+void meteor_image::dump_image()
+
 bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
   if (apd == 0 || apd == 70) return false;
 
@@ -170,6 +172,7 @@ bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
   }
 
   if (pck_cnt < prev_pck_) first_pck_ -= 16384;
+  prev_pck_ = pck_cnt;
 
   cur_y_ = 8 * ((pck_cnt - first_pck_) / (14 + 14 + 14 + 1));
   if (cur_y_ > last_y_) full_image_.resize(MCU_PER_LINE * 8 * (cur_y_ + 8));
@@ -237,8 +240,8 @@ void meteor_image::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id,
   }
 }
 
-void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
-                               int mcu_id, uint8_t q) {
+void meteor_image::dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
+                            int mcu_id, uint8_t q) {
   meteor_bit_io b(packet, 0);
 
   if (!progress_image(apd, mcu_id, pck_cnt)) return;
@@ -314,4 +317,4 @@ void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
 }  // namespace starcoder
 }  // namespace gr
 
-int main() { gr::starcoder::meteor_image m(68, 65, 64); }
+// int main() { gr::starcoder::meteor_image m(68, 65, 64); }
