@@ -197,6 +197,43 @@ int meteor_image::map_range(int cat, int vl) {
   else return vl-maxval;
 }
 
+void meteor_image::flt_idct_8x8(std::array<float, 64> &res, std::array<float, 64> &inp) {
+  for (int y=0; y< 8; y++) {
+    for(int x=0; x<8; x++) {
+      float s =0;
+      for (int u=0; u<8; u++) {
+        float cxu = alpha_[u]*cosine_[x][u];
+        s += cxu*(
+          inp[0*8+u]*alpha_[0]*cosine_[y][0]+
+          inp[1*8+u]*alpha_[1]*cosine_[y][1]+
+          inp[2*8+u]*alpha_[2]*cosine_[y][2]+
+          inp[3*8+u]*alpha_[3]*cosine_[y][3]+
+          inp[4*8+u]*alpha_[4]*cosine_[y][4]+
+          inp[5*8+u]*alpha_[5]*cosine_[y][5]+
+          inp[6*8+u]*alpha_[6]*cosine_[y][6]+
+          inp[7*8+u]*alpha_[7]*cosine_[y][7]
+        );
+      }
+      res[y*8+x] = s/4;
+    }
+  }
+}
+
+void meteor_image::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id, int m) {
+  for (int i=0; i<64; i++) {
+    int t = round(img_dct[i] + 128);
+    if (t<0) t= 0;
+    if (t>255) t=255;
+    int x = (mcu_id+m)*8+i%8;
+    int y= cur_y_+i/8;
+    int off = x+y*MCU_PER_LINE*8;
+
+    if (apd == RED_APID) full_image_[off].r = t;
+    if (apd == GREEN_APID) full_image_[off].g = t;
+    if (apd == BLUE_APID) full_image_[off].b = t;
+  }
+}
+
 void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id, uint8_t q) {
   meteor_bit_io b(packet, 0);
 
@@ -258,8 +295,8 @@ void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, i
       dct[i] = zdct[ZIGZAG[i]]*dqt[i];
     }
 
-    // todo flt
-    // todo fillpix
+    flt_idct_8x8(img_dct, dct);
+    fill_pix(img_dct, apd, mcu_id, m);
 
     m++;
   }

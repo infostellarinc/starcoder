@@ -64,6 +64,10 @@ const std::array<uint8_t, 178> T_AC_0 {
 const std::array<int, 12> DC_CAT_OFF { 2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9 }
 ;
 
+const int RED_APID = 68;
+const int GREEN_APID = 65;
+const int BLUE_APID = 64;
+
 struct pixel {
   uint8_t r;
   uint8_t g;
@@ -98,6 +102,8 @@ class meteor_image {
   bool progress_image(int apd, int mcu_id, int pck_cnt);
   void fill_dqt_by_q(std::array<int, 64> &dqt, int q);
   int map_range(int cat, int vl);
+  void flt_idct_8x8(std::array<float, 64> &res, std::array<float, 64> &inp);
+  void fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id, int m);
 
  public:
   meteor_image(int red_apid, int green_apid, int blue_apid);
