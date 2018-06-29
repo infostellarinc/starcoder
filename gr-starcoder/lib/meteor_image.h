@@ -92,10 +92,13 @@ class meteor_image {
   void init_huffman_table();
   int get_dc_real(uint16_t word);
   int get_ac_real(uint16_t word);
+  bool progress_image(int apd, int mcu_id, int pck_cnt);
 
  public:
   meteor_image(int red_apid, int green_apid, int blue_apid);
   ~meteor_image();
+
+  void mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id, uint8_t q);
 
 };
 

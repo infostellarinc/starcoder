@@ -19,6 +19,7 @@
  */
 
 #include "meteor_image.h"
+#include "meteor_bit_io.h"
 
 #include <iostream>
 
@@ -135,6 +136,38 @@ int meteor_image::get_ac_real(uint16_t word) {
 }
 
 meteor_image::~meteor_image() {}
+
+bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
+  if (apd == 0 || apd == 70) return false;
+
+  if (last_mcu_ == -1) {
+    if (mcu_id != 0) return false;
+    prev_pck_ = pck_cnt;
+    first_pck_ = pck_cnt;
+    if (apd==65) first_pck_ -= 14;
+    if (apd == 66) first_pck_ -= 28;
+    if (apd==68) first_pck_ -= 28;
+    last_mcu_ = 0;
+    cur_y_ = -1;
+  }
+
+  if (pck_cnt < prev_pck_)
+    first_pck_ -= 16384;
+
+  cur_y_ = 8 * ((pck_cnt - first_pck_) / (14+14+14+1));
+  if (cur_y_ > last_y_) full_image_.resize(MCU_PER_LINE*8*(cur_y_+8));
+  last_y_ = cur_y_;
+
+  return true;
+}
+
+void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id, uint8_t q) {
+  meteor_bit_io b(packet, 0);
+
+  if (!progress_image(apd, mcu_id, pck_cnt)) return;
+
+
+}
 
 }  // namespace starcoder
 }  // namespace gr
