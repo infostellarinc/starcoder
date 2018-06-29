@@ -37,6 +37,21 @@ meteor_image::meteor_image(int red_apid, int green_apid, int blue_apid)
       first_pck_(0),
       prev_pck_(0) {
   init_huffman_table();
+  init_cos();
+}
+
+void meteor_image::init_cos() {
+  for (int y=0; y < 8; y++) {
+    for (int x=0; x < 8; x++) {
+      cosine_[y][x] = cos(M_PI/16*(2*y+1)*x);
+    }
+  }
+  for (int x=0; x<8;x++) {
+    if (x==0) alpha_[x] = 1/sqrt(2);
+    else alpha_[x] = 1;
+  }
+
+  //for (auto x : cosine_) for (auto y: x) std::cout << std::dec << y << ' ';
 }
 
 void meteor_image::init_huffman_table() {

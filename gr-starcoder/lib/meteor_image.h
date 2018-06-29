@@ -88,8 +88,11 @@ class meteor_image {
   ;
   std::array<ac_table_rec, 162> ac_table_ {}
   ;
+  std::array<std::array<float, 8>, 8> cosine_{};
+  std::array<float, 8> alpha_;
 
   void init_huffman_table();
+  void init_cos();
   int get_dc_real(uint16_t word);
   int get_ac_real(uint16_t word);
   bool progress_image(int apd, int mcu_id, int pck_cnt);
