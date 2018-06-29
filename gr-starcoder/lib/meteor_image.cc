@@ -24,6 +24,12 @@
 #include <iostream>
 #include <cmath>
 
+#define png_infopp_NULL (png_infopp) NULL
+#define int_p_NULL (int *)NULL
+
+#include <boost/gil/gil_all.hpp>
+#include <boost/gil/extension/io/png_io.hpp>
+
 namespace gr {
 namespace starcoder {
 
@@ -155,7 +161,25 @@ int meteor_image::get_ac_real(uint16_t word) {
 
 meteor_image::~meteor_image() {}
 
-void meteor_image::dump_image()
+void meteor_image::dump_image(const std::string &filename) {
+  int width = 8 * MCU_PER_LINE;
+  int height = cur_y_+8;
+  boost::gil::rgb8_image_t img(width, height);
+  boost::gil::rgb8_image_t::view_t v = view(img);
+
+  for (int x=0; x<width; x++) {
+    for (int y=0; y<height; y++) {
+      int off = x + y * MCU_PER_LINE * 8;
+      v(x, y) = boost::gil::rgb8_pixel_t(
+        full_image_[off].g,
+        full_image_[off].g, // Nice false color.
+        full_image_[off].b);
+    }
+  }
+
+  boost::gil::detail::png_writer writer(filename.c_str());
+  writer.apply(v);
+}
 
 bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
   if (apd == 0 || apd == 70) return false;

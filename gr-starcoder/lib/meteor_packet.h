@@ -50,6 +50,7 @@ class meteor_packet {
   ~meteor_packet();
 
   void parse_cvcdu(uint8_t *frame, int len);
+  void dump_image(std::string &filename);
 };
 
 }  // namespace starcoder

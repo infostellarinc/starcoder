@@ -39,6 +39,11 @@ add_executable(hey
   meteor_image.cc
 )
 
+target_link_libraries(hey
+  ${Boost_LIBRARIES}
+  ${PNG_LIBRARIES}
+)
+
 ########################################################################
 # Generate Protobuf sources
 ########################################################################

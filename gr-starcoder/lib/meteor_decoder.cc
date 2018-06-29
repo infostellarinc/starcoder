@@ -168,5 +168,8 @@ delete[] p;
     packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
   }
 
+  std::string fn = "/home/rei/sampleAR2300IQ/test.png";
+  packeter.dump_image(fn);
+
   delete[] ecced_data;
 }

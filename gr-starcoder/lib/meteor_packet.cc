@@ -105,6 +105,10 @@ int meteor_packet::parse_partial(uint8_t *packet, int len) {
   return len_pck + 6 + 1;
 }
 
+void meteor_packet::dump_image(std::string &filename) {
+  meteor_image_.dump_image(filename);
+}
+
 void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
   int n;
 

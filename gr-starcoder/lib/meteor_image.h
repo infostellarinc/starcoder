@@ -113,6 +113,8 @@ class meteor_image {
   void dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id,
                 uint8_t q);
 
+  void dump_image(const std::string &filename);
+
 };
 
 }  // namespace starcoder
