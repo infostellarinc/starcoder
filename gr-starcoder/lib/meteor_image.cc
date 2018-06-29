@@ -175,12 +175,20 @@ void meteor_image::fill_dqt_by_q(std::array<int, 64> &dqt, int q) {
   }
 }
 
+int meteor_image::map_range(int cat, int vl) {
+  int maxval = (1 << cat) - 1;
+  bool sig = (vl >> (cat - 1)) != 0;
+  if (sig) return vl;
+  else return vl-maxval;
+}
+
 void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id, uint8_t q) {
   meteor_bit_io b(packet, 0);
 
   if (!progress_image(apd, mcu_id, pck_cnt)) return;
 
-  std::array<int, 64> dqt{}, z_dct{};
+  std::array<int, 64> dqt{};
+  std::array<float, 64> zdct{}, dct{}, img_dct{};
   fill_dqt_by_q(dqt, q);
 
   float prev_dc = 0;
@@ -191,7 +199,54 @@ void meteor_image::mj_dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, i
       std::cerr << "Bad DC Huffman code!" << std::endl;
       return;
     }
+    b.bio_advance_n_bits(DC_CAT_OFF[dc_cat]);
+    uint32_t n = b.bio_fetch_n_bits(dc_cat);
 
+    zdct[0] = map_range(dc_cat, n) + prev_dc;
+    prev_dc = zdct[0];
+
+    int k = 1;
+    while (k < 64) {
+      int ac = ac_lookup_[b.bio_peek_n_bits(16)];
+      if (ac == -1) {
+        std::cerr << "Bad AC Huffman code!" << std::endl;
+        return;
+      }
+      int ac_len = ac_table_[ac].len;
+      int ac_size = ac_table_[ac].size;
+      int ac_run = ac_table_[ac].run;
+      b.bio_advance_n_bits(ac_len);
+
+      if (ac_run == 0 && ac_size == 0) {
+        for (int i=k; i<64; i++) {
+          zdct[i] = 0;
+        }
+        break;
+      }
+
+      for (int i=0; i<ac_run; i++) {
+        zdct[k] = 0;
+        k++;
+      }
+
+      if (ac_size != 0) {
+        uint16_t n = b.bio_fetch_n_bits(ac_size);
+        zdct[k] = map_range(ac_size, n);
+        k++;
+      } else if (ac_run == 15) {
+        zdct[k] = 0;
+        k++;
+      }
+    }
+
+    for (int i=0; i<64; i++) {
+      dct[i] = zdct[ZIGZAG[i]]*dqt[i];
+    }
+
+    // todo flt
+    // todo fillpix
+
+    m++;
   }
 
 }
