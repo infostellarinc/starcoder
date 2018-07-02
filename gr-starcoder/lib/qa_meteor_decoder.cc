@@ -22,8 +22,8 @@
 #include <cppunit/TestAssert.h>
 #include <stdio.h>
 
-#include "meteor_decoder.h"
-#include "meteor_packet.h"
+#include "meteor/meteor_decoder.h"
+#include "meteor/meteor_packet.h"
 
 namespace gr {
 namespace starcoder {

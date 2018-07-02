@@ -25,8 +25,8 @@
 #include <gnuradio/io_signature.h>
 #include "meteor_decoder_sink_impl.h"
 
-#include "meteor_decoder.h"
-#include "meteor_packet.h"
+#include "meteor/meteor_decoder.h"
+#include "meteor/meteor_packet.h"
 
 namespace gr {
 namespace starcoder {

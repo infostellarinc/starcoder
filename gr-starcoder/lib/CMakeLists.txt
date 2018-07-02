@@ -63,13 +63,13 @@ list(APPEND starcoder_sources
     init.c
     driver.c
     firmware.c
-    meteor_correlator.cc
-    meteor_decoder.cc
-    meteor_viterbi.cc
-    meteor_bit_io.cc
-    meteor_ecc.cc
-    meteor_packet.cc
-    meteor_image.cc
+    meteor/meteor_correlator.cc
+    meteor/meteor_decoder.cc
+    meteor/meteor_viterbi.cc
+    meteor/meteor_bit_io.cc
+    meteor/meteor_ecc.cc
+    meteor/meteor_packet.cc
+    meteor/meteor_image.cc
     gil_util.cc
     blocking_spsc_queue.cc
     ar2300_receiver.cc
@@ -156,13 +156,13 @@ list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_meteor_decoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
-    meteor_correlator.cc
-    meteor_decoder.cc
-    meteor_viterbi.cc
-    meteor_bit_io.cc
-    meteor_ecc.cc
-    meteor_packet.cc
-    meteor_image.cc
+    meteor/meteor_correlator.cc
+    meteor/meteor_decoder.cc
+    meteor/meteor_viterbi.cc
+    meteor/meteor_bit_io.cc
+    meteor/meteor_ecc.cc
+    meteor/meteor_packet.cc
+    meteor/meteor_image.cc
     gil_util.cc
 )
 
