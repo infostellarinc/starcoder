@@ -389,7 +389,7 @@ void meteor_viterbi::history_buffer_traceback(uint32_t bestpath,
       fetched_[fetched_index] = 0;
     fetched_index++;
   }
-  writer_.bio_write_bitlist_reversed(fetched_.data(), fetched_index);
+  writer_.write_bitlist_reversed(fetched_.data(), fetched_index);
   len_ -= fetched_index;
 }
 

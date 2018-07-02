@@ -320,20 +320,20 @@ void meteor_image::dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
   float prev_dc = 0;
   int m = 0;
   while (m < MCU_PER_PACKET) {
-    int dc_cat = dc_lookup_[b.bio_peek_n_bits(16)];
+    int dc_cat = dc_lookup_[b.peek_n_bits(16)];
     if (dc_cat == -1) {
       std::cerr << "Bad DC Huffman code!" << std::endl;
       return;
     }
-    b.bio_advance_n_bits(DC_CAT_OFF[dc_cat]);
-    uint32_t n = b.bio_fetch_n_bits(dc_cat);
+    b.advance_n_bits(DC_CAT_OFF[dc_cat]);
+    uint32_t n = b.fetch_n_bits(dc_cat);
 
     zdct[0] = map_range(dc_cat, n) + prev_dc;
     prev_dc = zdct[0];
 
     int k = 1;
     while (k < 64) {
-      int ac = ac_lookup_[b.bio_peek_n_bits(16)];
+      int ac = ac_lookup_[b.peek_n_bits(16)];
       if (ac == -1) {
         std::cerr << "Bad AC Huffman code!" << std::endl;
         return;
@@ -341,7 +341,7 @@ void meteor_image::dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
       int ac_len = ac_table_[ac].len;
       int ac_size = ac_table_[ac].size;
       int ac_run = ac_table_[ac].run;
-      b.bio_advance_n_bits(ac_len);
+      b.advance_n_bits(ac_len);
 
       if (ac_run == 0 && ac_size == 0) {
         for (int i = k; i < 64; i++) {
@@ -356,7 +356,7 @@ void meteor_image::dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
       }
 
       if (ac_size != 0) {
-        uint16_t n = b.bio_fetch_n_bits(ac_size);
+        uint16_t n = b.fetch_n_bits(ac_size);
         zdct[k] = map_range(ac_size, n);
         k++;
       } else if (ac_run == 15) {

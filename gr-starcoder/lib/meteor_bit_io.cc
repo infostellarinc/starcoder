@@ -48,7 +48,7 @@ meteor_bit_io::meteor_bit_io(uint8_t *bytes, int len)
 
 meteor_bit_io::~meteor_bit_io() {}
 
-uint32_t meteor_bit_io::bio_peek_n_bits(int n) {
+uint32_t meteor_bit_io::peek_n_bits(int n) {
   uint32_t result = 0;
   for (int i = 0; i < n; i++) {
     int p = pos_ + i;
@@ -58,15 +58,15 @@ uint32_t meteor_bit_io::bio_peek_n_bits(int n) {
   return result;
 }
 
-void meteor_bit_io::bio_advance_n_bits(int n) { pos_ += n; }
+void meteor_bit_io::advance_n_bits(int n) { pos_ += n; }
 
-uint32_t meteor_bit_io::bio_fetch_n_bits(int n) {
-  uint32_t result = bio_peek_n_bits(n);
-  bio_advance_n_bits(n);
+uint32_t meteor_bit_io::fetch_n_bits(int n) {
+  uint32_t result = peek_n_bits(n);
+  advance_n_bits(n);
   return result;
 }
 
-void meteor_bit_io::bio_write_bitlist_reversed(uint8_t *list, int len) {
+void meteor_bit_io::write_bitlist_reversed(uint8_t *list, int len) {
   list = list + len - 1;
 
   uint8_t *bytes = bytes_;
