@@ -43,6 +43,7 @@
 
 namespace gr {
 namespace starcoder {
+
 class meteor_bit_io {
  private:
   uint8_t *bytes_;

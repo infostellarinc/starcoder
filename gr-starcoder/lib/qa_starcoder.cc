@@ -40,6 +40,8 @@ CppUnit::TestSuite *qa_starcoder::suite() {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("starcoder");
   s->addTest(gr::starcoder::qa_enqueue_message_sink::suite());
   s->addTest(gr::starcoder::qa_meteor_decoder::suite());
+
+  // The test below only works when the AR2300 is connected.
   //s->addTest(new CppUnit::TestCaller<qa_starcoder>(
   //    "run_ar2300_source_block", &qa_starcoder::run_ar2300_source_block));
 

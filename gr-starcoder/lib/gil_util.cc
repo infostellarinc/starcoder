@@ -20,18 +20,23 @@
 
 #include "gil_util.h"
 
+#include <memory>
+
 namespace gr {
 namespace starcoder {
 
-std::string store_rgb_to_png_string(boost::gil::rgb8_image_t::view_t v) {
+std::string store_rgb_to_png_string(
+    boost::gil::rgb8_image_t::view_t image_view) {
   boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
                                  boost::filesystem::unique_path();
 
-  boost::gil::detail::png_writer *writer =
-      new boost::gil::detail::png_writer(temp.native().c_str());
-  writer->apply(v);
-  delete writer;  // The destructor needs to be called so we can properly read
-                  // the file in the following lines.
+  // The destructor needs to be called so we can properly read the file in the
+  // following lines.
+  {
+    std::unique_ptr<boost::gil::detail::png_writer> writer(
+        new boost::gil::detail::png_writer(temp.native().c_str()));
+    writer->apply(image_view);
+  }
 
   std::ifstream t(temp.native(), std::ios::binary);
   std::stringstream buffer;
@@ -41,15 +46,18 @@ std::string store_rgb_to_png_string(boost::gil::rgb8_image_t::view_t v) {
   return buffer.str();
 }
 
-std::string store_gray_to_png_string(boost::gil::gray8_image_t::view_t v) {
+std::string store_gray_to_png_string(
+    boost::gil::gray8_image_t::view_t image_view) {
   boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
                                  boost::filesystem::unique_path();
 
-  boost::gil::detail::png_writer *writer =
-      new boost::gil::detail::png_writer(temp.native().c_str());
-  writer->apply(v);
-  delete writer;  // The destructor needs to be called so we can properly read
-                  // the file in the following lines.
+  // The destructor needs to be called so we can properly read the file in the
+  // following lines.
+  {
+    std::unique_ptr<boost::gil::detail::png_writer> writer(
+        new boost::gil::detail::png_writer(temp.native().c_str()));
+    writer->apply(image_view);
+  }
 
   std::ifstream t(temp.native(), std::ios::binary);
   std::stringstream buffer;

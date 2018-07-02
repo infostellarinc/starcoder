@@ -33,9 +33,11 @@
 namespace gr {
 namespace starcoder {
 
-std::string store_rgb_to_png_string(boost::gil::rgb8_image_t::view_t v);
+std::string store_rgb_to_png_string(
+    boost::gil::rgb8_image_t::view_t image_view);
 
-std::string store_gray_to_png_string(boost::gil::gray8_image_t::view_t v);
+std::string store_gray_to_png_string(
+    boost::gil::gray8_image_t::view_t image_view);
 
 }  // namespace starcoder
 }  // namespace gr

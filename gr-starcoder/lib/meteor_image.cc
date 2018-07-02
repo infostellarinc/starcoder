@@ -177,17 +177,17 @@ int meteor_image::get_ac_real(uint16_t word) {
 meteor_image::~meteor_image() {}
 
 std::string meteor_image::dump_image() {
-  int width = 8 * MCU_PER_LINE;
-  int height = cur_y_ + 8;
+  const int width = 8 * MCU_PER_LINE;
+  const int height = cur_y_ + 8;
   boost::gil::rgb8_image_t img(width, height);
   boost::gil::rgb8_image_t::view_t v = view(img);
 
   for (int x = 0; x < width; x++) {
     for (int y = 0; y < height; y++) {
-      int off = x + y * MCU_PER_LINE * 8;
-      v(x, y) = boost::gil::rgb8_pixel_t(
-          full_image_[off].g, full_image_[off].g,  // Nice false color.
-          full_image_[off].b);
+      int off = x + y * width;
+      // To generate the full color image, we don't use APID-68 (red channel).
+      v(x, y) = boost::gil::rgb8_pixel_t(full_image_[off].g, full_image_[off].g,
+                                         full_image_[off].b);
     }
   }
 
@@ -195,8 +195,8 @@ std::string meteor_image::dump_image() {
 }
 
 std::string meteor_image::dump_gray_image(int apid) {
-  int width = 8 * MCU_PER_LINE;
-  int height = cur_y_ + 8;
+  const int width = 8 * MCU_PER_LINE;
+  const int height = cur_y_ + 8;
   boost::gil::gray8_image_t img(width, height);
   boost::gil::gray8_image_t::view_t v = view(img);
 
