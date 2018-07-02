@@ -78,27 +78,27 @@ bool meteor_decoder_sink_impl::stop() {
   gr::starcoder::meteor_decoder decoder;
   gr::starcoder::meteor_packet packeter;
 
-  uint8_t *raw = new uint8_t[total_size_];
+  std::unique_ptr<uint8_t[]> raw(new uint8_t[total_size_]());
   int copied_so_far = 0;
   for (auto it = list_of_arrays_.cbegin(); it != list_of_arrays_.cend(); it++) {
-    std::copy((*it).arr, (*it).arr + (*it).size, raw + copied_so_far);
+    std::copy((*it).arr, (*it).arr + (*it).size, raw.get() + copied_so_far);
     copied_so_far += (*it).size;
     delete[](*it).arr;
   }
 
-  uint8_t *ecced_data = new uint8_t[HARD_FRAME_LEN];
+  std::unique_ptr<uint8_t[]> ecced_data(new uint8_t[HARD_FRAME_LEN]());
 
   int total = 0;
   int ok = 0;
   while (decoder.pos_ < total_size_ - SOFT_FRAME_LEN) {
     total++;
-    bool res = decoder.decode_one_frame(raw, ecced_data);
+    bool res = decoder.decode_one_frame(raw.get(), ecced_data.get());
     if (res) {
       ok++;
       std::cout << std::dec << 100. * decoder.pos_ / total_size_ << "% "
                 << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_
                 << std::endl;
-      packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
+      packeter.parse_cvcdu(ecced_data.get(), gr::starcoder::HARD_FRAME_LEN - 4 - 128);
     }
   }
 
@@ -109,9 +109,6 @@ bool meteor_decoder_sink_impl::stop() {
   std::string png_r = packeter.dump_gray_image(RED_APID);
   std::string png_g = packeter.dump_gray_image(GREEN_APID);
   std::string png_b = packeter.dump_gray_image(BLUE_APID);
-
-  delete[] raw;
-  delete[] ecced_data;
 
   if (string_queue_ != NULL) {
     string_queue_->push(png_img);
