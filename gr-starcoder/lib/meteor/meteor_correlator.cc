@@ -43,6 +43,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 meteor_correlator::meteor_correlator(uint64_t q_word) {
   init_corr_tables();
@@ -179,5 +180,6 @@ std::tuple<uint32_t, uint32_t, uint32_t> meteor_correlator::corr_correlate(
   return std::make_tuple(result, position_[result], correlation_[result]);
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

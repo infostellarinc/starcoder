@@ -47,6 +47,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 const unsigned char VITERBI27_POLYA = 79;
 const unsigned char VITERBI27_POLYB = 109;
@@ -118,6 +119,7 @@ class meteor_viterbi {
   void vit_conv_decode(unsigned char *soft_encoded, unsigned char *decoded);
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 

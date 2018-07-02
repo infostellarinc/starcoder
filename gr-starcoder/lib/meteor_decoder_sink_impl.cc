@@ -75,8 +75,8 @@ bool meteor_decoder_sink_impl::stop() {
     return true;
   }
 
-  gr::starcoder::meteor_decoder decoder;
-  gr::starcoder::meteor_packet packeter;
+  meteor::meteor_decoder decoder;
+  meteor::meteor_packet packeter;
 
   std::unique_ptr<uint8_t[]> raw(new uint8_t[total_size_]());
   int copied_so_far = 0;
@@ -86,11 +86,11 @@ bool meteor_decoder_sink_impl::stop() {
     delete[](*it).arr;
   }
 
-  std::unique_ptr<uint8_t[]> ecced_data(new uint8_t[HARD_FRAME_LEN]());
+  std::unique_ptr<uint8_t[]> ecced_data(new uint8_t[meteor::HARD_FRAME_LEN]());
 
   int total = 0;
   int ok = 0;
-  while (decoder.pos_ < total_size_ - SOFT_FRAME_LEN) {
+  while (decoder.pos_ < total_size_ - meteor::SOFT_FRAME_LEN) {
     total++;
     bool res = decoder.decode_one_frame(raw.get(), ecced_data.get());
     if (res) {
@@ -99,7 +99,7 @@ bool meteor_decoder_sink_impl::stop() {
                 << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_
                 << std::endl;
       packeter.parse_cvcdu(ecced_data.get(),
-                           gr::starcoder::HARD_FRAME_LEN - 4 - 128);
+                           meteor::HARD_FRAME_LEN - 4 - 128);
     }
   }
 
@@ -107,9 +107,9 @@ bool meteor_decoder_sink_impl::stop() {
             << std::endl;
 
   std::string png_img = packeter.dump_image();
-  std::string png_r = packeter.dump_gray_image(RED_APID);
-  std::string png_g = packeter.dump_gray_image(GREEN_APID);
-  std::string png_b = packeter.dump_gray_image(BLUE_APID);
+  std::string png_r = packeter.dump_gray_image(meteor::RED_APID);
+  std::string png_g = packeter.dump_gray_image(meteor::GREEN_APID);
+  std::string png_b = packeter.dump_gray_image(meteor::BLUE_APID);
 
   if (string_queue_ != NULL) {
     string_queue_->push(png_img);
@@ -123,15 +123,15 @@ bool meteor_decoder_sink_impl::stop() {
     out << png_img;
     out.close();
 
-    out = std::ofstream(construct_filename(filename_, RED_APID));
+    out = std::ofstream(construct_filename(filename_, meteor::RED_APID));
     out << png_r;
     out.close();
 
-    out = std::ofstream(construct_filename(filename_, GREEN_APID));
+    out = std::ofstream(construct_filename(filename_, meteor::GREEN_APID));
     out << png_g;
     out.close();
 
-    out = std::ofstream(construct_filename(filename_, BLUE_APID));
+    out = std::ofstream(construct_filename(filename_, meteor::BLUE_APID));
     out << png_b;
     out.close();
   }

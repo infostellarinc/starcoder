@@ -47,6 +47,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 const int HARD_FRAME_LEN = 1024;
 const int FRAME_BITS = HARD_FRAME_LEN * 8;
@@ -102,6 +103,7 @@ class meteor_decoder {
   int pos_, prev_pos_;
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 

@@ -47,6 +47,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 const int PACKET_FULL_MARK = 2047;
 
@@ -74,6 +75,7 @@ class meteor_packet {
   std::string dump_gray_image(int apid);
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 

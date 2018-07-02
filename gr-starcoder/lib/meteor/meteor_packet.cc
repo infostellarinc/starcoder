@@ -43,6 +43,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 meteor_packet::meteor_packet()
     : last_frame_(0),
@@ -183,5 +184,6 @@ void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
   }
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

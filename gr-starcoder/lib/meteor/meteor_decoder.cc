@@ -48,6 +48,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 meteor_decoder::meteor_decoder()
     : correlator_(0xfca2b63db00d9794),  // sync word for meteor
@@ -143,5 +144,6 @@ bool meteor_decoder::decode_one_frame(unsigned char *raw, uint8_t *ecced_data) {
   return result;
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

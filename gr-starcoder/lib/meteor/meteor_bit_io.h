@@ -45,6 +45,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 class meteor_bit_io {
  private:
@@ -64,6 +65,7 @@ class meteor_bit_io {
   uint32_t fetch_n_bits(int n);
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 

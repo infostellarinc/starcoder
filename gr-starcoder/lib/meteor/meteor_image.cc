@@ -47,6 +47,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 meteor_image::meteor_image(int red_apid, int green_apid, int blue_apid)
     : red_apid_(red_apid),
@@ -377,5 +378,6 @@ void meteor_image::dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
 
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

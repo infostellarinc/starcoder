@@ -44,6 +44,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 void ecc_deinterleave(uint8_t *data, uint8_t *output, int pos, int n) {
   for (int i = 0; i < 255; i++) {
@@ -238,5 +239,6 @@ int ecc_decode(uint8_t *data, int pad) {
   return result;
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

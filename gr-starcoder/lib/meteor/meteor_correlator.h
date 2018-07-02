@@ -46,6 +46,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 const int PATTERN_SIZE = 64;
 const int PATTERN_COUNT = 8;
@@ -81,6 +82,7 @@ class meteor_correlator {
                                                           uint32_t d_word);
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 

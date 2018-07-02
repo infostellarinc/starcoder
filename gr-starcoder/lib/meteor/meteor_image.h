@@ -45,6 +45,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 const int MCU_PER_PACKET = 14;
 const int MCU_PER_LINE = 196;
@@ -137,6 +138,7 @@ class meteor_image {
 
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 

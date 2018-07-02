@@ -43,6 +43,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 meteor_viterbi::meteor_viterbi()
     : ber_(0),
@@ -409,5 +410,6 @@ void meteor_viterbi::error_buffer_swap() {
   write_errors_ = errors_[err_index_];
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

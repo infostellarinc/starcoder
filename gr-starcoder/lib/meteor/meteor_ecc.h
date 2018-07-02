@@ -44,6 +44,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 const std::array<uint8_t, 256> ALPHA_ARR {
   0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x87, 0x89, 0x95, 0xad, 0xdd,
@@ -105,6 +106,7 @@ int ecc_decode(uint8_t *data, int pad);
 
 void ecc_encode(uint8_t *data, int pad);
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 
