@@ -65,6 +65,8 @@ meteor_viterbi::meteor_viterbi()
       pair_outputs_len_(5),
       renormalize_counter_(0),
       writer_(NULL, 0),
+      err_0_(new uint16_t[NUM_STATES]()),
+      err_1_(new uint16_t[NUM_STATES]()),
       read_errors_(NULL),
       write_errors_(NULL) {
   for (int i = 0; i < 4; i++) {
@@ -78,20 +80,14 @@ meteor_viterbi::meteor_viterbi()
     if ((count_bits(i & VITERBI27_POLYB) % 2) != 0) table_[i] = table_[i] | 2;
   }
 
-  errors_[0] = new uint16_t[NUM_STATES];
-  errors_[1] = new uint16_t[NUM_STATES];
+  errors_[0] = err_0_.get();
+  errors_[1] = err_1_.get();
 
   pair_lookup_create();
 
-  // for (auto x : dist_table_) std::cout << std::hex << (int)(x[60000]) << ' ';
-  // for (auto x: table_) std::cout << std::hex << (int)(x) << ' ';
-  // for (auto x: pair_keys_) std::cout << std::hex << (int)(x) << ' ';
-  // for (auto x: pair_outputs_) std::cout << std::hex << (int)(x) << ' ';
 }
 
 meteor_viterbi::~meteor_viterbi() {
-  delete[] errors_[0];
-  delete[] errors_[1];
 }
 
 uint16_t meteor_viterbi::metric_soft_distance(unsigned char hard,
@@ -362,11 +358,10 @@ void meteor_viterbi::history_buffer_renormalize(uint32_t min_register) {
 
 void meteor_viterbi::history_buffer_traceback(uint32_t bestpath,
                                               uint32_t min_traceback_length) {
-  uint32_t index, fetched_index, pathbit, prefetch_index, len;
+  uint32_t pathbit;
   uint8_t history;
 
-  fetched_index = 0;
-  index = hist_index_;
+  uint32_t index = hist_index_, fetched_index = 0, len = len_;
 
   for (int j = 0; j < min_traceback_length; j++) {
     if (index == 0)
@@ -380,7 +375,7 @@ void meteor_viterbi::history_buffer_traceback(uint32_t bestpath,
       pathbit = 0;
     bestpath = (bestpath | pathbit) >> 1;
   }
-  prefetch_index = index;
+  uint32_t prefetch_index = index;
   if (prefetch_index == 0)
     prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
   else

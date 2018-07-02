@@ -42,6 +42,7 @@
 #define INCLUDED_METEOR_VITERBI_H
 
 #include <array>
+#include <memory>
 
 #include "meteor_bit_io.h"
 
@@ -84,6 +85,8 @@ class meteor_viterbi {
   int err_index_;
   std::array<uint16_t *, 2> errors_ {}
   ;
+  std::unique_ptr<uint16_t[]> err_0_;
+  std::unique_ptr<uint16_t[]> err_1_;
   uint16_t *read_errors_;
   uint16_t *write_errors_;
 
