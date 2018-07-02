@@ -98,7 +98,8 @@ bool meteor_decoder_sink_impl::stop() {
       std::cout << std::dec << 100. * decoder.pos_ / total_size_ << "% "
                 << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_
                 << std::endl;
-      packeter.parse_cvcdu(ecced_data.get(), gr::starcoder::HARD_FRAME_LEN - 4 - 128);
+      packeter.parse_cvcdu(ecced_data.get(),
+                           gr::starcoder::HARD_FRAME_LEN - 4 - 128);
     }
   }
 
