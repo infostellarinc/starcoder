@@ -37,6 +37,7 @@ add_executable(hey
   meteor_ecc.cc
   meteor_packet.cc
   meteor_image.cc
+  gil_util.cc
 )
 
 target_link_libraries(hey

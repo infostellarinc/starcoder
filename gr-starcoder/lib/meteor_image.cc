@@ -20,18 +20,12 @@
 
 #include "meteor_image.h"
 #include "meteor_bit_io.h"
+#include "gil_util.h"
 
 #include <iostream>
 #include <cmath>
-#include <chrono>
-#include <thread>
 
-#define png_infopp_NULL (png_infopp) NULL
-#define int_p_NULL (int *)NULL
-
-#include <boost/filesystem.hpp>
 #include <boost/gil/gil_all.hpp>
-#include <boost/gil/extension/io/png_io.hpp>
 
 namespace gr {
 namespace starcoder {
@@ -179,21 +173,7 @@ std::string meteor_image::dump_image() {
     }
   }
 
-  boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
-                                 boost::filesystem::unique_path();
-
-  boost::gil::detail::png_writer *writer =
-      new boost::gil::detail::png_writer(temp.native().c_str());
-  writer->apply(v);
-  delete writer;  // The destructor needs to be called so we can properly read
-                  // the file in the following lines.
-
-  std::ifstream t(temp.native(), std::ios::binary);
-  std::stringstream buffer;
-  buffer << t.rdbuf();
-
-  boost::filesystem::remove(temp);
-  return buffer.str();
+  return store_rgb_to_png_string(v);
 }
 
 std::string meteor_image::dump_gray_image(int apid) {
@@ -219,21 +199,7 @@ std::string meteor_image::dump_gray_image(int apid) {
     }
   }
 
-  boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
-                                 boost::filesystem::unique_path();
-
-  boost::gil::detail::png_writer *writer =
-      new boost::gil::detail::png_writer(temp.native().c_str());
-  writer->apply(v);
-  delete writer;  // The destructor needs to be called so we can properly read
-                  // the file in the following lines.
-
-  std::ifstream t(temp.native());
-  std::stringstream buffer;
-  buffer << t.rdbuf();
-
-  boost::filesystem::remove(temp);
-  return buffer.str();
+  return store_gray_to_png_string(v);
 }
 
 bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
