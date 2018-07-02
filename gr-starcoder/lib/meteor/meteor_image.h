@@ -130,8 +130,8 @@ class meteor_image {
   meteor_image(int red_apid, int green_apid, int blue_apid);
   ~meteor_image();
 
-  void dec_mcus(const uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id,
-                uint8_t q);
+  void dec_mcus(const uint8_t *packet, int len, int apd, int pck_cnt,
+                int mcu_id, uint8_t q);
 
   std::string dump_image();
   std::string dump_gray_image(int apid);

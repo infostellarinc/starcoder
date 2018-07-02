@@ -119,7 +119,8 @@ void meteor_decoder::do_full_correlate(const unsigned char *raw,
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
-bool meteor_decoder::try_frame(const unsigned char *aligned, uint8_t *ecced_data) {
+bool meteor_decoder::try_frame(const unsigned char *aligned,
+                               uint8_t *ecced_data) {
   std::unique_ptr<uint8_t[]> u_decoded(new uint8_t[HARD_FRAME_LEN]());
   uint8_t *decoded = u_decoded.get();
   std::unique_ptr<uint8_t[]> u_ecc_buf(new uint8_t[255]());
@@ -150,7 +151,8 @@ bool meteor_decoder::try_frame(const unsigned char *aligned, uint8_t *ecced_data
          (ecc_results_[2] != -1) && (ecc_results_[3] != -1);
 }
 
-bool meteor_decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_data) {
+bool meteor_decoder::decode_one_frame(const unsigned char *raw,
+                                      uint8_t *ecced_data) {
   std::unique_ptr<uint8_t[]> u_aligned(new uint8_t[SOFT_FRAME_LEN]());
   uint8_t *aligned = u_aligned.get();
   bool result = false;

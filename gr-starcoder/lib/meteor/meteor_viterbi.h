@@ -108,7 +108,8 @@ class meteor_viterbi {
 
   int count_bits(uint32_t i);
   void vit_decode(const unsigned char *in, unsigned char *out);
-  void vit_conv_decode(const unsigned char *soft_encoded, unsigned char *decoded);
+  void vit_conv_decode(const unsigned char *soft_encoded,
+                       unsigned char *decoded);
 };
 
 }  // namespace meteor

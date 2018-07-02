@@ -38,7 +38,8 @@ void qa_meteor_decoder::test_full_decoding() {
   std::cout << "Raw Size " << buffer.size() << std::endl;
 
   uint8_t *raw = reinterpret_cast<uint8_t *>(buffer.data());
-  std::unique_ptr<uint8_t[]> u_ecced_data(new uint8_t[meteor::HARD_FRAME_LEN]());
+  std::unique_ptr<uint8_t[]> u_ecced_data(
+      new uint8_t[meteor::HARD_FRAME_LEN]());
   uint8_t *ecced_data = u_ecced_data.get();
 
   int total = 0;

@@ -56,7 +56,7 @@ meteor_packet::meteor_packet()
       no_time_yet_(true),
       meteor_image_(68, 65, 64) {}
 
-meteor_packet::~meteor_packet() { }
+meteor_packet::~meteor_packet() {}
 
 void meteor_packet::parse_70(const uint8_t *packet, int len) {
   int h = packet[8];
@@ -74,7 +74,8 @@ void meteor_packet::parse_70(const uint8_t *packet, int len) {
             << std::endl;
 }
 
-void meteor_packet::act_apd(const uint8_t *packet, int len, int apd, int pck_cnt) {
+void meteor_packet::act_apd(const uint8_t *packet, int len, int apd,
+                            int pck_cnt) {
   int mcu_id = packet[0];
   int scan_hdr = (packet[1] << 8) | packet[2];
   int seg_hdr = (packet[3] << 8) | packet[4];
@@ -156,10 +157,12 @@ void meteor_packet::parse_cvcdu(const uint8_t *frame, int len) {
     if (partial_packet_) {
       if (hdr_off == PACKET_FULL_MARK) {
         hdr_off = len - 10;
-        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_.begin() + packet_off_);
+        std::move(frame + 10, frame + 10 + hdr_off,
+                  packet_buf_.begin() + packet_off_);
         packet_off_ += hdr_off;
       } else {
-        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_.begin() + packet_off_);
+        std::move(frame + 10, frame + 10 + hdr_off,
+                  packet_buf_.begin() + packet_off_);
         n = parse_partial(packet_buf_.begin(), packet_off_ + hdr_off);
       }
     }
@@ -176,7 +179,8 @@ void meteor_packet::parse_cvcdu(const uint8_t *frame, int len) {
     n = parse_partial(frame + 10 + off, data_len);
     if (partial_packet_) {
       packet_off_ = data_len;
-      std::move(frame + 10 + off, frame + 10 + off + packet_off_, packet_buf_.begin());
+      std::move(frame + 10 + off, frame + 10 + off + packet_off_,
+                packet_buf_.begin());
       break;
     } else {
       off += n;

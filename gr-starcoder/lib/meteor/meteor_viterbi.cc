@@ -87,8 +87,7 @@ meteor_viterbi::meteor_viterbi()
 
 }
 
-meteor_viterbi::~meteor_viterbi() {
-}
+meteor_viterbi::~meteor_viterbi() {}
 
 uint16_t meteor_viterbi::metric_soft_distance(unsigned char hard,
                                               unsigned char soft_y0,
@@ -177,9 +176,9 @@ void meteor_viterbi::vit_conv_decode(const unsigned char *soft_encoded,
 void meteor_viterbi::vit_inner(const unsigned char *soft) {
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < (1 << (i + 1)); j++) {
-      write_errors_[j] =
-          dist_table_[table_[j]][*reinterpret_cast<const uint16_t *>(soft + i * 2)] +
-          read_errors_[j >> 1];
+      write_errors_[j] = dist_table_[table_[j]][
+          *reinterpret_cast<const uint16_t *>(soft + i * 2)] +
+                         read_errors_[j >> 1];
     }
     error_buffer_swap();
   }
