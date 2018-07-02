@@ -112,7 +112,7 @@ void meteor_packet::dump_image(std::string &filename) {
 void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
   int n;
 
-  uint16_t w = (frame[0] << 8) | frame[9];
+  uint16_t w = (frame[0] << 8) | frame[1];
   int ver = w >> 14;
   int ssid = (w >> 6) & 0xff;
   int fid = w & 0x3f;

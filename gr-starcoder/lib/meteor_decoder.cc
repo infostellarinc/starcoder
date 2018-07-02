@@ -160,16 +160,22 @@ delete[] p;
   uint8_t *raw = reinterpret_cast<uint8_t *>(buffer.data());
   uint8_t *ecced_data = new uint8_t[gr::starcoder::HARD_FRAME_LEN];
 
+  int total = 0;
+  int ok =0;
   while (a.pos_ < buffer.size() - gr::starcoder::SOFT_FRAME_LEN) {
+    total++;
     bool res = a.decode_one_frame(raw, ecced_data);
-    if (res)
+    if (res) {
+      ok ++;
       std::cout << std::dec << 100. * a.pos_ / buffer.size() << "% "
                 << a.prev_pos_ << " " << std::hex << a.last_sync_ << std::endl;
-    packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
+      packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
+    }
   }
 
   std::string fn = "/home/rei/sampleAR2300IQ/test.png";
   packeter.dump_image(fn);
 
+  std::cout << std::dec << "packets: " << ok << " out of " << total << std::endl;
   delete[] ecced_data;
 }
