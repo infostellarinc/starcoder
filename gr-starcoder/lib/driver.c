@@ -87,7 +87,7 @@ void callback_libusb_iso_done(struct libusb_transfer *transfer) {
           bytes_left = iq_packet_write(ar2300, buffer, hdr->actual_length);
           if (bytes_left > 0) {
             /* some error occurred during write */
-            //ar2300->err_func(transfer, AR2300_ERR_INCOMPLETE_WRITE);
+            ar2300->err_func(transfer, AR2300_ERR_INCOMPLETE_WRITE);
           }
           if (bytes_left < 0) {
             ar2300->err_func(transfer, AR2300_ERR_DATA_WRITE);
