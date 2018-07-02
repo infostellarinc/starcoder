@@ -23,10 +23,13 @@
 
 #include <iostream>
 #include <cmath>
+#include <chrono>
+#include <thread>
 
 #define png_infopp_NULL (png_infopp) NULL
 #define int_p_NULL (int *)NULL
 
+#include <boost/filesystem.hpp>
 #include <boost/gil/gil_all.hpp>
 #include <boost/gil/extension/io/png_io.hpp>
 
@@ -161,24 +164,76 @@ int meteor_image::get_ac_real(uint16_t word) {
 
 meteor_image::~meteor_image() {}
 
-void meteor_image::dump_image(const std::string &filename) {
+std::string meteor_image::dump_image() {
   int width = 8 * MCU_PER_LINE;
-  int height = cur_y_+8;
+  int height = cur_y_ + 8;
   boost::gil::rgb8_image_t img(width, height);
   boost::gil::rgb8_image_t::view_t v = view(img);
 
-  for (int x=0; x<width; x++) {
-    for (int y=0; y<height; y++) {
+  for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height; y++) {
       int off = x + y * MCU_PER_LINE * 8;
       v(x, y) = boost::gil::rgb8_pixel_t(
-        full_image_[off].g,
-        full_image_[off].g, // Nice false color.
-        full_image_[off].b);
+          full_image_[off].g, full_image_[off].g,  // Nice false color.
+          full_image_[off].b);
     }
   }
 
-  boost::gil::detail::png_writer writer(filename.c_str());
-  writer.apply(v);
+  boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
+                                 boost::filesystem::unique_path();
+
+  boost::gil::detail::png_writer *writer =
+      new boost::gil::detail::png_writer(temp.native().c_str());
+  writer->apply(v);
+  delete writer;  // The destructor needs to be called so we can properly read
+                  // the file in the following lines.
+
+  std::ifstream t(temp.native(), std::ios::binary);
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+
+  boost::filesystem::remove(temp);
+  return buffer.str();
+}
+
+std::string meteor_image::dump_gray_image(int apid) {
+  int width = 8 * MCU_PER_LINE;
+  int height = cur_y_ + 8;
+  boost::gil::gray8_image_t img(width, height);
+  boost::gil::gray8_image_t::view_t v = view(img);
+
+  for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height; y++) {
+      int off = x + y * MCU_PER_LINE * 8;
+      switch (apid) {
+        case RED_APID:
+          v(x, y) = boost::gil::gray8_pixel_t(full_image_[off].r);
+          break;
+        case GREEN_APID:
+          v(x, y) = boost::gil::gray8_pixel_t(full_image_[off].g);
+          break;
+        case BLUE_APID:
+          v(x, y) = boost::gil::gray8_pixel_t(full_image_[off].b);
+          break;
+      }
+    }
+  }
+
+  boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
+                                 boost::filesystem::unique_path();
+
+  boost::gil::detail::png_writer *writer =
+      new boost::gil::detail::png_writer(temp.native().c_str());
+  writer->apply(v);
+  delete writer;  // The destructor needs to be called so we can properly read
+                  // the file in the following lines.
+
+  std::ifstream t(temp.native());
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+
+  boost::filesystem::remove(temp);
+  return buffer.str();
 }
 
 bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {

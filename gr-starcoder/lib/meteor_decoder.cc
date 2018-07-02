@@ -140,17 +140,17 @@ int main() {
   delete[] p;
   */
 
-/* // corr_correlate
-unsigned char *p = new unsigned char[120];
-*reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3
-35
-for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
-std::cout << std::endl;
-int word, pos, corr;
-std::tie(word, pos, corr) = c.corr_correlate(p, 120);
-std::cout << std::dec << word << " " << pos << " " << corr;
-delete[] p;
-*/
+  /* // corr_correlate
+  unsigned char *p = new unsigned char[120];
+  *reinterpret_cast<uint64_t *>(p) = 0xfca2b63db00d9794; // result should be 1 3
+  35
+  for (int i=0; i< 120; i++) std::cout << std::hex << int(p[i]) << " ";
+  std::cout << std::endl;
+  int word, pos, corr;
+  std::tie(word, pos, corr) = c.corr_correlate(p, 120);
+  std::cout << std::dec << word << " " << pos << " " << corr;
+  delete[] p;
+  */
 
   std::ifstream in("/home/rei/sampleAR2300IQ/meteorstream.s", std::ios::binary);
   std::vector<char> buffer((std::istreambuf_iterator<char>(in)),
@@ -161,21 +161,42 @@ delete[] p;
   uint8_t *ecced_data = new uint8_t[gr::starcoder::HARD_FRAME_LEN];
 
   int total = 0;
-  int ok =0;
+  int ok = 0;
   while (a.pos_ < buffer.size() - gr::starcoder::SOFT_FRAME_LEN) {
     total++;
     bool res = a.decode_one_frame(raw, ecced_data);
     if (res) {
-      ok ++;
+      ok++;
       std::cout << std::dec << 100. * a.pos_ / buffer.size() << "% "
                 << a.prev_pos_ << " " << std::hex << a.last_sync_ << std::endl;
       packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
     }
   }
 
-  std::string fn = "/home/rei/sampleAR2300IQ/test.png";
-  packeter.dump_image(fn);
+  std::string png_img = packeter.dump_image();
+  std::ofstream out("/home/rei/sampleAR2300IQ/test.png", std::ofstream::binary);
+  out << png_img;
+  out.close();
 
-  std::cout << std::dec << "packets: " << ok << " out of " << total << std::endl;
+  png_img = packeter.dump_gray_image(gr::starcoder::RED_APID);
+  out = std::ofstream("/home/rei/sampleAR2300IQ/test_apid_68.png",
+                      std::ofstream::binary);
+  out << png_img;
+  out.close();
+
+  png_img = packeter.dump_gray_image(gr::starcoder::GREEN_APID);
+  out = std::ofstream("/home/rei/sampleAR2300IQ/test_apid_65.png",
+                      std::ofstream::binary);
+  out << png_img;
+  out.close();
+
+  png_img = packeter.dump_gray_image(gr::starcoder::BLUE_APID);
+  out = std::ofstream("/home/rei/sampleAR2300IQ/test_apid_64.png",
+                      std::ofstream::binary);
+  out << png_img;
+  out.close();
+
+  std::cout << std::dec << "packets: " << ok << " out of " << total
+            << std::endl;
   delete[] ecced_data;
 }
