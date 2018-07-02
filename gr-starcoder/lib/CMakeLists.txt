@@ -109,6 +109,35 @@ GR_LIBRARY_FOO(gnuradio-starcoder RUNTIME_COMPONENT "starcoder_runtime" DEVEL_CO
 ########################################################################
 include(GrTest)
 
+configure_file(
+${CMAKE_CURRENT_SOURCE_DIR}/test_meteor_stream.s
+${CMAKE_CURRENT_BINARY_DIR}/test_meteor_stream.s
+COPYONLY
+)
+
+configure_file(
+${CMAKE_CURRENT_SOURCE_DIR}/test_meteor_image.png
+${CMAKE_CURRENT_BINARY_DIR}/test_meteor_image.png
+COPYONLY
+)
+
+configure_file(
+${CMAKE_CURRENT_SOURCE_DIR}/test_meteor_image_68.png
+${CMAKE_CURRENT_BINARY_DIR}/test_meteor_image_68.png
+COPYONLY
+)
+
+configure_file(
+${CMAKE_CURRENT_SOURCE_DIR}/test_meteor_image_65.png
+${CMAKE_CURRENT_BINARY_DIR}/test_meteor_image_65.png
+COPYONLY
+)
+
+configure_file(
+${CMAKE_CURRENT_SOURCE_DIR}/test_meteor_image_64.png
+${CMAKE_CURRENT_BINARY_DIR}/test_meteor_image_64.png
+COPYONLY
+)
 
 include_directories( ${CPPUNIT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/ )
 
@@ -116,7 +145,16 @@ list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_meteor_decoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
+    meteor_correlator.cc
+    meteor_decoder.cc
+    meteor_viterbi.cc
+    meteor_bit_io.cc
+    meteor_ecc.cc
+    meteor_packet.cc
+    meteor_image.cc
+    gil_util.cc
 )
 
 add_executable(test-starcoder ${test_starcoder_sources})
