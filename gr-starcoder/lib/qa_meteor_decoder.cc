@@ -48,7 +48,8 @@ void qa_meteor_decoder::test_full_decoding() {
     if (res) {
       ok++;
       std::cout << std::dec << 100. * decoder.pos_ / buffer.size() << "% "
-                << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_ << std::endl;
+                << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_
+                << std::endl;
       packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
     }
   }
