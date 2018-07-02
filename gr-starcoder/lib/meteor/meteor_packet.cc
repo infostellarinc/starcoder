@@ -54,10 +54,9 @@ meteor_packet::meteor_packet()
       first_time_(0),
       last_time_(0),
       no_time_yet_(true),
-      packet_buf_(new uint8_t[2048]),
       meteor_image_(68, 65, 64) {}
 
-meteor_packet::~meteor_packet() { delete[] packet_buf_; }
+meteor_packet::~meteor_packet() { }
 
 void meteor_packet::parse_70(const uint8_t *packet, int len) {
   int h = packet[8];
@@ -157,11 +156,11 @@ void meteor_packet::parse_cvcdu(const uint8_t *frame, int len) {
     if (partial_packet_) {
       if (hdr_off == PACKET_FULL_MARK) {
         hdr_off = len - 10;
-        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_ + packet_off_);
+        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_.begin() + packet_off_);
         packet_off_ += hdr_off;
       } else {
-        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_ + packet_off_);
-        n = parse_partial(packet_buf_, packet_off_ + hdr_off);
+        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_.begin() + packet_off_);
+        n = parse_partial(packet_buf_.begin(), packet_off_ + hdr_off);
       }
     }
   } else {
@@ -177,7 +176,7 @@ void meteor_packet::parse_cvcdu(const uint8_t *frame, int len) {
     n = parse_partial(frame + 10 + off, data_len);
     if (partial_packet_) {
       packet_off_ = data_len;
-      std::move(frame + 10 + off, frame + 10 + off + packet_off_, packet_buf_);
+      std::move(frame + 10 + off, frame + 10 + off + packet_off_, packet_buf_.begin());
       break;
     } else {
       off += n;

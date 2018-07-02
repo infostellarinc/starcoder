@@ -41,7 +41,7 @@
 #ifndef INCLUDED_METEOR_PACKET_H
 #define INCLUDED_METEOR_PACKET_H
 
-#include <cstdint>
+#include <array>
 
 #include "meteor_image.h"
 
@@ -53,7 +53,7 @@ class meteor_packet {
  private:
   int last_frame_;
   bool partial_packet_;
-  uint8_t *packet_buf_;
+  std::array<uint8_t, 2048> packet_buf_;
   int packet_off_;
   int first_time_, last_time_;
   bool no_time_yet_;

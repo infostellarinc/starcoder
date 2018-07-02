@@ -130,11 +130,6 @@ void meteor_image::init_huffman_table() {
   for (int i = 0; i < 65536; i++) {
     dc_lookup_[i] = get_dc_real(i);
   }
-
-  //for (int i=65500; i< 65536; i++) std::cout << std::hex << ac_lookup_[i] << '
-  //';
-  //for (int i=0; i< 65536; i++) std::cout << std::hex << dc_lookup_[i] << ' ';
-  //for (auto x : ac_table_) std::cout << std::hex << x.code << ' ';
 }
 
 int meteor_image::get_dc_real(uint16_t word) {

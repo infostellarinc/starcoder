@@ -42,6 +42,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 #include "meteor_ecc.h"
 #include "meteor_packet.h"
@@ -119,8 +120,10 @@ void meteor_decoder::do_full_correlate(const unsigned char *raw,
 }
 
 bool meteor_decoder::try_frame(const unsigned char *aligned, uint8_t *ecced_data) {
-  uint8_t *decoded = new uint8_t[HARD_FRAME_LEN];
-  uint8_t *ecc_buf = new uint8_t[255];
+  std::unique_ptr<uint8_t[]> u_decoded(new uint8_t[HARD_FRAME_LEN]());
+  uint8_t *decoded = u_decoded.get();
+  std::unique_ptr<uint8_t[]> u_ecc_buf(new uint8_t[255]());
+  uint8_t *ecc_buf = u_ecc_buf.get();
 
   viterbi_.vit_decode(aligned, decoded);
 
@@ -143,15 +146,13 @@ bool meteor_decoder::try_frame(const unsigned char *aligned, uint8_t *ecced_data
     ecc_interleave(ecc_buf, ecced_data, j, 4);
   }
 
-  delete[] decoded;
-  delete[] ecc_buf;
-
   return (ecc_results_[0] != -1) && (ecc_results_[1] != -1) &&
          (ecc_results_[2] != -1) && (ecc_results_[3] != -1);
 }
 
 bool meteor_decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_data) {
-  unsigned char *aligned = new unsigned char[SOFT_FRAME_LEN];
+  std::unique_ptr<uint8_t[]> u_aligned(new uint8_t[SOFT_FRAME_LEN]());
+  uint8_t *aligned = u_aligned.get();
   bool result = false;
 
   if (cpos_ == 0) {
@@ -168,7 +169,6 @@ bool meteor_decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_d
     result = try_frame(aligned, ecced_data);
   }
 
-  delete[] aligned;
   return result;
 }
 
