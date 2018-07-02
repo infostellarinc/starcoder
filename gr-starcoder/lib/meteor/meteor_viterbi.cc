@@ -138,13 +138,13 @@ int meteor_viterbi::count_bits(uint32_t i) {
   return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-void meteor_viterbi::vit_decode(unsigned char *in, unsigned char *out) {
+void meteor_viterbi::vit_decode(const unsigned char *in, unsigned char *out) {
   vit_conv_decode(in, out);
 
   // TODO: Calculate BER
 }
 
-void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded,
+void meteor_viterbi::vit_conv_decode(const unsigned char *soft_encoded,
                                      unsigned char *decoded) {
   writer_ = meteor_bit_io(decoded, NUM_FRAME_BITS * 2 / 8);
 
@@ -164,11 +164,11 @@ void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded,
   history_buffer_traceback(0, 0);
 }
 
-void meteor_viterbi::vit_inner(unsigned char *soft) {
+void meteor_viterbi::vit_inner(const unsigned char *soft) {
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < (1 << (i + 1)); j++) {
       write_errors_[j] =
-          dist_table_[table_[j]][*reinterpret_cast<uint16_t *>(soft + i * 2)] +
+          dist_table_[table_[j]][*reinterpret_cast<const uint16_t *>(soft + i * 2)] +
           read_errors_[j >> 1];
     }
     error_buffer_swap();
@@ -177,7 +177,7 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
   for (int i = 6; i < NUM_FRAME_BITS - 6; i++) {
     for (int j = 0; j < 4; j++) {
       distances_[j] =
-          dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
+          dist_table_[j][*reinterpret_cast<const uint16_t *>(soft + i * 2)];
     }
     pair_lookup_fill_distance();
 
@@ -248,7 +248,7 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
   }
 }
 
-void meteor_viterbi::vit_tail(unsigned char *soft) {
+void meteor_viterbi::vit_tail(const unsigned char *soft) {
   uint32_t skip, base_skip, highbase, low, high, base, low_output, high_output;
   uint16_t low_dist, high_dist, low_past_error, high_past_error, low_error,
       high_error;
@@ -259,7 +259,7 @@ void meteor_viterbi::vit_tail(unsigned char *soft) {
   for (int i = NUM_FRAME_BITS - 6; i < NUM_FRAME_BITS; i++) {
     for (int j = 0; j < 4; j++) {
       distances_[j] =
-          dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
+          dist_table_[j][*reinterpret_cast<const uint16_t *>(soft + i * 2)];
     }
 
     skip = 1 << (7 - (NUM_FRAME_BITS - i));

@@ -101,8 +101,8 @@ class meteor_viterbi {
   uint16_t metric_soft_distance(unsigned char hard, unsigned char soft_y0,
                                 unsigned char soft_y1);
   void pair_lookup_create();
-  void vit_inner(unsigned char *soft);
-  void vit_tail(unsigned char *soft);
+  void vit_inner(const unsigned char *soft);
+  void vit_tail(const unsigned char *soft);
   void error_buffer_swap();
   void pair_lookup_fill_distance();
   void history_buffer_process_skip(int skip);
@@ -115,8 +115,8 @@ class meteor_viterbi {
   ~meteor_viterbi();
 
   int count_bits(uint32_t i);
-  void vit_decode(unsigned char *in, unsigned char *out);
-  void vit_conv_decode(unsigned char *soft_encoded, unsigned char *decoded);
+  void vit_decode(const unsigned char *in, unsigned char *out);
+  void vit_conv_decode(const unsigned char *soft_encoded, unsigned char *decoded);
 };
 
 }  // namespace meteor
