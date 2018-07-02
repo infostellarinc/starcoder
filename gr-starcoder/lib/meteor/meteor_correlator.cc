@@ -150,7 +150,7 @@ void meteor_correlator::corr_reset() {
 }
 
 std::tuple<uint32_t, uint32_t, uint32_t> meteor_correlator::corr_correlate(
-    unsigned char *data, uint32_t len) {
+    const unsigned char *data, uint32_t len) {
   corr_reset();
 
   for (int i = 0; i < len - PATTERN_SIZE; i++) {

@@ -45,6 +45,8 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
+const int PACKET_FULL_MARK = 2047;
+
 meteor_packet::meteor_packet()
     : last_frame_(0),
       partial_packet_(false),

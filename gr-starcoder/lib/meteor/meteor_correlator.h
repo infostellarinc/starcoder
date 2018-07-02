@@ -78,7 +78,7 @@ class meteor_correlator {
   ~meteor_correlator();
 
   void fix_packet(unsigned char *data, int len, int shift);
-  std::tuple<uint32_t, uint32_t, uint32_t> corr_correlate(unsigned char *data,
+  std::tuple<uint32_t, uint32_t, uint32_t> corr_correlate(const unsigned char *data,
                                                           uint32_t d_word);
 };
 
