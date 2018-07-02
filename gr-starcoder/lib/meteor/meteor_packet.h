@@ -61,16 +61,16 @@ class meteor_packet {
   bool no_time_yet_;
   meteor_image meteor_image_;
 
-  int parse_partial(uint8_t *packet, int len);
-  void parse_apd(uint8_t *packet, int len);
-  void act_apd(uint8_t *packet, int len, int apd, int pck_cnt);
-  void parse_70(uint8_t *packet, int len);
+  int parse_partial(const uint8_t *packet, int len);
+  void parse_apd(const uint8_t *packet, int len);
+  void act_apd(const uint8_t *packet, int len, int apd, int pck_cnt);
+  void parse_70(const uint8_t *packet, int len);
 
  public:
   meteor_packet();
   ~meteor_packet();
 
-  void parse_cvcdu(uint8_t *frame, int len);
+  void parse_cvcdu(const uint8_t *frame, int len);
   std::string dump_image();
   std::string dump_gray_image(int apid);
 };

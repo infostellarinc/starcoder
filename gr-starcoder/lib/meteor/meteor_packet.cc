@@ -57,7 +57,7 @@ meteor_packet::meteor_packet()
 
 meteor_packet::~meteor_packet() { delete[] packet_buf_; }
 
-void meteor_packet::parse_70(uint8_t *packet, int len) {
+void meteor_packet::parse_70(const uint8_t *packet, int len) {
   int h = packet[8];
   int m = packet[9];
   int s = packet[10];
@@ -73,7 +73,7 @@ void meteor_packet::parse_70(uint8_t *packet, int len) {
             << std::endl;
 }
 
-void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
+void meteor_packet::act_apd(const uint8_t *packet, int len, int apd, int pck_cnt) {
   int mcu_id = packet[0];
   int scan_hdr = (packet[1] << 8) | packet[2];
   int seg_hdr = (packet[3] << 8) | packet[4];
@@ -86,7 +86,7 @@ void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
   meteor_image_.dec_mcus(packet + 6, len - 6, apd, pck_cnt, mcu_id, q);
 }
 
-void meteor_packet::parse_apd(uint8_t *packet, int len) {
+void meteor_packet::parse_apd(const uint8_t *packet, int len) {
   uint16_t w = (packet[0] << 8) | packet[1];
   int sec = (w >> 11) & 1;
   int apd = w & 0x7ff;
@@ -106,7 +106,7 @@ void meteor_packet::parse_apd(uint8_t *packet, int len) {
     act_apd(packet + 14, len - 14, apd, pck_cnt);
 }
 
-int meteor_packet::parse_partial(uint8_t *packet, int len) {
+int meteor_packet::parse_partial(const uint8_t *packet, int len) {
   if (len < 6) {
     partial_packet_ = true;
     return 0;
@@ -130,7 +130,7 @@ std::string meteor_packet::dump_gray_image(int apid) {
   return meteor_image_.dump_gray_image(apid);
 }
 
-void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
+void meteor_packet::parse_cvcdu(const uint8_t *frame, int len) {
   int n;
 
   uint16_t w = (frame[0] << 8) | frame[1];

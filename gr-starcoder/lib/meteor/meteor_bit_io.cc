@@ -44,12 +44,12 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
-meteor_bit_io::meteor_bit_io(uint8_t *bytes, int len)
-    : bytes_(bytes), len_(len), cur_(0), cur_len_(0), pos_(0) {}
+meteor_bit_io_const::meteor_bit_io_const(const uint8_t *bytes, int len)
+    : bytes_(bytes), pos_(0) {}
 
-meteor_bit_io::~meteor_bit_io() {}
+meteor_bit_io_const::~meteor_bit_io_const() {}
 
-uint32_t meteor_bit_io::peek_n_bits(int n) {
+uint32_t meteor_bit_io_const::peek_n_bits(int n) {
   uint32_t result = 0;
   for (int i = 0; i < n; i++) {
     int p = pos_ + i;
@@ -59,13 +59,18 @@ uint32_t meteor_bit_io::peek_n_bits(int n) {
   return result;
 }
 
-void meteor_bit_io::advance_n_bits(int n) { pos_ += n; }
+void meteor_bit_io_const::advance_n_bits(int n) { pos_ += n; }
 
-uint32_t meteor_bit_io::fetch_n_bits(int n) {
+uint32_t meteor_bit_io_const::fetch_n_bits(int n) {
   uint32_t result = peek_n_bits(n);
   advance_n_bits(n);
   return result;
 }
+
+meteor_bit_io::meteor_bit_io(uint8_t *bytes, int len)
+    : bytes_(bytes), len_(len), cur_(0), cur_len_(0), pos_(0) {}
+
+meteor_bit_io::~meteor_bit_io() {}
 
 void meteor_bit_io::write_bitlist_reversed(uint8_t *list, int len) {
   list = list + len - 1;

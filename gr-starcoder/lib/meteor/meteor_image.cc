@@ -304,9 +304,9 @@ void meteor_image::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id,
   }
 }
 
-void meteor_image::dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
+void meteor_image::dec_mcus(const uint8_t *packet, int len, int apd, int pck_cnt,
                             int mcu_id, uint8_t q) {
-  meteor_bit_io b(packet, 0);
+  meteor_bit_io_const b(packet, 0);
 
   if (!progress_image(apd, mcu_id, pck_cnt)) return;
 
