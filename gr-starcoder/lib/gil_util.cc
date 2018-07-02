@@ -30,10 +30,11 @@ std::string store_rgb_to_png_string(
   boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
                                  boost::filesystem::unique_path();
 
+  // The destructor needs to be called so we can properly read the file in the
+  // following lines
   {
-    std::unique_ptr<boost::gil::detail::png_writer> writer(
-        new boost::gil::detail::png_writer(temp.native().c_str()));
-    writer->apply(image_view);
+    boost::gil::detail::png_writer writer(temp.native().c_str());
+    writer.apply(image_view);
   }
 
   std::ifstream t(temp.native(), std::ios::binary);
@@ -49,10 +50,11 @@ std::string store_gray_to_png_string(
   boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
                                  boost::filesystem::unique_path();
 
+  // The destructor needs to be called so we can properly read the file in the
+  // following lines
   {
-    std::unique_ptr<boost::gil::detail::png_writer> writer(
-        new boost::gil::detail::png_writer(temp.native().c_str()));
-    writer->apply(image_view);
+    boost::gil::detail::png_writer writer(temp.native().c_str());
+    writer.apply(image_view);
   }
 
   std::ifstream t(temp.native(), std::ios::binary);

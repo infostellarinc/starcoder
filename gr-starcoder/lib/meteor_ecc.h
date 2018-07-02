@@ -35,6 +35,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from https://github.com/artlav/meteor_decoder/blob/master/alib/ecc.pas
 
 #ifndef INCLUDED_METEOR_ECC_H
 #define INCLUDED_METEOR_ECC_H
