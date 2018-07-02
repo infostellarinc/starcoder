@@ -34,12 +34,14 @@
 #include <chrono>
 #include <thread>
 #include "qa_enqueue_message_sink.h"
+#include "qa_meteor_decoder.h"
 
 CppUnit::TestSuite *qa_starcoder::suite() {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("starcoder");
   s->addTest(gr::starcoder::qa_enqueue_message_sink::suite());
-  s->addTest(new CppUnit::TestCaller<qa_starcoder>(
-      "run_ar2300_source_block", &qa_starcoder::run_ar2300_source_block));
+  s->addTest(gr::starcoder::qa_meteor_decoder::suite());
+  //s->addTest(new CppUnit::TestCaller<qa_starcoder>(
+  //    "run_ar2300_source_block", &qa_starcoder::run_ar2300_source_block));
 
   return s;
 }

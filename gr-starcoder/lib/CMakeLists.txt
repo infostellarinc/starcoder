@@ -132,6 +132,7 @@ list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_meteor_decoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
 )
 
