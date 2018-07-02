@@ -26,5 +26,6 @@ install(FILES
     starcoder_ax25_decoder_bm.xml
     starcoder_command_source.xml
     starcoder_ax25_encoder_mb.xml
-    starcoder_noaa_apt_sink.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_noaa_apt_sink.xml
+    starcoder_meteor_decoder_sink.xml DESTINATION share/gnuradio/grc/blocks
 )
