@@ -181,7 +181,3 @@ std::tuple<uint32_t, uint32_t, uint32_t> meteor_correlator::corr_correlate(
 
 }  // namespace starcoder
 }  // namespace gr
-
-//int main() {
-//  gr::starcoder::meteor_correlator a(0xfca2b63db00d9794);
-//}

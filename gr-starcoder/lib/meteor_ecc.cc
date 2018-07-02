@@ -240,27 +240,3 @@ int ecc_decode(uint8_t *data, int pad) {
 
 }  // namespace starcoder
 }  // namespace gr
-/*
-int main() {
-  int ecc_len = 255;
-  unsigned char *p = new unsigned char[ecc_len];
-  for (int i = 0; i < ecc_len; i++)
-    p[i] = (uint8_t)(i);
-  for (int i = 0; i < ecc_len; i++)
-    std::cout << std::hex << int(p[i]) << " ";
-  std::cout << std::endl;
-  std::cout << std::endl;
-  gr::starcoder::ecc_encode(p, 0);
-  p[20] = 0xff;
-  p[40] = 0x3a;
-  p[254] = 0xff;
-  for (int i = 0; i < ecc_len; i++)
-    std::cout << std::hex << int(p[i]) << " ";
-  std::cout << std::endl;
-  std::cout << std::dec << gr::starcoder::ecc_decode(p, 0) << " errors"
-            << std::endl;
-  for (int i = 0; i < ecc_len; i++)
-    std::cout << std::hex << int(p[i]) << " ";
-  delete[] p;
-}
-*/

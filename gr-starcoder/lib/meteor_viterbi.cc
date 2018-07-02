@@ -411,25 +411,3 @@ void meteor_viterbi::error_buffer_swap() {
 
 }  // namespace starcoder
 }  // namespace gr
-
-/*
-int main() {
-  gr::starcoder::meteor_viterbi v;
-  // test viterbi result must be 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0
-0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0
-0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff
-c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff ff c0 0 0 0 0 0 0 33 ff ff ff ff ff ff ff
-ff c0 0 0 0 0 0 0 33 ff
-  int soft_frame_len = 1024*8*2;
-  unsigned char *p = new unsigned char[soft_frame_len];
-  unsigned char *out = new unsigned char[1024];
-  for (int i=0; i<soft_frame_len; i++) p[i] = (uint8_t)(i + 7);
-  for (int i=1000; i< 1120; i++) std::cout << std::hex << int(p[i]) << " ";
-  std::cout << std::endl;
-  std::cout << std::endl;
-  v.vit_conv_decode(p, out);
-  for (int i=0; i<120; i++) std::cout << std::hex << int(out[i]) << " ";
-  delete[] p;
-  delete[] out;
-}
-*/

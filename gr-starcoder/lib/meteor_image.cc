@@ -379,5 +379,3 @@ void meteor_image::dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt,
 
 }  // namespace starcoder
 }  // namespace gr
-
-// int main() { gr::starcoder::meteor_image m(68, 65, 64); }
