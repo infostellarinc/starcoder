@@ -90,13 +90,13 @@ bool meteor_decoder_sink_impl::stop() {
 
   int total = 0;
   int ok = 0;
-  while (decoder.pos_ < total_size_ - meteor::SOFT_FRAME_LEN) {
+  while (decoder.pos() < total_size_ - meteor::SOFT_FRAME_LEN) {
     total++;
     bool res = decoder.decode_one_frame(raw.get(), ecced_data.get());
     if (res) {
       ok++;
-      std::cout << std::dec << 100. * decoder.pos_ / total_size_ << "% "
-                << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_
+      std::cout << std::dec << 100. * decoder.pos() / total_size_ << "% "
+                << decoder.prev_pos() << " " << std::hex << decoder.last_sync()
                 << std::endl;
       packeter.parse_cvcdu(ecced_data.get(),
                            meteor::HARD_FRAME_LEN - 4 - 128);

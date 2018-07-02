@@ -62,9 +62,9 @@ class meteor_decoder {
   meteor_correlator correlator_;
   meteor_viterbi viterbi_;
 
-  uint32_t word_, cpos_, corr_;
+  uint32_t word_, cpos_, corr_, last_sync_;
   std::array<int, 4> ecc_results_;
-  int sig_q_;
+  int sig_q_, pos_, prev_pos_;
 
  public:
   bool decode_one_frame(const unsigned char *raw, uint8_t *ecced_data);
@@ -72,8 +72,9 @@ class meteor_decoder {
   meteor_decoder();
   ~meteor_decoder();
 
-  uint32_t last_sync_;
-  int pos_, prev_pos_;
+  uint32_t last_sync();
+  int pos();
+  int prev_pos();
 };
 
 }  // namespace meteor

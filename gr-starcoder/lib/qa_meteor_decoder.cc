@@ -42,13 +42,13 @@ void qa_meteor_decoder::test_full_decoding() {
 
   int total = 0;
   int ok = 0;
-  while (decoder.pos_ < buffer.size() - meteor::SOFT_FRAME_LEN) {
+  while (decoder.pos() < buffer.size() - meteor::SOFT_FRAME_LEN) {
     total++;
     bool res = decoder.decode_one_frame(raw, ecced_data);
     if (res) {
       ok++;
-      std::cout << std::dec << 100. * decoder.pos_ / buffer.size() << "% "
-                << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_
+      std::cout << std::dec << 100. * decoder.pos() / buffer.size() << "% "
+                << decoder.prev_pos() << " " << std::hex << decoder.last_sync()
                 << std::endl;
       packeter.parse_cvcdu(ecced_data, meteor::HARD_FRAME_LEN - 4 - 128);
     }

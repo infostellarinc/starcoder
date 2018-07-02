@@ -172,6 +172,12 @@ bool meteor_decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_d
   return result;
 }
 
+uint32_t meteor_decoder::last_sync() { return last_sync_; }
+
+int meteor_decoder::pos() { return pos_; }
+
+int meteor_decoder::prev_pos() { return prev_pos_; }
+
 }  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
