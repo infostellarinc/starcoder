@@ -67,7 +67,8 @@ class decoder {
   int sig_q_, pos_, prev_pos_;
 
  public:
-  bool decode_one_frame(const unsigned char *raw, uint8_t *error_corrected_data);
+  bool decode_one_frame(const unsigned char *raw,
+                        uint8_t *error_corrected_data);
 
   decoder();
   ~decoder();

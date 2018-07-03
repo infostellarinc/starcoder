@@ -31,14 +31,16 @@
 namespace gr {
 namespace starcoder {
 
-meteor_decoder_sink::sptr meteor_decoder_sink::make(const std::string &filename_png) {
+meteor_decoder_sink::sptr meteor_decoder_sink::make(
+    const std::string &filename_png) {
   return gnuradio::get_initial_sptr(new meteor_decoder_sink_impl(filename_png));
 }
 
 /*
  * The private constructor
  */
-meteor_decoder_sink_impl::meteor_decoder_sink_impl(const std::string &filename_png)
+meteor_decoder_sink_impl::meteor_decoder_sink_impl(
+    const std::string &filename_png)
     : gr::sync_block("meteor_decoder_sink",
                      gr::io_signature::make(1, 1, sizeof(uint8_t)),
                      gr::io_signature::make(0, 0, 0)),
@@ -61,7 +63,7 @@ int meteor_decoder_sink_impl::work(int noutput_items,
 
   uint8_t *buffer = new uint8_t[noutput_items * block_size];
   memcpy(buffer, in, noutput_items * block_size);
-  item a = { .size = noutput_items * block_size, .partial_stream = buffer };
+  item a = {.size = noutput_items * block_size, .partial_stream = buffer };
   items_.push_back(a);
 
   // Tell runtime system how many output items we produced.
@@ -79,12 +81,14 @@ bool meteor_decoder_sink_impl::stop() {
   std::unique_ptr<uint8_t[]> raw(new uint8_t[total_size_]());
   int copied_so_far = 0;
   for (auto it = items_.cbegin(); it != items_.cend(); it++) {
-    std::copy((*it).partial_stream, (*it).partial_stream + (*it).size, raw.get() + copied_so_far);
+    std::copy((*it).partial_stream, (*it).partial_stream + (*it).size,
+              raw.get() + copied_so_far);
     copied_so_far += (*it).size;
     delete[](*it).partial_stream;
   }
 
-  std::unique_ptr<uint8_t[]> error_corrected_data(new uint8_t[meteor::HARD_FRAME_LEN]());
+  std::unique_ptr<uint8_t[]> error_corrected_data(
+      new uint8_t[meteor::HARD_FRAME_LEN]());
 
   int total = 0;
   int ok = 0;
@@ -96,7 +100,8 @@ bool meteor_decoder_sink_impl::stop() {
       std::cout << std::dec << 100. * decoder.pos() / total_size_ << "% "
                 << decoder.prev_pos() << " " << std::hex << decoder.last_sync()
                 << std::endl;
-      packeter.parse_cvcdu(error_corrected_data.get(), meteor::HARD_FRAME_LEN - 4 - 128);
+      packeter.parse_cvcdu(error_corrected_data.get(),
+                           meteor::HARD_FRAME_LEN - 4 - 128);
     }
   }
 
@@ -134,11 +139,11 @@ bool meteor_decoder_sink_impl::stop() {
   }
 }
 
-std::string meteor_decoder_sink_impl::construct_filename(const std::string &original,
-                                                         int apid) {
+std::string meteor_decoder_sink_impl::construct_filename(
+    const std::string &original, int apid) {
   boost::filesystem::path p(original);
   boost::filesystem::path modified_filename(p.stem().native() + "_apid_" +
-                              std::to_string(apid) + ".png");
+                                            std::to_string(apid) + ".png");
   p = p.parent_path() / modified_filename;
   return p.native();
 }
