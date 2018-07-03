@@ -92,7 +92,7 @@ decoder::decoder()
 decoder::~decoder() {}
 
 void decoder::do_next_correlate(const unsigned char *raw,
-                                       unsigned char *aligned) {
+                                unsigned char *aligned) {
   cpos_ = 0;
   std::copy(raw + pos_, raw + pos_ + SOFT_FRAME_LEN, aligned);
   prev_pos_ = pos_;
@@ -102,7 +102,7 @@ void decoder::do_next_correlate(const unsigned char *raw,
 }
 
 void decoder::do_full_correlate(const unsigned char *raw,
-                                       unsigned char *aligned) {
+                                unsigned char *aligned) {
   std::tie(word_, cpos_, corr_) =
       correlator_.corr_correlate(raw + pos_, SOFT_FRAME_LEN);
 
@@ -119,8 +119,7 @@ void decoder::do_full_correlate(const unsigned char *raw,
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
-bool decoder::try_frame(const unsigned char *aligned,
-                               uint8_t *ecced_data) {
+bool decoder::try_frame(const unsigned char *aligned, uint8_t *ecced_data) {
   std::unique_ptr<uint8_t[]> u_decoded(new uint8_t[HARD_FRAME_LEN]());
   uint8_t *decoded = u_decoded.get();
   std::unique_ptr<uint8_t[]> u_ecc_buf(new uint8_t[255]());
@@ -151,8 +150,7 @@ bool decoder::try_frame(const unsigned char *aligned,
          (ecc_results_[2] != -1) && (ecc_results_[3] != -1);
 }
 
-bool decoder::decode_one_frame(const unsigned char *raw,
-                                      uint8_t *ecced_data) {
+bool decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_data) {
   std::unique_ptr<uint8_t[]> u_aligned(new uint8_t[SOFT_FRAME_LEN]());
   uint8_t *aligned = u_aligned.get();
   bool result = false;

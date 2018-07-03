@@ -74,8 +74,7 @@ void packeter::parse_70(const uint8_t *packet, int len) {
             << std::endl;
 }
 
-void packeter::act_apd(const uint8_t *packet, int len, int apd,
-                            int pck_cnt) {
+void packeter::act_apd(const uint8_t *packet, int len, int apd, int pck_cnt) {
   int mcu_id = packet[0];
   int scan_hdr = (packet[1] << 8) | packet[2];
   int seg_hdr = (packet[3] << 8) | packet[4];

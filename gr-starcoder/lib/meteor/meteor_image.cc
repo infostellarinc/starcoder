@@ -263,7 +263,7 @@ int imager::map_range(int cat, int vl) {
 }
 
 void imager::flt_idct_8x8(std::array<float, 64> &res,
-                                std::array<float, 64> &inp) {
+                          std::array<float, 64> &inp) {
   for (int y = 0; y < 8; y++) {
     for (int x = 0; x < 8; x++) {
       float s = 0;
@@ -284,7 +284,7 @@ void imager::flt_idct_8x8(std::array<float, 64> &res,
 }
 
 void imager::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id,
-                            int m) {
+                      int m) {
   for (int i = 0; i < 64; i++) {
     int t = round(img_dct[i] + 128);
     if (t < 0) t = 0;
@@ -299,8 +299,8 @@ void imager::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id,
   }
 }
 
-void imager::dec_mcus(const uint8_t *packet, int len, int apd,
-                            int pck_cnt, int mcu_id, uint8_t q) {
+void imager::dec_mcus(const uint8_t *packet, int len, int apd, int pck_cnt,
+                      int mcu_id, uint8_t q) {
   bit_io_const b(packet, 0);
 
   if (!progress_image(apd, mcu_id, pck_cnt)) return;

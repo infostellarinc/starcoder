@@ -90,8 +90,8 @@ viterbi::viterbi()
 viterbi::~viterbi() {}
 
 uint16_t viterbi::metric_soft_distance(unsigned char hard,
-                                              unsigned char soft_y0,
-                                              unsigned char soft_y1) {
+                                       unsigned char soft_y0,
+                                       unsigned char soft_y1) {
   const int mag = 255;
   int soft_x0, soft_x1;
   switch (hard & 3) {
@@ -154,7 +154,7 @@ void viterbi::vit_decode(const unsigned char *in, unsigned char *out) {
 }
 
 void viterbi::vit_conv_decode(const unsigned char *soft_encoded,
-                                     unsigned char *decoded) {
+                              unsigned char *decoded) {
   writer_ = bit_io(decoded, NUM_FRAME_BITS * 2 / 8);
 
   len_ = 0;
@@ -356,7 +356,7 @@ void viterbi::history_buffer_renormalize(uint32_t min_register) {
 }
 
 void viterbi::history_buffer_traceback(uint32_t bestpath,
-                                              uint32_t min_traceback_length) {
+                                       uint32_t min_traceback_length) {
   uint32_t pathbit;
   uint8_t history;
 
