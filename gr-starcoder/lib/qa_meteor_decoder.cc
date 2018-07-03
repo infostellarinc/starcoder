@@ -28,6 +28,14 @@
 namespace gr {
 namespace starcoder {
 
+void qa_meteor_decoder::test_dump_empty() {
+  meteor::packeter packeter;
+
+  std::string empty;
+  CPPUNIT_ASSERT_EQUAL(packeter.dump_image(), empty);
+  CPPUNIT_ASSERT_EQUAL(packeter.dump_gray_image(meteor::RED_APID), empty);
+}
+
 void qa_meteor_decoder::test_full_decoding() {
   meteor::decoder decoder;
   meteor::packeter packeter;

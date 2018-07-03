@@ -30,10 +30,12 @@ namespace starcoder {
 class qa_meteor_decoder : public CppUnit::TestCase {
  public:
   CPPUNIT_TEST_SUITE(qa_meteor_decoder);
+  CPPUNIT_TEST(test_dump_empty);
   CPPUNIT_TEST(test_full_decoding);
   CPPUNIT_TEST_SUITE_END();
 
  private:
+  void test_dump_empty();
   void test_full_decoding();
 };
 

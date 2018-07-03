@@ -174,6 +174,8 @@ int imager::get_ac_real(uint16_t word) {
 imager::~imager() {}
 
 std::string imager::dump_image() {
+  if (full_image_.size() == 0) return "";
+
   const int width = 8 * MCU_PER_LINE;
   const int height = cur_y_ + 8;
   boost::gil::rgb8_image_t img(width, height);
@@ -192,6 +194,8 @@ std::string imager::dump_image() {
 }
 
 std::string imager::dump_gray_image(int apid) {
+  if (full_image_.size() == 0) return "";
+
   const int width = 8 * MCU_PER_LINE;
   const int height = cur_y_ + 8;
   boost::gil::gray8_image_t img(width, height);
