@@ -54,7 +54,7 @@ const unsigned int NUM_STATES = 128;
 const unsigned int MIN_TRACEBACK = 5 * 7;
 const unsigned int TRACEBACK_LENGTH = 15 * 7;
 
-class meteor_viterbi {
+class viterbi {
  private:
   int ber_;
 
@@ -103,8 +103,8 @@ class meteor_viterbi {
   void history_buffer_traceback(uint32_t bestpath, uint32_t min_traceback);
 
  public:
-  meteor_viterbi();
-  ~meteor_viterbi();
+  viterbi();
+  ~viterbi();
 
   int count_bits(uint32_t i);
   void vit_decode(const unsigned char *in, unsigned char *out);

@@ -60,7 +60,7 @@ class decoder {
   bool try_frame(const unsigned char *aligned, uint8_t *ecced_data);
 
   correlator correlator_;
-  meteor_viterbi viterbi_;
+  viterbi viterbi_;
 
   uint32_t word_, cpos_, corr_, last_sync_;
   std::array<int, 4> ecc_results_;
