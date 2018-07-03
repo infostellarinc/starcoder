@@ -29,14 +29,14 @@ namespace gr {
 namespace starcoder {
 struct item {
   size_t size;
-  uint8_t *arr;
+  const uint8_t *partial_stream;
 };
 
 class meteor_decoder_sink_impl : public meteor_decoder_sink {
  private:
-  std::string construct_filename(std::string original, int apid);
+  std::string construct_filename(const std::string &original, int apid);
 
-  std::list<item> list_of_arrays_;
+  std::list<item> items_;
   int total_size_;
   string_queue *string_queue_;
   std::string filename_;

@@ -63,15 +63,15 @@ int meteor_decoder_sink_impl::work(int noutput_items,
   uint8_t *buffer = new uint8_t[noutput_items * block_size];
   memcpy(buffer, in, noutput_items * block_size);
   a.size = noutput_items * block_size;
-  a.arr = buffer;
-  list_of_arrays_.push_back(a);
+  a.partial_stream = buffer;
+  items_.push_back(a);
 
   // Tell runtime system how many output items we produced.
   return noutput_items;
 }
 
 bool meteor_decoder_sink_impl::stop() {
-  if (list_of_arrays_.begin() == list_of_arrays_.end()) {
+  if (items_.begin() == items_.end()) {
     return true;
   }
 
@@ -80,10 +80,10 @@ bool meteor_decoder_sink_impl::stop() {
 
   std::unique_ptr<uint8_t[]> raw(new uint8_t[total_size_]());
   int copied_so_far = 0;
-  for (auto it = list_of_arrays_.cbegin(); it != list_of_arrays_.cend(); it++) {
-    std::copy((*it).arr, (*it).arr + (*it).size, raw.get() + copied_so_far);
+  for (auto it = items_.cbegin(); it != items_.cend(); it++) {
+    std::copy((*it).partial_stream, (*it).partial_stream + (*it).size, raw.get() + copied_so_far);
     copied_so_far += (*it).size;
-    delete[](*it).arr;
+    delete[](*it).partial_stream;
   }
 
   std::unique_ptr<uint8_t[]> ecced_data(new uint8_t[meteor::HARD_FRAME_LEN]());
@@ -136,7 +136,7 @@ bool meteor_decoder_sink_impl::stop() {
   }
 }
 
-std::string meteor_decoder_sink_impl::construct_filename(std::string original,
+std::string meteor_decoder_sink_impl::construct_filename(const std::string &original,
                                                          int apid) {
   boost::filesystem::path p(original);
   boost::filesystem::path mod(p.stem().native() + "_apid_" +
