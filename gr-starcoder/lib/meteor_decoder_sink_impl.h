@@ -42,7 +42,7 @@ class meteor_decoder_sink_impl : public meteor_decoder_sink {
   std::string filename_;
 
  public:
-  meteor_decoder_sink_impl(std::string filename_png);
+  meteor_decoder_sink_impl(const std::string &filename_png);
   ~meteor_decoder_sink_impl();
 
   // Where all the action really happens

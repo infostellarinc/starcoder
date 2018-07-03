@@ -31,14 +31,14 @@
 namespace gr {
 namespace starcoder {
 
-meteor_decoder_sink::sptr meteor_decoder_sink::make(std::string filename_png) {
+meteor_decoder_sink::sptr meteor_decoder_sink::make(const std::string &filename_png) {
   return gnuradio::get_initial_sptr(new meteor_decoder_sink_impl(filename_png));
 }
 
 /*
  * The private constructor
  */
-meteor_decoder_sink_impl::meteor_decoder_sink_impl(std::string filename_png)
+meteor_decoder_sink_impl::meteor_decoder_sink_impl(const std::string &filename_png)
     : gr::sync_block("meteor_decoder_sink",
                      gr::io_signature::make(1, 1, sizeof(uint8_t)),
                      gr::io_signature::make(0, 0, 0)),

@@ -35,7 +35,7 @@ class STARCODER_API meteor_decoder_sink : virtual public gr::sync_block {
  public:
   typedef boost::shared_ptr<meteor_decoder_sink> sptr;
 
-  static sptr make(std::string filename_png);
+  static sptr make(const std::string &filename_png);
   virtual void register_starcoder_queue(uint64_t ptr) = 0;
 };
 
