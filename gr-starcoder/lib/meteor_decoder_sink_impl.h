@@ -22,7 +22,7 @@
 #define INCLUDED_STARCODER_METEOR_DECODER_SINK_IMPL_H
 
 #include <starcoder/meteor_decoder_sink.h>
-#include <list>
+#include <vector>
 #include <string_queue.h>
 
 namespace gr {
@@ -36,7 +36,7 @@ class meteor_decoder_sink_impl : public meteor_decoder_sink {
  private:
   std::string construct_filename(const std::string &original, int apid);
 
-  std::list<item> items_;
+  std::vector<item> items_;
   int total_size_;
   string_queue *string_queue_;
   std::string filename_;

@@ -84,6 +84,7 @@ const std::array<uint8_t, 178> T_AC_0 {
 const std::array<int, 12> DC_CAT_OFF { 2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9 }
 ;
 
+// APID is the channel identifier for Meteor M2
 const int RED_APID = 68;
 const int GREEN_APID = 65;
 const int BLUE_APID = 64;
