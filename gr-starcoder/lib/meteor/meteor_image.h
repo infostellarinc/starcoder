@@ -35,6 +35,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from https://github.com/artlav/meteor_decoder/blob/master/met_jpg.pas
 
 #ifndef INCLUDED_METEOR_IMAGE_H
 #define INCLUDED_METEOR_IMAGE_H
@@ -44,6 +45,7 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
 const int MCU_PER_PACKET = 14;
 const int MCU_PER_LINE = 196;
@@ -82,6 +84,7 @@ const std::array<uint8_t, 178> T_AC_0 {
 const std::array<int, 12> DC_CAT_OFF { 2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9 }
 ;
 
+// APID is the channel identifier for Meteor M2
 const int RED_APID = 68;
 const int GREEN_APID = 65;
 const int BLUE_APID = 64;
@@ -100,7 +103,7 @@ struct ac_table_rec {
   uint32_t code;
 };
 
-class meteor_image {
+class imager {
  private:
   int red_apid_, green_apid_, blue_apid_;
   std::vector<pixel> full_image_;
@@ -125,17 +128,18 @@ class meteor_image {
   void fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id, int m);
 
  public:
-  meteor_image(int red_apid, int green_apid, int blue_apid);
-  ~meteor_image();
+  imager(int red_apid, int green_apid, int blue_apid);
+  ~imager();
 
-  void dec_mcus(uint8_t *packet, int len, int apd, int pck_cnt, int mcu_id,
-                uint8_t q);
+  void dec_mcus(const uint8_t *packet, int len, int apd, int pck_cnt,
+                int mcu_id, uint8_t q);
 
   std::string dump_image();
   std::string dump_gray_image(int apid);
 
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 

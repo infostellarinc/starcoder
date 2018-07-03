@@ -35,6 +35,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from
+// https://github.com/artlav/meteor_decoder/blob/master/alib/bitop.pas
 
 #include "meteor_bit_io.h"
 
@@ -42,13 +44,14 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
-meteor_bit_io::meteor_bit_io(uint8_t *bytes, int len)
-    : bytes_(bytes), len_(len), cur_(0), cur_len_(0), pos_(0) {}
+bit_io_const::bit_io_const(const uint8_t *bytes, int len)
+    : bytes_(bytes), pos_(0) {}
 
-meteor_bit_io::~meteor_bit_io() {}
+bit_io_const::~bit_io_const() {}
 
-uint32_t meteor_bit_io::bio_peek_n_bits(int n) {
+uint32_t bit_io_const::peek_n_bits(int n) {
   uint32_t result = 0;
   for (int i = 0; i < n; i++) {
     int p = pos_ + i;
@@ -58,15 +61,20 @@ uint32_t meteor_bit_io::bio_peek_n_bits(int n) {
   return result;
 }
 
-void meteor_bit_io::bio_advance_n_bits(int n) { pos_ += n; }
+void bit_io_const::advance_n_bits(int n) { pos_ += n; }
 
-uint32_t meteor_bit_io::bio_fetch_n_bits(int n) {
-  uint32_t result = bio_peek_n_bits(n);
-  bio_advance_n_bits(n);
+uint32_t bit_io_const::fetch_n_bits(int n) {
+  uint32_t result = peek_n_bits(n);
+  advance_n_bits(n);
   return result;
 }
 
-void meteor_bit_io::bio_write_bitlist_reversed(uint8_t *list, int len) {
+bit_io::bit_io(uint8_t *bytes, int len)
+    : bytes_(bytes), len_(len), cur_(0), cur_len_(0), pos_(0) {}
+
+bit_io::~bit_io() {}
+
+void bit_io::write_bitlist_reversed(uint8_t *list, int len) {
   list = list + len - 1;
 
   uint8_t *bytes = bytes_;
@@ -123,5 +131,6 @@ void meteor_bit_io::bio_write_bitlist_reversed(uint8_t *list, int len) {
   cur_len_ = len;
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

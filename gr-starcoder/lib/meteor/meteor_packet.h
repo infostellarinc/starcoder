@@ -35,51 +35,46 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from
+// https://github.com/artlav/meteor_decoder/blob/master/met_packet.pas
 
-#ifndef INCLUDED_METEOR_CORRELATOR_H
-#define INCLUDED_METEOR_CORRELATOR_H
+#ifndef INCLUDED_METEOR_PACKET_H
+#define INCLUDED_METEOR_PACKET_H
 
 #include <array>
-#include <tuple>
+
+#include "meteor_image.h"
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
-const int PATTERN_SIZE = 64;
-const int PATTERN_COUNT = 8;
-const int CORR_LIMIT = 55;
-
-class meteor_correlator {
+class packeter {
  private:
-  std::array<std::array<unsigned char, PATTERN_COUNT>, PATTERN_SIZE> patts_ {}
-  ;
-  std::array<int, PATTERN_COUNT> correlation_ {}
-  , tmp_corr_ {}
-  , position_ {}
-  ;
-  std::array<unsigned char, 256> rotate_iq_table_ {}
-  , invert_iq_table_ {}
-  ;
-  std::array<std::array<int, 256>, 256> corr_table_ {}
-  ;
+  int last_frame_;
+  bool partial_packet_;
+  std::array<uint8_t, 2048> packet_buf_;
+  int packet_off_;
+  int first_time_, last_time_;
+  bool no_time_yet_;
+  imager imager_;
 
-  void init_corr_tables();
-  unsigned char rotate_iq(unsigned char data, int shift);
-  uint64_t flip_iq_qw(uint64_t data);
-  uint64_t rotate_iq_qw(uint64_t data, int shift);
-  void corr_set_patt(int n, uint64_t p);
-  void corr_reset();
+  int parse_partial(const uint8_t *packet, int len);
+  void parse_apd(const uint8_t *packet, int len);
+  void act_apd(const uint8_t *packet, int len, int apd, int pck_cnt);
+  void parse_70(const uint8_t *packet, int len);
 
  public:
-  meteor_correlator(uint64_t q_word);
-  ~meteor_correlator();
+  packeter();
+  ~packeter();
 
-  void fix_packet(unsigned char *data, int len, int shift);
-  std::tuple<uint32_t, uint32_t, uint32_t> corr_correlate(unsigned char *data,
-                                                          uint32_t d_word);
+  void parse_cvcdu(const uint8_t *frame, int len);
+  std::string dump_image();
+  std::string dump_gray_image(int apid);
 };
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 
-#endif /* INCLUDED_METEOR_CORRELATOR_H */
+#endif /* INCLUDED_METEOR_PACKET_H */

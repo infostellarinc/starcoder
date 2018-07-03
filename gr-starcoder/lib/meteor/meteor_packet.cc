@@ -35,6 +35,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from
+// https://github.com/artlav/meteor_decoder/blob/master/met_packet.pas
 
 #include "meteor_packet.h"
 
@@ -43,20 +45,22 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
-meteor_packet::meteor_packet()
+static const int PACKET_FULL_MARK = 2047;
+
+packeter::packeter()
     : last_frame_(0),
       partial_packet_(false),
       packet_off_(0),
       first_time_(0),
       last_time_(0),
       no_time_yet_(true),
-      packet_buf_(new uint8_t[2048]),
-      meteor_image_(68, 65, 64) {}
+      imager_(68, 65, 64) {}
 
-meteor_packet::~meteor_packet() { delete[] packet_buf_; }
+packeter::~packeter() {}
 
-void meteor_packet::parse_70(uint8_t *packet, int len) {
+void packeter::parse_70(const uint8_t *packet, int len) {
   int h = packet[8];
   int m = packet[9];
   int s = packet[10];
@@ -72,7 +76,7 @@ void meteor_packet::parse_70(uint8_t *packet, int len) {
             << std::endl;
 }
 
-void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
+void packeter::act_apd(const uint8_t *packet, int len, int apd, int pck_cnt) {
   int mcu_id = packet[0];
   int scan_hdr = (packet[1] << 8) | packet[2];
   int seg_hdr = (packet[3] << 8) | packet[4];
@@ -82,10 +86,10 @@ void meteor_packet::act_apd(uint8_t *packet, int len, int apd, int pck_cnt) {
             << " mcu_id=" << mcu_id << " scan_hdr=" << scan_hdr
             << " seg_hdr=" << seg_hdr << " q=" << q << std::endl;
 
-  meteor_image_.dec_mcus(packet + 6, len - 6, apd, pck_cnt, mcu_id, q);
+  imager_.dec_mcus(packet + 6, len - 6, apd, pck_cnt, mcu_id, q);
 }
 
-void meteor_packet::parse_apd(uint8_t *packet, int len) {
+void packeter::parse_apd(const uint8_t *packet, int len) {
   uint16_t w = (packet[0] << 8) | packet[1];
   int sec = (w >> 11) & 1;
   int apd = w & 0x7ff;
@@ -105,7 +109,7 @@ void meteor_packet::parse_apd(uint8_t *packet, int len) {
     act_apd(packet + 14, len - 14, apd, pck_cnt);
 }
 
-int meteor_packet::parse_partial(uint8_t *packet, int len) {
+int packeter::parse_partial(const uint8_t *packet, int len) {
   if (len < 6) {
     partial_packet_ = true;
     return 0;
@@ -123,13 +127,13 @@ int meteor_packet::parse_partial(uint8_t *packet, int len) {
   return len_pck + 6 + 1;
 }
 
-std::string meteor_packet::dump_image() { return meteor_image_.dump_image(); }
+std::string packeter::dump_image() { return imager_.dump_image(); }
 
-std::string meteor_packet::dump_gray_image(int apid) {
-  return meteor_image_.dump_gray_image(apid);
+std::string packeter::dump_gray_image(int apid) {
+  return imager_.dump_gray_image(apid);
 }
 
-void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
+void packeter::parse_cvcdu(const uint8_t *frame, int len) {
   int n;
 
   uint16_t w = (frame[0] << 8) | frame[1];
@@ -154,11 +158,13 @@ void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
     if (partial_packet_) {
       if (hdr_off == PACKET_FULL_MARK) {
         hdr_off = len - 10;
-        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_ + packet_off_);
+        std::move(frame + 10, frame + 10 + hdr_off,
+                  packet_buf_.begin() + packet_off_);
         packet_off_ += hdr_off;
       } else {
-        std::move(frame + 10, frame + 10 + hdr_off, packet_buf_ + packet_off_);
-        n = parse_partial(packet_buf_, packet_off_ + hdr_off);
+        std::move(frame + 10, frame + 10 + hdr_off,
+                  packet_buf_.begin() + packet_off_);
+        n = parse_partial(packet_buf_.begin(), packet_off_ + hdr_off);
       }
     }
   } else {
@@ -174,7 +180,8 @@ void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
     n = parse_partial(frame + 10 + off, data_len);
     if (partial_packet_) {
       packet_off_ = data_len;
-      std::move(frame + 10 + off, frame + 10 + off + packet_off_, packet_buf_);
+      std::move(frame + 10 + off, frame + 10 + off + packet_off_,
+                packet_buf_.begin());
       break;
     } else {
       off += n;
@@ -183,5 +190,6 @@ void meteor_packet::parse_cvcdu(uint8_t *frame, int len) {
   }
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

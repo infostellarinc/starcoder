@@ -35,44 +35,49 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from
+// https://github.com/artlav/meteor_decoder/blob/master/alib/bitop.pas
 
-#ifndef INCLUDED_METEOR_PACKET_H
-#define INCLUDED_METEOR_PACKET_H
+#ifndef INCLUDED_METEOR_BIT_IO_H
+#define INCLUDED_METEOR_BIT_IO_H
 
-#include <cstdint>
-
-#include "meteor_image.h"
+#include <array>
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
-const int PACKET_FULL_MARK = 2047;
-
-class meteor_packet {
+class bit_io_const {
  private:
-  int last_frame_;
-  bool partial_packet_;
-  uint8_t *packet_buf_;
-  int packet_off_;
-  int first_time_, last_time_;
-  bool no_time_yet_;
-  meteor_image meteor_image_;
-
-  int parse_partial(uint8_t *packet, int len);
-  void parse_apd(uint8_t *packet, int len);
-  void act_apd(uint8_t *packet, int len, int apd, int pck_cnt);
-  void parse_70(uint8_t *packet, int len);
+  const uint8_t *bytes_;
+  int pos_;
 
  public:
-  meteor_packet();
-  ~meteor_packet();
+  bit_io_const(const uint8_t *bytes, int len);
+  ~bit_io_const();
 
-  void parse_cvcdu(uint8_t *frame, int len);
-  std::string dump_image();
-  std::string dump_gray_image(int apid);
+  uint32_t peek_n_bits(int n);
+  void advance_n_bits(int n);
+  uint32_t fetch_n_bits(int n);
 };
 
+class bit_io {
+ private:
+  uint8_t *bytes_;
+  int pos_, len_;
+
+  uint8_t cur_;
+  int cur_len_;
+
+ public:
+  bit_io(uint8_t *bytes, int len);
+  ~bit_io();
+
+  void write_bitlist_reversed(uint8_t *list, int len);
+};
+
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
 
-#endif /* INCLUDED_METEOR_PACKET_H */
+#endif /* INCLUDED_METEOR_BIT_IO_H */

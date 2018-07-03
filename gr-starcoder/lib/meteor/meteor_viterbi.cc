@@ -35,6 +35,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from
+// https://github.com/artlav/meteor_decoder/blob/master/viterbi27.pas
 
 #include "meteor_viterbi.h"
 
@@ -43,15 +45,32 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
-meteor_viterbi::meteor_viterbi()
+static const unsigned char VITERBI27_POLYA = 79;
+static const unsigned char VITERBI27_POLYB = 109;
+
+static const unsigned int SOFT_MAX = 255;
+static const unsigned int DISTANCE_MAX = 65535;
+static const unsigned int NUM_FRAME_BITS = 1024 * 8;
+static const unsigned int HIGH_BIT = 64;
+static const unsigned int ENCODE_LEN = 2 * (NUM_FRAME_BITS + 8);
+static const unsigned int NUM_ITER = HIGH_BIT << 1;
+
+static const unsigned int RENORMALIZE_INTERVAL = DISTANCE_MAX / (2 * SOFT_MAX);
+
+viterbi::viterbi()
     : ber_(0),
       err_index_(0),
       hist_index_(0),
       len_(0),
       pair_outputs_len_(5),
       renormalize_counter_(0),
-      writer_(NULL, 0) {
+      writer_(NULL, 0),
+      err_0_(new uint16_t[NUM_STATES]()),
+      err_1_(new uint16_t[NUM_STATES]()),
+      read_errors_(NULL),
+      write_errors_(NULL) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 65536; j++) {
       dist_table_[i][j] = metric_soft_distance(i, j & 0xff, j >> 8);
@@ -63,25 +82,18 @@ meteor_viterbi::meteor_viterbi()
     if ((count_bits(i & VITERBI27_POLYB) % 2) != 0) table_[i] = table_[i] | 2;
   }
 
-  errors_[0] = new uint16_t[NUM_STATES];
-  errors_[1] = new uint16_t[NUM_STATES];
+  errors_[0] = err_0_.get();
+  errors_[1] = err_1_.get();
 
   pair_lookup_create();
 
-  // for (auto x : dist_table_) std::cout << std::hex << (int)(x[60000]) << ' ';
-  // for (auto x: table_) std::cout << std::hex << (int)(x) << ' ';
-  // for (auto x: pair_keys_) std::cout << std::hex << (int)(x) << ' ';
-  // for (auto x: pair_outputs_) std::cout << std::hex << (int)(x) << ' ';
 }
 
-meteor_viterbi::~meteor_viterbi() {
-  delete[] errors_[0];
-  delete[] errors_[1];
-}
+viterbi::~viterbi() {}
 
-uint16_t meteor_viterbi::metric_soft_distance(unsigned char hard,
-                                              unsigned char soft_y0,
-                                              unsigned char soft_y1) {
+uint16_t viterbi::metric_soft_distance(unsigned char hard,
+                                       unsigned char soft_y0,
+                                       unsigned char soft_y1) {
   const int mag = 255;
   int soft_x0, soft_x1;
   switch (hard & 3) {
@@ -113,7 +125,7 @@ uint16_t meteor_viterbi::metric_soft_distance(unsigned char hard,
   return abs(y0 - soft_x0) + abs(y1 - soft_x1);
 }
 
-void meteor_viterbi::pair_lookup_create() {
+void viterbi::pair_lookup_create() {
   std::array<uint32_t, 16> inv_outputs {}
   ;
   uint32_t output_counter = 1;
@@ -130,22 +142,22 @@ void meteor_viterbi::pair_lookup_create() {
   }
 }
 
-int meteor_viterbi::count_bits(uint32_t i) {
+int viterbi::count_bits(uint32_t i) {
   // https://stackoverflow.com/a/109025/5636655
   i = i - ((i >> 1) & 0x55555555);
   i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
   return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 }
 
-void meteor_viterbi::vit_decode(unsigned char *in, unsigned char *out) {
+void viterbi::vit_decode(const unsigned char *in, unsigned char *out) {
   vit_conv_decode(in, out);
 
   // TODO: Calculate BER
 }
 
-void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded,
-                                     unsigned char *decoded) {
-  writer_ = meteor_bit_io(decoded, NUM_FRAME_BITS * 2 / 8);
+void viterbi::vit_conv_decode(const unsigned char *soft_encoded,
+                              unsigned char *decoded) {
+  writer_ = bit_io(decoded, NUM_FRAME_BITS * 2 / 8);
 
   len_ = 0;
   hist_index_ = 0;
@@ -163,12 +175,12 @@ void meteor_viterbi::vit_conv_decode(unsigned char *soft_encoded,
   history_buffer_traceback(0, 0);
 }
 
-void meteor_viterbi::vit_inner(unsigned char *soft) {
+void viterbi::vit_inner(const unsigned char *soft) {
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < (1 << (i + 1)); j++) {
-      write_errors_[j] =
-          dist_table_[table_[j]][*reinterpret_cast<uint16_t *>(soft + i * 2)] +
-          read_errors_[j >> 1];
+      write_errors_[j] = dist_table_[table_[j]][
+          *reinterpret_cast<const uint16_t *>(soft + i * 2)] +
+                         read_errors_[j >> 1];
     }
     error_buffer_swap();
   }
@@ -176,7 +188,7 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
   for (int i = 6; i < NUM_FRAME_BITS - 6; i++) {
     for (int j = 0; j < 4; j++) {
       distances_[j] =
-          dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
+          dist_table_[j][*reinterpret_cast<const uint16_t *>(soft + i * 2)];
     }
     pair_lookup_fill_distance();
 
@@ -247,7 +259,7 @@ void meteor_viterbi::vit_inner(unsigned char *soft) {
   }
 }
 
-void meteor_viterbi::vit_tail(unsigned char *soft) {
+void viterbi::vit_tail(const unsigned char *soft) {
   uint32_t skip, base_skip, highbase, low, high, base, low_output, high_output;
   uint16_t low_dist, high_dist, low_past_error, high_past_error, low_error,
       high_error;
@@ -258,7 +270,7 @@ void meteor_viterbi::vit_tail(unsigned char *soft) {
   for (int i = NUM_FRAME_BITS - 6; i < NUM_FRAME_BITS; i++) {
     for (int j = 0; j < 4; j++) {
       distances_[j] =
-          dist_table_[j][*reinterpret_cast<uint16_t *>(soft + i * 2)];
+          dist_table_[j][*reinterpret_cast<const uint16_t *>(soft + i * 2)];
     }
 
     skip = 1 << (7 - (NUM_FRAME_BITS - i));
@@ -302,7 +314,7 @@ void meteor_viterbi::vit_tail(unsigned char *soft) {
   }
 }
 
-void meteor_viterbi::history_buffer_process_skip(int skip) {
+void viterbi::history_buffer_process_skip(int skip) {
   uint32_t bestpath;
 
   hist_index_++;
@@ -323,7 +335,7 @@ void meteor_viterbi::history_buffer_process_skip(int skip) {
   }
 }
 
-uint32_t meteor_viterbi::history_buffer_search(int search_every) {
+uint32_t viterbi::history_buffer_search(int search_every) {
   uint32_t bestpath = 0;
   uint32_t least = 0xFFFF;
   int state = 0;
@@ -338,20 +350,19 @@ uint32_t meteor_viterbi::history_buffer_search(int search_every) {
   return bestpath;
 }
 
-void meteor_viterbi::history_buffer_renormalize(uint32_t min_register) {
+void viterbi::history_buffer_renormalize(uint32_t min_register) {
   uint16_t min_distance = write_errors_[min_register];
   for (int i = 0; i < NUM_STATES / 2; i++) {
     write_errors_[i] -= min_distance;
   }
 }
 
-void meteor_viterbi::history_buffer_traceback(uint32_t bestpath,
-                                              uint32_t min_traceback_length) {
-  uint32_t index, fetched_index, pathbit, prefetch_index, len;
+void viterbi::history_buffer_traceback(uint32_t bestpath,
+                                       uint32_t min_traceback_length) {
+  uint32_t pathbit;
   uint8_t history;
 
-  fetched_index = 0;
-  index = hist_index_;
+  uint32_t index = hist_index_, fetched_index = 0, len = len_;
 
   for (int j = 0; j < min_traceback_length; j++) {
     if (index == 0)
@@ -365,7 +376,7 @@ void meteor_viterbi::history_buffer_traceback(uint32_t bestpath,
       pathbit = 0;
     bestpath = (bestpath | pathbit) >> 1;
   }
-  prefetch_index = index;
+  uint32_t prefetch_index = index;
   if (prefetch_index == 0)
     prefetch_index = MIN_TRACEBACK + TRACEBACK_LENGTH - 1;
   else
@@ -389,11 +400,11 @@ void meteor_viterbi::history_buffer_traceback(uint32_t bestpath,
       fetched_[fetched_index] = 0;
     fetched_index++;
   }
-  writer_.bio_write_bitlist_reversed(fetched_.data(), fetched_index);
+  writer_.write_bitlist_reversed(fetched_.data(), fetched_index);
   len_ -= fetched_index;
 }
 
-void meteor_viterbi::pair_lookup_fill_distance() {
+void viterbi::pair_lookup_fill_distance() {
   for (int i = 1; i < pair_outputs_len_; i++) {
     uint32_t c = pair_outputs_[i];
     uint32_t i0 = c & 3;
@@ -403,11 +414,12 @@ void meteor_viterbi::pair_lookup_fill_distance() {
   }
 }
 
-void meteor_viterbi::error_buffer_swap() {
+void viterbi::error_buffer_swap() {
   read_errors_ = errors_[err_index_];
   err_index_ = (err_index_ + 1) % 2;
   write_errors_ = errors_[err_index_];
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr

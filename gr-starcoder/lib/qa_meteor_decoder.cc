@@ -22,15 +22,15 @@
 #include <cppunit/TestAssert.h>
 #include <stdio.h>
 
-#include "meteor_decoder.h"
-#include "meteor_packet.h"
+#include "meteor/meteor_decoder.h"
+#include "meteor/meteor_packet.h"
 
 namespace gr {
 namespace starcoder {
 
 void qa_meteor_decoder::test_full_decoding() {
-  gr::starcoder::meteor_decoder decoder;
-  gr::starcoder::meteor_packet packeter;
+  meteor::decoder decoder;
+  meteor::packeter packeter;
 
   std::ifstream in("test_meteor_stream.s", std::ios::binary);
   std::vector<char> buffer((std::istreambuf_iterator<char>(in)),
@@ -38,19 +38,21 @@ void qa_meteor_decoder::test_full_decoding() {
   std::cout << "Raw Size " << buffer.size() << std::endl;
 
   uint8_t *raw = reinterpret_cast<uint8_t *>(buffer.data());
-  uint8_t *ecced_data = new uint8_t[gr::starcoder::HARD_FRAME_LEN];
+  std::unique_ptr<uint8_t[]> u_ecced_data(
+      new uint8_t[meteor::HARD_FRAME_LEN]());
+  uint8_t *ecced_data = u_ecced_data.get();
 
   int total = 0;
   int ok = 0;
-  while (decoder.pos_ < buffer.size() - gr::starcoder::SOFT_FRAME_LEN) {
+  while (decoder.pos() < buffer.size() - meteor::SOFT_FRAME_LEN) {
     total++;
     bool res = decoder.decode_one_frame(raw, ecced_data);
     if (res) {
       ok++;
-      std::cout << std::dec << 100. * decoder.pos_ / buffer.size() << "% "
-                << decoder.prev_pos_ << " " << std::hex << decoder.last_sync_
+      std::cout << std::dec << 100. * decoder.pos() / buffer.size() << "% "
+                << decoder.prev_pos() << " " << std::hex << decoder.last_sync()
                 << std::endl;
-      packeter.parse_cvcdu(ecced_data, gr::starcoder::HARD_FRAME_LEN - 4 - 128);
+      packeter.parse_cvcdu(ecced_data, meteor::HARD_FRAME_LEN - 4 - 128);
     }
   }
 
@@ -66,25 +68,23 @@ void qa_meteor_decoder::test_full_decoding() {
   buf << t.rdbuf();
   CPPUNIT_ASSERT_EQUAL(buf.str(), png_img);
 
-  png_img = packeter.dump_gray_image(RED_APID);
+  png_img = packeter.dump_gray_image(meteor::RED_APID);
   t = std::ifstream("test_meteor_image_68.png", std::ios::binary);
   buf = std::stringstream();
   buf << t.rdbuf();
   CPPUNIT_ASSERT_EQUAL(buf.str(), png_img);
 
-  png_img = packeter.dump_gray_image(GREEN_APID);
+  png_img = packeter.dump_gray_image(meteor::GREEN_APID);
   t = std::ifstream("test_meteor_image_65.png", std::ios::binary);
   buf = std::stringstream();
   buf << t.rdbuf();
   CPPUNIT_ASSERT_EQUAL(buf.str(), png_img);
 
-  png_img = packeter.dump_gray_image(BLUE_APID);
+  png_img = packeter.dump_gray_image(meteor::BLUE_APID);
   t = std::ifstream("test_meteor_image_64.png", std::ios::binary);
   buf = std::stringstream();
   buf << t.rdbuf();
   CPPUNIT_ASSERT_EQUAL(buf.str(), png_img);
-
-  delete[] ecced_data;
 }
 
 } /* namespace starcoder */

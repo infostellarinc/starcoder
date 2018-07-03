@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>Meteor M2 Decoder Sink</name>
+  <key>starcoder_meteor_decoder_sink</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.meteor_decoder_sink($filename_png)</make>
+  <param>
+    <name>Output PNG Filename</name>
+    <key>filename_png</key>
+    <value></value>
+    <type>file_save</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+</block>

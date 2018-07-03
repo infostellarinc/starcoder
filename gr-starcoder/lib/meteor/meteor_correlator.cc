@@ -35,6 +35,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+// Ported from
+// https://github.com/artlav/meteor_decoder/blob/master/correlator.pas
 
 #include "meteor_correlator.h"
 
@@ -43,8 +45,9 @@
 
 namespace gr {
 namespace starcoder {
+namespace meteor {
 
-meteor_correlator::meteor_correlator(uint64_t q_word) {
+correlator::correlator(uint64_t q_word) {
   init_corr_tables();
   for (int i = 0; i < 4; i++) {
     corr_set_patt(i, rotate_iq_qw(q_word, i));
@@ -58,9 +61,9 @@ meteor_correlator::meteor_correlator(uint64_t q_word) {
   //for (auto x : patts_) std::cout << std::hex << (int)(x[0]) << ' ';
 }
 
-meteor_correlator::~meteor_correlator() {}
+correlator::~correlator() {}
 
-void meteor_correlator::init_corr_tables() {
+void correlator::init_corr_tables() {
   for (int i = 0; i < 256; i++) {
     rotate_iq_table_[i] = (((i & 0x55) ^ 0x55) << 1) | ((i & 0xaa) >> 1);
     invert_iq_table_[i] = ((i & 0x55) << 1) | ((i & 0xaa) >> 1);
@@ -71,7 +74,7 @@ void meteor_correlator::init_corr_tables() {
   }
 }
 
-unsigned char meteor_correlator::rotate_iq(unsigned char data, int shift) {
+unsigned char correlator::rotate_iq(unsigned char data, int shift) {
   if (shift == 1 || shift == 3) {
     data = rotate_iq_table_[data];
   }
@@ -81,7 +84,7 @@ unsigned char meteor_correlator::rotate_iq(unsigned char data, int shift) {
   return data;
 }
 
-uint64_t meteor_correlator::rotate_iq_qw(uint64_t data, int shift) {
+uint64_t correlator::rotate_iq_qw(uint64_t data, int shift) {
   uint64_t result = 0;
   unsigned char *presult = reinterpret_cast<unsigned char *>(&result);
   unsigned char *pdata = reinterpret_cast<unsigned char *>(&data);
@@ -91,7 +94,7 @@ uint64_t meteor_correlator::rotate_iq_qw(uint64_t data, int shift) {
   return result;
 }
 
-uint64_t meteor_correlator::flip_iq_qw(uint64_t data) {
+uint64_t correlator::flip_iq_qw(uint64_t data) {
   uint64_t result = 0;
   unsigned char *presult = reinterpret_cast<unsigned char *>(&result);
   unsigned char *pdata = reinterpret_cast<unsigned char *>(&data);
@@ -101,7 +104,7 @@ uint64_t meteor_correlator::flip_iq_qw(uint64_t data) {
   return result;
 }
 
-void meteor_correlator::corr_set_patt(int n, uint64_t p) {
+void correlator::corr_set_patt(int n, uint64_t p) {
   for (int i = 0; i < PATTERN_SIZE; i++) {
     if (((p >> (PATTERN_SIZE - i - 1)) & 1) != 0)
       patts_[i][n] = 0xff;
@@ -110,7 +113,7 @@ void meteor_correlator::corr_set_patt(int n, uint64_t p) {
   }
 }
 
-void meteor_correlator::fix_packet(unsigned char *data, int len, int shift) {
+void correlator::fix_packet(unsigned char *data, int len, int shift) {
   signed char *d = reinterpret_cast<signed char *>(data);
   signed char b;
 
@@ -142,14 +145,14 @@ void meteor_correlator::fix_packet(unsigned char *data, int len, int shift) {
   }
 }
 
-void meteor_correlator::corr_reset() {
+void correlator::corr_reset() {
   correlation_.fill(0);
   position_.fill(0);
   tmp_corr_.fill(0);
 }
 
-std::tuple<uint32_t, uint32_t, uint32_t> meteor_correlator::corr_correlate(
-    unsigned char *data, uint32_t len) {
+std::tuple<uint32_t, uint32_t, uint32_t> correlator::corr_correlate(
+    const unsigned char *data, uint32_t len) {
   corr_reset();
 
   for (int i = 0; i < len - PATTERN_SIZE; i++) {
@@ -179,5 +182,6 @@ std::tuple<uint32_t, uint32_t, uint32_t> meteor_correlator::corr_correlate(
   return std::make_tuple(result, position_[result], correlation_[result]);
 }
 
+}  // namespace meteor
 }  // namespace starcoder
 }  // namespace gr
