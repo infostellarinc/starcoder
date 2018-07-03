@@ -52,7 +52,7 @@ const int PATTERN_SIZE = 64;
 const int PATTERN_COUNT = 8;
 const int CORR_LIMIT = 55;
 
-class meteor_correlator {
+class correlator {
  private:
   std::array<std::array<unsigned char, PATTERN_COUNT>, PATTERN_SIZE> patts_ {}
   ;
@@ -74,8 +74,8 @@ class meteor_correlator {
   void corr_reset();
 
  public:
-  meteor_correlator(uint64_t q_word);
-  ~meteor_correlator();
+  correlator(uint64_t q_word);
+  ~correlator();
 
   void fix_packet(unsigned char *data, int len, int shift);
   std::tuple<uint32_t, uint32_t, uint32_t> corr_correlate(

@@ -59,7 +59,7 @@ class meteor_decoder {
   void do_next_correlate(const unsigned char *raw, unsigned char *aligned);
   bool try_frame(const unsigned char *aligned, uint8_t *ecced_data);
 
-  meteor_correlator correlator_;
+  correlator correlator_;
   meteor_viterbi viterbi_;
 
   uint32_t word_, cpos_, corr_, last_sync_;
