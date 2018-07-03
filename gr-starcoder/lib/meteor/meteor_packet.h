@@ -49,7 +49,7 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
-class meteor_packet {
+class packeter {
  private:
   int last_frame_;
   bool partial_packet_;
@@ -65,8 +65,8 @@ class meteor_packet {
   void parse_70(const uint8_t *packet, int len);
 
  public:
-  meteor_packet();
-  ~meteor_packet();
+  packeter();
+  ~packeter();
 
   void parse_cvcdu(const uint8_t *frame, int len);
   std::string dump_image();

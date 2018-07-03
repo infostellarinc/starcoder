@@ -76,7 +76,7 @@ bool meteor_decoder_sink_impl::stop() {
   }
 
   meteor::decoder decoder;
-  meteor::meteor_packet packeter;
+  meteor::packeter packeter;
 
   std::unique_ptr<uint8_t[]> raw(new uint8_t[total_size_]());
   int copied_so_far = 0;

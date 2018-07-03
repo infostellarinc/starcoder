@@ -30,7 +30,7 @@ namespace starcoder {
 
 void qa_meteor_decoder::test_full_decoding() {
   meteor::decoder decoder;
-  meteor::meteor_packet packeter;
+  meteor::packeter packeter;
 
   std::ifstream in("test_meteor_stream.s", std::ios::binary);
   std::vector<char> buffer((std::istreambuf_iterator<char>(in)),
