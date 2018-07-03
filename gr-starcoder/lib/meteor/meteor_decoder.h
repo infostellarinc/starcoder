@@ -57,7 +57,7 @@ class decoder {
  private:
   void do_full_correlate(const unsigned char *raw, unsigned char *aligned);
   void do_next_correlate(const unsigned char *raw, unsigned char *aligned);
-  bool try_frame(const unsigned char *aligned, uint8_t *ecced_data);
+  bool try_frame(const unsigned char *aligned, uint8_t *error_corrected_data);
 
   correlator correlator_;
   viterbi viterbi_;
@@ -67,7 +67,7 @@ class decoder {
   int sig_q_, pos_, prev_pos_;
 
  public:
-  bool decode_one_frame(const unsigned char *raw, uint8_t *ecced_data);
+  bool decode_one_frame(const unsigned char *raw, uint8_t *error_corrected_data);
 
   decoder();
   ~decoder();

@@ -47,17 +47,17 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
-const unsigned char VITERBI27_POLYA = 79;
-const unsigned char VITERBI27_POLYB = 109;
+static const unsigned char VITERBI27_POLYA = 79;
+static const unsigned char VITERBI27_POLYB = 109;
 
-const unsigned int SOFT_MAX = 255;
-const unsigned int DISTANCE_MAX = 65535;
-const unsigned int NUM_FRAME_BITS = 1024 * 8;
-const unsigned int HIGH_BIT = 64;
-const unsigned int ENCODE_LEN = 2 * (NUM_FRAME_BITS + 8);
-const unsigned int NUM_ITER = HIGH_BIT << 1;
+static const unsigned int SOFT_MAX = 255;
+static const unsigned int DISTANCE_MAX = 65535;
+static const unsigned int NUM_FRAME_BITS = 1024 * 8;
+static const unsigned int HIGH_BIT = 64;
+static const unsigned int ENCODE_LEN = 2 * (NUM_FRAME_BITS + 8);
+static const unsigned int NUM_ITER = HIGH_BIT << 1;
 
-const unsigned int RENORMALIZE_INTERVAL = DISTANCE_MAX / (2 * SOFT_MAX);
+static const unsigned int RENORMALIZE_INTERVAL = DISTANCE_MAX / (2 * SOFT_MAX);
 
 viterbi::viterbi()
     : ber_(0),

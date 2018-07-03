@@ -47,7 +47,7 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
-const std::array<uint8_t, 256> ALPHA_ARR {
+static const std::array<uint8_t, 256> ALPHA_ARR {
   0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x87, 0x89, 0x95, 0xad, 0xdd,
       0x3d, 0x7a, 0xf4, 0x6f, 0xde, 0x3b, 0x76, 0xec, 0x5f, 0xbe, 0xfb, 0x71,
       0xe2, 0x43, 0x86, 0x8b, 0x91, 0xa5, 0xcd, 0x1d, 0x3a, 0x74, 0xe8, 0x57,
@@ -73,7 +73,7 @@ const std::array<uint8_t, 256> ALPHA_ARR {
 }
 ;
 
-const std::array<uint8_t, 256> IDX_ARR {
+static const std::array<uint8_t, 256> IDX_ARR {
   255, 0, 1, 99, 2, 198, 100, 106, 3, 205, 199, 188, 101, 126, 107, 42, 4, 141,
       206, 78, 200, 212, 189, 225, 102, 221, 127, 49, 108, 32, 43, 243, 5, 87,
       142, 232, 207, 172, 79, 131, 201, 217, 213, 65, 190, 148, 226, 180, 103,
@@ -93,7 +93,7 @@ const std::array<uint8_t, 256> IDX_ARR {
 }
 ;
 
-const std::array<uint8_t, 33> POLY_ARR {
+static const std::array<uint8_t, 33> POLY_ARR {
   0, 249, 59, 66, 4, 43, 126, 251, 97, 30, 3, 213, 50, 66, 170, 5, 24, 5, 170,
       66, 50, 213, 3, 30, 97, 251, 126, 43, 4, 66, 59, 249, 0
 }

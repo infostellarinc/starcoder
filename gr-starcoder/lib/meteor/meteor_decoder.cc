@@ -121,11 +121,11 @@ void decoder::do_full_correlate(const unsigned char *raw,
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
-bool decoder::try_frame(const unsigned char *aligned, uint8_t *ecced_data) {
-  std::unique_ptr<uint8_t[]> u_decoded(new uint8_t[HARD_FRAME_LEN]());
-  uint8_t *decoded = u_decoded.get();
-  std::unique_ptr<uint8_t[]> u_ecc_buf(new uint8_t[255]());
-  uint8_t *ecc_buf = u_ecc_buf.get();
+bool decoder::try_frame(const unsigned char *aligned, uint8_t *error_corrected_data) {
+  std::unique_ptr<uint8_t[]> decoded_deleter(new uint8_t[HARD_FRAME_LEN]());
+  uint8_t *decoded = decoded_deleter.get();
+  std::unique_ptr<uint8_t[]> ecc_buf_deleter(new uint8_t[255]());
+  uint8_t *ecc_buf = ecc_buf_deleter.get();
 
   viterbi_.vit_decode(aligned, decoded);
 
@@ -145,14 +145,14 @@ bool decoder::try_frame(const unsigned char *aligned, uint8_t *ecced_data) {
   for (int j = 0; j < 4; j++) {
     ecc_deinterleave(decoded + 4, ecc_buf, j, 4);
     ecc_results_[j] = ecc_decode(ecc_buf, 0);
-    ecc_interleave(ecc_buf, ecced_data, j, 4);
+    ecc_interleave(ecc_buf, error_corrected_data, j, 4);
   }
 
   return (ecc_results_[0] != -1) && (ecc_results_[1] != -1) &&
          (ecc_results_[2] != -1) && (ecc_results_[3] != -1);
 }
 
-bool decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_data) {
+bool decoder::decode_one_frame(const unsigned char *raw, uint8_t *error_corrected_data) {
   std::unique_ptr<uint8_t[]> u_aligned(new uint8_t[SOFT_FRAME_LEN]());
   uint8_t *aligned = u_aligned.get();
   bool result = false;
@@ -160,7 +160,7 @@ bool decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_data) {
   if (cpos_ == 0) {
     do_next_correlate(raw, aligned);
 
-    result = try_frame(aligned, ecced_data);
+    result = try_frame(aligned, error_corrected_data);
 
     if (!result) pos_ -= SOFT_FRAME_LEN;
   }
@@ -168,7 +168,7 @@ bool decoder::decode_one_frame(const unsigned char *raw, uint8_t *ecced_data) {
   if (!result) {
     do_full_correlate(raw, aligned);
 
-    result = try_frame(aligned, ecced_data);
+    result = try_frame(aligned, error_corrected_data);
   }
 
   return result;

@@ -47,7 +47,7 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
-const int PACKET_FULL_MARK = 2047;
+static const int PACKET_FULL_MARK = 2047;
 
 packeter::packeter()
     : last_frame_(0),
