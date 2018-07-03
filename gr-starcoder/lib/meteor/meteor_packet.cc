@@ -54,7 +54,7 @@ packeter::packeter()
       first_time_(0),
       last_time_(0),
       no_time_yet_(true),
-      meteor_image_(68, 65, 64) {}
+      imager_(68, 65, 64) {}
 
 packeter::~packeter() {}
 
@@ -85,7 +85,7 @@ void packeter::act_apd(const uint8_t *packet, int len, int apd,
             << " mcu_id=" << mcu_id << " scan_hdr=" << scan_hdr
             << " seg_hdr=" << seg_hdr << " q=" << q << std::endl;
 
-  meteor_image_.dec_mcus(packet + 6, len - 6, apd, pck_cnt, mcu_id, q);
+  imager_.dec_mcus(packet + 6, len - 6, apd, pck_cnt, mcu_id, q);
 }
 
 void packeter::parse_apd(const uint8_t *packet, int len) {
@@ -126,10 +126,10 @@ int packeter::parse_partial(const uint8_t *packet, int len) {
   return len_pck + 6 + 1;
 }
 
-std::string packeter::dump_image() { return meteor_image_.dump_image(); }
+std::string packeter::dump_image() { return imager_.dump_image(); }
 
 std::string packeter::dump_gray_image(int apid) {
-  return meteor_image_.dump_gray_image(apid);
+  return imager_.dump_gray_image(apid);
 }
 
 void packeter::parse_cvcdu(const uint8_t *frame, int len) {

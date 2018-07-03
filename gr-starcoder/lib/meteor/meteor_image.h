@@ -102,7 +102,7 @@ struct ac_table_rec {
   uint32_t code;
 };
 
-class meteor_image {
+class imager {
  private:
   int red_apid_, green_apid_, blue_apid_;
   std::vector<pixel> full_image_;
@@ -127,8 +127,8 @@ class meteor_image {
   void fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id, int m);
 
  public:
-  meteor_image(int red_apid, int green_apid, int blue_apid);
-  ~meteor_image();
+  imager(int red_apid, int green_apid, int blue_apid);
+  ~imager();
 
   void dec_mcus(const uint8_t *packet, int len, int apd, int pck_cnt,
                 int mcu_id, uint8_t q);

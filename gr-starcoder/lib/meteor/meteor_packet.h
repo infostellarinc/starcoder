@@ -57,7 +57,7 @@ class packeter {
   int packet_off_;
   int first_time_, last_time_;
   bool no_time_yet_;
-  meteor_image meteor_image_;
+  imager imager_;
 
   int parse_partial(const uint8_t *packet, int len);
   void parse_apd(const uint8_t *packet, int len);

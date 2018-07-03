@@ -49,7 +49,7 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
-meteor_image::meteor_image(int red_apid, int green_apid, int blue_apid)
+imager::imager(int red_apid, int green_apid, int blue_apid)
     : red_apid_(red_apid),
       green_apid_(green_apid),
       blue_apid_(blue_apid),
@@ -62,7 +62,7 @@ meteor_image::meteor_image(int red_apid, int green_apid, int blue_apid)
   init_cos();
 }
 
-void meteor_image::init_cos() {
+void imager::init_cos() {
   for (int y = 0; y < 8; y++) {
     for (int x = 0; x < 8; x++) {
       cosine_[y][x] = cos(M_PI / 16 * (2 * y + 1) * x);
@@ -78,7 +78,7 @@ void meteor_image::init_cos() {
   //for (auto x : cosine_) for (auto y: x) std::cout << std::dec << y << ' ';
 }
 
-void meteor_image::init_huffman_table() {
+void imager::init_huffman_table() {
   std::array<uint8_t, 65536> v {}
   ;
   std::array<uint16_t, 17> min_code {}
@@ -132,7 +132,7 @@ void meteor_image::init_huffman_table() {
   }
 }
 
-int meteor_image::get_dc_real(uint16_t word) {
+int imager::get_dc_real(uint16_t word) {
   switch (word >> 14) {
     case 0:
       return 0;
@@ -160,7 +160,7 @@ int meteor_image::get_dc_real(uint16_t word) {
   return -1;
 }
 
-int meteor_image::get_ac_real(uint16_t word) {
+int imager::get_ac_real(uint16_t word) {
   for (int i = 0; i < 162; i++) {
     if (((word >> (16 - ac_table_[i].len)) & ac_table_[i].mask) ==
         ac_table_[i].code) {
@@ -170,9 +170,9 @@ int meteor_image::get_ac_real(uint16_t word) {
   return -1;
 }
 
-meteor_image::~meteor_image() {}
+imager::~imager() {}
 
-std::string meteor_image::dump_image() {
+std::string imager::dump_image() {
   const int width = 8 * MCU_PER_LINE;
   const int height = cur_y_ + 8;
   boost::gil::rgb8_image_t img(width, height);
@@ -190,7 +190,7 @@ std::string meteor_image::dump_image() {
   return store_rgb_to_png_string(v);
 }
 
-std::string meteor_image::dump_gray_image(int apid) {
+std::string imager::dump_gray_image(int apid) {
   const int width = 8 * MCU_PER_LINE;
   const int height = cur_y_ + 8;
   boost::gil::gray8_image_t img(width, height);
@@ -216,7 +216,7 @@ std::string meteor_image::dump_gray_image(int apid) {
   return store_gray_to_png_string(v);
 }
 
-bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
+bool imager::progress_image(int apd, int mcu_id, int pck_cnt) {
   if (apd == 0 || apd == 70) return false;
 
   if (last_mcu_ == -1) {
@@ -240,7 +240,7 @@ bool meteor_image::progress_image(int apd, int mcu_id, int pck_cnt) {
   return true;
 }
 
-void meteor_image::fill_dqt_by_q(std::array<int, 64> &dqt, int q) {
+void imager::fill_dqt_by_q(std::array<int, 64> &dqt, int q) {
   float f;
   if (q > 20 && q < 50)
     f = 5000. / q;
@@ -253,7 +253,7 @@ void meteor_image::fill_dqt_by_q(std::array<int, 64> &dqt, int q) {
   }
 }
 
-int meteor_image::map_range(int cat, int vl) {
+int imager::map_range(int cat, int vl) {
   int maxval = (1 << cat) - 1;
   bool sig = (vl >> (cat - 1)) != 0;
   if (sig)
@@ -262,7 +262,7 @@ int meteor_image::map_range(int cat, int vl) {
     return vl - maxval;
 }
 
-void meteor_image::flt_idct_8x8(std::array<float, 64> &res,
+void imager::flt_idct_8x8(std::array<float, 64> &res,
                                 std::array<float, 64> &inp) {
   for (int y = 0; y < 8; y++) {
     for (int x = 0; x < 8; x++) {
@@ -283,7 +283,7 @@ void meteor_image::flt_idct_8x8(std::array<float, 64> &res,
   }
 }
 
-void meteor_image::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id,
+void imager::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id,
                             int m) {
   for (int i = 0; i < 64; i++) {
     int t = round(img_dct[i] + 128);
@@ -299,7 +299,7 @@ void meteor_image::fill_pix(std::array<float, 64> &img_dct, int apd, int mcu_id,
   }
 }
 
-void meteor_image::dec_mcus(const uint8_t *packet, int len, int apd,
+void imager::dec_mcus(const uint8_t *packet, int len, int apd,
                             int pck_cnt, int mcu_id, uint8_t q) {
   bit_io_const b(packet, 0);
 
