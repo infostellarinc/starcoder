@@ -36,7 +36,7 @@
  * Boston, MA 02110-1301, USA.
  */
 // Ported from
-// https://github.com/artlav/meteor_decoder/blob/master/met_to_data.pas
+// https://github.com/artlav/decoder/blob/master/met_to_data.pas
 
 #ifndef INCLUDED_METEOR_DECODER_H
 #define INCLUDED_METEOR_DECODER_H
@@ -53,7 +53,7 @@ const int HARD_FRAME_LEN = 1024;
 const int FRAME_BITS = HARD_FRAME_LEN * 8;
 const int SOFT_FRAME_LEN = FRAME_BITS * 2;
 
-class meteor_decoder {
+class decoder {
  private:
   void do_full_correlate(const unsigned char *raw, unsigned char *aligned);
   void do_next_correlate(const unsigned char *raw, unsigned char *aligned);
@@ -69,8 +69,8 @@ class meteor_decoder {
  public:
   bool decode_one_frame(const unsigned char *raw, uint8_t *ecced_data);
 
-  meteor_decoder();
-  ~meteor_decoder();
+  decoder();
+  ~decoder();
 
   uint32_t last_sync();
   int pos();

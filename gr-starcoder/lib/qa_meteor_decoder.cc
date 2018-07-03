@@ -29,7 +29,7 @@ namespace gr {
 namespace starcoder {
 
 void qa_meteor_decoder::test_full_decoding() {
-  meteor::meteor_decoder decoder;
+  meteor::decoder decoder;
   meteor::meteor_packet packeter;
 
   std::ifstream in("test_meteor_stream.s", std::ios::binary);

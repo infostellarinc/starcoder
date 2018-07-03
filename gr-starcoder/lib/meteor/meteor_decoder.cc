@@ -79,7 +79,7 @@ const std::array<uint8_t, 255> PRAND {
 }
 ;
 
-meteor_decoder::meteor_decoder()
+decoder::decoder()
     : correlator_(0xfca2b63db00d9794),  // sync word for meteor
       pos_(0),
       cpos_(0),
@@ -89,9 +89,9 @@ meteor_decoder::meteor_decoder()
       sig_q_(0),
       last_sync_(0) {}
 
-meteor_decoder::~meteor_decoder() {}
+decoder::~decoder() {}
 
-void meteor_decoder::do_next_correlate(const unsigned char *raw,
+void decoder::do_next_correlate(const unsigned char *raw,
                                        unsigned char *aligned) {
   cpos_ = 0;
   std::copy(raw + pos_, raw + pos_ + SOFT_FRAME_LEN, aligned);
@@ -101,7 +101,7 @@ void meteor_decoder::do_next_correlate(const unsigned char *raw,
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
-void meteor_decoder::do_full_correlate(const unsigned char *raw,
+void decoder::do_full_correlate(const unsigned char *raw,
                                        unsigned char *aligned) {
   std::tie(word_, cpos_, corr_) =
       correlator_.corr_correlate(raw + pos_, SOFT_FRAME_LEN);
@@ -119,7 +119,7 @@ void meteor_decoder::do_full_correlate(const unsigned char *raw,
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
-bool meteor_decoder::try_frame(const unsigned char *aligned,
+bool decoder::try_frame(const unsigned char *aligned,
                                uint8_t *ecced_data) {
   std::unique_ptr<uint8_t[]> u_decoded(new uint8_t[HARD_FRAME_LEN]());
   uint8_t *decoded = u_decoded.get();
@@ -151,7 +151,7 @@ bool meteor_decoder::try_frame(const unsigned char *aligned,
          (ecc_results_[2] != -1) && (ecc_results_[3] != -1);
 }
 
-bool meteor_decoder::decode_one_frame(const unsigned char *raw,
+bool decoder::decode_one_frame(const unsigned char *raw,
                                       uint8_t *ecced_data) {
   std::unique_ptr<uint8_t[]> u_aligned(new uint8_t[SOFT_FRAME_LEN]());
   uint8_t *aligned = u_aligned.get();
@@ -174,11 +174,11 @@ bool meteor_decoder::decode_one_frame(const unsigned char *raw,
   return result;
 }
 
-uint32_t meteor_decoder::last_sync() { return last_sync_; }
+uint32_t decoder::last_sync() { return last_sync_; }
 
-int meteor_decoder::pos() { return pos_; }
+int decoder::pos() { return pos_; }
 
-int meteor_decoder::prev_pos() { return prev_pos_; }
+int decoder::prev_pos() { return prev_pos_; }
 
 }  // namespace meteor
 }  // namespace starcoder
