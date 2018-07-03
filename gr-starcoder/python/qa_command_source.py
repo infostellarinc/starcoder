@@ -112,7 +112,7 @@ class qa_command_source (gr_unittest.TestCase):
         msg.uniform_vector_value.u_value.value.extend([12, 0, 3])
         msg.uniform_vector_value.u_value.size = starcoder_pb2.Size8
 
-        expected = pmt.init_s32vector(3, [12, 0, 3])
+        expected = pmt.init_u8vector(3, [12, 0, 3])
 
         self.tb.start()
         cs.push(msg.SerializeToString())
