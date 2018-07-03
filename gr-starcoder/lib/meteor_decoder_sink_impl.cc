@@ -59,11 +59,9 @@ int meteor_decoder_sink_impl::work(int noutput_items,
 
   total_size_ += noutput_items * block_size;
 
-  item a;
   uint8_t *buffer = new uint8_t[noutput_items * block_size];
   memcpy(buffer, in, noutput_items * block_size);
-  a.size = noutput_items * block_size;
-  a.partial_stream = buffer;
+  item a = { .size = noutput_items * block_size, .partial_stream = buffer };
   items_.push_back(a);
 
   // Tell runtime system how many output items we produced.
@@ -71,7 +69,7 @@ int meteor_decoder_sink_impl::work(int noutput_items,
 }
 
 bool meteor_decoder_sink_impl::stop() {
-  if (items_.begin() == items_.end()) {
+  if (items_.empty()) {
     return true;
   }
 
@@ -86,19 +84,19 @@ bool meteor_decoder_sink_impl::stop() {
     delete[](*it).partial_stream;
   }
 
-  std::unique_ptr<uint8_t[]> ecced_data(new uint8_t[meteor::HARD_FRAME_LEN]());
+  std::unique_ptr<uint8_t[]> error_corrected_data(new uint8_t[meteor::HARD_FRAME_LEN]());
 
   int total = 0;
   int ok = 0;
   while (decoder.pos() < total_size_ - meteor::SOFT_FRAME_LEN) {
     total++;
-    bool res = decoder.decode_one_frame(raw.get(), ecced_data.get());
+    bool res = decoder.decode_one_frame(raw.get(), error_corrected_data.get());
     if (res) {
       ok++;
       std::cout << std::dec << 100. * decoder.pos() / total_size_ << "% "
                 << decoder.prev_pos() << " " << std::hex << decoder.last_sync()
                 << std::endl;
-      packeter.parse_cvcdu(ecced_data.get(), meteor::HARD_FRAME_LEN - 4 - 128);
+      packeter.parse_cvcdu(error_corrected_data.get(), meteor::HARD_FRAME_LEN - 4 - 128);
     }
   }
 
@@ -117,7 +115,7 @@ bool meteor_decoder_sink_impl::stop() {
     string_queue_->push(png_b);
   }
 
-  if (filename_ != "") {
+  if (!filename_.empty()) {
     std::ofstream out(filename_);
     out << png_img;
     out.close();
@@ -139,9 +137,9 @@ bool meteor_decoder_sink_impl::stop() {
 std::string meteor_decoder_sink_impl::construct_filename(const std::string &original,
                                                          int apid) {
   boost::filesystem::path p(original);
-  boost::filesystem::path mod(p.stem().native() + "_apid_" +
-                              std::to_string(apid) + p.extension().native());
-  p = p.parent_path() / mod;
+  boost::filesystem::path modified_filename(p.stem().native() + "_apid_" +
+                              std::to_string(apid) + ".png");
+  p = p.parent_path() / modified_filename;
   return p.native();
 }
 
