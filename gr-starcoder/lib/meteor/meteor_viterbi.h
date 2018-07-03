@@ -58,7 +58,7 @@ class meteor_viterbi {
  private:
   int ber_;
 
-  meteor_bit_io writer_;
+  bit_io writer_;
 
   std::array<std::array<uint16_t, 65536>, 4> dist_table_ {}
   ;

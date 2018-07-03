@@ -155,7 +155,7 @@ void meteor_viterbi::vit_decode(const unsigned char *in, unsigned char *out) {
 
 void meteor_viterbi::vit_conv_decode(const unsigned char *soft_encoded,
                                      unsigned char *decoded) {
-  writer_ = meteor_bit_io(decoded, NUM_FRAME_BITS * 2 / 8);
+  writer_ = bit_io(decoded, NUM_FRAME_BITS * 2 / 8);
 
   len_ = 0;
   hist_index_ = 0;

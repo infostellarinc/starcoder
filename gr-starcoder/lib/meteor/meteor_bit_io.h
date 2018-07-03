@@ -47,21 +47,21 @@ namespace gr {
 namespace starcoder {
 namespace meteor {
 
-class meteor_bit_io_const {
+class bit_io_const {
  private:
   const uint8_t *bytes_;
   int pos_;
 
  public:
-  meteor_bit_io_const(const uint8_t *bytes, int len);
-  ~meteor_bit_io_const();
+  bit_io_const(const uint8_t *bytes, int len);
+  ~bit_io_const();
 
   uint32_t peek_n_bits(int n);
   void advance_n_bits(int n);
   uint32_t fetch_n_bits(int n);
 };
 
-class meteor_bit_io {
+class bit_io {
  private:
   uint8_t *bytes_;
   int pos_, len_;
@@ -70,8 +70,8 @@ class meteor_bit_io {
   int cur_len_;
 
  public:
-  meteor_bit_io(uint8_t *bytes, int len);
-  ~meteor_bit_io();
+  bit_io(uint8_t *bytes, int len);
+  ~bit_io();
 
   void write_bitlist_reversed(uint8_t *list, int len);
 };
