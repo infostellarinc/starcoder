@@ -45,7 +45,6 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
-#include <cstring>
 
 #include "meteor_ecc.h"
 #include "meteor_packet.h"
