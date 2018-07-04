@@ -21,13 +21,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	pb "github.com/infostellarinc/starcoder/api"
 	"google.golang.org/grpc"
 	"io"
 	"io/ioutil"
 	"log"
 	"time"
-	"fmt"
 )
 
 func main() {
