@@ -54,7 +54,7 @@ void qa_meteor_decoder::test_full_decoding() {
   int ok = 0;
   while (decoder.pos() < buffer.size() - meteor::SOFT_FRAME_LEN) {
     total++;
-    bool res = decoder.decode_one_frame(raw, ecced_data);
+    bool res = decoder.decode_one_frame(raw, buffer.size(), ecced_data);
     if (res) {
       ok++;
       std::cout << std::dec << 100. * decoder.pos() / buffer.size() << "% "

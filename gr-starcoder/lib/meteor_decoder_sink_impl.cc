@@ -94,7 +94,7 @@ bool meteor_decoder_sink_impl::stop() {
   int ok = 0;
   while (decoder.pos() < total_size_ - meteor::SOFT_FRAME_LEN) {
     total++;
-    bool res = decoder.decode_one_frame(raw.get(), error_corrected_data.get());
+    bool res = decoder.decode_one_frame(raw.get(), total_size_, error_corrected_data.get());
     if (res) {
       ok++;
       std::cout << std::dec << 100. * decoder.pos() / total_size_ << "% "

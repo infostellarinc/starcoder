@@ -82,10 +82,6 @@ void packeter::act_apd(const uint8_t *packet, int len, int apd, int pck_cnt) {
   int seg_hdr = (packet[3] << 8) | packet[4];
   int q = packet[5];
 
-  std::cout << std::dec << "apd=" << apd << " pck_cnt=" << pck_cnt
-            << " mcu_id=" << mcu_id << " scan_hdr=" << scan_hdr
-            << " seg_hdr=" << seg_hdr << " q=" << q << std::endl;
-
   imager_.dec_mcus(packet + 6, len - 6, apd, pck_cnt, mcu_id, q);
 }
 
@@ -99,9 +95,6 @@ void packeter::parse_apd(const uint8_t *packet, int len) {
 
   int ms =
       (packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
-
-  std::cout << "sec=" << sec << " (pck:" << len_pck + 1 << "/total:" << len
-            << " ms=" << ms << std::endl;
 
   if (apd == 70)
     parse_70(packet + 14, len - 14);

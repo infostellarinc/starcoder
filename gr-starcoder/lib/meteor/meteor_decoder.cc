@@ -103,22 +103,25 @@ void decoder::do_next_correlate(const unsigned char *raw,
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
 }
 
-void decoder::do_full_correlate(const unsigned char *raw,
+bool decoder::do_full_correlate(const unsigned char *raw, int raw_len,
                                 unsigned char *aligned) {
   std::tie(word_, cpos_, corr_) =
       correlator_.corr_correlate(raw + pos_, SOFT_FRAME_LEN);
 
   if (corr_ < MIN_CORRELATION) {
     prev_pos_ = pos_;
-    std::cout << "Not even " << MIN_CORRELATION << " bits found!";
-    std::copy(raw + pos_, raw + pos_ + SOFT_FRAME_LEN, aligned);
     pos_ += SOFT_FRAME_LEN / 4;
+    std::cout << "Not even " << MIN_CORRELATION << " bits found!";
+    if (prev_pos_ + SOFT_FRAME_LEN > raw_len) return false;
+    std::copy(raw + prev_pos_, raw + prev_pos_ + SOFT_FRAME_LEN, aligned);
   } else {
     prev_pos_ = pos_ + cpos_;
-    std::copy(raw + pos_ + cpos_, raw + pos_ + cpos_ + SOFT_FRAME_LEN, aligned);
     pos_ += SOFT_FRAME_LEN + cpos_;
+    if (prev_pos_ + SOFT_FRAME_LEN > raw_len) return false;
+    std::copy(raw + prev_pos_, raw + prev_pos_ + SOFT_FRAME_LEN, aligned);
   }
   correlator_.fix_packet(aligned, SOFT_FRAME_LEN, word_);
+  return true;
 }
 
 bool decoder::try_frame(const unsigned char *aligned,
@@ -153,7 +156,7 @@ bool decoder::try_frame(const unsigned char *aligned,
          (ecc_results_[2] != -1) && (ecc_results_[3] != -1);
 }
 
-bool decoder::decode_one_frame(const unsigned char *raw,
+bool decoder::decode_one_frame(const unsigned char *raw, int raw_len,
                                uint8_t *error_corrected_data) {
   std::unique_ptr<uint8_t[]> u_aligned(new uint8_t[SOFT_FRAME_LEN]());
   uint8_t *aligned = u_aligned.get();
@@ -168,7 +171,7 @@ bool decoder::decode_one_frame(const unsigned char *raw,
   }
 
   if (!result) {
-    do_full_correlate(raw, aligned);
+    if (!do_full_correlate(raw, raw_len, aligned)) return false;
 
     result = try_frame(aligned, error_corrected_data);
   }
