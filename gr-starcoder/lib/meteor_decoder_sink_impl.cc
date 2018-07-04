@@ -114,28 +114,38 @@ bool meteor_decoder_sink_impl::stop() {
   std::string png_b = packeter.dump_gray_image(meteor::BLUE_APID);
 
   if (string_queue_ != NULL) {
-    string_queue_->push(png_img);
-    string_queue_->push(png_r);
-    string_queue_->push(png_g);
-    string_queue_->push(png_b);
+    if (!png_img.empty()) string_queue_->push(png_img);
+    if (!png_r.empty()) string_queue_->push(png_r);
+    if (!png_g.empty()) string_queue_->push(png_g);
+    if (!png_b.empty()) string_queue_->push(png_b);
   }
 
   if (!filename_.empty()) {
-    std::ofstream out(filename_);
-    out << png_img;
-    out.close();
+    std::ofstream out;
 
-    out = std::ofstream(construct_filename(filename_, meteor::RED_APID));
-    out << png_r;
-    out.close();
+    if (!png_img.empty()) {
+      out = std::ofstream(filename_);
+      out << png_img;
+      out.close();
+    }
 
-    out = std::ofstream(construct_filename(filename_, meteor::GREEN_APID));
-    out << png_g;
-    out.close();
+    if (!png_r.empty()) {
+      out = std::ofstream(construct_filename(filename_, meteor::RED_APID));
+      out << png_r;
+      out.close();
+    }
 
-    out = std::ofstream(construct_filename(filename_, meteor::BLUE_APID));
-    out << png_b;
-    out.close();
+    if (!png_g.empty()) {
+      out = std::ofstream(construct_filename(filename_, meteor::GREEN_APID));
+      out << png_g;
+      out.close();
+    }
+
+    if (!png_b.empty()) {
+      out = std::ofstream(construct_filename(filename_, meteor::BLUE_APID));
+      out << png_b;
+      out.close();
+    }
   }
 }
 

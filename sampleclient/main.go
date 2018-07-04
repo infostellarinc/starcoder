@@ -21,6 +21,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	pb "github.com/infostellarinc/starcoder/api"
 	"google.golang.org/grpc"
 	"io"
@@ -40,6 +41,7 @@ func main() {
 	stream, err := client.RunFlowgraph(context.Background())
 	waitc := make(chan struct{})
 	go func() {
+		meteor_decoder_sink_idx := 0
 		for {
 			r, err := stream.Recv()
 			if err == io.EOF {
@@ -60,6 +62,10 @@ func main() {
 			}
 			if r.GetBlockId() == "noaa_apt_decoded" {
 				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", r.GetPayload(), 0644)
+			}
+			if r.GetBlockId() == "meteor_decoder_sink" {
+				ioutil.WriteFile(fmt.Sprintf("/home/rei/sampleAR2300IQ/meteor_decoded_%v.png", meteor_decoder_sink_idx), r.GetPayload(), 0644)
+				meteor_decoder_sink_idx++
 			}
 		}
 	}()
