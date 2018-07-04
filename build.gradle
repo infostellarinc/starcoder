@@ -336,7 +336,6 @@ task installGrStarcoder(type: Exec) {
     executable 'bash'
     args '-c', condaCommand("""cmake ../../gr-starcoder -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=${gnuradioRoot} -Wno-dev && \\
         make &&
-        make test && 
         make install
     """)
 
