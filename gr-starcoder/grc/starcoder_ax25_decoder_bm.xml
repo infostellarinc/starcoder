@@ -4,7 +4,7 @@
   <key>starcoder_ax25_decoder_bm</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
-  <make>starcoder.ax25_decoder_bm($addr, $ssid, $promisc, $descrambling, $max_frame_len)</make>
+  <make>starcoder.ax25_decoder_bm($addr, $ssid, $promisc, $descrambling, $max_frame_len, $strip_headers)</make>
 
   <param>
     <name>Receiver Callsign</name>
@@ -53,6 +53,20 @@
     <key>max_frame_len</key>
     <value>1024</value>
     <type>int</type>
+  </param>
+
+  <param>
+    <name>Strip Headers</name>
+    <key>strip_headers</key>
+    <type>bool</type>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
   </param>
 
   <sink>
