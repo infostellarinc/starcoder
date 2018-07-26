@@ -166,7 +166,7 @@ static inline size_t ax25_create_addr_field(uint8_t *out, std::string dest_addr,
  * @return the address field length in bytes
  */
 static inline int ax25_get_addr_length(const uint8_t *in) {
-  for (int i=AX25_MIN_ADDR_LEN-1; i < AX25_MAX_ADDR_LEN; i+=7) {
+  for (int i = AX25_MIN_ADDR_LEN - 1; i < AX25_MAX_ADDR_LEN; i += 7) {
     if ((in[i] & 1) == 1) {
       return i + 1;
     }

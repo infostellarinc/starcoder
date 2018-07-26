@@ -94,7 +94,8 @@ class STARCODER_API ax25_decoder_bm : virtual public gr::sync_block {
    * @return
    */
   static sptr make(const std::string& addr, uint8_t ssid, bool promisc = false,
-                   bool descramble = true, size_t max_frame_len = 512, bool strip_headers = false);
+                   bool descramble = true, size_t max_frame_len = 512,
+                   bool strip_headers = false);
 };
 
 }  // namespace starcoder

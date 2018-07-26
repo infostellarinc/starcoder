@@ -86,7 +86,8 @@ class ax25_decoder_bm_impl : public ax25_decoder_bm {
 
  public:
   ax25_decoder_bm_impl(const std::string &addr, uint8_t ssid, bool promisc,
-                       bool descramble, size_t max_frame_len, bool strip_headers);
+                       bool descramble, size_t max_frame_len,
+                       bool strip_headers);
   ~ax25_decoder_bm_impl();
 
   // Where all the action really happens
