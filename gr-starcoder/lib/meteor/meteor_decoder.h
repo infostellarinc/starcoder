@@ -55,7 +55,8 @@ const int SOFT_FRAME_LEN = FRAME_BITS * 2;
 
 class decoder {
  private:
-  bool do_full_correlate(const unsigned char *raw, int raw_len, unsigned char *aligned);
+  bool do_full_correlate(const unsigned char *raw, int raw_len,
+                         unsigned char *aligned);
   void do_next_correlate(const unsigned char *raw, unsigned char *aligned);
   bool try_frame(const unsigned char *aligned, uint8_t *error_corrected_data);
 

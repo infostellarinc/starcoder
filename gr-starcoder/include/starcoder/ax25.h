@@ -161,6 +161,20 @@ static inline size_t ax25_create_addr_field(uint8_t *out, std::string dest_addr,
 }
 
 /**
+ * Gets the length of the address field of the AX.25 frame
+ * @param in the AX.25 frame buffer
+ * @return the address field length in bytes
+ */
+static inline int ax25_get_addr_length(const uint8_t *in) {
+  for (int i = AX25_MIN_ADDR_LEN - 1; i < AX25_MAX_ADDR_LEN; i += 7) {
+    if ((in[i] & 1) == 1) {
+      return i + 1;
+    }
+  }
+  return AX25_MAX_ADDR_LEN;
+}
+
+/**
  * Gets the destination SSID of an AX.25 frame
  * @param in the AX.25 frame buffer
  * @return the destination SSID

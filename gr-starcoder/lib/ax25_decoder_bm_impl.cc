@@ -51,9 +51,10 @@ namespace starcoder {
 ax25_decoder_bm::sptr ax25_decoder_bm::make(const std::string& addr,
                                             uint8_t ssid, bool promisc,
                                             bool descramble,
-                                            size_t max_frame_len) {
-  return gnuradio::get_initial_sptr(
-      new ax25_decoder_bm_impl(addr, ssid, promisc, descramble, max_frame_len));
+                                            size_t max_frame_len,
+                                            bool strip_headers) {
+  return gnuradio::get_initial_sptr(new ax25_decoder_bm_impl(
+      addr, ssid, promisc, descramble, max_frame_len, strip_headers));
 }
 
 /*
@@ -62,13 +63,15 @@ ax25_decoder_bm::sptr ax25_decoder_bm::make(const std::string& addr,
 ax25_decoder_bm_impl::ax25_decoder_bm_impl(const std::string& addr,
                                            uint8_t ssid, bool promisc,
                                            bool descramble,
-                                           size_t max_frame_len)
+                                           size_t max_frame_len,
+                                           bool strip_headers)
     : gr::sync_block("ax25_decoder_bm",
                      gr::io_signature::make(1, 1, sizeof(uint8_t)),
                      gr::io_signature::make(0, 0, 0)),
       d_promisc(promisc),
       d_descramble(descramble),
       d_max_frame_len(max_frame_len),
+      strip_headers_(strip_headers),
       d_state(NO_SYNC),
       d_shift_reg(0x0),
       d_dec_b(0x0),
@@ -342,9 +345,14 @@ void ax25_decoder_bm_impl::enter_frame_end() {
              d_frame_buffer[d_received_bytes - 2];
 
   if (fcs == recv_fcs) {
-    message_port_pub(
-        pmt::mp("pdu"),
-        pmt::make_blob(d_frame_buffer, d_received_bytes - sizeof(uint16_t)));
+    int offset = 0;
+    if (strip_headers_) {
+      offset = ax25_get_addr_length(d_frame_buffer);
+      offset += 2;  // Remove Control and PID bytes
+    }
+    message_port_pub(pmt::mp("pdu"), pmt::make_blob(d_frame_buffer + offset,
+                                                    d_received_bytes - offset -
+                                                        sizeof(uint16_t)));
   } else {
     message_port_pub(
         pmt::mp("failed_pdu"),

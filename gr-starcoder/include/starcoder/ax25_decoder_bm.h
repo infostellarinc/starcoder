@@ -90,10 +90,12 @@ class STARCODER_API ax25_decoder_bm : virtual public gr::sync_block {
    * @param descramble if set to yes, the data will be descrambled prior
    * decoding using the G3RUH self-synchronizing descrambler.
    * @param max_frame_len the maximum allowed frame length
+   * @param strip_headers Strip AX.25 headers from packet.
    * @return
    */
   static sptr make(const std::string& addr, uint8_t ssid, bool promisc = false,
-                   bool descramble = true, size_t max_frame_len = 512);
+                   bool descramble = true, size_t max_frame_len = 512,
+                   bool strip_headers = false);
 };
 
 }  // namespace starcoder

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.12'?>
+<?grc format='1' created='3.7.13'?>
 <flow_graph>
   <timestamp>Fri Feb 23 17:03:12 2018</timestamp>
   <block>
@@ -1166,6 +1166,10 @@
     <param>
       <key>ssid</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>strip_headers</key>
+      <value>False</value>
     </param>
   </block>
   <block>
