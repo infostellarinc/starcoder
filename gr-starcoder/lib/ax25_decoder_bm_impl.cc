@@ -345,13 +345,13 @@ void ax25_decoder_bm_impl::enter_frame_end() {
              d_frame_buffer[d_received_bytes - 2];
 
   if (fcs == recv_fcs) {
-    int padding = 0;
+    int offset = 0;
     if (strip_headers_) {
-      padding = ax25_get_addr_length(d_frame_buffer);
-      padding += 2;  // Remove Control and PID bytes
+      offset = ax25_get_addr_length(d_frame_buffer);
+      offset += 2;  // Remove Control and PID bytes
     }
-    message_port_pub(pmt::mp("pdu"), pmt::make_blob(d_frame_buffer + padding,
-                                                    d_received_bytes - padding -
+    message_port_pub(pmt::mp("pdu"), pmt::make_blob(d_frame_buffer + offset,
+                                                    d_received_bytes - offset -
                                                         sizeof(uint16_t)));
   } else {
     message_port_pub(
