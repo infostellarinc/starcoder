@@ -65,8 +65,6 @@ config:
       forceinstalled: true
     autotools-bootstrap:
       forceinstalled: true
-    boost:
-      forceinstalled: true
     build-essential:
       forceinstalled: true
     cheetah:

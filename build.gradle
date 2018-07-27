@@ -271,7 +271,6 @@ envs {
     conda 'miniconda2-gnuradio', 'Miniconda2-4.4.10', [
             condaPackage('autoconf'),
             condaPackage('automake'),
-            condaPackage('boost'),
             condaPackage('cmake'),
             condaPackage('gcc_linux-64'),
             condaPackage('gfortran_linux-64'),
