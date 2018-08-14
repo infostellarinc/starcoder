@@ -298,7 +298,7 @@ task installPipPackages(type: Exec) {
 
     executable 'bash'
     // Python setuptools uses LDSHARED variable and ignores CC when linking.
-    args '-c', condaCommand('LDSHARED=$CC pip install cheetah lxml mako matplotlib pybombs requests')
+    args '-c', condaCommand('LDSHARED=$CC pip install cheetah lxml mako matplotlib pybombs requests ruamel.yaml==0.15.51')
 }
 
 task setupPrefix(type: Exec) {
