@@ -27,11 +27,13 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1.3-dependencies
+          - v1.4-dependencies
 
-      - run: ./gradlew --no-daemon install
+      - run:
+          command: ./gradlew --no-daemon install
+          no_output_timeout: 2h
 
       - save_cache:
           paths:
             - ~/.gradle
-          key: v1.3-dependencies
+          key: v1.4-dependencies

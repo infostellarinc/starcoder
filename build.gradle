@@ -17,6 +17,9 @@
  *
  */
 
+
+import com.google.common.io.CharStreams
+import com.google.common.io.LineProcessor
 import de.undercouch.gradle.tasks.download.Download
 import org.apache.tools.ant.taskdefs.condition.Os
 
@@ -298,7 +301,7 @@ task installPipPackages(type: Exec) {
 
     executable 'bash'
     // Python setuptools uses LDSHARED variable and ignores CC when linking.
-    args '-c', condaCommand('LDSHARED=$CC pip install cheetah lxml mako matplotlib pybombs requests')
+    args '-c', condaCommand('LDSHARED=$CC pip install cheetah lxml mako matplotlib pybombs requests ruamel.yaml==0.15.51')
 }
 
 task setupPrefix(type: Exec) {
@@ -328,6 +331,54 @@ task setupPrefix(type: Exec) {
     doLast {
         delete "${gnuradioRoot}/pkgs"
         delete "${gnuradioRoot}/src"
+    }
+
+    if (System.getenv('CI')) {
+        def stdOutPipedInput = new PipedInputStream()
+        def stdOutPipedOutput = new PipedOutputStream(stdOutPipedInput)
+
+        def readerThread = Thread.startDaemon {
+            def standardLogPrefixes = ['Cloning', 'Configuring', 'Building', 'Installing']
+
+            def previousLogPrefix = ''
+
+            def reader = new BufferedReader(new InputStreamReader(stdOutPipedInput))
+            CharStreams.readLines(reader, new LineProcessor<Void>() {
+                @Override
+                boolean processLine(String line) throws IOException {
+                    // Don't print empty lines
+                    if (line.trim() == '') {
+                        return true
+                    }
+
+                    // Don't spam with percentages.
+                    if (line.contains("%")) {
+                        return true
+                    }
+
+                    // Only print cmake logs once per type
+                    for (logPrefix in standardLogPrefixes) {
+                        if (line.startsWith(logPrefix)) {
+                            if (previousLogPrefix == logPrefix) {
+                                return true
+                            }
+                            previousLogPrefix = logPrefix
+                            break
+                        }
+                    }
+
+                    println line
+                    return true
+                }
+
+                @Override
+                Void getResult() {
+                    return null
+                }
+            })
+        }
+
+        standardOutput = stdOutPipedOutput
     }
 }
 
