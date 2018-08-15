@@ -29,8 +29,9 @@ jobs:
           keys:
           - v1.4-dependencies
 
-      - run: ./gradlew --no-daemon install
-        no_output_timeout: '2h'
+      - run:
+          command: ./gradlew --no-daemon install
+          no_output_timeout: '2h'
 
       - save_cache:
           paths:
