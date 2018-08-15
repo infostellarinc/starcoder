@@ -31,7 +31,7 @@ jobs:
 
       - run:
           command: ./gradlew --no-daemon install
-          no_output_timeout: '2h'
+          no_output_timeout: 2h
 
       - save_cache:
           paths:
