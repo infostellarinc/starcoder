@@ -23,6 +23,7 @@
 #ifdef __cplusplus
 #include <mutex>
 #include <condition_variable>
+#include <boost/next_prior.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 class blocking_spsc_queue {
  public:
