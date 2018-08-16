@@ -20,6 +20,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
+#include <boost/next_prior.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 /*
 This class is a threadsafe single-producer single-consumer queue
