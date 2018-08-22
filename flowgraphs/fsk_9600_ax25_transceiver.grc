@@ -1252,7 +1252,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>50000</value>
+      <value>30000</value>
     </param>
   </block>
   <block>
@@ -2899,7 +2899,7 @@
     </param>
     <param>
       <key>dev_addr</key>
-      <value>"serial=" + transmitter_serial</value>
+      <value>("serial=" + transmitter_serial) if transmitter_serial else ""</value>
     </param>
     <param>
       <key>dev_args</key>
@@ -4234,7 +4234,7 @@
     </param>
     <param>
       <key>dev_addr</key>
-      <value>"serial=" + receiver_serial</value>
+      <value>("serial=" + receiver_serial) if receiver_serial else ""</value>
     </param>
     <param>
       <key>dev_args</key>
