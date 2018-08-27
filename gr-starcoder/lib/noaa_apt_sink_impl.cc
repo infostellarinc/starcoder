@@ -41,16 +41,11 @@
 #include "config.h"
 #endif
 
-#define png_infopp_NULL (png_infopp) NULL
-#define int_p_NULL (int *)NULL
-
 #include <gnuradio/io_signature.h>
 #include "noaa_apt_sink_impl.h"
 
 #include <cmath>
 
-#include <boost/filesystem.hpp>
-#include <boost/gil/extension/io/png_io.hpp>
 #include "gil_util.h"
 
 namespace gr {
