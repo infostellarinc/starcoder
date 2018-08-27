@@ -72,7 +72,7 @@ def plot_waterfall(arr, samp_rate, center_freq, rps, fft, filename):
                interpolation='none', vmin=int(np.mean(arr)), vmax=arr.max(),
                alpha=1, aspect='auto', origin='lower')
     cb = fig.colorbar(im, ax=ax, aspect=50)
-    cb.set_label('Power (dB)')
+    cb.set_label('Power (dBFS)')
 
     cell_freq = samp_rate / 10.0
     center_tick = fft/2
