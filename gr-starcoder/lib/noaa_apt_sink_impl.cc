@@ -41,16 +41,12 @@
 #include "config.h"
 #endif
 
-#define png_infopp_NULL (png_infopp) NULL
-#define int_p_NULL (int *)NULL
-
 #include <gnuradio/io_signature.h>
 #include "noaa_apt_sink_impl.h"
 
 #include <cmath>
 
-#include <boost/filesystem.hpp>
-#include <boost/gil/extension/io/png_io.hpp>
+#include "gil_util.h"
 
 namespace gr {
 namespace starcoder {
@@ -127,26 +123,14 @@ void noaa_apt_sink_impl::write_image(std::string filename) {
   }
 
   if (string_queue_ != NULL) {
-    // TODO: Writes out to /tmp since Boost GIL doesn't support writing to
-    // streams.
-    // This should be fixed moving forward
-    boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
-                                   boost::filesystem::unique_path();
-
-    boost::gil::detail::png_writer writer(temp.native().c_str());
+    std::string image_string;
 
     if (!d_flip)
-      writer.apply(image_received_view_);
+      image_string = (store_gray_to_png_string(image_received_view_));
     else
-      writer.apply(flipped_up_down_view(image_received_view_));
+      image_string = store_gray_to_png_string(flipped_up_down_view(image_received_view_));
 
-    std::ifstream t(temp.native());
-    // Using std::string directly as the buffer breaks the generated .png.
-    std::stringstream buffer;
-    buffer << t.rdbuf();
-
-    string_queue_->push(buffer.str());
-    boost::filesystem::remove(temp);
+    if (!image_string.empty()) string_queue_->push(image_string);
   }
 }
 
