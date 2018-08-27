@@ -93,6 +93,19 @@ func main() {
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("Failed to send: %v", err)
 	}
+	time.Sleep(4 * time.Second)
+	commandReq = &pb.SendCommandRequest{
+		BlockId: "starcoder_command_source_1",
+		Pmt: constructPDU(),
+	}
+	req = &pb.RunFlowgraphRequest{
+		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
+			SendCommandRequest: commandReq,
+		},
+	}
+	if err := stream.Send(req); err != nil {
+		log.Fatalf("Failed to send: %v", err)
+	}
 	time.Sleep(9 * time.Second)
 	stream.CloseSend()
 	<-waitc

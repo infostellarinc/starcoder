@@ -219,6 +219,7 @@ func (sh *streamHandler) clientReceiveLoop() {
 					continue
 				}
 				commandCQueue.Push(string(data))
+				sh.log.Debugw("Sent command to block", "block ID", commandRequest.GetBlockId())
 			}
 		}
 	}

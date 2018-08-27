@@ -221,7 +221,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2</value>
+      <value>8</value>
     </param>
   </block>
   <block>
@@ -472,7 +472,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -562,7 +562,7 @@
     </param>
     <param>
       <key>msg</key>
-      <value>pmt.make_u8vector(fill=89, k=10)</value>
+      <value>pmt.make_u8vector(fill=89, k=256)</value>
     </param>
     <param>
       <key>minoutbuf</key>
@@ -585,7 +585,7 @@
     </param>
     <param>
       <key>const</key>
-      <value>0.5</value>
+      <value>0.8</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1079,7 +1079,7 @@
     <key>digital_gmsk_mod</key>
     <param>
       <key>bt</key>
-      <value>0.35</value>
+      <value>0.5</value>
     </param>
     <param>
       <key>alias</key>
@@ -1146,7 +1146,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1185,7 +1185,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1271,7 +1271,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2016,7 +2016,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>fft_size</key>
