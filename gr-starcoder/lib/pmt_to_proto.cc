@@ -111,5 +111,37 @@ void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg, starcoder::UniformV
     starcoder::I64Vector *i64_vector = uni_vector->mutable_i64_value();
     const std::vector<int64_t> vector_elements = pmt::s64vector_elements(pmt_msg);
     *i64_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+  } else if (pmt::is_f32vector(pmt_msg)) {
+    starcoder::F32Vector *f32_vector = uni_vector->mutable_f32_value();
+    const std::vector<float> vector_elements = pmt::f32vector_elements(pmt_msg);
+    *f32_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+  } else if (pmt::is_f64vector(pmt_msg)) {
+    starcoder::F64Vector *f64_vector = uni_vector->mutable_f64_value();
+    const std::vector<double> vector_elements = pmt::f64vector_elements(pmt_msg);
+    *f64_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+  } else if (pmt::is_c32vector(pmt_msg)) {
+    starcoder::C32Vector *c32_vector = uni_vector->mutable_c32_value();
+    const std::vector<std::complex<float>> vector_elements = pmt::c32vector_elements(pmt_msg);
+    std::transform(vector_elements.begin(),
+                   vector_elements.end(),
+                   c32_vector->mutable_value()->begin(),
+                   [](std::complex<float> c)->starcoder::Complex32 {
+      starcoder::Complex32 new_val;
+      new_val.set_real_value(c.real());
+      new_val.set_imaginary_value(c.imag());
+      return new_val;
+    });
+  } else if (pmt::is_c64vector(pmt_msg)) {
+    starcoder::C64Vector *c64_vector = uni_vector->mutable_c64_value();
+    const std::vector<std::complex<double>> vector_elements = pmt::c64vector_elements(pmt_msg);
+    std::transform(vector_elements.begin(),
+                   vector_elements.end(),
+                   c64_vector->mutable_value()->begin(),
+                   [](std::complex<double> c)->starcoder::Complex {
+      starcoder::Complex new_val;
+      new_val.set_real_value(c.real());
+      new_val.set_imaginary_value(c.imag());
+      return new_val;
+    });
   }
 }
