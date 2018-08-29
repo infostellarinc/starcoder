@@ -130,10 +130,10 @@ class qa_command_source (gr_unittest.TestCase):
         self.tb.msg_connect((cs, 'out'), (snk, 'store'))
 
         msg = starcoder_pb2.BlockMessage()
-        msg.uniform_vector_value.i_value.value.extend([12, -2, 3])
+        msg.uniform_vector_value.i_value.value.extend([12, -65500, 3])
         msg.uniform_vector_value.i_value.size = starcoder_pb2.Size32
 
-        expected = pmt.init_s32vector(3, [12, -2, 3])
+        expected = pmt.init_s32vector(3, [12, -65500, 3])
 
         self.tb.start()
         cs.push(msg.SerializeToString())

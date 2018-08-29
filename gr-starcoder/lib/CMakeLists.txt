@@ -60,6 +60,7 @@ list(APPEND starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
     ${hw_proto_srcs}
     proto_to_pmt.cc
+    pmt_to_proto.cc
     init.c
     driver.c
     firmware.c
