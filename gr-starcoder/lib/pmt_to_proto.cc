@@ -20,8 +20,13 @@
 
 #include "pmt_to_proto.h"
 
-void convert_pmt_to_proto(const pmt::pmt_t &pmt_msg, starcoder::BlockMessage *proto_msg) {
-  if (pmt::is_bool(pmt_msg)) {
+void convert_pmt_to_proto(const pmt::pmt_t &pmt_msg,
+                          starcoder::BlockMessage *proto_msg) {
+  if (pmt::is_uniform_vector(pmt_msg)) {
+    starcoder::UniformVector *uni_vector =
+        proto_msg->mutable_uniform_vector_value();
+    convert_proto_uniform_vector(pmt_msg, uni_vector);
+  } else if (pmt::is_bool(pmt_msg)) {
     proto_msg->set_boolean_value(pmt::to_bool(pmt_msg));
   } else if (pmt::is_symbol(pmt_msg)) {
     proto_msg->set_symbol_value(pmt::symbol_to_string(pmt_msg));
@@ -45,85 +50,101 @@ void convert_pmt_to_proto(const pmt::pmt_t &pmt_msg, starcoder::BlockMessage *pr
   } else if (pmt::is_tuple(pmt_msg)) {
     starcoder::List *list = proto_msg->mutable_list_value();
     list->set_type(starcoder::List::TUPLE);
-    for (int i=0; i<pmt::length(pmt_msg); i++) {
+    for (int i = 0; i < pmt::length(pmt_msg); i++) {
       starcoder::BlockMessage *element = list->add_value();
       convert_pmt_to_proto(pmt::tuple_ref(pmt_msg, i), element);
     }
   } else if (pmt::is_vector(pmt_msg)) {
     starcoder::List *list = proto_msg->mutable_list_value();
     list->set_type(starcoder::List::VECTOR);
-    for (int i=0; i<pmt::length(pmt_msg); i++) {
+    for (int i = 0; i < pmt::length(pmt_msg); i++) {
       starcoder::BlockMessage *element = list->add_value();
       convert_pmt_to_proto(pmt::vector_ref(pmt_msg, i), element);
     }
   } else if (pmt::is_dict(pmt_msg)) {
     starcoder::Dict *dict = proto_msg->mutable_dict_value();
     pmt::pmt_t key_value_pairs_list = pmt::dict_items(pmt_msg);
-    for (int i=0; i<pmt::length(key_value_pairs_list); i++) {
+    for (int i = 0; i < pmt::length(key_value_pairs_list); i++) {
       starcoder::Dict_Entry *entry = dict->add_entry();
       starcoder::BlockMessage *key = entry->mutable_key();
       starcoder::BlockMessage *value = entry->mutable_value();
       convert_pmt_to_proto(pmt::car(pmt::nth(i, key_value_pairs_list)), key);
       convert_pmt_to_proto(pmt::cdr(pmt::nth(i, key_value_pairs_list)), value);
     }
-  } else if (pmt::is_uniform_vector(pmt_msg)) {
-    starcoder::UniformVector *uni_vector = proto_msg->mutable_uniform_vector_value();
-    convert_proto_uniform_vector(pmt_msg, uni_vector);
   }
 }
 
-void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg, starcoder::UniformVector *uni_vector) {
+void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg,
+                                  starcoder::UniformVector *uni_vector) {
   if (pmt::is_u8vector(pmt_msg)) {
     starcoder::UVector *u_vector = uni_vector->mutable_u_value();
     u_vector->set_size(starcoder::IntSize::Size8);
-    const std::vector < uint8_t > vector_elements = pmt::u8vector_elements(pmt_msg);
-    *u_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<uint8_t> vector_elements =
+        pmt::u8vector_elements(pmt_msg);
+    *u_vector->mutable_value() = { vector_elements.begin(),
+                                   vector_elements.end() };
   } else if (pmt::is_s8vector(pmt_msg)) {
     starcoder::IVector *i_vector = uni_vector->mutable_i_value();
     i_vector->set_size(starcoder::IntSize::Size8);
     const std::vector<int8_t> vector_elements = pmt::s8vector_elements(pmt_msg);
-    *i_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    *i_vector->mutable_value() = { vector_elements.begin(),
+                                   vector_elements.end() };
   } else if (pmt::is_u16vector(pmt_msg)) {
     starcoder::UVector *u_vector = uni_vector->mutable_u_value();
     u_vector->set_size(starcoder::IntSize::Size16);
-    const std::vector < uint16_t > vector_elements = pmt::u16vector_elements(pmt_msg);
-    *u_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<uint16_t> vector_elements =
+        pmt::u16vector_elements(pmt_msg);
+    *u_vector->mutable_value() = { vector_elements.begin(),
+                                   vector_elements.end() };
   } else if (pmt::is_s16vector(pmt_msg)) {
     starcoder::IVector *i_vector = uni_vector->mutable_i_value();
     i_vector->set_size(starcoder::IntSize::Size16);
-    const std::vector<int16_t> vector_elements = pmt::s16vector_elements(pmt_msg);
-    *i_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<int16_t> vector_elements =
+        pmt::s16vector_elements(pmt_msg);
+    *i_vector->mutable_value() = { vector_elements.begin(),
+                                   vector_elements.end() };
   } else if (pmt::is_u32vector(pmt_msg)) {
     starcoder::UVector *u_vector = uni_vector->mutable_u_value();
     u_vector->set_size(starcoder::IntSize::Size32);
-    const std::vector < uint32_t > vector_elements = pmt::u32vector_elements(pmt_msg);
-    *u_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<uint32_t> vector_elements =
+        pmt::u32vector_elements(pmt_msg);
+    *u_vector->mutable_value() = { vector_elements.begin(),
+                                   vector_elements.end() };
   } else if (pmt::is_s32vector(pmt_msg)) {
     starcoder::IVector *i_vector = uni_vector->mutable_i_value();
     i_vector->set_size(starcoder::IntSize::Size32);
-    const std::vector<int32_t> vector_elements = pmt::s32vector_elements(pmt_msg);
-    *i_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<int32_t> vector_elements =
+        pmt::s32vector_elements(pmt_msg);
+    *i_vector->mutable_value() = { vector_elements.begin(),
+                                   vector_elements.end() };
   } else if (pmt::is_u64vector(pmt_msg)) {
     starcoder::U64Vector *u64_vector = uni_vector->mutable_u64_value();
-    const std::vector<uint64_t> vector_elements = pmt::u64vector_elements(pmt_msg);
-    *u64_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<uint64_t> vector_elements =
+        pmt::u64vector_elements(pmt_msg);
+    *u64_vector->mutable_value() = { vector_elements.begin(),
+                                     vector_elements.end() };
   } else if (pmt::is_s64vector(pmt_msg)) {
     starcoder::I64Vector *i64_vector = uni_vector->mutable_i64_value();
-    const std::vector<int64_t> vector_elements = pmt::s64vector_elements(pmt_msg);
-    *i64_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<int64_t> vector_elements =
+        pmt::s64vector_elements(pmt_msg);
+    *i64_vector->mutable_value() = { vector_elements.begin(),
+                                     vector_elements.end() };
   } else if (pmt::is_f32vector(pmt_msg)) {
     starcoder::F32Vector *f32_vector = uni_vector->mutable_f32_value();
     const std::vector<float> vector_elements = pmt::f32vector_elements(pmt_msg);
-    *f32_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    *f32_vector->mutable_value() = { vector_elements.begin(),
+                                     vector_elements.end() };
   } else if (pmt::is_f64vector(pmt_msg)) {
     starcoder::F64Vector *f64_vector = uni_vector->mutable_f64_value();
-    const std::vector<double> vector_elements = pmt::f64vector_elements(pmt_msg);
-    *f64_vector->mutable_value() = {vector_elements.begin(), vector_elements.end()};
+    const std::vector<double> vector_elements =
+        pmt::f64vector_elements(pmt_msg);
+    *f64_vector->mutable_value() = { vector_elements.begin(),
+                                     vector_elements.end() };
   } else if (pmt::is_c32vector(pmt_msg)) {
     starcoder::C32Vector *c32_vector = uni_vector->mutable_c32_value();
-    const std::vector<std::complex<float>> vector_elements = pmt::c32vector_elements(pmt_msg);
-    std::transform(vector_elements.begin(),
-                   vector_elements.end(),
+    const std::vector<std::complex<float>> vector_elements =
+        pmt::c32vector_elements(pmt_msg);
+    std::transform(vector_elements.begin(), vector_elements.end(),
                    c32_vector->mutable_value()->begin(),
                    [](std::complex<float> c)->starcoder::Complex32 {
       starcoder::Complex32 new_val;
@@ -133,9 +154,9 @@ void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg, starcoder::UniformV
     });
   } else if (pmt::is_c64vector(pmt_msg)) {
     starcoder::C64Vector *c64_vector = uni_vector->mutable_c64_value();
-    const std::vector<std::complex<double>> vector_elements = pmt::c64vector_elements(pmt_msg);
-    std::transform(vector_elements.begin(),
-                   vector_elements.end(),
+    const std::vector<std::complex<double>> vector_elements =
+        pmt::c64vector_elements(pmt_msg);
+    std::transform(vector_elements.begin(), vector_elements.end(),
                    c64_vector->mutable_value()->begin(),
                    [](std::complex<double> c)->starcoder::Complex {
       starcoder::Complex new_val;

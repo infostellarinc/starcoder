@@ -24,7 +24,9 @@
 #include <pmt/pmt.h>
 #include "starcoder.pb.h"
 
-void convert_pmt_to_proto(const pmt::pmt_t &pmt_msg, starcoder::BlockMessage *proto_msg);
-void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg, starcoder::UniformVector *uni_vector);
+void convert_pmt_to_proto(const pmt::pmt_t &pmt_msg,
+                          starcoder::BlockMessage *proto_msg);
+void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg,
+                                  starcoder::UniformVector *uni_vector);
 
 #endif /* INCLUDED_PMT_TO_PROTO_H */
