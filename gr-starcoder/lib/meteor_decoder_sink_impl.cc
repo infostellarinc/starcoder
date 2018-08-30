@@ -28,6 +28,8 @@
 #include "meteor/meteor_decoder.h"
 #include "meteor/meteor_packet.h"
 
+#include "pmt_to_proto.h"
+
 namespace gr {
 namespace starcoder {
 
@@ -94,7 +96,8 @@ bool meteor_decoder_sink_impl::stop() {
   int ok = 0;
   while (decoder.pos() < total_size_ - meteor::SOFT_FRAME_LEN) {
     total++;
-    bool res = decoder.decode_one_frame(raw.get(), total_size_, error_corrected_data.get());
+    bool res = decoder.decode_one_frame(raw.get(), total_size_,
+                                        error_corrected_data.get());
     if (res) {
       ok++;
       std::cout << std::dec << 100. * decoder.pos() / total_size_ << "% "
@@ -114,10 +117,23 @@ bool meteor_decoder_sink_impl::stop() {
   std::string png_b = packeter.dump_gray_image(meteor::BLUE_APID);
 
   if (string_queue_ != NULL) {
-    if (!png_img.empty()) string_queue_->push(png_img);
-    if (!png_r.empty()) string_queue_->push(png_r);
-    if (!png_g.empty()) string_queue_->push(png_g);
-    if (!png_b.empty()) string_queue_->push(png_b);
+    ::starcoder::BlockMessage grpc_pmt;
+    if (!png_img.empty()) {
+      grpc_pmt.set_blob_value(png_img);
+      string_queue_->push(grpc_pmt.SerializeAsString());
+    }
+    if (!png_r.empty()) {
+      grpc_pmt.set_blob_value(png_r);
+      string_queue_->push(grpc_pmt.SerializeAsString());
+    }
+    if (!png_g.empty()) {
+      grpc_pmt.set_blob_value(png_g);
+      string_queue_->push(grpc_pmt.SerializeAsString());
+    }
+    if (!png_b.empty()) {
+      grpc_pmt.set_blob_value(png_b);
+      string_queue_->push(grpc_pmt.SerializeAsString());
+    }
   }
 
   if (!filename_.empty()) {

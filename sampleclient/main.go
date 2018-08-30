@@ -65,7 +65,7 @@ func main() {
 				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", r.GetPmt().GetBlobValue(), 0644)
 			}
 			if r.GetBlockId() == "meteor_decoder_sink" {
-				ioutil.WriteFile(fmt.Sprintf("/home/rei/sampleAR2300IQ/meteor_decoded_%v.png", meteor_decoder_sink_idx), r.GetPayload(), 0644)
+				ioutil.WriteFile(fmt.Sprintf("/home/rei/sampleAR2300IQ/meteor_decoded_%v.png", meteor_decoder_sink_idx), r.GetPmt().GetBlobValue(), 0644)
 				meteor_decoder_sink_idx++
 			}
 		}

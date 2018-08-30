@@ -255,6 +255,11 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 		if sh.finished() {
 			// Send the rest of the bytes if any are left
 			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
+				message := &pb.BlockMessage{}
+				err := proto.Unmarshal(bytes, message)
+				if err != nil {
+					sh.log.Errorw("Failed to unmarshal protobuf", "block", blockName)
+				}
 				if len(bytes) > 10485760 {
 					sh.log.Errorw(
 						"Length of packet received from Starcoder much bigger than expected.",
