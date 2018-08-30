@@ -133,7 +133,7 @@ void noaa_apt_sink_impl::write_image(std::string filename) {
 
     if (!image_string.empty()) {
       ::starcoder::BlockMessage grpc_pmt;
-      convert_string_to_proto(image_string, &grpc_pmt);
+      grpc_pmt.set_blob_value(image_string);
       string_queue_->push(grpc_pmt.SerializeAsString());
     }
   }

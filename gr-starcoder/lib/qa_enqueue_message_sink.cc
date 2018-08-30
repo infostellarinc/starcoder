@@ -89,8 +89,8 @@ void qa_enqueue_message_sink::test_registered_queue() {
   // expected
   // binary format. Currently I'm unable to include the protobuf class in C++
   // tests.
-  CPPUNIT_ASSERT_EQUAL(q.pop().size(), (size_t) 16);
-  CPPUNIT_ASSERT_EQUAL(q.pop().size(), (size_t) 9);
+  CPPUNIT_ASSERT_EQUAL(q.pop().size(), (size_t) 12);
+  CPPUNIT_ASSERT_EQUAL(q.pop().size(), (size_t) 5);
 
   // Check that after retrieving all available messages, the queue
   // returns the empty string.

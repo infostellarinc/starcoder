@@ -84,6 +84,8 @@ message BlockMessage {
     UniformVector uniform_vector_value = 9;
 
     Dict dict_value = 10;
+
+    bytes blob_value = 11;
   }
 }
 

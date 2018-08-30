@@ -155,12 +155,10 @@ bool waterfall_plotter_impl::stop() {
     char *image_buffer = PyString_AsString(result);
     if (image_buffer == NULL) goto error;
 
-    pmt::pmt_t blob = pmt::make_blob(image_buffer, image_size);
     ::starcoder::BlockMessage grpc_pmt;
-    convert_pmt_to_proto(blob, &grpc_pmt);
+    grpc_pmt.set_blob_value(image_buffer, image_size);
 
-    const std::string serialized = grpc_pmt.SerializeAsString();
-    string_queue_->push(serialized);
+    string_queue_->push(grpc_pmt.SerializeAsString());
   }
 
 error:

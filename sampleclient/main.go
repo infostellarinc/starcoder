@@ -59,10 +59,10 @@ func main() {
 				log.Println(r.GetBlockId(), r.GetPayload(), r.GetPmt())
 			}
 			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
-				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", convertUint32SliceToByteSlice(r.GetPmt().GetUniformVectorValue().GetUValue().GetValue()), 0644)
+				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPmt().GetBlobValue(), 0644)
 			}
 			if r.GetBlockId() == "noaa_apt_decoded" {
-				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", convertUint32SliceToByteSlice(r.GetPmt().GetUniformVectorValue().GetUValue().GetValue()), 0644)
+				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", r.GetPmt().GetBlobValue(), 0644)
 			}
 			if r.GetBlockId() == "meteor_decoder_sink" {
 				ioutil.WriteFile(fmt.Sprintf("/home/rei/sampleAR2300IQ/meteor_decoded_%v.png", meteor_decoder_sink_idx), r.GetPayload(), 0644)
