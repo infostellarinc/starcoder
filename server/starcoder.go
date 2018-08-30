@@ -231,27 +231,34 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 	defer sh.wg.Done()
 	for {
 		bytes := []byte(q.BlockingPop())
-		message := &pb.BlockMessage{}
-		err := proto.Unmarshal(bytes, message)
-		if err != nil {
-			sh.log.Errorw("Failed to unmarshal protobuf", "block", blockName)
-		}
-		if len(bytes) > 10485760 {
-			sh.log.Errorw(
-				"Length of packet received from Starcoder much bigger than expected.",
-				"block", blockName, "size", len(bytes))
-		} else if len(bytes) != 0 {
-			// Could be woken up spuriously or by something else calling q.Close()
-			if err := sh.stream.Send(&pb.RunFlowgraphResponse{
+
+		if len(bytes) != 0 { // Could be woken up spuriously or by something else calling q.Close()
+			message := &pb.BlockMessage{}
+			err := proto.Unmarshal(bytes, message)
+			if err != nil {
+				sh.log.Errorw("Failed to unmarshal protobuf", "block", blockName)
+				continue
+			}
+
+			request := &pb.RunFlowgraphResponse{
 				BlockId: blockName,
-				Payload: bytes,
 				Pmt: message,
-			}); err != nil {
+			}
+
+			if proto.Size(request) > 10485670 {
+				sh.log.Errorw(
+					"Length of request message from Starcoder much bigger than expected.",
+					"block", blockName, "size", proto.Size(request))
+				continue
+			}
+
+			if err := sh.stream.Send(request); err != nil {
 				sh.log.Errorf("Error sending stream: %v", err)
 				sh.finish(err)
 				return
 			}
 		}
+
 		if sh.finished() {
 			// Send the rest of the bytes if any are left
 			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
@@ -259,18 +266,19 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 				err := proto.Unmarshal(bytes, message)
 				if err != nil {
 					sh.log.Errorw("Failed to unmarshal protobuf", "block", blockName)
-				}
-				if len(bytes) > 10485760 {
-					sh.log.Errorw(
-						"Length of packet received from Starcoder much bigger than expected.",
-						"block", blockName, "size", len(bytes))
 					continue
 				}
-				if err := sh.stream.Send(&pb.RunFlowgraphResponse{
+				request := &pb.RunFlowgraphResponse{
 					BlockId: blockName,
-					Payload: bytes,
 					Pmt: message,
-				}); err != nil {
+				}
+				if proto.Size(request) > 10485760 {
+					sh.log.Errorw(
+						"Length of request message from Starcoder much bigger than expected.",
+						"block", blockName, "size", proto.Size(request))
+					continue
+				}
+				if err := sh.stream.Send(request); err != nil {
 					sh.log.Errorf("Error sending stream: %v", err)
 				}
 			}
