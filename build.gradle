@@ -312,7 +312,8 @@ task setupPrefix(type: Exec) {
     args '-c', condaCommand("""pybombs auto-config && \\
         pybombs -y recipes add-defaults && \\
         pybombs -y recipes add gr-starcoder ${project.file('gr-recipes')} && \\
-        pybombs -y -v prefix init ${gnuradioRoot} -a gnuradio -R gnuradio-nogui
+        pybombs -y -v prefix init ${gnuradioRoot} -a gnuradio -R gnuradio-nogui && \\
+        ${gnuradioRoot}/lib/uhd/utils/uhd_images_downloader.py
     """)
     // For some reason, cmake has trouble finding boost in certain situations.
     environment 'BOOST_ROOT', gnuradioRoot
