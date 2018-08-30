@@ -85,7 +85,7 @@ void qa_enqueue_message_sink::test_registered_queue() {
   tb->stop();
   tb->wait();
 
-  // TODO (rei): Make sure the contents of the returned string are in the
+  // TODO (rei): Explicitly check the contents of the returned string are in the
   // expected
   // binary format. Currently I'm unable to include the protobuf class in C++
   // tests.

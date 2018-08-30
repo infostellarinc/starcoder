@@ -59,7 +59,7 @@ func main() {
 				log.Println(r.GetBlockId(), r.GetPayload(), r.GetPmt())
 			}
 			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
-				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPayload(), 0644)
+				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", convertUint32SliceToByteSlice(r.GetPmt().GetUniformVectorValue().GetUValue().GetValue()), 0644)
 			}
 			if r.GetBlockId() == "noaa_apt_decoded" {
 				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", r.GetPayload(), 0644)
@@ -148,4 +148,14 @@ func constructU8Vector() *pb.BlockMessage {
 	return &pb.BlockMessage{
 		MessageOneof: &pb.BlockMessage_UniformVectorValue{pmtUVector},
 	}
+}
+
+func convertUint32SliceToByteSlice(in []uint32) []byte {
+	out := make([]byte, len(in))
+	var v uint32
+	var i int
+	for i, v = range in {
+		out[i] = byte(v)
+	}
+	return out
 }
