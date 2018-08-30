@@ -383,6 +383,12 @@ func (sh *streamHandler) Close() {
 		close(sh.perfCtrStopChannel)
 		sh.wg.Done()
 	}()
+
+	// Detect if finish() was not called from inside stream handler i.e. Starcoder closing
+	if !sh.finished() {
+		sh.finish(nil)
+	}
+
 	// TODO: Make this call unblock by getting rid of `wait`
 	err := sh.starcoder.stopFlowGraph(sh.flowgraphProps.pyInstance)
 	if err != nil {
