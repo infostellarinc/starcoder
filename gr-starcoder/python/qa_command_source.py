@@ -103,6 +103,26 @@ class qa_command_source (gr_unittest.TestCase):
         self.assertTrue(pmt.is_tuple(snk.get_message(0)))
         self.assertTrue(pmt.equal(snk.get_message(0), expected))
 
+    def test_blob(self):
+        cs = starcoder.command_source()
+        snk = blocks.message_debug()
+        self.tb.msg_connect((cs, 'out'), (snk, 'store'))
+
+        msg = starcoder_pb2.BlockMessage()
+        msg.blob_value = "data"
+
+        expected = pmt.init_u8vector(4, [ord('d'), ord('a'), ord('t'), ord('a')])
+
+        self.tb.start()
+        cs.push(msg.SerializeToString())
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.is_u8vector(snk.get_message(0)))
+        self.assertTrue(pmt.equal(snk.get_message(0), expected))
+
     def test_u8_vector(self):
         cs = starcoder.command_source()
         snk = blocks.message_debug()

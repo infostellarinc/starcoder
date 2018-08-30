@@ -23,7 +23,8 @@
 void convert_pmt_to_proto(const pmt::pmt_t &pmt_msg,
                           starcoder::BlockMessage *proto_msg) {
   if (pmt::is_blob(pmt_msg)) {
-    proto_msg->set_blob_value(pmt::blob_data(pmt_msg), pmt::blob_length(pmt_msg));
+    proto_msg->set_blob_value(pmt::blob_data(pmt_msg),
+                              pmt::blob_length(pmt_msg));
   } else if (pmt::is_uniform_vector(pmt_msg)) {
     starcoder::UniformVector *uni_vector =
         proto_msg->mutable_uniform_vector_value();
