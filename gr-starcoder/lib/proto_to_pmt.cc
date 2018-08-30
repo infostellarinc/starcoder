@@ -44,6 +44,11 @@ pmt::pmt_t convert_proto_to_pmt(const starcoder::BlockMessage &proto_msg) {
       return convert_pmt_uniform_vector(proto_msg.uniform_vector_value());
     case starcoder::BlockMessage::MessageOneofCase::kDictValue:
       return convert_pmt_dict(proto_msg.dict_value());
+    case starcoder::BlockMessage::MessageOneofCase::kBlobValue:
+      std::vector<uint8_t> vec(
+                  proto_msg.blob_value().begin(),
+                  proto_msg.blob_value().end());
+      return pmt::init_u8vector(proto_msg.blob_value().size(), vec);
   }
   return pmt::get_PMT_NIL();
 }
