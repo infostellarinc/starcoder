@@ -230,9 +230,12 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 	sh.wg.Add(1)
 	defer sh.wg.Done()
 	for {
-		// TODO: Convert PMT to a gRPC native data structure.
-		// Use built-in PMT serialization for now.
 		bytes := []byte(q.BlockingPop())
+		message := &pb.BlockMessage{}
+		err := proto.Unmarshal(bytes, message)
+		if err != nil {
+			sh.log.Errorw("Failed to unmarshal protobuf", "block", blockName)
+		}
 		if len(bytes) > 10485760 {
 			sh.log.Errorw(
 				"Length of packet received from Starcoder much bigger than expected.",
@@ -242,6 +245,7 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 			if err := sh.stream.Send(&pb.RunFlowgraphResponse{
 				BlockId: blockName,
 				Payload: bytes,
+				Pmt: message,
 			}); err != nil {
 				sh.log.Errorf("Error sending stream: %v", err)
 				sh.finish(err)
@@ -260,6 +264,7 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 				if err := sh.stream.Send(&pb.RunFlowgraphResponse{
 					BlockId: blockName,
 					Payload: bytes,
+					Pmt: message,
 				}); err != nil {
 					sh.log.Errorf("Error sending stream: %v", err)
 				}

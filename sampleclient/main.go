@@ -28,6 +28,7 @@ import (
 	"io/ioutil"
 	"log"
 	"time"
+	"github.com/gogo/protobuf/proto"
 )
 
 func main() {
@@ -52,10 +53,10 @@ func main() {
 				log.Println("error receiving!")
 				log.Fatalf("%v", err)
 			}
-			if len(r.GetPayload()) > 20 {
-				log.Println(r.GetBlockId(), len(r.GetPayload()))
+			if len(r.GetPayload()) > 20 || proto.Size(r.GetPmt()) > 20 {
+				log.Println(r.GetBlockId(), len(r.GetPayload()), proto.Size(r.GetPmt()))
 			} else {
-				log.Println(r.GetBlockId(), r.GetPayload())
+				log.Println(r.GetBlockId(), r.GetPayload(), r.GetPmt())
 			}
 			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
 				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPayload(), 0644)
