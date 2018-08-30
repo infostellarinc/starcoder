@@ -166,3 +166,8 @@ void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg,
     });
   }
 }
+
+void convert_string_to_proto(const std::string &in, starcoder::BlockMessage *proto_msg) {
+  pmt::pmt_t blob = pmt::make_blob(in.c_str(), in.size());
+  convert_pmt_to_proto(blob, proto_msg);
+}
