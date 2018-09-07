@@ -26,6 +26,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 buildscript {
     repositories {
         jcenter()
+        gradlePluginPortal()
         maven {
             url 'https://plugins.gradle.org/m2/'
         }
