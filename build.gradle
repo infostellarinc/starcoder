@@ -18,14 +18,15 @@
  */
 
 
+
 import com.google.common.io.CharStreams
 import com.google.common.io.LineProcessor
-import de.undercouch.gradle.tasks.download.Download
 import org.apache.tools.ant.taskdefs.condition.Os
 
 buildscript {
     repositories {
         jcenter()
+        gradlePluginPortal()
         maven {
             url 'https://plugins.gradle.org/m2/'
         }
@@ -39,7 +40,7 @@ buildscript {
     }
     dependencies {
         classpath 'de.undercouch:gradle-download-task:3.3.0'
-        classpath 'gradle.plugin.com.github.blindpirate:gogradle:0.8.0'
+        classpath 'gradle.plugin.com.github.blindpirate:gogradle:0.10.2'
         classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.127'
     }
 }
@@ -48,15 +49,14 @@ apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 apply plugin: 'com.github.blindpirate.gogradle'
 
-def GO_VERSION = '1.10'
-def DEP_VERSION = '0.4.1'
+def GO_VERSION = '1.11'
 
 golang {
-    version = GO_VERSION
+    goVersion = GO_VERSION
     packagePath = 'github.com/infostellarinc/starcoder'
 }
 
-def gopath = System.env['GOPATH'] ?: project.file('.gogradle/project_gopath').toString()
+def gopath = System.env['GOPATH'] ?: project.file("${gradle.gradleUserHomeDir}/go/gopath").toString()
 
 protobuf {
     generateProtoTasks {
@@ -94,7 +94,6 @@ task deleteGeneratedFiles(type: Delete) {
         include '**/rice-box.go'
     }
     delete '.gogradle'
-    delete 'vendor'
 }
 tasks.clean.dependsOn deleteGeneratedFiles
 
@@ -126,11 +125,6 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
     arch = 'windows-amd64'
 }
 
-def bindepsDir = project.file("${gradle.gradleUserHomeDir}/go/bindeps")
-def cachedDep = project.file("${bindepsDir}/dep/v${DEP_VERSION}-${arch}/dep")
-def dep = "${gopath}/bin/dep"
-def depcache = new File(gradle.gradleUserHomeDir, 'go/dep-cache').toString()
-
 ext.gnuradioRoot = gradle.gradleUserHomeDir.toPath().resolve('curiostack/python/bootstrap/miniconda2-gnuradio')
 
 def condaCommand(command) {
@@ -142,59 +136,20 @@ def condaCommand(command) {
 }
 
 goBuild {
-    run "bash -c '${condaCommand('$GOROOT/bin/go build -o build/out/starcoder github.com/infostellarinc/starcoder')}'"
+    run "bash -c '${condaCommand('$GOROOT/bin/go build -o build/out/starcoder')}'"
 
     environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
 
     environment 'CPLUS_INCLUDE_PATH', "${gnuradioRoot}/include"
 }
 
-task depDownload(type: Download) {
-    src "https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-${arch}"
-    dest cachedDep
-
-    onlyIf { !cachedDep.exists() }
-
-    doLast {
-        cachedDep.executable = true
-    }
-}
-
-task depCopy(type: Copy) {
-    dependsOn depDownload
-
-    from cachedDep
-    into "${gopath}/bin"
-
-    inputs.file cachedDep
-    outputs.file dep
-}
-
-def goExecutable = tasks.goBuild.buildManager.goBinaryManager.getBinaryPath()
-
-task installProtocGoPlugin(type: Exec) {
-    dependsOn 'depEnsure'
-
-    inputs.file 'Gopkg.lock'
-    outputs.file project.file("${gopath}/bin/protoc-gen-gofast")
-
-    executable goExecutable
-    args 'install', '.'
-    workingDir project.file("${gopath}/src/github.com/gogo/protobuf/protoc-gen-gofast")
-    environment 'GOPATH', gopath
+task installProtocGoPlugin(type: com.github.blindpirate.gogradle.Go) {
+    go 'get github.com/gogo/protobuf/protoc-gen-gofast@v1.1.1'
 }
 tasks.goVendor.dependsOn installProtocGoPlugin
 
-task installRice(type: Exec) {
-    dependsOn 'depEnsure'
-
-    inputs.file 'Gopkg.lock'
-    outputs.file project.file("${gopath}/bin/rice")
-
-    executable goExecutable
-    args 'install', '.'
-    workingDir project.file("${gopath}/src/github.com/GeertJohan/go.rice/rice")
-    environment 'GOPATH', gopath
+task installRice(type: com.github.blindpirate.gogradle.Go) {
+    go 'get github.com/GeertJohan/go.rice/rice@c02ca9a983da5807ddf7d796784928f5be4afd09'
 }
 tasks.goVendor.dependsOn installRice
 
@@ -210,60 +165,21 @@ task useRice(type:Exec) {
 tasks.goBuild.dependsOn useRice
 
 afterEvaluate {
-    task depEnsure(type: Exec) {
-        dependsOn depCopy, 'goPrepare'
-
-        inputs.file 'Gopkg.toml'
-        inputs.file 'Gopkg.lock'
-        outputs.dir 'vendor'
-
-        // TODO(anuraaga): Figure out why just setting workingDir doesn't work
-        commandLine 'bash', '-c', condaCommand("cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
-                "${project.file(gopath)}/bin/dep ensure -vendor-only")
-        environment = [
-                'DEPCACHEDIR': depcache,
-                'GOPATH'     : gopath,
-                'PATH': System.env['PATH']
-        ]
-        // workingDir "${gopath}/src/github.com/infostellarinc/starcoder"
-
-        doLast {
-            copy {
-                from 'vendor/github.com'
-                into "${gopath}/src/github.com"
-            }
-        }
-    }
-
-    task depUpdate(type: Exec) {
-        dependsOn depCopy
-
-        inputs.file 'Gopkg.toml'
-        outputs.file 'Gopkg.lock'
-
-        // TODO(anuraaga): Figure out why just setting workingDir doesn't work
-        commandLine 'bash', '-c', condaCommand("cd ${gopath}/src/github.com/infostellarinc/starcoder && " +
-                "${project.file(gopath)}/bin/dep ensure -no-vendor")
-        environment = [
-                'DEPCACHEDIR': depcache,
-                'GOPATH'     : gopath,
-                'PATH': System.env['PATH']
-        ]
-        // workingDir "${gopath}/src/github.com/infostellarinc/starcoder"
-    }
-
-    tasks.goVendor.dependsOn depEnsure
     tasks.generateProto.dependsOn installProtocGoPlugin
     tasks.goVendor.dependsOn tasks.generateProto
 
     tasks.withType(com.github.blindpirate.gogradle.Go) {
+        it.environment 'GOPATH', gopath
         if (it.name.startsWith('build')) {
             dependsOn tasks.goVendor
         }
     }
+    [tasks.goBuild, tasks.goTest].each {
+        it.environment 'PATH', "${org.curioswitch.gradle.plugins.shared.CommandUtil.getCondaBaseDir(project)}/bin:${System.getenv('PATH')}"
+    }
 }
 
-// We use dep for dependency management, so disable all of gogradle's
+// We use go modules for dependency management, so disable all of gogradle's
 tasks.installDependencies.enabled = false
 tasks.resolveBuildDependencies.enabled = false
 tasks.resolveTestDependencies.enabled = false
