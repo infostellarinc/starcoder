@@ -90,26 +90,30 @@ void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg,
     starcoder::C32Vector *c32_vector = uni_vector->mutable_c32_value();
     const std::vector<std::complex<float>> vector_elements =
         pmt::c32vector_elements(pmt_msg);
+    std::vector<starcoder::Complex32> vec;
     std::transform(vector_elements.begin(), vector_elements.end(),
-                   c32_vector->mutable_value()->begin(),
+                   std::back_inserter(vec),
                    [](std::complex<float> c)->starcoder::Complex32 {
       starcoder::Complex32 new_val;
       new_val.set_real_value(c.real());
       new_val.set_imaginary_value(c.imag());
       return new_val;
     });
+    *c32_vector->mutable_value() = {vec.begin(), vec.end()};
   } else if (pmt::is_c64vector(pmt_msg)) {
     starcoder::C64Vector *c64_vector = uni_vector->mutable_c64_value();
     const std::vector<std::complex<double>> vector_elements =
         pmt::c64vector_elements(pmt_msg);
+    std::vector<starcoder::Complex> vec;
     std::transform(vector_elements.begin(), vector_elements.end(),
-                   c64_vector->mutable_value()->begin(),
+                   std::back_inserter(vec),
                    [](std::complex<double> c)->starcoder::Complex {
       starcoder::Complex new_val;
       new_val.set_real_value(c.real());
       new_val.set_imaginary_value(c.imag());
       return new_val;
     });
+    *c64_vector->mutable_value() = {vec.begin(), vec.end()};
   }
 }
 
