@@ -53,6 +53,7 @@ type Starcoder struct {
 	perfCtrInterval           time.Duration
 	compileLock               sync.Mutex
 	log                       *zap.SugaredLogger
+	silencedCommandBlocks     map[string]bool
 }
 
 type moduleAndClassNames struct {
@@ -60,7 +61,7 @@ type moduleAndClassNames struct {
 	className  string
 }
 
-func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, log *zap.SugaredLogger, metrics *monitoring.Metrics) *Starcoder {
+func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, silencedCommandBlocks []string, log *zap.SugaredLogger, metrics *monitoring.Metrics) *Starcoder {
 	err := python.Initialize()
 	if err != nil {
 		log.Fatalf("failed to initialize python: %v", err)
@@ -72,6 +73,11 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, log 
 	// https://stackoverflow.com/questions/10625584/
 	python.PyEval_SaveThread()
 
+	silencedCommandBlocksMap := make(map[string]bool)
+	for _, val := range silencedCommandBlocks {
+		silencedCommandBlocksMap[val] = true
+	}
+
 	s := &Starcoder{
 		flowgraphDir:              flowgraphDir,
 		streamHandlers:            make(map[*streamHandler]bool),
@@ -81,6 +87,7 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, log 
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
 		log:             log,
 		perfCtrInterval: perfCtrInterval,
+		silencedCommandBlocks: silencedCommandBlocksMap,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -219,7 +226,9 @@ func (sh *streamHandler) clientReceiveLoop() {
 					continue
 				}
 				commandCQueue.Push(string(data))
-				sh.log.Debugw("Sent command to block", "block ID", commandRequest.GetBlockId())
+				if _, exists := sh.starcoder.silencedCommandBlocks[commandRequest.GetBlockId()]; !exists {
+					sh.log.Debugw("Sent command to block", "block ID", commandRequest.GetBlockId())
+				}
 			}
 		}
 	}
