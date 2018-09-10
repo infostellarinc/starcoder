@@ -385,7 +385,6 @@ func (sh *streamHandler) Close() {
 		close(sh.perfCtrStopChannel)
 		sh.wg.Done()
 	}()
-
 	// TODO: Make this call unblock by getting rid of `wait`
 	err := sh.starcoder.stopFlowGraph(sh.flowgraphProps.pyInstance)
 	if err != nil {
