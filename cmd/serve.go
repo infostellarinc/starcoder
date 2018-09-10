@@ -54,6 +54,7 @@ type serveCmdConfiguration struct {
 	FlowgraphDir              string
 	ExporterAddress           string
 	PerfCtrCollectionInterval time.Duration
+	SilencedCommandBlocks     []string
 }
 
 var serveCmdConfig = serveCmdConfiguration{}
@@ -71,6 +72,7 @@ var serveCmd = &cobra.Command{
 		log := l.Sugar()
 		defer log.Sync()
 
+		log.Infof("Using configuration: %+v", serveCmdConfig)
 		log.Infof("serve called, using bind address %v", serveCmdConfig.BindAddress)
 
 		// Set up metrics endpoint
@@ -122,7 +124,7 @@ var serveCmd = &cobra.Command{
 				grpc_zap.StreamServerInterceptor(l),
 			),
 		)
-		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, serveCmdConfig.PerfCtrCollectionInterval, log, metrics)
+		starcoder := server.NewStarcoderServer(serveCmdConfig.FlowgraphDir, serveCmdConfig.PerfCtrCollectionInterval, serveCmdConfig.SilencedCommandBlocks, log, metrics)
 
 		// Handle OS signals
 		sigs := make(chan os.Signal, 1)
@@ -167,10 +169,11 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bind-address", defaultBindAddress, "Address to bind to")
-	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraph-dir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
-	serveCmd.Flags().StringVar(&serveCmdConfig.ExporterAddress, "exporter-address", defaultExporterAddress, "Address where exported Prometheus metrics will be served")
-	serveCmd.Flags().DurationVar(&serveCmdConfig.PerfCtrCollectionInterval, "perf-ctr-interval", defaultPerfCtrCollectionInterval, "Time interval for exporting GNURadio performance metrics to Prometheus. If set to 0, this will be disabled. Default 15s.")
+	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bind_address", defaultBindAddress, "Address to bind to")
+	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraph_dir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
+	serveCmd.Flags().StringVar(&serveCmdConfig.ExporterAddress, "exporter_address", defaultExporterAddress, "Address where exported Prometheus metrics will be served")
+	serveCmd.Flags().DurationVar(&serveCmdConfig.PerfCtrCollectionInterval, "perf_ctr_interval", defaultPerfCtrCollectionInterval, "Time interval for exporting GNURadio performance metrics to Prometheus. If set to 0, this will be disabled. Default 15s.")
+	serveCmd.Flags().StringSliceVar(&serveCmdConfig.SilencedCommandBlocks, "silenced_command_blocks", []string{}, "Each command sent to a block in Starcoder is logged to the output. This can be too much for blocks that receive commands multiple times a second e.g. Doppler shift blocks. You can provide a list of comma-separated strings to this variable to silence command logging for the block e.g. \"doppler_command_source,doppler_command_source_transmit\"")
 
 	viper.BindPFlags(serveCmd.Flags())
 }
