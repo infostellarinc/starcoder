@@ -20,7 +20,7 @@ COPY --from=0 /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio /roo
 ADD ./tools/builder/run.sh /usr/bin/run-starcoder
 
 ENV GR_CONF_PERFCOUNTERS_ON True
-ENV STARCODER_SILENCED-COMMAND-BLOCKS doppler_command_source,doppler_command_source_transmit
+ENV STARCODER_SILENCED_COMMAND_BLOCKS doppler_command_source,doppler_command_source_transmit
 
 ENTRYPOINT [ "run-starcoder" ]
 CMD [ "serve" ]
