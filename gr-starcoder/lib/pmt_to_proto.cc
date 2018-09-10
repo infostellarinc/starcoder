@@ -90,9 +90,11 @@ void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg,
     starcoder::C32Vector *c32_vector = uni_vector->mutable_c32_value();
     const std::vector<std::complex<float>> vector_elements =
         pmt::c32vector_elements(pmt_msg);
-    std::transform(vector_elements.begin(), vector_elements.end(),
-                   google::protobuf::internal::RepeatedPtrFieldBackInsertIterator<starcoder::Complex32>(c32_vector->mutable_value()),
-                   [](std::complex<float> c)->starcoder::Complex32 {
+    std::transform(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedPtrFieldBackInsertIterator<
+            starcoder::Complex32>(c32_vector->mutable_value()),
+        [](std::complex<float> c)->starcoder::Complex32 {
       starcoder::Complex32 new_val;
       new_val.set_real_value(c.real());
       new_val.set_imaginary_value(c.imag());
@@ -102,9 +104,11 @@ void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg,
     starcoder::C64Vector *c64_vector = uni_vector->mutable_c64_value();
     const std::vector<std::complex<double>> vector_elements =
         pmt::c64vector_elements(pmt_msg);
-    std::transform(vector_elements.begin(), vector_elements.end(),
-                   google::protobuf::internal::RepeatedPtrFieldBackInsertIterator<starcoder::Complex>(c64_vector->mutable_value()),
-                   [](std::complex<double> c)->starcoder::Complex {
+    std::transform(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedPtrFieldBackInsertIterator<
+            starcoder::Complex>(c64_vector->mutable_value()),
+        [](std::complex<double> c)->starcoder::Complex {
       starcoder::Complex new_val;
       new_val.set_real_value(c.real());
       new_val.set_imaginary_value(c.imag());
