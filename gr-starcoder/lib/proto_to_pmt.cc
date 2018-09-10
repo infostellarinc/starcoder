@@ -20,38 +20,6 @@
 
 #include "proto_to_pmt.h"
 
-pmt::pmt_t convert_proto_to_pmt(const starcoder::BlockMessage &proto_msg) {
-  starcoder::BlockMessage::MessageOneofCase type =
-      proto_msg.message_oneof_case();
-  switch (type) {
-    case starcoder::BlockMessage::MessageOneofCase::kBooleanValue:
-      return pmt::from_bool(proto_msg.boolean_value());
-    case starcoder::BlockMessage::MessageOneofCase::kSymbolValue:
-      return pmt::string_to_symbol(proto_msg.symbol_value());
-    case starcoder::BlockMessage::MessageOneofCase::kIntegerValue:
-      return pmt::from_long(proto_msg.integer_value());
-    case starcoder::BlockMessage::MessageOneofCase::kDoubleValue:
-      return pmt::from_double(proto_msg.double_value());
-    case starcoder::BlockMessage::MessageOneofCase::kComplexValue:
-      return pmt::from_complex(proto_msg.complex_value().real_value(),
-                               proto_msg.complex_value().imaginary_value());
-    case starcoder::BlockMessage::MessageOneofCase::kPairValue:
-      return pmt::cons(convert_proto_to_pmt(proto_msg.pair_value().car()),
-                       convert_proto_to_pmt(proto_msg.pair_value().cdr()));
-    case starcoder::BlockMessage::MessageOneofCase::kListValue:
-      return convert_pmt_list(proto_msg.list_value());
-    case starcoder::BlockMessage::MessageOneofCase::kUniformVectorValue:
-      return convert_pmt_uniform_vector(proto_msg.uniform_vector_value());
-    case starcoder::BlockMessage::MessageOneofCase::kDictValue:
-      return convert_pmt_dict(proto_msg.dict_value());
-    case starcoder::BlockMessage::MessageOneofCase::kBlobValue:
-      std::vector<uint8_t> vec(proto_msg.blob_value().begin(),
-                               proto_msg.blob_value().end());
-      return pmt::init_u8vector(proto_msg.blob_value().size(), vec);
-  }
-  return pmt::get_PMT_NIL();
-}
-
 pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
   int size = proto_pmt_list.value_size();
   if (proto_pmt_list.type() == starcoder::List::TUPLE) {
@@ -254,4 +222,36 @@ pmt::pmt_t convert_pmt_dict(const starcoder::Dict &proto_pmt_dict) {
                          convert_proto_to_pmt(entry.value()));
   }
   return dict;
+}
+
+pmt::pmt_t convert_proto_to_pmt(const starcoder::BlockMessage &proto_msg) {
+  starcoder::BlockMessage::MessageOneofCase type =
+      proto_msg.message_oneof_case();
+  switch (type) {
+    case starcoder::BlockMessage::MessageOneofCase::kBooleanValue:
+      return pmt::from_bool(proto_msg.boolean_value());
+    case starcoder::BlockMessage::MessageOneofCase::kSymbolValue:
+      return pmt::string_to_symbol(proto_msg.symbol_value());
+    case starcoder::BlockMessage::MessageOneofCase::kIntegerValue:
+      return pmt::from_long(proto_msg.integer_value());
+    case starcoder::BlockMessage::MessageOneofCase::kDoubleValue:
+      return pmt::from_double(proto_msg.double_value());
+    case starcoder::BlockMessage::MessageOneofCase::kComplexValue:
+      return pmt::from_complex(proto_msg.complex_value().real_value(),
+                               proto_msg.complex_value().imaginary_value());
+    case starcoder::BlockMessage::MessageOneofCase::kPairValue:
+      return pmt::cons(convert_proto_to_pmt(proto_msg.pair_value().car()),
+                       convert_proto_to_pmt(proto_msg.pair_value().cdr()));
+    case starcoder::BlockMessage::MessageOneofCase::kListValue:
+      return convert_pmt_list(proto_msg.list_value());
+    case starcoder::BlockMessage::MessageOneofCase::kUniformVectorValue:
+      return convert_pmt_uniform_vector(proto_msg.uniform_vector_value());
+    case starcoder::BlockMessage::MessageOneofCase::kDictValue:
+      return convert_pmt_dict(proto_msg.dict_value());
+    case starcoder::BlockMessage::MessageOneofCase::kBlobValue:
+      std::vector<uint8_t> vec(proto_msg.blob_value().begin(),
+                               proto_msg.blob_value().end());
+      return pmt::init_u8vector(proto_msg.blob_value().size(), vec);
+  }
+  return pmt::get_PMT_NIL();
 }
