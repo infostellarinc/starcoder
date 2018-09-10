@@ -65,6 +65,11 @@ void string_queue::close() {
   condition_var_.notify_one();
 }
 
+bool string_queue::closed() {
+  std::unique_lock<std::mutex> lock(mutex_);
+  return closed_;
+}
+
 uint64_t string_queue::get_ptr() const {
   return reinterpret_cast<uint64_t>(this);
 }

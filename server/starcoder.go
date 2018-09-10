@@ -85,9 +85,9 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 		deregisterStreamHandler:   make(chan *streamHandler),
 		closeAllStreamsChannel:    make(chan chan bool),
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
-		log:             log,
-		perfCtrInterval: perfCtrInterval,
-		silencedCommandBlocks: silencedCommandBlocksMap,
+		log:                       log,
+		perfCtrInterval:           perfCtrInterval,
+		silencedCommandBlocks:     silencedCommandBlocksMap,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -163,7 +163,7 @@ type streamHandler struct {
 	perfCtrStopChannel chan struct{}
 	clientFinished     bool
 	streamError        error
-	mustCloseMutex     sync.Mutex
+	errorMutex         sync.Mutex
 	wg                 sync.WaitGroup
 	log                *zap.SugaredLogger
 }
@@ -176,7 +176,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, flo
 		perfCtrStopChannel: make(chan struct{}),
 		clientFinished:     false,
 		streamError:        nil,
-		mustCloseMutex:     sync.Mutex{},
+		errorMutex:         sync.Mutex{},
 		wg:                 sync.WaitGroup{},
 		log:                log,
 	}
@@ -251,7 +251,7 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 
 			request := &pb.RunFlowgraphResponse{
 				BlockId: blockName,
-				Pmt: message,
+				Pmt:     message,
 			}
 
 			if proto.Size(request) > 10485670 {
@@ -268,7 +268,7 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 			}
 		}
 
-		if sh.finished() {
+		if q.Closed() {
 			// Send the rest of the bytes if any are left
 			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
 				message := &pb.BlockMessage{}
@@ -279,7 +279,7 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 				}
 				request := &pb.RunFlowgraphResponse{
 					BlockId: blockName,
-					Pmt: message,
+					Pmt:     message,
 				}
 				if proto.Size(request) > 10485760 {
 					sh.log.Errorw(
@@ -365,8 +365,8 @@ func (sh *streamHandler) Wait() {
 // Called within streamHandler whenever an error happens or client finished.
 // Signals starcoder server that it needs to end this stream handler
 func (sh *streamHandler) finish(err error) {
-	sh.mustCloseMutex.Lock()
-	defer sh.mustCloseMutex.Unlock()
+	sh.errorMutex.Lock()
+	defer sh.errorMutex.Unlock()
 	if err == nil {
 		sh.clientFinished = true
 	}
@@ -374,13 +374,6 @@ func (sh *streamHandler) finish(err error) {
 	go func() {
 		sh.starcoder.deregisterStreamHandler <- sh
 	}()
-}
-
-// Called by goroutines of streamHandler when they want to know when to close
-func (sh *streamHandler) finished() bool {
-	sh.mustCloseMutex.Lock()
-	defer sh.mustCloseMutex.Unlock()
-	return sh.clientFinished || sh.streamError != nil
 }
 
 // Must only be called by starcoder server
@@ -392,11 +385,6 @@ func (sh *streamHandler) Close() {
 		close(sh.perfCtrStopChannel)
 		sh.wg.Done()
 	}()
-
-	// Detect if finish() was not called from inside stream handler i.e. Starcoder closing
-	if !sh.finished() {
-		sh.finish(nil)
-	}
 
 	// TODO: Make this call unblock by getting rid of `wait`
 	err := sh.starcoder.stopFlowGraph(sh.flowgraphProps.pyInstance)

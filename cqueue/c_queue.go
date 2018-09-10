@@ -49,6 +49,10 @@ func (q *CStringQueue) Close() {
 	q.queue.Close()
 }
 
+func (q *CStringQueue) Closed() bool {
+	return q.queue.Closed()
+}
+
 func (q *CStringQueue) Push(str string) {
 	q.queue.Push(str)
 }
