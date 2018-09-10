@@ -242,22 +242,9 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 		bytes := []byte(q.BlockingPop())
 
 		if len(bytes) != 0 { // Could be woken up spuriously or by something else calling q.Close()
-			message := &pb.BlockMessage{}
-			err := proto.Unmarshal(bytes, message)
+			request, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
 			if err != nil {
-				sh.log.Errorw("Failed to unmarshal protobuf", "block", blockName)
-				continue
-			}
-
-			request := &pb.RunFlowgraphResponse{
-				BlockId: blockName,
-				Pmt:     message,
-			}
-
-			if proto.Size(request) > 10485670 {
-				sh.log.Errorw(
-					"Length of request message from Starcoder much bigger than expected.",
-					"block", blockName, "size", proto.Size(request))
+				sh.log.Errorw("Error constructing flowgraph response", "error", err)
 				continue
 			}
 
@@ -271,20 +258,9 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 		if q.Closed() {
 			// Send the rest of the bytes if any are left
 			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
-				message := &pb.BlockMessage{}
-				err := proto.Unmarshal(bytes, message)
+				request, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
 				if err != nil {
-					sh.log.Errorw("Failed to unmarshal protobuf", "block", blockName)
-					continue
-				}
-				request := &pb.RunFlowgraphResponse{
-					BlockId: blockName,
-					Pmt:     message,
-				}
-				if proto.Size(request) > 10485760 {
-					sh.log.Errorw(
-						"Length of request message from Starcoder much bigger than expected.",
-						"block", blockName, "size", proto.Size(request))
+					sh.log.Errorw("Error constructing flowgraph response", "error", err)
 					continue
 				}
 				if err := sh.stream.Send(request); err != nil {
@@ -788,4 +764,23 @@ func getExceptionString() string {
 	}
 	return fmt.Sprintf("Exception: %v \n Value: %v ",
 		safeAsString(exc), safeAsString(val))
+}
+
+func constructFlowgraphResponseFromSerializedPMT(blockName string, serialized []byte) (*pb.RunFlowgraphResponse, error) {
+	message := &pb.BlockMessage{}
+	err := proto.Unmarshal(serialized, message)
+	if err != nil {
+		return nil, err
+	}
+
+	request := &pb.RunFlowgraphResponse{
+		BlockId: blockName,
+		Pmt:     message,
+	}
+
+	if proto.Size(request) > 10485670 {
+		return nil, errors.New(fmt.Sprintf("Length of request message from Starcoder much bigger than expected. Block name: %v, Message size: %v", blockName, proto.Size(request)))
+	}
+
+	return request, nil
 }
