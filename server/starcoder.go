@@ -85,9 +85,9 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 		deregisterStreamHandler:   make(chan *streamHandler),
 		closeAllStreamsChannel:    make(chan chan bool),
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
-		log:             log,
-		perfCtrInterval: perfCtrInterval,
-		silencedCommandBlocks: silencedCommandBlocksMap,
+		log:                       log,
+		perfCtrInterval:           perfCtrInterval,
+		silencedCommandBlocks:     silencedCommandBlocksMap,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -291,7 +291,7 @@ func (sh *streamHandler) performanceCounterCollectionLoop() {
 
 	// Get gauge for each block and performance counter
 	gauges := make(map[string]map[string]prometheus.Gauge)
-	for blockName, _ := range sh.flowgraphProps.perfCtrBlocks {
+	for blockName := range sh.flowgraphProps.perfCtrBlocks {
 		gauges[blockName] = make(map[string]prometheus.Gauge)
 		for _, pc := range monitoring.PerformanceCountersToCollect {
 			gauge, err := monitoring.GetPerfCtrGauge(

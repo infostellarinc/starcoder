@@ -83,7 +83,7 @@ func main() {
 	time.Sleep(1 * time.Second)
 	commandReq := &pb.SendCommandRequest{
 		BlockId: "starcoder_command_source_0",
-		Pmt: constructPDU(),
+		Pmt:     constructPDU(),
 	}
 	req = &pb.RunFlowgraphRequest{
 		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
@@ -96,7 +96,7 @@ func main() {
 	time.Sleep(4 * time.Second)
 	commandReq = &pb.SendCommandRequest{
 		BlockId: "starcoder_command_source_1",
-		Pmt: constructPDU(),
+		Pmt:     constructPDU(),
 	}
 	req = &pb.RunFlowgraphRequest{
 		Request: &pb.RunFlowgraphRequest_SendCommandRequest{

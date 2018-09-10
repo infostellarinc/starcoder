@@ -19,17 +19,14 @@
 
 
 
+
 import com.google.common.io.CharStreams
 import com.google.common.io.LineProcessor
-import org.apache.tools.ant.taskdefs.condition.Os
 
 buildscript {
     repositories {
         jcenter()
         gradlePluginPortal()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
         maven {
             url 'http://dl.bintray.com/curioswitch/curiostack'
         }
@@ -39,24 +36,53 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'de.undercouch:gradle-download-task:3.3.0'
-        classpath 'gradle.plugin.com.github.blindpirate:gogradle:0.10.2'
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.127'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.162.2'
     }
 }
 
 apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
+apply plugin: 'org.curioswitch.gradle-golang-plugin'
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
-apply plugin: 'com.github.blindpirate.gogradle'
 
-def GO_VERSION = '1.11'
-
-golang {
-    goVersion = GO_VERSION
-    packagePath = 'github.com/infostellarinc/starcoder'
+conda {
+    gnuradio {
+        version = 'Miniconda2-4.4.10'
+        packages = [
+                'autoconf',
+                'automake',
+                'boost',
+                'cmake',
+                'gcc_linux-64',
+                'gfortran_linux-64',
+                'gxx_linux-64',
+                'git',
+                'gsl',
+                'libtool',
+                'llvm',
+                'make',
+                'numpy',
+                'pkg-config',
+                'protobuf',
+                'subprocess32',
+                'swig',
+                'wget',
+                'libpng',
+        ]
+        pythonPackages = [
+                'cheetah',
+                'lxml',
+                'mako',
+                'matplotlib',
+                'pybombs',
+                'requests',
+                'ruamel.yaml==0.15.51',
+        ]
+    }
 }
 
-def gopath = System.env['GOPATH'] ?: project.file("${gradle.gradleUserHomeDir}/go/gopath").toString()
+golang {
+    conda = 'gnuradio'
+}
 
 protobuf {
     generateProtoTasks {
@@ -93,18 +119,12 @@ task deleteGeneratedFiles(type: Delete) {
         include '**/*.mock.go'
         include '**/rice-box.go'
     }
-    delete '.gogradle'
 }
 tasks.clean.dependsOn deleteGeneratedFiles
 
 gcloud {
     clusterBaseName = 'infostellar-starcoder'
     cloudRegion = 'asia-northeast1'
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
-    distributionType = 'ALL'
 }
 
 // protobuf-gradle-plugin always apply Java plugin, but we don't need it.
@@ -118,14 +138,7 @@ license {
     }
 }
 
-def arch = 'linux-amd64'
-if (Os.isFamily(Os.FAMILY_MAC)) {
-    arch = 'darwin-amd64'
-} else if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    arch = 'windows-amd64'
-}
-
-ext.gnuradioRoot = gradle.gradleUserHomeDir.toPath().resolve('curiostack/python/bootstrap/miniconda2-gnuradio')
+ext.gnuradioRoot = toolManager.getToolDir('gnuradio')
 
 def condaCommand(command) {
     return """
@@ -135,23 +148,12 @@ def condaCommand(command) {
     """
 }
 
-goBuild {
-    run "bash -c '${condaCommand('$GOROOT/bin/go build -o build/out/starcoder')}'"
-
-    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
-
-    environment 'CPLUS_INCLUDE_PATH', "${gnuradioRoot}/include"
+task installProtocGoPlugin(type: org.curioswitch.gradle.golang.tasks.GoTask) {
+    args 'get', 'github.com/gogo/protobuf/protoc-gen-gofast@v1.1.1'
 }
-
-task installProtocGoPlugin(type: com.github.blindpirate.gogradle.Go) {
-    go 'get github.com/gogo/protobuf/protoc-gen-gofast@v1.1.1'
+task installRice(type: org.curioswitch.gradle.golang.tasks.GoTask) {
+    args 'get', 'github.com/GeertJohan/go.rice/rice@c02ca9a983da5807ddf7d796784928f5be4afd09'
 }
-tasks.goVendor.dependsOn installProtocGoPlugin
-
-task installRice(type: com.github.blindpirate.gogradle.Go) {
-    go 'get github.com/GeertJohan/go.rice/rice@c02ca9a983da5807ddf7d796784928f5be4afd09'
-}
-tasks.goVendor.dependsOn installRice
 
 task useRice(type:Exec) {
     dependsOn installRice
@@ -162,79 +164,38 @@ task useRice(type:Exec) {
     commandLine project.file("${gopath}/bin/rice").toString(), 'embed-go'
 }
 
-tasks.goBuild.dependsOn useRice
-
 afterEvaluate {
     tasks.generateProto.dependsOn installProtocGoPlugin
-    tasks.goVendor.dependsOn tasks.generateProto
-
-    tasks.withType(com.github.blindpirate.gogradle.Go) {
-        it.environment 'GOPATH', gopath
-        if (it.name.startsWith('build')) {
-            dependsOn tasks.goVendor
+    tasks.withType(org.curioswitch.gradle.golang.tasks.GoTask).configureEach {task->
+        if (task.name.startsWith('goBuild') || task.name == 'goTest') {
+            task.dependsOn tasks.generateProto, useRice
+            task.execCustomizer {exec->
+                exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+                exec.environment 'CPLUS_INCLUDE_PATH', "${gnuradioRoot}/include"
+            }
         }
     }
-    [tasks.goBuild, tasks.goTest].each {
-        it.environment 'PATH', "${org.curioswitch.gradle.plugins.shared.CommandUtil.getCondaBaseDir(project)}/bin:${System.getenv('PATH')}"
-    }
 }
 
-// We use go modules for dependency management, so disable all of gogradle's
-tasks.installDependencies.enabled = false
-tasks.resolveBuildDependencies.enabled = false
-tasks.resolveTestDependencies.enabled = false
-
-tasks.build.dependsOn tasks.goBuild
-
-envs {
-    conda 'miniconda2-gnuradio', 'Miniconda2-4.4.10', [
-            condaPackage('autoconf'),
-            condaPackage('automake'),
-            condaPackage('boost'),
-            condaPackage('cmake'),
-            condaPackage('gcc_linux-64'),
-            condaPackage('gfortran_linux-64'),
-            condaPackage('gxx_linux-64'),
-            condaPackage('git'),
-            condaPackage('gsl'),
-            condaPackage('libtool'),
-            condaPackage('llvm'),
-            condaPackage('make'),
-            condaPackage('numpy'),
-            condaPackage('pkg-config'),
-            condaPackage('protobuf'),
-            condaPackage('subprocess32'),
-            condaPackage('swig'),
-            condaPackage('wget'),
-            condaPackage('libpng'),
-    ]
-}
-
-// We install pip packages after a first conda bootstrap so its build tools are available to compile
-// native extensions.
-task installPipPackages(type: Exec) {
-    dependsOn 'pythonSetup'
-
-    executable 'bash'
-    // Python setuptools uses LDSHARED variable and ignores CC when linking.
-    args '-c', condaCommand('LDSHARED=$CC pip install cheetah lxml mako matplotlib pybombs requests ruamel.yaml==0.15.51')
-}
-
-task setupPrefix(type: Exec) {
+task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     onlyIf { !project.file("${gnuradioRoot}/lib/libgnuradio-blocks.so").exists() }
 
-    dependsOn 'installPipPackages'
-    executable 'bash'
-    args '-c', condaCommand("""pybombs auto-config && \\
+    dependsOn 'toolsSetupGnuradio'
+
+    condaName 'gnuradio'
+
+    command """pybombs auto-config && \\
         pybombs -y recipes add-defaults && \\
         pybombs -y recipes add gr-starcoder ${project.file('gr-recipes')} && \\
         pybombs -y -v prefix init ${gnuradioRoot} -a gnuradio -R gnuradio-nogui && \\
         ${gnuradioRoot}/lib/uhd/utils/uhd_images_downloader.py
-    """)
-    // For some reason, cmake has trouble finding boost in certain situations.
-    environment 'BOOST_ROOT', gnuradioRoot
+    """
 
-    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+    execCustomizer {exec->
+        // For some reason, cmake has trouble finding boost in certain situations.
+        exec.environment 'BOOST_ROOT', gnuradioRoot
+        exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+    }
 
     doFirst {
         // Trick cmake into thinking pygtk exists to allow normal grc installation. We don't actually
@@ -246,7 +207,6 @@ task setupPrefix(type: Exec) {
     }
 
     doLast {
-        delete "${gnuradioRoot}/pkgs"
         delete "${gnuradioRoot}/src"
     }
 
@@ -299,20 +259,24 @@ task setupPrefix(type: Exec) {
     }
 }
 
-task installGrStarcoder(type: Exec) {
+task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     dependsOn setupPrefix
-    executable 'bash'
-    args '-c', condaCommand("""cmake ../../gr-starcoder -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=${gnuradioRoot} -Wno-dev && \\
+
+    condaName 'gnuradio'
+
+    command """cmake ../../gr-starcoder -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=${gnuradioRoot} -Wno-dev && \\
         make &&
         make install
-    """)
+    """
 
-    workingDir project.file('build/starcoder-cmake')
-    doFirst {
-        project.file('build/starcoder-cmake').mkdirs()
+    execCustomizer {exec->
+        exec.workingDir project.file('build/starcoder-cmake')
+        exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
     }
 
-    environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+    doFirst {
+        project.mkdir('build/starcoder-cmake')
+    }
 }
 
 task installStarcoder(type: Copy) {
@@ -325,12 +289,15 @@ task install {
     dependsOn installGrStarcoder, installStarcoder
 }
 
-task clangFormat(type: Exec) {
+task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     dependsOn 'pythonSetup'
-    executable 'bash'
+
     def ccFiles = fileTree('.').filter { it.isFile() && it.name.endsWith('.cc') }.files.path.join(' ')
     def hIncFiles = fileTree('./gr-starcoder/include').filter { it.isFile() && it.name.endsWith('.h') }.files.path.join(' ')
     def hLibFiles = fileTree('./gr-starcoder/lib').filter { it.isFile() && it.name.endsWith('.h') }.files.path.join(' ')
 
-    args '-c', condaCommand("clang-format -style=Google -i ${ccFiles} ${hIncFiles} ${hLibFiles}")
+    condaName 'gnuradio'
+
+    command "clang-format -style=Google -i ${ccFiles} ${hIncFiles} ${hLibFiles}"
 }
+
