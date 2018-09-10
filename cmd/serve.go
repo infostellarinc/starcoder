@@ -169,11 +169,11 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bind_address", defaultBindAddress, "Address to bind to")
-	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraph_dir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
-	serveCmd.Flags().StringVar(&serveCmdConfig.ExporterAddress, "exporter_address", defaultExporterAddress, "Address where exported Prometheus metrics will be served")
-	serveCmd.Flags().DurationVar(&serveCmdConfig.PerfCtrCollectionInterval, "perf_ctr_interval", defaultPerfCtrCollectionInterval, "Time interval for exporting GNURadio performance metrics to Prometheus. If set to 0, this will be disabled. Default 15s.")
-	serveCmd.Flags().StringSliceVar(&serveCmdConfig.SilencedCommandBlocks, "silenced_command_blocks", []string{}, "Each command sent to a block in Starcoder is logged to the output. This can be too much for blocks that receive commands multiple times a second e.g. Doppler shift blocks. You can provide a list of comma-separated strings to this variable to silence command logging for the block e.g. \"doppler_command_source,doppler_command_source_transmit\"")
+	serveCmd.Flags().StringVar(&serveCmdConfig.BindAddress, "bind-address", defaultBindAddress, "Address to bind to")
+	serveCmd.Flags().StringVar(&serveCmdConfig.FlowgraphDir, "flowgraph-dir", "", "Directory containing GNURadio flowgraphs to serve. If blank, defaults to built-in Starcoder flowgraphs.")
+	serveCmd.Flags().StringVar(&serveCmdConfig.ExporterAddress, "exporter-address", defaultExporterAddress, "Address where exported Prometheus metrics will be served")
+	serveCmd.Flags().DurationVar(&serveCmdConfig.PerfCtrCollectionInterval, "perf-ctr-interval", defaultPerfCtrCollectionInterval, "Time interval for exporting GNURadio performance metrics to Prometheus. If set to 0, this will be disabled. Default 15s.")
+	serveCmd.Flags().StringSliceVar(&serveCmdConfig.SilencedCommandBlocks, "silenced-command-blocks", []string{}, "Each command sent to a block in Starcoder is logged to the output. This can be too much for blocks that receive commands multiple times a second e.g. Doppler shift blocks. You can provide a list of comma-separated strings to this variable to silence command logging for the block e.g. \"doppler_command_source,doppler_command_source_transmit\"")
 
 	viper.BindPFlags(serveCmd.Flags())
 }
