@@ -9,6 +9,8 @@ ADD mockpygtk /workspace/gnuradio/mockpygtk
 
 RUN cd /workspace/gnuradio && ./gradlew setupPrefix
 
+RUN apt-get -y update && apt-get -y install git
+
 ADD . /workspace/starcoder
 
 RUN cd /workspace/starcoder && ./gradlew install
