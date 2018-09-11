@@ -242,13 +242,13 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 		bytes := []byte(q.BlockingPop())
 
 		if len(bytes) != 0 { // Could be woken up spuriously or by something else calling q.Close()
-			request, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
+			response, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
 			if err != nil {
 				sh.log.Errorw("Error constructing flowgraph response", "error", err)
 				continue
 			}
 
-			if err := sh.stream.Send(request); err != nil {
+			if err := sh.stream.Send(response); err != nil {
 				sh.log.Errorf("Error sending stream: %v", err)
 				sh.finish(err)
 				return
@@ -258,12 +258,12 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 		if q.Closed() {
 			// Send the rest of the bytes if any are left
 			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
-				request, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
+				response, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
 				if err != nil {
 					sh.log.Errorw("Error constructing flowgraph response", "error", err)
 					continue
 				}
-				if err := sh.stream.Send(request); err != nil {
+				if err := sh.stream.Send(response); err != nil {
 					sh.log.Errorf("Error sending stream: %v", err)
 				}
 			}
@@ -773,14 +773,14 @@ func constructFlowgraphResponseFromSerializedPMT(blockName string, serialized []
 		return nil, err
 	}
 
-	request := &pb.RunFlowgraphResponse{
+	response := &pb.RunFlowgraphResponse{
 		BlockId: blockName,
 		Pmt:     message,
 	}
 
-	if proto.Size(request) > 10485670 {
-		return nil, errors.New(fmt.Sprintf("Length of request message from Starcoder much bigger than expected. Block name: %v, Message size: %v", blockName, proto.Size(request)))
+	if proto.Size(response) > 10485670 {
+		return nil, errors.New(fmt.Sprintf("Length of request message from Starcoder much bigger than expected. Block name: %v, Message size: %v", blockName, proto.Size(response)))
 	}
 
-	return request, nil
+	return response, nil
 }
