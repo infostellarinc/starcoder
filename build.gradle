@@ -45,6 +45,11 @@ apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
 apply plugin: 'org.curioswitch.gradle-golang-plugin'
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
 
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
 conda {
     gnuradio {
         version = 'Miniconda2-4.4.10'
