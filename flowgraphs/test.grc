@@ -430,7 +430,7 @@
     </param>
     <param>
       <key>msg</key>
-      <value>pmt.make_u8vector(6, ord('b'))</value>
+      <value>pmt.make_c64vector(2, -7+3.2j)</value>
     </param>
     <param>
       <key>minoutbuf</key>

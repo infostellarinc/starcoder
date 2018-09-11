@@ -22,13 +22,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/gogo/protobuf/proto"
 	pb "github.com/infostellarinc/starcoder/api"
 	"google.golang.org/grpc"
 	"io"
 	"io/ioutil"
 	"log"
 	"time"
-	"github.com/gogo/protobuf/proto"
 )
 
 func main() {
@@ -53,7 +53,7 @@ func main() {
 				log.Println("error receiving!")
 				log.Fatalf("%v", err)
 			}
-			if len(r.GetPayload()) > 20 || proto.Size(r.GetPmt()) > 20 {
+			if len(r.GetPayload()) > 50 || proto.Size(r.GetPmt()) > 50 {
 				log.Println(r.GetBlockId(), len(r.GetPayload()), proto.Size(r.GetPmt()))
 			} else {
 				log.Println(r.GetBlockId(), r.GetPayload(), r.GetPmt())
@@ -84,7 +84,7 @@ func main() {
 	time.Sleep(1 * time.Second)
 	commandReq := &pb.SendCommandRequest{
 		BlockId: "starcoder_command_source_0",
-		Pmt: constructPDU(),
+		Pmt:     constructPDU(),
 	}
 	req = &pb.RunFlowgraphRequest{
 		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
@@ -97,7 +97,7 @@ func main() {
 	time.Sleep(4 * time.Second)
 	commandReq = &pb.SendCommandRequest{
 		BlockId: "starcoder_command_source_1",
-		Pmt: constructPDU(),
+		Pmt:     constructPDU(),
 	}
 	req = &pb.RunFlowgraphRequest{
 		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
