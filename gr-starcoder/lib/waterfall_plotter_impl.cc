@@ -30,6 +30,8 @@
 #include "numpy/arrayobject.h"
 #include "waterfall_plotter_impl.h"
 
+#include "pmt_to_proto.h"
+
 namespace gr {
 namespace starcoder {
 
@@ -152,8 +154,11 @@ bool waterfall_plotter_impl::stop() {
     Py_ssize_t image_size = PyString_Size(result);
     char *image_buffer = PyString_AsString(result);
     if (image_buffer == NULL) goto error;
-    const std::string image_binary(image_buffer, image_size);
-    string_queue_->push(image_binary);
+
+    ::starcoder::BlockMessage grpc_pmt;
+    grpc_pmt.set_blob_value(image_buffer, image_size);
+
+    string_queue_->push(grpc_pmt.SerializeAsString());
   }
 
 error:

@@ -84,6 +84,8 @@ message BlockMessage {
     UniformVector uniform_vector_value = 9;
 
     Dict dict_value = 10;
+
+    bytes blob_value = 11;
   }
 }
 
@@ -203,7 +205,10 @@ message RunFlowgraphResponse {
   string block_id = 1;
 
   // Serialized arbitrary PMT (GNURadio Polymorphic Message Type)
-  bytes payload = 2;
+  bytes payload = 2 [deprecated=true];
+
+  // PMT (GNURadio Polymorphic Message Type) response sent from the block
+  BlockMessage pmt = 3;
 }
 
 // Complex number

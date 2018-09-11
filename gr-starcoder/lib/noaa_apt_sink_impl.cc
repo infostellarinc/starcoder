@@ -47,6 +47,7 @@
 #include <cmath>
 
 #include "gil_util.h"
+#include "pmt_to_proto.h"
 
 namespace gr {
 namespace starcoder {
@@ -128,9 +129,14 @@ void noaa_apt_sink_impl::write_image(std::string filename) {
     if (!d_flip)
       image_string = (store_gray_to_png_string(image_received_view_));
     else
-      image_string = store_gray_to_png_string(flipped_up_down_view(image_received_view_));
+      image_string =
+          store_gray_to_png_string(flipped_up_down_view(image_received_view_));
 
-    if (!image_string.empty()) string_queue_->push(image_string);
+    if (!image_string.empty()) {
+      ::starcoder::BlockMessage grpc_pmt;
+      grpc_pmt.set_blob_value(image_string);
+      string_queue_->push(grpc_pmt.SerializeAsString());
+    }
   }
 }
 

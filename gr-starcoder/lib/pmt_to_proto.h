@@ -18,12 +18,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_PROTO_TO_PMT_H
-#define INCLUDED_PROTO_TO_PMT_H
+#ifndef INCLUDED_PMT_TO_PROTO_H
+#define INCLUDED_PMT_TO_PROTO_H
 
 #include <pmt/pmt.h>
 #include "starcoder.pb.h"
 
-pmt::pmt_t convert_proto_to_pmt(const starcoder::BlockMessage &proto_msg);
+starcoder::BlockMessage convert_pmt_to_proto(const pmt::pmt_t &pmt_msg);
 
-#endif /* INCLUDED_PROTO_TO_PMT_H */
+#endif /* INCLUDED_PMT_TO_PROTO_H */

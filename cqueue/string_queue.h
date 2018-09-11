@@ -42,6 +42,7 @@ class string_queue {
     std::string blocking_pop();
     unsigned long get_ptr() const;
     void close();
+    bool closed();
     // TODO: Make this uint64_t
     static string_queue *queue_from_pointer(unsigned long long ptr);
   private:

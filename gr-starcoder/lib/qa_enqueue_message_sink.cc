@@ -85,10 +85,12 @@ void qa_enqueue_message_sink::test_registered_queue() {
   tb->stop();
   tb->wait();
 
-  // Check that the passed PMT blobs are accessible from the queue
-  // in the expected serialized binary format.
-  CPPUNIT_ASSERT_EQUAL(q.pop(), pmt::serialize_str(pmt::make_u8vector(10, 97)));
-  CPPUNIT_ASSERT_EQUAL(q.pop(), pmt::serialize_str(pmt::make_u8vector(3, 98)));
+  // TODO (rei): Explicitly check the contents of the returned string are in the
+  // expected
+  // binary format. Currently I'm unable to include the protobuf class in C++
+  // tests.
+  CPPUNIT_ASSERT_EQUAL(q.pop().size(), (size_t) 12);
+  CPPUNIT_ASSERT_EQUAL(q.pop().size(), (size_t) 5);
 
   // Check that after retrieving all available messages, the queue
   // returns the empty string.

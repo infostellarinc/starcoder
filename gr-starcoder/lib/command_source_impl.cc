@@ -68,7 +68,7 @@ void command_source_impl::readloop() {
         GR_LOG_WARN(d_logger, "Failed to deserialize gRPC");
         continue;
       }
-      pmt::pmt_t m = convert_pmt_proto(grpc_pmt);
+      pmt::pmt_t m = convert_proto_to_pmt(grpc_pmt);
       message_port_pub(port_, m);
     }
   }

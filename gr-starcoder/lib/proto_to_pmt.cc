@@ -20,34 +20,6 @@
 
 #include "proto_to_pmt.h"
 
-pmt::pmt_t convert_pmt_proto(const starcoder::BlockMessage &proto_msg) {
-  starcoder::BlockMessage::MessageOneofCase type =
-      proto_msg.message_oneof_case();
-  switch (type) {
-    case starcoder::BlockMessage::MessageOneofCase::kBooleanValue:
-      return pmt::from_bool(proto_msg.boolean_value());
-    case starcoder::BlockMessage::MessageOneofCase::kSymbolValue:
-      return pmt::string_to_symbol(proto_msg.symbol_value());
-    case starcoder::BlockMessage::MessageOneofCase::kIntegerValue:
-      return pmt::from_long(proto_msg.integer_value());
-    case starcoder::BlockMessage::MessageOneofCase::kDoubleValue:
-      return pmt::from_double(proto_msg.double_value());
-    case starcoder::BlockMessage::MessageOneofCase::kComplexValue:
-      return pmt::from_complex(proto_msg.complex_value().real_value(),
-                               proto_msg.complex_value().imaginary_value());
-    case starcoder::BlockMessage::MessageOneofCase::kPairValue:
-      return pmt::cons(convert_pmt_proto(proto_msg.pair_value().car()),
-                       convert_pmt_proto(proto_msg.pair_value().cdr()));
-    case starcoder::BlockMessage::MessageOneofCase::kListValue:
-      return convert_pmt_list(proto_msg.list_value());
-    case starcoder::BlockMessage::MessageOneofCase::kUniformVectorValue:
-      return convert_pmt_uniform_vector(proto_msg.uniform_vector_value());
-    case starcoder::BlockMessage::MessageOneofCase::kDictValue:
-      return convert_pmt_dict(proto_msg.dict_value());
-  }
-  return pmt::get_PMT_NIL();
-}
-
 pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
   int size = proto_pmt_list.value_size();
   if (proto_pmt_list.type() == starcoder::List::TUPLE) {
@@ -55,70 +27,70 @@ pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
       case 0:
         return pmt::make_tuple();
       case 1:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)));
       case 2:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)));
       case 3:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)));
       case 4:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)),
-                               convert_pmt_proto(proto_pmt_list.value(3)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)),
+                               convert_proto_to_pmt(proto_pmt_list.value(3)));
       case 5:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)),
-                               convert_pmt_proto(proto_pmt_list.value(3)),
-                               convert_pmt_proto(proto_pmt_list.value(4)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)),
+                               convert_proto_to_pmt(proto_pmt_list.value(3)),
+                               convert_proto_to_pmt(proto_pmt_list.value(4)));
       case 6:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)),
-                               convert_pmt_proto(proto_pmt_list.value(3)),
-                               convert_pmt_proto(proto_pmt_list.value(4)),
-                               convert_pmt_proto(proto_pmt_list.value(5)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)),
+                               convert_proto_to_pmt(proto_pmt_list.value(3)),
+                               convert_proto_to_pmt(proto_pmt_list.value(4)),
+                               convert_proto_to_pmt(proto_pmt_list.value(5)));
       case 7:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)),
-                               convert_pmt_proto(proto_pmt_list.value(3)),
-                               convert_pmt_proto(proto_pmt_list.value(4)),
-                               convert_pmt_proto(proto_pmt_list.value(5)),
-                               convert_pmt_proto(proto_pmt_list.value(6)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)),
+                               convert_proto_to_pmt(proto_pmt_list.value(3)),
+                               convert_proto_to_pmt(proto_pmt_list.value(4)),
+                               convert_proto_to_pmt(proto_pmt_list.value(5)),
+                               convert_proto_to_pmt(proto_pmt_list.value(6)));
       case 8:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)),
-                               convert_pmt_proto(proto_pmt_list.value(3)),
-                               convert_pmt_proto(proto_pmt_list.value(4)),
-                               convert_pmt_proto(proto_pmt_list.value(5)),
-                               convert_pmt_proto(proto_pmt_list.value(6)),
-                               convert_pmt_proto(proto_pmt_list.value(7)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)),
+                               convert_proto_to_pmt(proto_pmt_list.value(3)),
+                               convert_proto_to_pmt(proto_pmt_list.value(4)),
+                               convert_proto_to_pmt(proto_pmt_list.value(5)),
+                               convert_proto_to_pmt(proto_pmt_list.value(6)),
+                               convert_proto_to_pmt(proto_pmt_list.value(7)));
       case 9:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)),
-                               convert_pmt_proto(proto_pmt_list.value(3)),
-                               convert_pmt_proto(proto_pmt_list.value(4)),
-                               convert_pmt_proto(proto_pmt_list.value(5)),
-                               convert_pmt_proto(proto_pmt_list.value(6)),
-                               convert_pmt_proto(proto_pmt_list.value(7)),
-                               convert_pmt_proto(proto_pmt_list.value(8)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)),
+                               convert_proto_to_pmt(proto_pmt_list.value(3)),
+                               convert_proto_to_pmt(proto_pmt_list.value(4)),
+                               convert_proto_to_pmt(proto_pmt_list.value(5)),
+                               convert_proto_to_pmt(proto_pmt_list.value(6)),
+                               convert_proto_to_pmt(proto_pmt_list.value(7)),
+                               convert_proto_to_pmt(proto_pmt_list.value(8)));
       case 10:
-        return pmt::make_tuple(convert_pmt_proto(proto_pmt_list.value(0)),
-                               convert_pmt_proto(proto_pmt_list.value(1)),
-                               convert_pmt_proto(proto_pmt_list.value(2)),
-                               convert_pmt_proto(proto_pmt_list.value(3)),
-                               convert_pmt_proto(proto_pmt_list.value(4)),
-                               convert_pmt_proto(proto_pmt_list.value(5)),
-                               convert_pmt_proto(proto_pmt_list.value(6)),
-                               convert_pmt_proto(proto_pmt_list.value(7)),
-                               convert_pmt_proto(proto_pmt_list.value(8)),
-                               convert_pmt_proto(proto_pmt_list.value(9)));
+        return pmt::make_tuple(convert_proto_to_pmt(proto_pmt_list.value(0)),
+                               convert_proto_to_pmt(proto_pmt_list.value(1)),
+                               convert_proto_to_pmt(proto_pmt_list.value(2)),
+                               convert_proto_to_pmt(proto_pmt_list.value(3)),
+                               convert_proto_to_pmt(proto_pmt_list.value(4)),
+                               convert_proto_to_pmt(proto_pmt_list.value(5)),
+                               convert_proto_to_pmt(proto_pmt_list.value(6)),
+                               convert_proto_to_pmt(proto_pmt_list.value(7)),
+                               convert_proto_to_pmt(proto_pmt_list.value(8)),
+                               convert_proto_to_pmt(proto_pmt_list.value(9)));
       default:
         throw("PMT tuple sizes >10 not supported");
     }
@@ -126,7 +98,7 @@ pmt::pmt_t convert_pmt_list(const starcoder::List &proto_pmt_list) {
     pmt::pmt_t vec =
         pmt::make_vector(proto_pmt_list.value_size(), pmt::get_PMT_NIL());
     for (int i = 0; i < proto_pmt_list.value_size(); i++) {
-      pmt::vector_set(vec, i, convert_pmt_proto(proto_pmt_list.value(i)));
+      pmt::vector_set(vec, i, convert_proto_to_pmt(proto_pmt_list.value(i)));
     }
     return vec;
   } else
@@ -246,8 +218,40 @@ pmt::pmt_t convert_pmt_uniform_vector(
 pmt::pmt_t convert_pmt_dict(const starcoder::Dict &proto_pmt_dict) {
   pmt::pmt_t dict = pmt::make_dict();
   for (const starcoder::Dict_Entry &entry : proto_pmt_dict.entry()) {
-    dict = pmt::dict_add(dict, convert_pmt_proto(entry.key()),
-                         convert_pmt_proto(entry.value()));
+    dict = pmt::dict_add(dict, convert_proto_to_pmt(entry.key()),
+                         convert_proto_to_pmt(entry.value()));
   }
   return dict;
+}
+
+pmt::pmt_t convert_proto_to_pmt(const starcoder::BlockMessage &proto_msg) {
+  starcoder::BlockMessage::MessageOneofCase type =
+      proto_msg.message_oneof_case();
+  switch (type) {
+    case starcoder::BlockMessage::MessageOneofCase::kBooleanValue:
+      return pmt::from_bool(proto_msg.boolean_value());
+    case starcoder::BlockMessage::MessageOneofCase::kSymbolValue:
+      return pmt::string_to_symbol(proto_msg.symbol_value());
+    case starcoder::BlockMessage::MessageOneofCase::kIntegerValue:
+      return pmt::from_long(proto_msg.integer_value());
+    case starcoder::BlockMessage::MessageOneofCase::kDoubleValue:
+      return pmt::from_double(proto_msg.double_value());
+    case starcoder::BlockMessage::MessageOneofCase::kComplexValue:
+      return pmt::from_complex(proto_msg.complex_value().real_value(),
+                               proto_msg.complex_value().imaginary_value());
+    case starcoder::BlockMessage::MessageOneofCase::kPairValue:
+      return pmt::cons(convert_proto_to_pmt(proto_msg.pair_value().car()),
+                       convert_proto_to_pmt(proto_msg.pair_value().cdr()));
+    case starcoder::BlockMessage::MessageOneofCase::kListValue:
+      return convert_pmt_list(proto_msg.list_value());
+    case starcoder::BlockMessage::MessageOneofCase::kUniformVectorValue:
+      return convert_pmt_uniform_vector(proto_msg.uniform_vector_value());
+    case starcoder::BlockMessage::MessageOneofCase::kDictValue:
+      return convert_pmt_dict(proto_msg.dict_value());
+    case starcoder::BlockMessage::MessageOneofCase::kBlobValue:
+      std::vector<uint8_t> vec(proto_msg.blob_value().begin(),
+                               proto_msg.blob_value().end());
+      return pmt::init_u8vector(proto_msg.blob_value().size(), vec);
+  }
+  return pmt::get_PMT_NIL();
 }

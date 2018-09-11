@@ -85,9 +85,9 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 		deregisterStreamHandler:   make(chan *streamHandler),
 		closeAllStreamsChannel:    make(chan chan bool),
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
-		log:             log,
-		perfCtrInterval: perfCtrInterval,
-		silencedCommandBlocks: silencedCommandBlocksMap,
+		log:                       log,
+		perfCtrInterval:           perfCtrInterval,
+		silencedCommandBlocks:     silencedCommandBlocksMap,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -163,7 +163,7 @@ type streamHandler struct {
 	perfCtrStopChannel chan struct{}
 	clientFinished     bool
 	streamError        error
-	mustCloseMutex     sync.Mutex
+	errorMutex         sync.Mutex
 	wg                 sync.WaitGroup
 	log                *zap.SugaredLogger
 }
@@ -176,7 +176,7 @@ func newStreamHandler(sc *Starcoder, stream pb.Starcoder_RunFlowgraphServer, flo
 		perfCtrStopChannel: make(chan struct{}),
 		clientFinished:     false,
 		streamError:        nil,
-		mustCloseMutex:     sync.Mutex{},
+		errorMutex:         sync.Mutex{},
 		wg:                 sync.WaitGroup{},
 		log:                log,
 	}
@@ -239,37 +239,31 @@ func (sh *streamHandler) observableQueueLoop(blockName string, q *cqueue.CString
 	sh.wg.Add(1)
 	defer sh.wg.Done()
 	for {
-		// TODO: Convert PMT to a gRPC native data structure.
-		// Use built-in PMT serialization for now.
 		bytes := []byte(q.BlockingPop())
-		if len(bytes) > 10485760 {
-			sh.log.Errorw(
-				"Length of packet received from Starcoder much bigger than expected.",
-				"block", blockName, "size", len(bytes))
-		} else if len(bytes) != 0 {
-			// Could be woken up spuriously or by something else calling q.Close()
-			if err := sh.stream.Send(&pb.RunFlowgraphResponse{
-				BlockId: blockName,
-				Payload: bytes,
-			}); err != nil {
+
+		if len(bytes) != 0 { // Could be woken up spuriously or by something else calling q.Close()
+			response, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
+			if err != nil {
+				sh.log.Errorw("Error constructing flowgraph response", "error", err)
+				continue
+			}
+
+			if err := sh.stream.Send(response); err != nil {
 				sh.log.Errorf("Error sending stream: %v", err)
 				sh.finish(err)
 				return
 			}
 		}
-		if sh.finished() {
+
+		if q.Closed() {
 			// Send the rest of the bytes if any are left
 			for bytes = []byte(q.Pop()); len(bytes) != 0; bytes = []byte(q.Pop()) {
-				if len(bytes) > 10485760 {
-					sh.log.Errorw(
-						"Length of packet received from Starcoder much bigger than expected.",
-						"block", blockName, "size", len(bytes))
+				response, err := constructFlowgraphResponseFromSerializedPMT(blockName, bytes)
+				if err != nil {
+					sh.log.Errorw("Error constructing flowgraph response", "error", err)
 					continue
 				}
-				if err := sh.stream.Send(&pb.RunFlowgraphResponse{
-					BlockId: blockName,
-					Payload: bytes,
-				}); err != nil {
+				if err := sh.stream.Send(response); err != nil {
 					sh.log.Errorf("Error sending stream: %v", err)
 				}
 			}
@@ -347,8 +341,8 @@ func (sh *streamHandler) Wait() {
 // Called within streamHandler whenever an error happens or client finished.
 // Signals starcoder server that it needs to end this stream handler
 func (sh *streamHandler) finish(err error) {
-	sh.mustCloseMutex.Lock()
-	defer sh.mustCloseMutex.Unlock()
+	sh.errorMutex.Lock()
+	defer sh.errorMutex.Unlock()
 	if err == nil {
 		sh.clientFinished = true
 	}
@@ -356,13 +350,6 @@ func (sh *streamHandler) finish(err error) {
 	go func() {
 		sh.starcoder.deregisterStreamHandler <- sh
 	}()
-}
-
-// Called by goroutines of streamHandler when they want to know when to close
-func (sh *streamHandler) finished() bool {
-	sh.mustCloseMutex.Lock()
-	defer sh.mustCloseMutex.Unlock()
-	return sh.clientFinished || sh.streamError != nil
 }
 
 // Must only be called by starcoder server
@@ -777,4 +764,23 @@ func getExceptionString() string {
 	}
 	return fmt.Sprintf("Exception: %v \n Value: %v ",
 		safeAsString(exc), safeAsString(val))
+}
+
+func constructFlowgraphResponseFromSerializedPMT(blockName string, serialized []byte) (*pb.RunFlowgraphResponse, error) {
+	message := &pb.BlockMessage{}
+	err := proto.Unmarshal(serialized, message)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &pb.RunFlowgraphResponse{
+		BlockId: blockName,
+		Pmt:     message,
+	}
+
+	if proto.Size(response) > 10485670 {
+		return nil, errors.New(fmt.Sprintf("Length of request message from Starcoder much bigger than expected. Block name: %v, Message size: %v", blockName, proto.Size(response)))
+	}
+
+	return response, nil
 }

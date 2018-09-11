@@ -22,6 +22,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/gogo/protobuf/proto"
 	pb "github.com/infostellarinc/starcoder/api"
 	"google.golang.org/grpc"
 	"io"
@@ -52,19 +53,19 @@ func main() {
 				log.Println("error receiving!")
 				log.Fatalf("%v", err)
 			}
-			if len(r.GetPayload()) > 20 {
-				log.Println(r.GetBlockId(), len(r.GetPayload()))
+			if len(r.GetPayload()) > 50 || proto.Size(r.GetPmt()) > 50 {
+				log.Println(r.GetBlockId(), len(r.GetPayload()), proto.Size(r.GetPmt()))
 			} else {
-				log.Println(r.GetBlockId(), r.GetPayload())
+				log.Println(r.GetBlockId(), r.GetPayload(), r.GetPmt())
 			}
 			if r.GetBlockId() == "starcoder_waterfall_sink_0" {
-				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPayload(), 0644)
+				ioutil.WriteFile("/home/rei/sampleAR2300IQ/waterfall_rec.png", r.GetPmt().GetBlobValue(), 0644)
 			}
 			if r.GetBlockId() == "noaa_apt_decoded" {
-				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", r.GetPayload(), 0644)
+				ioutil.WriteFile("/home/rei/sampleAR2300IQ/noaa_apt_rec.png", r.GetPmt().GetBlobValue(), 0644)
 			}
 			if r.GetBlockId() == "meteor_decoder_sink" {
-				ioutil.WriteFile(fmt.Sprintf("/home/rei/sampleAR2300IQ/meteor_decoded_%v.png", meteor_decoder_sink_idx), r.GetPayload(), 0644)
+				ioutil.WriteFile(fmt.Sprintf("/home/rei/sampleAR2300IQ/meteor_decoded_%v.png", meteor_decoder_sink_idx), r.GetPmt().GetBlobValue(), 0644)
 				meteor_decoder_sink_idx++
 			}
 		}
@@ -83,7 +84,7 @@ func main() {
 	time.Sleep(1 * time.Second)
 	commandReq := &pb.SendCommandRequest{
 		BlockId: "starcoder_command_source_0",
-		Pmt: constructPDU(),
+		Pmt:     constructPDU(),
 	}
 	req = &pb.RunFlowgraphRequest{
 		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
@@ -96,7 +97,7 @@ func main() {
 	time.Sleep(4 * time.Second)
 	commandReq = &pb.SendCommandRequest{
 		BlockId: "starcoder_command_source_1",
-		Pmt: constructPDU(),
+		Pmt:     constructPDU(),
 	}
 	req = &pb.RunFlowgraphRequest{
 		Request: &pb.RunFlowgraphRequest_SendCommandRequest{
@@ -147,4 +148,14 @@ func constructU8Vector() *pb.BlockMessage {
 	return &pb.BlockMessage{
 		MessageOneof: &pb.BlockMessage_UniformVectorValue{pmtUVector},
 	}
+}
+
+func convertUint32SliceToByteSlice(in []uint32) []byte {
+	out := make([]byte, len(in))
+	var v uint32
+	var i int
+	for i, v = range in {
+		out[i] = byte(v)
+	}
+	return out
 }

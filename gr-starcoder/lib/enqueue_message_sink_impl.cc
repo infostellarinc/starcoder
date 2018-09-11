@@ -25,6 +25,8 @@
 #include <gnuradio/io_signature.h>
 #include "enqueue_message_sink_impl.h"
 
+#include "pmt_to_proto.h"
+
 namespace gr {
 namespace starcoder {
 
@@ -51,7 +53,8 @@ enqueue_message_sink_impl::~enqueue_message_sink_impl() {}
 
 void enqueue_message_sink_impl::handler(pmt::pmt_t msg) {
   if (string_queue_ != NULL) {
-    std::string serialized = pmt::serialize_str(msg);
+    std::string serialized = convert_pmt_to_proto(msg).SerializeAsString();
+
     if (serialized.length() > 10485760) {
       GR_LOG_ERROR(d_logger,
                    boost::format("Received large packet of length %d in "
