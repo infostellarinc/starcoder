@@ -24,7 +24,6 @@
 #include <pmt/pmt.h>
 #include "starcoder.pb.h"
 
-void convert_pmt_to_proto(const pmt::pmt_t &pmt_msg,
-                          starcoder::BlockMessage *proto_msg);
+starcoder::BlockMessage convert_pmt_to_proto(const pmt::pmt_t &pmt_msg);
 
 #endif /* INCLUDED_PMT_TO_PROTO_H */

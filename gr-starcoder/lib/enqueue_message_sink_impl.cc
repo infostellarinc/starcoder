@@ -53,9 +53,7 @@ enqueue_message_sink_impl::~enqueue_message_sink_impl() {}
 
 void enqueue_message_sink_impl::handler(pmt::pmt_t msg) {
   if (string_queue_ != NULL) {
-    ::starcoder::BlockMessage grpc_pmt;
-    convert_pmt_to_proto(msg, &grpc_pmt);
-    std::string serialized = grpc_pmt.SerializeAsString();
+    std::string serialized = convert_pmt_to_proto(msg).SerializeAsString();
 
     if (serialized.length() > 10485760) {
       GR_LOG_ERROR(d_logger,
