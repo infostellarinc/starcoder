@@ -195,6 +195,54 @@ task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
         // For some reason, cmake has trouble finding boost in certain situations.
         exec.environment 'BOOST_ROOT', gnuradioRoot
         exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+
+        if (System.getenv('CI')) {
+            def stdOutPipedInput = new PipedInputStream()
+            def stdOutPipedOutput = new PipedOutputStream(stdOutPipedInput)
+
+            def readerThread = Thread.startDaemon {
+                def standardLogPrefixes = ['Cloning', 'Configuring', 'Building', 'Installing']
+
+                def previousLogPrefix = ''
+
+                def reader = new BufferedReader(new InputStreamReader(stdOutPipedInput))
+                CharStreams.readLines(reader, new LineProcessor<Void>() {
+                    @Override
+                    boolean processLine(String line) throws IOException {
+                        // Don't print empty lines
+                        if (line.trim() == '') {
+                            return true
+                        }
+
+                        // Don't spam with percentages.
+                        if (line.contains("%")) {
+                            return true
+                        }
+
+                        // Only print cmake logs once per type
+                        for (logPrefix in standardLogPrefixes) {
+                            if (line.startsWith(logPrefix)) {
+                                if (previousLogPrefix == logPrefix) {
+                                    return true
+                                }
+                                previousLogPrefix = logPrefix
+                                break
+                            }
+                        }
+
+                        println line
+                        return true
+                    }
+
+                    @Override
+                    Void getResult() {
+                        return null
+                    }
+                })
+            }
+
+            exec.standardOutput = stdOutPipedOutput
+        }
     }
 
     doFirst {
@@ -208,54 +256,6 @@ task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
 
     doLast {
         delete "${gnuradioRoot}/src"
-    }
-
-    if (System.getenv('CI')) {
-        def stdOutPipedInput = new PipedInputStream()
-        def stdOutPipedOutput = new PipedOutputStream(stdOutPipedInput)
-
-        def readerThread = Thread.startDaemon {
-            def standardLogPrefixes = ['Cloning', 'Configuring', 'Building', 'Installing']
-
-            def previousLogPrefix = ''
-
-            def reader = new BufferedReader(new InputStreamReader(stdOutPipedInput))
-            CharStreams.readLines(reader, new LineProcessor<Void>() {
-                @Override
-                boolean processLine(String line) throws IOException {
-                    // Don't print empty lines
-                    if (line.trim() == '') {
-                        return true
-                    }
-
-                    // Don't spam with percentages.
-                    if (line.contains("%")) {
-                        return true
-                    }
-
-                    // Only print cmake logs once per type
-                    for (logPrefix in standardLogPrefixes) {
-                        if (line.startsWith(logPrefix)) {
-                            if (previousLogPrefix == logPrefix) {
-                                return true
-                            }
-                            previousLogPrefix = logPrefix
-                            break
-                        }
-                    }
-
-                    println line
-                    return true
-                }
-
-                @Override
-                Void getResult() {
-                    return null
-                }
-            })
-        }
-
-        standardOutput = stdOutPipedOutput
     }
 }
 
