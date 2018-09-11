@@ -27,65 +27,85 @@ void convert_proto_uniform_vector(const pmt::pmt_t &pmt_msg,
     u_vector->set_size(starcoder::IntSize::Size8);
     const std::vector<uint8_t> vector_elements =
         pmt::u8vector_elements(pmt_msg);
-    *u_vector->mutable_value() = { vector_elements.begin(),
-                                   vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<uint32_t>(
+            u_vector->mutable_value()));
   } else if (pmt::is_s8vector(pmt_msg)) {
     starcoder::IVector *i_vector = uni_vector->mutable_i_value();
     i_vector->set_size(starcoder::IntSize::Size8);
     const std::vector<int8_t> vector_elements = pmt::s8vector_elements(pmt_msg);
-    *i_vector->mutable_value() = { vector_elements.begin(),
-                                   vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<int32_t>(
+            i_vector->mutable_value()));
   } else if (pmt::is_u16vector(pmt_msg)) {
     starcoder::UVector *u_vector = uni_vector->mutable_u_value();
     u_vector->set_size(starcoder::IntSize::Size16);
     const std::vector<uint16_t> vector_elements =
         pmt::u16vector_elements(pmt_msg);
-    *u_vector->mutable_value() = { vector_elements.begin(),
-                                   vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<uint32_t>(
+            u_vector->mutable_value()));
   } else if (pmt::is_s16vector(pmt_msg)) {
     starcoder::IVector *i_vector = uni_vector->mutable_i_value();
     i_vector->set_size(starcoder::IntSize::Size16);
     const std::vector<int16_t> vector_elements =
         pmt::s16vector_elements(pmt_msg);
-    *i_vector->mutable_value() = { vector_elements.begin(),
-                                   vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<int32_t>(
+            i_vector->mutable_value()));
   } else if (pmt::is_u32vector(pmt_msg)) {
     starcoder::UVector *u_vector = uni_vector->mutable_u_value();
     u_vector->set_size(starcoder::IntSize::Size32);
     const std::vector<uint32_t> vector_elements =
         pmt::u32vector_elements(pmt_msg);
-    *u_vector->mutable_value() = { vector_elements.begin(),
-                                   vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<uint32_t>(
+            u_vector->mutable_value()));
   } else if (pmt::is_s32vector(pmt_msg)) {
     starcoder::IVector *i_vector = uni_vector->mutable_i_value();
     i_vector->set_size(starcoder::IntSize::Size32);
     const std::vector<int32_t> vector_elements =
         pmt::s32vector_elements(pmt_msg);
-    *i_vector->mutable_value() = { vector_elements.begin(),
-                                   vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<int32_t>(
+            i_vector->mutable_value()));
   } else if (pmt::is_u64vector(pmt_msg)) {
     starcoder::U64Vector *u64_vector = uni_vector->mutable_u64_value();
     const std::vector<uint64_t> vector_elements =
         pmt::u64vector_elements(pmt_msg);
-    *u64_vector->mutable_value() = { vector_elements.begin(),
-                                     vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<uint64_t>(
+            u64_vector->mutable_value()));
   } else if (pmt::is_s64vector(pmt_msg)) {
     starcoder::I64Vector *i64_vector = uni_vector->mutable_i64_value();
     const std::vector<int64_t> vector_elements =
         pmt::s64vector_elements(pmt_msg);
-    *i64_vector->mutable_value() = { vector_elements.begin(),
-                                     vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<int64_t>(
+            i64_vector->mutable_value()));
   } else if (pmt::is_f32vector(pmt_msg)) {
     starcoder::F32Vector *f32_vector = uni_vector->mutable_f32_value();
     const std::vector<float> vector_elements = pmt::f32vector_elements(pmt_msg);
-    *f32_vector->mutable_value() = { vector_elements.begin(),
-                                     vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<float>(
+            f32_vector->mutable_value()));
   } else if (pmt::is_f64vector(pmt_msg)) {
     starcoder::F64Vector *f64_vector = uni_vector->mutable_f64_value();
     const std::vector<double> vector_elements =
         pmt::f64vector_elements(pmt_msg);
-    *f64_vector->mutable_value() = { vector_elements.begin(),
-                                     vector_elements.end() };
+    std::copy(
+        vector_elements.begin(), vector_elements.end(),
+        google::protobuf::internal::RepeatedFieldBackInsertIterator<double>(
+            f64_vector->mutable_value()));
   } else if (pmt::is_c32vector(pmt_msg)) {
     starcoder::C32Vector *c32_vector = uni_vector->mutable_c32_value();
     const std::vector<std::complex<float>> vector_elements =
