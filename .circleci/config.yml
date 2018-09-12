@@ -30,7 +30,7 @@ jobs:
           - v2-dependencies
 
       - run:
-          command: ./gradlew --no-daemon install
+          command: ./gradlew --no-daemon install --stacktrace
           no_output_timeout: 2h
 
       - save_cache:

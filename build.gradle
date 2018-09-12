@@ -168,6 +168,7 @@ afterEvaluate {
     tasks.generateProto.dependsOn installProtocGoPlugin
 
     tasks.extractIncludeProto.doFirst {
+        println 'foo'
         println project.repositories
     }
 
