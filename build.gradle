@@ -140,12 +140,9 @@ license {
 
 ext.gnuradioRoot = toolManager.getToolDir('gnuradio')
 
-def condaCommand(command) {
-    return """
-    . ${gnuradioRoot.resolve('etc/profile.d/conda.sh')} && \\
-    conda activate > /dev/null && \\
-    ${command}
-    """
+def repositories = project.repositories
+tasks.toolsSetupGnuradio.doLast {
+  project.repositories = repositories
 }
 
 task installProtocGoPlugin(type: org.curioswitch.gradle.golang.tasks.GoTask) {
