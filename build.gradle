@@ -26,7 +26,6 @@ import com.google.common.io.LineProcessor
 buildscript {
     repositories {
         jcenter()
-        mavenCentral()
         gradlePluginPortal()
         maven {
             url 'http://dl.bintray.com/curioswitch/curiostack'
@@ -44,11 +43,6 @@ buildscript {
 apply plugin: 'org.curioswitch.gradle-curiostack-plugin'
 apply plugin: 'org.curioswitch.gradle-golang-plugin'
 apply plugin: 'org.curioswitch.gradle-grpc-api-plugin'
-
-repositories {
-    jcenter()
-    mavenCentral()
-}
 
 conda {
     gnuradio {
