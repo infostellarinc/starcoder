@@ -141,7 +141,9 @@ license {
 ext.gnuradioRoot = toolManager.getToolDir('gnuradio')
 
 def repositories = project.repositories
+println repositories
 tasks.toolsSetupGnuradio.doLast {
+  println project.repositories
   project.repositories = repositories
 }
 
