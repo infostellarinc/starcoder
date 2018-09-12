@@ -1,4 +1,4 @@
-FROM openjdk:9-slim
+FROM openjdk:10-slim
 
 ADD build.gradle /workspace/gnuradio/build.gradle
 ADD gradle.properties /workspace/gnuradio/gradle.properties
@@ -15,7 +15,7 @@ RUN cd /workspace/starcoder && ./gradlew install
 
 FROM debian:9-slim
 
-COPY --from=0 /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio /root/.gradle/curiostack/python/bootstrap/miniconda2-gnuradio
+COPY --from=0 /root/.gradle/curiostack/gnuradio /root/.gradle/curiostack/gnuradio
 
 ADD ./tools/builder/run.sh /usr/bin/run-starcoder
 

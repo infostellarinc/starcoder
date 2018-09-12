@@ -285,7 +285,7 @@ func (sh *streamHandler) performanceCounterCollectionLoop() {
 
 	// Get gauge for each block and performance counter
 	gauges := make(map[string]map[string]prometheus.Gauge)
-	for blockName, _ := range sh.flowgraphProps.perfCtrBlocks {
+	for blockName := range sh.flowgraphProps.perfCtrBlocks {
 		gauges[blockName] = make(map[string]prometheus.Gauge)
 		for _, pc := range monitoring.PerformanceCountersToCollect {
 			gauge, err := monitoring.GetPerfCtrGauge(
