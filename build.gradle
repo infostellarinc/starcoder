@@ -312,4 +312,4 @@ task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
 
 tasks.toolsDownloadGnuradio.enabled = false
 tasks.condaInstallPackagesGnuradio.enabled = false
-tasks.condaInstallPythonPackagesGnuradio = false
+tasks.condaInstallPythonPackagesGnuradio.enabled = false
