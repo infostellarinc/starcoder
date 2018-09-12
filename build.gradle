@@ -166,6 +166,11 @@ task useRice(type:Exec) {
 
 afterEvaluate {
     tasks.generateProto.dependsOn installProtocGoPlugin
+
+    tasks.extractIncludeProto.doFirst {
+        println project.repositories
+    }
+
     tasks.withType(org.curioswitch.gradle.golang.tasks.GoTask).configureEach {task->
         if (task.name.startsWith('goBuild') || task.name == 'goTest') {
             task.dependsOn tasks.generateProto, useRice
