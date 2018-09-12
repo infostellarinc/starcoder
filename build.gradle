@@ -267,6 +267,7 @@ task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
 }
 
 task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+    enabled = false
     dependsOn setupPrefix
 
     condaName 'gnuradio'
@@ -287,6 +288,7 @@ task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) 
 }
 
 task installStarcoder(type: Copy) {
+    enabled = false
     dependsOn build
     from 'build/out'
     into "${gnuradioRoot}/bin"
