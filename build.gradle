@@ -36,7 +36,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.162.4'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.162.5'
     }
 }
 
@@ -140,13 +140,6 @@ license {
 
 ext.gnuradioRoot = toolManager.getToolDir('gnuradio')
 
-def repositories = project.repositories
-println repositories
-tasks.toolsSetupGnuradio.doLast {
-  println project.repositories
-  project.repositories = repositories
-}
-
 task installProtocGoPlugin(type: org.curioswitch.gradle.golang.tasks.GoTask) {
     args 'get', 'github.com/gogo/protobuf/protoc-gen-gofast@v1.1.1'
 }
@@ -165,11 +158,7 @@ task useRice(type:Exec) {
 
 afterEvaluate {
     tasks.generateProto.dependsOn installProtocGoPlugin
-
-    tasks.extractIncludeProto.doFirst {
-        println 'foo'
-        println project.repositories
-    }
+    tasks.extractIncludeProto.dependsOn tasks.toolsSetupGnuradio
 
     tasks.withType(org.curioswitch.gradle.golang.tasks.GoTask).configureEach {task->
         if (task.name.startsWith('goBuild') || task.name == 'goTest') {
