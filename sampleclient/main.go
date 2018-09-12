@@ -23,7 +23,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogo/protobuf/proto"
-	pb "github.com/infostellarinc/starcoder/api"
+	pb "github.com/infostellarinc/starcoder/github.com/infostellarinc/starcoder/api"
 	"google.golang.org/grpc"
 	"io"
 	"io/ioutil"

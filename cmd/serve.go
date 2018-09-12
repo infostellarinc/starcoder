@@ -23,7 +23,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	pb "github.com/infostellarinc/starcoder/api"
+	pb "github.com/infostellarinc/starcoder/github.com/infostellarinc/starcoder/api"
 	"github.com/infostellarinc/starcoder/monitoring"
 	"github.com/infostellarinc/starcoder/server"
 	"github.com/spf13/cobra"
