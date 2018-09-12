@@ -184,6 +184,7 @@ afterEvaluate {
 }
 
 task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+    enabled = false
     onlyIf { !project.file("${gnuradioRoot}/lib/libgnuradio-blocks.so").exists() }
 
     dependsOn 'toolsSetupGnuradio'
