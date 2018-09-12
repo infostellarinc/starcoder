@@ -310,6 +310,5 @@ task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     command "clang-format -style=Google -i ${ccFiles} ${hIncFiles} ${hLibFiles}"
 }
 
-tasks.toolsDownloadGnuradio.enabled = false
 tasks.condaInstallPackagesGnuradio.enabled = false
 tasks.condaInstallPythonPackagesGnuradio.enabled = false
