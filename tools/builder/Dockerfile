@@ -15,7 +15,7 @@ RUN cd /workspace/starcoder && ./gradlew install
 
 FROM debian:9-slim
 
-COPY --from=0 /root/.gradle/curiostack/gnuradio /root/.gradle/curiostack/gnuradio
+COPY --from=0 /root/.gradle/curiostack/gnuradio/4.4.10 /root/.gradle/curiostack/gnuradio
 
 ADD ./tools/builder/run.sh /usr/bin/run-starcoder
 
