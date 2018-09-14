@@ -271,18 +271,14 @@ task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) 
 
     condaName 'gnuradio'
 
-    command """cmake ../../gr-starcoder -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=${gnuradioRoot} -Wno-dev && \\
-        make &&
-        make install
-    """
+    command """pybombs -vv config default_prefix gnuradio && \\
+        pybombs -vv -y recipes add-defaults && \\
+        pybombs -vv -y recipes add gr-starcoder ${project.file('gr-recipes')} && \\
+        pybombs -vv -y install gr-starcoder
+"""
 
     execCustomizer {exec->
-        exec.workingDir project.file('build/starcoder-cmake')
         exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
-    }
-
-    doFirst {
-        project.mkdir('build/starcoder-cmake')
     }
 }
 
