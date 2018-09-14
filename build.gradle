@@ -288,7 +288,7 @@ task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) 
 
 task installStarcoder(type: Copy) {
     dependsOn build
-    from 'build/out'
+    from 'build/exe/current'
     into "${gnuradioRoot}/bin"
 }
 
