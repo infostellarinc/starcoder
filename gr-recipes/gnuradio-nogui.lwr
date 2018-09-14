@@ -20,6 +20,7 @@
 inherit: prefix
 depends:
 - gnuradio
+- gr-satellites
 config:
   config:
     makewidth: 2
@@ -88,6 +89,8 @@ config:
     mako:
       forceinstalled: true
     numpy:
+      forceinstalled: true
+    pyconstruct:
       forceinstalled: true
     python:
       forceinstalled: true
