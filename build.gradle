@@ -266,8 +266,16 @@ task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     }
 }
 
-task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+task installGrSatellites(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     dependsOn setupPrefix
+
+    condaName 'gnuradio'
+
+    command "pybombs -y install gr-satellites"
+}
+
+task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+    dependsOn setupPrefix, installGrSatellites
 
     condaName 'gnuradio'
 
