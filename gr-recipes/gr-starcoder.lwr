@@ -42,3 +42,6 @@ config:
 gitbranch: master
 inherit: cmake
 source: git+https://github.com/infostellarinc/starcoder
+configuredir: gr-starcoder/build
+makedir: gr-starcoder/build
+installdir: gr-starcoder/build
