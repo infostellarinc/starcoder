@@ -271,8 +271,8 @@ task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) 
 
     condaName 'gnuradio'
 
-    command """pybombs -y recipes add-defaults && \\
-        pybombs -y install gr-satellites
+    command """pybombs -vv -y recipes add-defaults && \\
+        pybombs -vv -y install gr-satellites
     """
 
     execCustomizer {exec->
