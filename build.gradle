@@ -266,7 +266,7 @@ task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     }
 }
 
-task installGrSatellites(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     dependsOn setupPrefix
 
     condaName 'gnuradio'
@@ -274,25 +274,9 @@ task installGrSatellites(type: org.curioswitch.gradle.conda.tasks.CondaExecTask)
     command """pybombs -y recipes add-defaults && \\
         pybombs -y install gr-satellites
     """
-}
-
-task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
-    dependsOn setupPrefix, installGrSatellites
-
-    condaName 'gnuradio'
-
-    command """cmake ../../gr-starcoder -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=${gnuradioRoot} -Wno-dev && \\
-        make &&
-        make install
-    """
 
     execCustomizer {exec->
-        exec.workingDir project.file('build/starcoder-cmake')
         exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
-    }
-
-    doFirst {
-        project.mkdir('build/starcoder-cmake')
     }
 }
 
