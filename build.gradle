@@ -271,7 +271,10 @@ task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) 
 
     condaName 'gnuradio'
 
-    command "pybombs -vv -y install gr-starcoder"
+    command """pybombs -vv config default_prefix gnuradio && \\
+        pybombs -vv -y recipes add gr-starcoder ${project.file('gr-recipes')} && \\
+        pybombs -vv -y install gr-starcoder
+"""
 
     execCustomizer {exec->
         exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
