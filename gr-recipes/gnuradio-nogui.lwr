@@ -28,7 +28,7 @@ config:
     # point in having it anyways.
     git-cache: ''
     # sudo shouldn't be required to setup
-    elevate_pre_args: ['sudo', '-H']
+    elevate_pre_args: ''
     packagers:
     - pkgconfig
 
