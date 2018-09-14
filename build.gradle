@@ -307,7 +307,7 @@ task installStarcoder(type: Copy) {
 }
 
 task install {
-    dependsOn installGrStarcoder, installStarcoder
+    dependsOn installGrStarcoderFromRecipe, installStarcoder
 }
 
 task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
