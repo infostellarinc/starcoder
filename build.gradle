@@ -193,8 +193,8 @@ task setupPrefix(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     condaName 'gnuradio'
 
     command """pybombs auto-config && \\
-        pybombs -y recipes add-defaults && \\
         pybombs -y recipes add gr-starcoder ${project.file('gr-recipes')} && \\
+        pybombs -y recipes add-defaults && \\
         pybombs -y -vv prefix init ${gnuradioRoot} -a gnuradio -R gnuradio-nogui && \\
         ${gnuradioRoot}/lib/uhd/utils/uhd_images_downloader.py
     """
