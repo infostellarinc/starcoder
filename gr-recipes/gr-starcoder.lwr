@@ -19,16 +19,9 @@
 
 category: common
 depends:
-- gnuradio-nogui
 - gr-satellites
 description: Recipe for installing the Starcoder OOT
 config:
-  config:
-    makewidth: 2
-    git-cache: ''
-    packagers:
-    - pkgconfig
-
   packages:
     gnuradio:
       forceinstalled: true
@@ -37,6 +30,8 @@ config:
     automake:
       forceinstalled: true
     pyconstruct:
+      forceinstalled: true
+    python:
       forceinstalled: true
 
 gitbranch: master
