@@ -4,19 +4,27 @@
 
 [![Docker Repository on Quay](https://quay.io/repository/infostellarinc/starcoder/status "Docker Repository on Quay")](https://quay.io/repository/infostellarinc/starcoder)
 
-## Adding a dependency
+## Status
 
-To add a golang dependency to a project, add an entry to `Gopkg.toml`, following the existing format.
-Prefer to specify a version if the project is following semantic versioning (make sure to check
-whether they actually do update their versions at a reasonable pace, many golang projects define
-a version once and then stop), otherwise specify master branch. Then run `depUpdate`, e.g.,
+Starcoder is currently released at an alpha level. It is used in production at Infostellar, but has not
+been verified elsewhere and is currently still somewhat tailored to Infostellar's workflows.
+Stay tuned for more generalization on the way to production
 
-```bash
-$ ./gradlew depUpdate
-```
+## Running
 
-Verify your change by running `depEnsure`, e.g.,
+Currently, the simplest way to run Starcoder is using docker.
 
 ```bash
-$ ./gradlew depEnsure
+$ docker run -it --rm quay.io/infostellarinc/starcoder:0.1.0
 ```
+
+## Developing
+
+Starcoder uses Gradle for building. The only dependency for building Starcoder is Java, all other components
+like Python, a build toolchain, and even GnuRadio will be automatically setup by the build.
+
+```bash
+$ ./gradlew install
+```
+
+will create a GnuRadio prefix at `~/.gradle/curiostack/gnuradio` with Starcoder installed.
