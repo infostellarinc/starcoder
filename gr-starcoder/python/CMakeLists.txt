@@ -32,7 +32,8 @@ GR_PYTHON_INSTALL(
     FILES
     __init__.py
     plot_waterfall.py
-    waterfall_sink.py DESTINATION ${GR_PYTHON_DIR}/starcoder
+    waterfall_sink.py
+    pdu_trim_uvector.py DESTINATION ${GR_PYTHON_DIR}/starcoder
 )
 
 ########################################################################
@@ -60,3 +61,4 @@ ${CMAKE_CURRENT_SOURCE_DIR}/test_waterfall.png
 ${CMAKE_CURRENT_BINARY_DIR}/test_waterfall.png
 COPYONLY
 )
+GR_ADD_TEST(qa_pdu_trim_uvector ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_pdu_trim_uvector.py)
