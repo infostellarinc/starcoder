@@ -44,6 +44,7 @@ const defaultQueueSize = 1048576
 type Starcoder struct {
 	flowgraphDir              string
 	gilState                  python.PyGILState
+	threadState               *python.PyThreadState
 	streamHandlers            map[*streamHandler]bool // registered stream handlers
 	registerStreamHandler     chan *streamHandler
 	deregisterStreamHandler   chan *streamHandler
@@ -71,7 +72,7 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 	// See these links:
 	// https://stackoverflow.com/questions/15470367/
 	// https://stackoverflow.com/questions/10625584/
-	python.PyEval_SaveThread()
+	pyThreadState := python.PyEval_SaveThread()
 
 	silencedCommandBlocksMap := make(map[string]bool)
 	for _, val := range silencedCommandBlocks {
@@ -88,6 +89,7 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 		log:                       log,
 		perfCtrInterval:           perfCtrInterval,
 		silencedCommandBlocks:     silencedCommandBlocksMap,
+		threadState:               pyThreadState,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -736,7 +738,7 @@ func (s *Starcoder) Close() error {
 	s.closeAllStreams()
 
 	runtime.LockOSThread()
-	s.gilState = python.PyGILState_Ensure()
+	python.PyEval_RestoreThread(s.threadState)
 	python.Finalize()
 	runtime.UnlockOSThread()
 	os.RemoveAll(s.tempModule)
