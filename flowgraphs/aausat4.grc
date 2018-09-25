@@ -685,7 +685,8 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>For some reason the bits 
+we're getting are inverted</value>
     </param>
     <param>
       <key>const</key>
@@ -701,7 +702,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(976, 500)</value>
+      <value>(984, 500)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1301,7 +1302,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1136, 468)</value>
+      <value>(1184, 468)</value>
     </param>
     <param>
       <key>_rotation</key>
