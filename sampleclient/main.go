@@ -71,7 +71,7 @@ func main() {
 		}
 	}()
 	startReq := &pb.StartFlowgraphRequest{
-		Filename: "fsk_9600.grc",
+		Filename: "test.grc",
 	}
 	req := &pb.RunFlowgraphRequest{
 		Request: &pb.RunFlowgraphRequest_StartFlowgraphRequest{
