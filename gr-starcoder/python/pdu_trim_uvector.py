@@ -24,7 +24,10 @@ import pmt
 
 class pdu_trim_uvector(gr.sync_block):
     """
-    docstring for block pdu_trim_uvector
+    This block takes in PDUs and trims out the first start_trim_length bytes
+    and last end_trim_length bytes of the contained uniform vector.
+    This is useful when working with packets where you want to trim out
+    headers or ending hashes.
     """
     def __init__(self, start_trim_length, end_trim_length):
         gr.sync_block.__init__(self,
