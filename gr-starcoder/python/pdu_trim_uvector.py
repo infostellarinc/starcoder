@@ -38,6 +38,15 @@ class pdu_trim_uvector(gr.sync_block):
         self.set_msg_handler(pmt.intern("in"), self.msg_handler)
 
     def msg_handler(self, msg):
+        if not pmt.is_pair(msg):
+            return
+
+        if not pmt.is_dict(pmt.car(msg)):
+            return
+
+        if not pmt.is_uniform_vector(pmt.cdr(msg)):
+            return
+
         arr = pmt.to_python(msg)[1]
         pmt.set_cdr(msg, pmt.to_pmt(arr[self.start_trim_length:-self.end_trim_length or len(arr)]))
         self.message_port_pub(pmt.intern("out"), msg)
