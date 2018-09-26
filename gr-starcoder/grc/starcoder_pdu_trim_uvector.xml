@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<block>
+  <name>PDU Trim Uniform Vector</name>
+  <key>starcoder_pdu_trim_uvector</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.pdu_trim_uvector($start_trim_length, $end_trim_length)</make>
+
+  <param>
+    <name>start_trim_length</name>
+    <key>start_trim_length</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>end_trim_length</name>
+    <key>end_trim_length</key>
+    <type>int</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>
