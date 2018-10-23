@@ -443,7 +443,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1176, 1216)</value>
+      <value>(1176, 1456)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -580,7 +580,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(592, 844)</value>
+      <value>(592, 1084)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -686,7 +686,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1176, 1304)</value>
+      <value>(1176, 1544)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -705,8 +705,10 @@
     </param>
     <param>
       <key>comment</key>
-      <value>For some reason the bits 
-we're getting are inverted</value>
+      <value>For radios where the I and Q 
+streams are inverted, we need
+to invert the bits to capture the 
+sync word.</value>
     </param>
     <param>
       <key>const</key>
@@ -722,7 +724,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(984, 500)</value>
+      <value>(1232, 500)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -820,7 +822,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 844)</value>
+      <value>(256, 1084)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -867,7 +869,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 1012)</value>
+      <value>(256, 1252)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -926,7 +928,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 1204)</value>
+      <value>(256, 1444)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -973,7 +975,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(960, 692)</value>
+      <value>(952, 884)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1020,7 +1022,54 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 1212)</value>
+      <value>(952, 756)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_tagged_stream_to_pdu_0_0_0_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>tag</key>
+      <value>packet_len</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_tagged_stream_to_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(520, 1452)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1067,7 +1116,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(736, 844)</value>
+      <value>(736, 1084)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1228,7 +1277,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 972)</value>
+      <value>(520, 1212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1283,7 +1332,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(264, 696)</value>
+      <value>(264, 888)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1292,6 +1341,45 @@ we're getting are inverted</value>
     <param>
       <key>id</key>
       <value>digital_binary_slicer_fb_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_binary_slicer_fb</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(264, 760)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_binary_slicer_fb_0_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1322,7 +1410,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1184, 468)</value>
+      <value>(1000, 468)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1389,7 +1477,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 676)</value>
+      <value>(440, 868)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1398,6 +1486,61 @@ we're getting are inverted</value>
     <param>
       <key>id</key>
       <value>digital_correlate_access_code_tag_bb_0_0_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>tagname</key>
+      <value>syncword</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>8</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_correlate_access_code_tag_xx</key>
+    <param>
+      <key>access_code</key>
+      <value>access_code</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(440, 740)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_correlate_access_code_tag_bb_0_0_0_0</value>
     </param>
     <param>
       <key>type</key>
@@ -1440,7 +1583,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 844)</value>
+      <value>(480, 1084)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1526,7 +1669,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(968, 836)</value>
+      <value>(968, 1076)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1710,7 +1853,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1440, 676)</value>
+      <value>(1440, 820)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1741,7 +1884,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1440, 844)</value>
+      <value>(1440, 1084)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1772,7 +1915,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1440, 1012)</value>
+      <value>(1440, 1252)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1803,7 +1946,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1432, 1212)</value>
+      <value>(1432, 1452)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1991,7 +2134,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(848, 1204)</value>
+      <value>(848, 1444)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2034,7 +2177,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(696, 676)</value>
+      <value>(696, 868)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2043,6 +2186,61 @@ we're getting are inverted</value>
     <param>
       <key>id</key>
       <value>satellites_fixedlen_tagger_0_0_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>packetlen_tag</key>
+      <value>packet_len</value>
+    </param>
+    <param>
+      <key>packet_len</key>
+      <value>251*8</value>
+    </param>
+    <param>
+      <key>stream_type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>syncword_tag</key>
+      <value>syncword</value>
+    </param>
+  </block>
+  <block>
+    <key>satellites_fixedlen_tagger</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(696, 740)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>satellites_fixedlen_tagger_0_0_0_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2171,7 +2369,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1184, 684)</value>
+      <value>(1184, 876)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2218,7 +2416,7 @@ we're getting are inverted</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1184, 836)</value>
+      <value>(1184, 1076)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2373,7 +2571,7 @@ we're getting are inverted</value>
   </connection>
   <connection>
     <source_block_id>blocks_multiply_const_vxx_0</source_block_id>
-    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
+    <sink_block_id>digital_binary_slicer_fb_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2403,6 +2601,12 @@ we're getting are inverted</value>
   </connection>
   <connection>
     <source_block_id>blocks_tagged_stream_to_pdu_0_0_0</source_block_id>
+    <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_tagged_stream_to_pdu_0_0_0_0</source_block_id>
     <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
     <source_key>pdus</source_key>
     <sink_key>in</sink_key>
@@ -2456,6 +2660,18 @@ we're getting are inverted</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>digital_binary_slicer_fb_0_0</source_block_id>
+    <sink_block_id>digital_correlate_access_code_tag_bb_0_0_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_clock_recovery_mm_xx_0</source_block_id>
+    <sink_block_id>blocks_multiply_const_vxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>digital_clock_recovery_mm_xx_0</source_block_id>
     <sink_block_id>digital_binary_slicer_fb_0</sink_block_id>
     <source_key>0</source_key>
@@ -2464,6 +2680,12 @@ we're getting are inverted</value>
   <connection>
     <source_block_id>digital_correlate_access_code_tag_bb_0_0_0</source_block_id>
     <sink_block_id>satellites_fixedlen_tagger_0_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_correlate_access_code_tag_bb_0_0_0_0</source_block_id>
+    <sink_block_id>satellites_fixedlen_tagger_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2493,7 +2715,7 @@ we're getting are inverted</value>
   </connection>
   <connection>
     <source_block_id>rational_resampler_xxx_0</source_block_id>
-    <sink_block_id>blocks_multiply_const_vxx_0</sink_block_id>
+    <sink_block_id>digital_clock_recovery_mm_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2530,6 +2752,12 @@ we're getting are inverted</value>
   <connection>
     <source_block_id>satellites_fixedlen_tagger_0_0_0</source_block_id>
     <sink_block_id>blocks_tagged_stream_to_pdu_0_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>satellites_fixedlen_tagger_0_0_0_0</source_block_id>
+    <sink_block_id>blocks_tagged_stream_to_pdu_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
