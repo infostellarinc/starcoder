@@ -225,6 +225,33 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(208, 300)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>usrp_samp_rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1000000</value>
+    </param>
+  </block>
+  <block>
     <key>analog_quadrature_demod_cf</key>
     <param>
       <key>alias</key>
@@ -323,7 +350,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>samp_rate</value>
+      <value>usrp_samp_rate</value>
     </param>
     <param>
       <key>waveform</key>
@@ -386,7 +413,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>samp_rate</value>
+      <value>usrp_samp_rate</value>
     </param>
     <param>
       <key>waveform</key>
@@ -449,7 +476,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>samp_rate</value>
+      <value>usrp_samp_rate</value>
     </param>
     <param>
       <key>waveform</key>
@@ -644,7 +671,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1048, 136)</value>
+      <value>(928, 136)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1252,7 +1279,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>30000</value>
+      <value>300000</value>
     </param>
   </block>
   <block>
@@ -1519,6 +1546,65 @@
     <param>
       <key>id</key>
       <value>rational_resampler_xxx_0_0_0</value>
+    </param>
+    <param>
+      <key>interp</key>
+      <value>usrp_samp_rate</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>ccc</value>
+    </param>
+  </block>
+  <block>
+    <key>rational_resampler_xxx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>decim</key>
+      <value>usrp_samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>fbw</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1056, 140)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>rational_resampler_xxx_1</value>
     </param>
     <param>
       <key>interp</key>
@@ -2024,7 +2110,7 @@
     </param>
     <param>
       <key>filename</key>
-      <value></value>
+      <value>/tmp/wtf.png</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -3078,7 +3164,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>samp_rate</value>
+      <value>usrp_samp_rate</value>
     </param>
     <param>
       <key>hide_cmd_port</key>
@@ -4421,7 +4507,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>samp_rate</value>
+      <value>usrp_samp_rate</value>
     </param>
     <param>
       <key>hide_cmd_port</key>
@@ -4492,19 +4578,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_multiply_xx_0</source_block_id>
-    <sink_block_id>low_pass_filter_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_multiply_xx_0</source_block_id>
-    <sink_block_id>starcoder_complex_to_msg_c_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_multiply_xx_0</source_block_id>
-    <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
+    <sink_block_id>rational_resampler_xxx_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -4571,6 +4645,24 @@
   <connection>
     <source_block_id>rational_resampler_xxx_0_0_0</source_block_id>
     <sink_block_id>blocks_multiply_xx_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rational_resampler_xxx_1</source_block_id>
+    <sink_block_id>low_pass_filter_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rational_resampler_xxx_1</source_block_id>
+    <sink_block_id>starcoder_complex_to_msg_c_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rational_resampler_xxx_1</source_block_id>
+    <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
