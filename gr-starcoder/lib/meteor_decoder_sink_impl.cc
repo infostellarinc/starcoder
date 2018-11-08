@@ -22,6 +22,8 @@
 #include "config.h"
 #endif
 
+#include <fstream>
+
 #include <gnuradio/io_signature.h>
 #include "meteor_decoder_sink_impl.h"
 

@@ -21,6 +21,7 @@
 #include "gil_util.h"
 
 #include <memory>
+#include <fstream>
 
 namespace gr {
 namespace starcoder {
