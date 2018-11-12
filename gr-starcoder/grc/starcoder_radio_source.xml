@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<block>
+  <name>Radio Source</name>
+  <key>starcoder_radio_source</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.radio_source($radio, $device_address, $samp_rate, $center_freq, $gain, $antenna)</make>
+
+  <param>
+    <name>Radio</name>
+    <key>radio</key>
+    <value>AR2300</value>
+    <type>string</type>
+    <option>
+      <name>AR2300</name>
+      <key>"AR2300"</key>
+    </option>
+    <option>
+      <name>USRP</name>
+      <key>"USRP"</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Device Address</name>
+    <key>device_address</key>
+    <value></value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Sample Rate</name>
+    <key>samp_rate</key>
+    <value>samp_rate</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Center Frequency</name>
+    <key>center_freq</key>
+    <value>0.0</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Gain</name>
+    <key>gain</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Antenna</name>
+    <key>antenna</key>
+    <value></value>
+    <type>string</type>
+  </param>
+
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>
