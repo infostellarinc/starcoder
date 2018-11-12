@@ -20,6 +20,7 @@
 # 
 
 from gnuradio import gr
+from gnuradio import uhd
 from starcoder import starcoder_swig
 
 class radio_source(gr.hier_block2):
@@ -45,9 +46,19 @@ class radio_source(gr.hier_block2):
 
         # Define blocks and connect them
         if radio == "AR2300":
-            radio_block = starcoder_swig.ar2300_source()
+            self.radio_block = starcoder_swig.ar2300_source()
         elif radio == "USRP":
-            raise NotImplementedError
+            self.radio_block = uhd.usrp_source(
+                device_address,
+                uhd.stream_args(
+                    cpu_format="fc32",
+                    channels=range(1),
+                )
+            )
+            self.radio_block.set_samp_rate(samp_rate)
+            self.radio_block.set_center_freq(center_freq, 0)
+            self.radio_block.set_gain(gain, 0)
+            self.radio_block.set_antenna(antenna, 0)
         else:
             raise NotImplementedError
-        self.connect(radio_block, self)
+        self.connect(self.radio_block, self)

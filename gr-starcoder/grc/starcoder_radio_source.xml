@@ -10,7 +10,7 @@
     <name>Radio</name>
     <key>radio</key>
     <value>AR2300</value>
-    <type>enum</type>
+    <type>string</type>
     <option>
       <name>AR2300</name>
       <key>"AR2300"</key>
