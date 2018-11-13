@@ -34,7 +34,8 @@ GR_PYTHON_INSTALL(
     plot_waterfall.py
     waterfall_sink.py
     pdu_trim_uvector.py
-    radio_source.py DESTINATION ${GR_PYTHON_DIR}/starcoder
+    radio_source.py
+    iq_only_receiver.py DESTINATION ${GR_PYTHON_DIR}/starcoder
 )
 
 ########################################################################
