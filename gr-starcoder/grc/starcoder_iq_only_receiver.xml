@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>iq_only_receiver</name>
+  <name>IQ Only Receiver</name>
   <key>starcoder_iq_only_receiver</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
@@ -77,7 +77,7 @@
   </sink>
 
   <source>
-    <name>out</name>
+    <name>iq_out</name>
     <type>complex</type>
   </source>
 </block>
