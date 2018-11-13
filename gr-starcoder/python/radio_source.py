@@ -31,7 +31,7 @@ class radio_source(gr.hier_block2):
         :param device_address: Device address.
         :type device_address: string
         :param samp_rate: the sampling rate
-        :type samp_rate: double
+        :type samp_rate: int
         :param center_freq: the center frequency
         :type center_freq: double
         :param gain: Receiver gain

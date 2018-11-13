@@ -36,7 +36,7 @@ class iq_only_receiver(gr.hier_block2):
         :param radio_device_address: Device address.
         :type radio_device_address: string
         :param radio_samp_rate: the sampling rate
-        :type radio_samp_rate: double
+        :type radio_samp_rate: int
         :param radio_center_freq: the center frequency
         :type radio_center_freq: double
         :param radio_gain: Receiver gain
@@ -44,7 +44,7 @@ class iq_only_receiver(gr.hier_block2):
         :param radio_antenna: The antenna to use
         :type radio_antenna: string
         :param target_samp_rate: Target sampling rate
-        :type target_samp_rate: double
+        :type target_samp_rate: int
         :param freq_offset_dc_bias: Frequency offset to eliminate DC bias
         :type freq_offset_dc_bias: double
         """

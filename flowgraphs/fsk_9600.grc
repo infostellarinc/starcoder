@@ -898,6 +898,53 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(376, 668)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>radio_antenna</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value></value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(184, 668)</value>
     </param>
     <param>
@@ -1063,7 +1110,7 @@
     </param>
     <param>
       <key>type</key>
-      <value>eng_float</value>
+      <value>intx</value>
     </param>
     <param>
       <key>value</key>
@@ -1401,7 +1448,7 @@
     </param>
     <param>
       <key>type</key>
-      <value>eng_float</value>
+      <value>intx</value>
     </param>
     <param>
       <key>value</key>
