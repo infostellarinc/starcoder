@@ -27,7 +27,11 @@ from radio_source import radio_source
 
 class iq_only_receiver(gr.hier_block2):
     """
-    docstring for block iq_only_receiver
+    This hierarchical block wraps a `starcoder.radio_source` and performs the
+    following functions:
+    * Expects Doppler shift information from an external source for correction.
+    * The offset frequency for preventing DC bias can be specified.
+    * Resampling from the original radio sampling rate to the target sampling rate.
     """
     def __init__(self, radio, radio_device_address, radio_samp_rate, radio_center_freq, radio_gain, radio_antenna, target_samp_rate, freq_offset_dc_bias):
         """
