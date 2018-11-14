@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<block>
+  <name>IQ Only Receiver</name>
+  <key>starcoder_iq_only_receiver</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.iq_only_receiver($radio, $radio_device_address, $radio_samp_rate, $radio_center_freq, $radio_gain, $radio_antenna, $target_samp_rate, $freq_offset_dc_bias)</make>
+
+  <param>
+    <name>Radio</name>
+    <key>radio</key>
+    <value>AR2300</value>
+    <type>string</type>
+    <option>
+      <name>AR2300</name>
+      <key>"AR2300"</key>
+    </option>
+    <option>
+      <name>USRP</name>
+      <key>"USRP"</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Radio Device Address</name>
+    <key>radio_device_address</key>
+    <value></value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Radio Sample Rate</name>
+    <key>radio_samp_rate</key>
+    <value>samp_rate</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Radio Center Frequency</name>
+    <key>radio_center_freq</key>
+    <value>0.0</value>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Radio Gain</name>
+    <key>radio_gain</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Radio Antenna</name>
+    <key>radio_antenna</key>
+    <value></value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Target Sample Rate</name>
+    <key>target_samp_rate</key>
+    <value></value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Frequency offset for DC Bias correction</name>
+    <key>freq_offset_dc_bias</key>
+    <value>0.0</value>
+    <type>real</type>
+  </param>
+
+  <sink>
+    <name>doppler_in</name>
+    <type>message</type>
+    <optional>True</optional>
+  </sink>
+
+  <source>
+    <name>iq_out</name>
+    <type>complex</type>
+  </source>
+</block>

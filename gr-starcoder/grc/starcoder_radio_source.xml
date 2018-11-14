@@ -32,7 +32,7 @@
     <name>Sample Rate</name>
     <key>samp_rate</key>
     <value>samp_rate</value>
-    <type>real</type>
+    <type>int</type>
   </param>
 
   <param>
