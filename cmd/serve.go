@@ -107,7 +107,7 @@ var serveCmd = &cobra.Command{
 						log.Fatalf("failed to create directory: %v", err)
 					}
 					// Write flowgraph to temporary directory
-					err = ioutil.WriteFile(filepath.Join(tempDir, p), flowgraphsBox.MustBytes(p), os.ModePerm)
+					err = ioutil.WriteFile(filepath.Join(tempDir, p), flowgraphsBox.MustBytes(p), 0644)
 					if err != nil {
 						log.Fatalf("failed to write file: %v", err)
 					}
