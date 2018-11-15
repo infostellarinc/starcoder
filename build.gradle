@@ -299,6 +299,8 @@ task testGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     }
 }
 
+tasks.test.dependsOn testGrStarcoder
+
 task installGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     dependsOn compileGrStarcoder
 
