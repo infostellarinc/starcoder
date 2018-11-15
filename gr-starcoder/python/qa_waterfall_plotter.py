@@ -24,7 +24,7 @@ from gnuradio import blocks
 import starcoder_swig as starcoder
 import os
 import tempfile
-
+from matplotlib.testing.compare import compare_images
 
 class qa_waterfall_plotter (gr_unittest.TestCase):
 
@@ -48,9 +48,8 @@ class qa_waterfall_plotter (gr_unittest.TestCase):
         op = starcoder.waterfall_plotter(1, 0, 1, self.fft_size, self.filename)
         self.tb.connect(src, s2v, op)
         self.tb.run()
-        with open(self.filename) as f:
-            with open("test_waterfall.png") as g:
-                self.assertEqual(f.read(), g.read())
+        results = compare_images("test_waterfall.png", self.filename, 0.1)
+        self.assertEqual(results, None)
 
 
 if __name__ == '__main__':
