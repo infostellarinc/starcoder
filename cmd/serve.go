@@ -101,8 +101,14 @@ var serveCmd = &cobra.Command{
 					return nil
 				}
 				if strings.HasSuffix(p, ".grc") || strings.HasSuffix(p, ".py") {
+					newPath := filepath.Join(tempDir, p)
+					newDirectory := filepath.Dir(newPath)
+					err := os.MkdirAll(newDirectory, os.ModePerm)
+					if err != nil {
+						log.Fatalf("failed to create directory: %v", err)
+					}
 					// Write flowgraph to temporary directory
-					err := ioutil.WriteFile(filepath.Join(tempDir, p), flowgraphsBox.MustBytes(p), 0644)
+					err = ioutil.WriteFile(newPath, flowgraphsBox.MustBytes(p), 0644)
 					if err != nil {
 						log.Fatalf("failed to write file: %v", err)
 					}
