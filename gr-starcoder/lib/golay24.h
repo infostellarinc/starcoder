@@ -16,8 +16,9 @@
  */
 
 /*
- This algorithm is based on 
- R.H. Morelos-Zaragoza, The Art of Error Correcting Coding, Wiley, 2002; Section 2.2.3
+ This algorithm is based on
+ R.H. Morelos-Zaragoza, The Art of Error Correcting Coding, Wiley, 2002; Section
+ 2.2.3
 */
 
 #ifndef _GOLAY24_H
@@ -28,12 +29,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
 int decode_golay24(uint32_t *data);
 int encode_golay24(uint32_t *data);
 
 #ifdef __cplusplus
 }
 #endif
-  
+
 #endif

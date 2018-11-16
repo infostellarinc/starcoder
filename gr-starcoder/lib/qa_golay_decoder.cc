@@ -33,8 +33,8 @@ namespace starcoder {
 
 void qa_golay_decoder::t1() {
   gr::top_block_sptr tb = gr::make_top_block("qa_golay_decoder");
-  golay_decoder::sptr decoder = golay_decoder::make(0, 1);
-  gr::blocks::message_debug::sptr snk =gr::blocks::message_debug::make();
+  golay_decoder::sptr decoder = golay_decoder::make(10, 1);
+  gr::blocks::message_debug::sptr snk = gr::blocks::message_debug::make();
   tb->msg_connect(decoder, pmt::mp("out"), snk, pmt::mp("store"));
 
   tb->start();
@@ -50,6 +50,9 @@ void qa_golay_decoder::t1() {
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   CPPUNIT_ASSERT_EQUAL(1, snk->num_messages());
+  CPPUNIT_ASSERT(
+      pmt::equal(pmt::cons(pmt::PMT_NIL, pmt::make_u8vector(976, 0x25)),
+                 snk->get_message(0)));
 }
 
 } /* namespace starcoder */
