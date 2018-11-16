@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,21 +18,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #include <gnuradio/attributes.h>
 #include <cppunit/TestAssert.h>
 #include "qa_golay_decoder.h"
 #include <starcoder/golay_decoder.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    void
-    qa_golay_decoder::t1()
-    {
-      // Put test here
-    }
+void qa_golay_decoder::t1() {
+  // Put test here
+}
 
-  } /* namespace starcoder */
+} /* namespace starcoder */
 } /* namespace gr */
-

@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef _QA_GOLAY_DECODER_H_
 #define _QA_GOLAY_DECODER_H_
 
@@ -26,21 +25,19 @@
 #include <cppunit/TestCase.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    class qa_golay_decoder : public CppUnit::TestCase
-    {
-    public:
-      CPPUNIT_TEST_SUITE(qa_golay_decoder);
-      CPPUNIT_TEST(t1);
-      CPPUNIT_TEST_SUITE_END();
+class qa_golay_decoder : public CppUnit::TestCase {
+ public:
+  CPPUNIT_TEST_SUITE(qa_golay_decoder);
+  CPPUNIT_TEST(t1);
+  CPPUNIT_TEST_SUITE_END();
 
-    private:
-      void t1();
-    };
+ private:
+  void t1();
+};
 
-  } /* namespace starcoder */
+} /* namespace starcoder */
 } /* namespace gr */
 
 #endif /* _QA_GOLAY_DECODER_H_ */
-

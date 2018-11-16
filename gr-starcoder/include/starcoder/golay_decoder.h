@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_STARCODER_GOLAY_DECODER_H
 #define INCLUDED_STARCODER_GOLAY_DECODER_H
 
@@ -26,31 +25,29 @@
 #include <gnuradio/block.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    /*!
-     * \brief <+description of block+>
-     * \ingroup starcoder
-     *
-     */
-    class STARCODER_API golay_decoder : virtual public gr::block
-    {
-     public:
-      typedef boost::shared_ptr<golay_decoder> sptr;
+/*!
+ * \brief <+description of block+>
+ * \ingroup starcoder
+ *
+ */
+class STARCODER_API golay_decoder : virtual public gr::block {
+ public:
+  typedef boost::shared_ptr<golay_decoder> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of starcoder::golay_decoder.
-       *
-       * To avoid accidental use of raw pointers, starcoder::golay_decoder's
-       * constructor is in a private implementation
-       * class. starcoder::golay_decoder::make is the public interface for
-       * creating new instances.
-       */
-      static sptr make(int offset, int num_units);
-    };
+  /*!
+   * \brief Return a shared_ptr to a new instance of starcoder::golay_decoder.
+   *
+   * To avoid accidental use of raw pointers, starcoder::golay_decoder's
+   * constructor is in a private implementation
+   * class. starcoder::golay_decoder::make is the public interface for
+   * creating new instances.
+   */
+  static sptr make(int offset, int num_units);
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_GOLAY_DECODER_H */
-

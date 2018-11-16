@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -24,28 +24,25 @@
 #include <starcoder/golay_decoder.h>
 
 namespace gr {
-  namespace starcoder {
+namespace starcoder {
 
-    class golay_decoder_impl : public golay_decoder
-    {
-     public:
-      golay_decoder_impl(int offset, int num_units);
-      ~golay_decoder_impl();
+class golay_decoder_impl : public golay_decoder {
+ public:
+  golay_decoder_impl(int offset, int num_units);
+  ~golay_decoder_impl();
 
-      // Where all the action really happens
-      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+  // Where all the action really happens
+  void forecast(int noutput_items, gr_vector_int &ninput_items_required);
 
-      int general_work(int noutput_items,
-           gr_vector_int &ninput_items,
-           gr_vector_const_void_star &input_items,
-           gr_vector_void_star &output_items);
+  int general_work(int noutput_items, gr_vector_int &ninput_items,
+                   gr_vector_const_void_star &input_items,
+                   gr_vector_void_star &output_items);
 
-    private:
-      void msg_handler(pmt::pmt_t pmt_msg);
-    };
+ private:
+  void msg_handler(pmt::pmt_t pmt_msg);
+};
 
-  } // namespace starcoder
-} // namespace gr
+}  // namespace starcoder
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_GOLAY_DECODER_IMPL_H */
-
