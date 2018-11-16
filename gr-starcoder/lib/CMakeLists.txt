@@ -83,7 +83,8 @@ list(APPEND starcoder_sources
     command_source_impl.cc
     ax25_encoder_mb_impl.cc
     noaa_apt_sink_impl.cc
-    meteor_decoder_sink_impl.cc )
+    meteor_decoder_sink_impl.cc
+    golay_decoder_impl.cc )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)
@@ -154,6 +155,7 @@ include_directories( ${CPPUNIT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../../c
 list(APPEND test_starcoder_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_starcoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_starcoder.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_golay_decoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_enqueue_message_sink.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_meteor_decoder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../cqueue/string_queue.cc
