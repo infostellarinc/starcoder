@@ -338,7 +338,7 @@ task install {
 }
 
 task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
-    dependsOn 'pythonSetup'
+    dependsOn 'toolsSetupGnuradio'
 
     def ccFiles = fileTree('.').filter { it.isFile() && it.name.endsWith('.cc') }.files.path.join(' ')
     def hIncFiles = fileTree('./gr-starcoder/include').filter { it.isFile() && it.name.endsWith('.h') }.files.path.join(' ')
