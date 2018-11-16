@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "golay_decoder_impl.h"
+#include "golay24.h"
 
 namespace gr {
 namespace starcoder {
@@ -45,7 +46,6 @@ golay_decoder_impl::~golay_decoder_impl() {}
 
 void golay_decoder_impl::forecast(int noutput_items,
                                   gr_vector_int &ninput_items_required) {
-  /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
 }
 
 int golay_decoder_impl::general_work(int noutput_items,
@@ -55,7 +55,19 @@ int golay_decoder_impl::general_work(int noutput_items,
   return 0;
 }
 
-void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {}
+void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
+  pmt::pmt_t data = pmt::cdr(pmt_msg);
+  size_t offset(0);
+  const uint8_t *in = pmt::u8vector_elements(data, offset);
+  printf("offset: %lu\n", offset);
+  printf("length: %lu\n", pmt::length(data));
+
+  uint32_t encoded = 445;
+  decode_golay24(&encoded);
+      
+  pmt::pmt_t out = pmt::init_u8vector(pmt::length(data), in);
+  message_port_pub(pmt::mp("out"), pmt::cons(pmt::PMT_NIL, out));
+}
 
 } /* namespace starcoder */
 } /* namespace gr */

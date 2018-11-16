@@ -25,7 +25,15 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+  
 int decode_golay24(uint32_t *data);
 int encode_golay24(uint32_t *data);
 
+#ifdef __cplusplus
+}
+#endif
+  
 #endif

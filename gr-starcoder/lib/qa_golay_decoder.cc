@@ -18,16 +18,38 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <gnuradio/attributes.h>
-#include <cppunit/TestAssert.h>
 #include "qa_golay_decoder.h"
+
+#include <chrono>
+#include <cppunit/TestAssert.h>
+#include <gnuradio/attributes.h>
+#include <gnuradio/blocks/message_debug.h>
+#include <gnuradio/top_block.h>
 #include <starcoder/golay_decoder.h>
+#include <thread>
 
 namespace gr {
 namespace starcoder {
 
 void qa_golay_decoder::t1() {
-  // Put test here
+  gr::top_block_sptr tb = gr::make_top_block("qa_golay_decoder");
+  golay_decoder::sptr decoder = golay_decoder::make(0, 1);
+  gr::blocks::message_debug::sptr snk =gr::blocks::message_debug::make();
+  tb->msg_connect(decoder, pmt::mp("out"), snk, pmt::mp("store"));
+
+  tb->start();
+
+  decoder->_post(pmt::mp("in"),
+                 pmt::cons(pmt::make_dict(), pmt::make_u8vector(1000, 0x25)));
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  tb->stop();
+  tb->wait();
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  CPPUNIT_ASSERT_EQUAL(1, snk->num_messages());
 }
 
 } /* namespace starcoder */
