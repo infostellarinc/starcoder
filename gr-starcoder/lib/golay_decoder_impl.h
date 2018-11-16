@@ -28,11 +28,8 @@ namespace gr {
 
     class golay_decoder_impl : public golay_decoder
     {
-     private:
-      // Nothing to declare in this block.
-
      public:
-      golay_decoder_impl(uint64 offset, uint64 num_units);
+      golay_decoder_impl(int offset, int num_units);
       ~golay_decoder_impl();
 
       // Where all the action really happens
@@ -42,6 +39,9 @@ namespace gr {
            gr_vector_int &ninput_items,
            gr_vector_const_void_star &input_items,
            gr_vector_void_star &output_items);
+
+    private:
+      void msg_handler(pmt::pmt_t pmt_msg);
     };
 
   } // namespace starcoder

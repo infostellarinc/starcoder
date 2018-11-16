@@ -46,7 +46,7 @@ namespace gr {
        * class. starcoder::golay_decoder::make is the public interface for
        * creating new instances.
        */
-      static sptr make(uint64 offset, uint64 num_units);
+      static sptr make(int offset, int num_units);
     };
 
   } // namespace starcoder
