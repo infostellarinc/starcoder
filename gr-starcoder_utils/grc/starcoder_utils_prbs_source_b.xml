@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<block>
+  <name>prbs_source_b</name>
+  <key>starcoder_utils_prbs_source_b</key>
+  <category>[starcoder_utils]</category>
+  <import>import starcoder_utils</import>
+  <make>starcoder_utils.prbs_source_b($packet_len, $reset_len, $num_packets)</make>
+
+  <param>
+    <name>Packet length</name>
+    <key>packet_len</key>
+    <value>1784</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Reset length</name>
+    <key>reset_len</key>
+    <value>100000</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Number of packets</name>
+    <key>num_packets</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>
