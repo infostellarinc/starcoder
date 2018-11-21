@@ -312,7 +312,54 @@ task testGrStarcoder(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     }
 }
 
+task compileGrStarcoderUtils(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+    dependsOn setupPrefix
+
+    condaName 'gnuradio'
+
+    command """cmake ../../gr-starcoder_utils -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=${gnuradioRoot} -Wno-dev && \\
+        make
+    """
+
+    execCustomizer {exec->
+        exec.workingDir project.file('build/starcoder_utils-cmake')
+        exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+    }
+
+    doFirst {
+        project.mkdir('build/starcoder_utils-cmake')
+    }
+}
+
+task installGrStarcoderUtils(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+    dependsOn compileGrStarcoderUtils
+
+    condaName 'gnuradio'
+
+    command 'make install'
+
+    execCustomizer {exec->
+        exec.workingDir project.file('build/starcoder_utils-cmake')
+        exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+    }
+}
+
+task testGrStarcoderUtils(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+    dependsOn installGrStarcoderUtils
+
+    condaName 'gnuradio'
+
+    command 'make test ARGS=-VV'
+
+    execCustomizer {exec->
+        exec.workingDir project.file('build/starcoder_utils-cmake')
+        exec.environment 'PKG_CONFIG_PATH', "${gnuradioRoot}/lib/pkgconfig"
+    }
+}
+
+
 tasks.test.dependsOn testGrStarcoder
+tasks.test.dependsOn testGrStarcoderUtils
 
 task installGrStarcoderFromRecipe(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     dependsOn setupPrefix
@@ -334,7 +381,7 @@ task installStarcoder(type: Copy) {
 }
 
 task install {
-    dependsOn installGrStarcoder, installStarcoder
+    dependsOn installGrStarcoder, installGrStarcoderUtils, installStarcoder
 }
 
 task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
