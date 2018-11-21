@@ -1,0 +1,30 @@
+INCLUDE(FindPkgConfig)
+PKG_CHECK_MODULES(PC_STARCODER_UTILS starcoder_utils)
+
+FIND_PATH(
+    STARCODER_UTILS_INCLUDE_DIRS
+    NAMES starcoder_utils/api.h
+    HINTS $ENV{STARCODER_UTILS_DIR}/include
+        ${PC_STARCODER_UTILS_INCLUDEDIR}
+    PATHS ${CMAKE_INSTALL_PREFIX}/include
+          /usr/local/include
+          /usr/include
+)
+
+FIND_LIBRARY(
+    STARCODER_UTILS_LIBRARIES
+    NAMES gnuradio-starcoder_utils
+    HINTS $ENV{STARCODER_UTILS_DIR}/lib
+        ${PC_STARCODER_UTILS_LIBDIR}
+    PATHS ${CMAKE_INSTALL_PREFIX}/lib
+          ${CMAKE_INSTALL_PREFIX}/lib64
+          /usr/local/lib
+          /usr/local/lib64
+          /usr/lib
+          /usr/lib64
+)
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(STARCODER_UTILS DEFAULT_MSG STARCODER_UTILS_LIBRARIES STARCODER_UTILS_INCLUDE_DIRS)
+MARK_AS_ADVANCED(STARCODER_UTILS_LIBRARIES STARCODER_UTILS_INCLUDE_DIRS)
+
