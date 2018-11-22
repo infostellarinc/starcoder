@@ -31,6 +31,4 @@ except ImportError:
 	pass
 
 # import any pure python here
-from prbs_source_b import prbs_source_b
-
 #
