@@ -32,7 +32,8 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
+    prbs_base.py
+    prbs_source_b.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
 )
 
 ########################################################################
