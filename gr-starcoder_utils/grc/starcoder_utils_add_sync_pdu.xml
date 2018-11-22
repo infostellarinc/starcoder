@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<block>
+  <name>add_sync_pdu</name>
+  <key>starcoder_utils_add_sync_pdu</key>
+  <category>[starcoder_utils]</category>
+  <import>import starcoder_utils</import>
+  <make>starcoder_utils.add_sync_pdu($sync_word, $byte_length)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Synchronization word</name>
+    <key>sync_word</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Length in bytes</name>
+    <key>byte_length</key>
+    <type>int</type>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

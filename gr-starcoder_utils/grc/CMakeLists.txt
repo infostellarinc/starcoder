@@ -18,5 +18,6 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 install(FILES
-    starcoder_utils_prbs_source_b.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_utils_prbs_source_b.xml
+    starcoder_utils_add_sync_pdu.xml DESTINATION share/gnuradio/grc/blocks
 )
