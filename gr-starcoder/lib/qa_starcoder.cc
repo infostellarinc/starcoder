@@ -35,13 +35,11 @@
 #include <thread>
 #include "qa_enqueue_message_sink.h"
 #include "qa_meteor_decoder.h"
-#include "qa_golay_decoder.h"
 
 CppUnit::TestSuite *qa_starcoder::suite() {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("starcoder");
   s->addTest(gr::starcoder::qa_enqueue_message_sink::suite());
   s->addTest(gr::starcoder::qa_meteor_decoder::suite());
-  s->addTest(gr::starcoder::qa_golay_decoder::suite());
 
   // The test below only works when the AR2300 is connected.
   //s->addTest(new CppUnit::TestCaller<qa_starcoder>(
