@@ -18,6 +18,7 @@
 #include "starcoder/ax25_encoder_mb.h"
 #include "starcoder/noaa_apt_sink.h"
 #include "starcoder/meteor_decoder_sink.h"
+#include "starcoder/golay_decoder.h"
 %}
 
 
@@ -42,3 +43,5 @@ GR_SWIG_BLOCK_MAGIC2(starcoder, ax25_encoder_mb);
 GR_SWIG_BLOCK_MAGIC2(starcoder, noaa_apt_sink);
 %include "starcoder/meteor_decoder_sink.h"
 GR_SWIG_BLOCK_MAGIC2(starcoder, meteor_decoder_sink);
+%include "starcoder/golay_decoder.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, golay_decoder);

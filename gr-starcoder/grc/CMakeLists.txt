@@ -30,5 +30,6 @@ install(FILES
     starcoder_meteor_decoder_sink.xml
     starcoder_pdu_trim_uvector.xml
     starcoder_radio_source.xml
-    starcoder_iq_only_receiver.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_iq_only_receiver.xml
+    starcoder_golay_decoder.xml DESTINATION share/gnuradio/grc/blocks
 )
