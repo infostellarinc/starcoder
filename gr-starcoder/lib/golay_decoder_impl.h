@@ -38,8 +38,8 @@ class golay_decoder_impl : public golay_decoder {
  private:
   void msg_handler(pmt::pmt_t pmt_msg);
 
-  const int _offset;
-  const int _num_units;
+  const int offset_;
+  const int num_units_;
 };
 
 }  // namespace starcoder

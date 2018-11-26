@@ -39,8 +39,8 @@ golay_decoder::sptr golay_decoder::make(int offset, int num_units) {
 golay_decoder_impl::golay_decoder_impl(int offset, int num_units)
     : gr::block("golay_decoder", gr::io_signature::make(0, 0, 0),
                 gr::io_signature::make(0, 0, 0)),
-      _offset(offset),
-      _num_units(num_units) {
+      offset_(offset),
+      num_units_(num_units) {
   message_port_register_in(pmt::mp("in"));
   message_port_register_out(pmt::mp("out"));
   set_msg_handler(pmt::mp("in"),
@@ -61,11 +61,11 @@ void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
   const uint8_t *in = pmt::u8vector_elements(pmt::cdr(pmt_msg), in_size);
 
   std::vector<uint8_t> out;
-  std::copy(in, in + _offset, std::back_inserter(out));
-  for (int i = 0; i < _num_units; ++i) {
+  std::copy(in, in + offset_, std::back_inserter(out));
+  for (int i = 0; i < num_units_; ++i) {
     //    decode_golay24(&encoded);
   }
-  std::copy(in + _offset + 24 * _num_units, in + in_size,
+  std::copy(in + offset_ + 24 * num_units_, in + in_size,
             std::back_inserter(out));
 
   message_port_pub(
