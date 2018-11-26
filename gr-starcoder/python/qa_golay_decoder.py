@@ -21,6 +21,7 @@
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
+import copy
 import pmt
 import starcoder_swig as starcoder
 import time
@@ -28,11 +29,11 @@ import time
 PREAMBLE = [0x32, 0x6F, 0x19, 0xD3]
 POSTAMBLE = [0x77, 0x10, 0xDE, 0xF1]
 
-ENCODED1 = [1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1]
-DECODED1 = [1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1]
+MESSAGE1 = [1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1]
+ENCODED1 = [0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1]
 
-ENCODED2 = [1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0]
-DECODED2 = [0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0]
+MESSAGE2 = [0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0]
+ENCODED2 = [1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0]
 
 class qa_golay_decoder(gr_unittest.TestCase):
 
@@ -46,9 +47,10 @@ class qa_golay_decoder(gr_unittest.TestCase):
         self.tb = None
 
     def test_noError(self):
-        self.tb.start()
         input_vector = pmt.init_u8vector(
             56, PREAMBLE + ENCODED1 + ENCODED2 + POSTAMBLE)
+
+        self.tb.start()
         self.decoder._post(pmt.intern('in'),
                       pmt.cons(pmt.make_dict(), input_vector))
         time.sleep(0.1)
@@ -57,7 +59,32 @@ class qa_golay_decoder(gr_unittest.TestCase):
 
         self.assertEqual(self.snk.num_messages(), 1)
         expected_vector = pmt.init_u8vector(
-            32, PREAMBLE + DECODED1 + DECODED2 + POSTAMBLE)
+            32, PREAMBLE + MESSAGE1 + MESSAGE2 + POSTAMBLE)
+        self.assertTrue(pmt.equal(self.snk.get_message(0),
+                                  pmt.cons(pmt.PMT_NIL, expected_vector)))
+
+    def test_errorCorrected(self):
+        encoded1 = copy.copy(ENCODED1)
+        encoded1[3] = 1 - encoded1[3]
+        encoded1[12] = 1 - encoded1[12]
+        encoded1[17] = 1 - encoded1[17]
+        encoded2 = copy.copy(ENCODED2)
+        encoded2[7] = 1 - encoded2[7]
+        encoded2[10] = 1 - encoded2[10]
+        encoded2[11] = 1 - encoded2[11]
+        input_vector = pmt.init_u8vector(
+            56, PREAMBLE + encoded1 + encoded2 + POSTAMBLE)
+
+        self.tb.start()
+        self.decoder._post(pmt.intern('in'),
+                      pmt.cons(pmt.make_dict(), input_vector))
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        self.assertEqual(self.snk.num_messages(), 1)
+        expected_vector = pmt.init_u8vector(
+            32, PREAMBLE + MESSAGE1 + MESSAGE2 + POSTAMBLE)
         self.assertTrue(pmt.equal(self.snk.get_message(0),
                                   pmt.cons(pmt.PMT_NIL, expected_vector)))
 
