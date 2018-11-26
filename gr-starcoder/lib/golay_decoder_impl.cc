@@ -68,10 +68,10 @@ void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
     uint32_t word = 0;
     for (int j = 0; j < 24; j++) {
       if (j != 0) {
-	word = word << 1;
+        word = word << 1;
       }
       if (*p != 0) {
-	word |= 1;
+        word |= 1;
       }
       p++;
     }
