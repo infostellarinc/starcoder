@@ -31,9 +31,6 @@ class golay_decoder_impl : public golay_decoder {
   golay_decoder_impl(int offset, int num_units);
   ~golay_decoder_impl();
 
-  // Where all the action really happens
-  void forecast(int noutput_items, gr_vector_int &ninput_items_required);
-
   int general_work(int noutput_items, gr_vector_int &ninput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items);
