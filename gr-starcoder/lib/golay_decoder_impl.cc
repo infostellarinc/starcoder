@@ -62,9 +62,35 @@ void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
 
   std::vector<uint8_t> out;
   std::copy(in, in + offset_, std::back_inserter(out));
-  for (int i = 0; i < num_units_; ++i) {
-    //    decode_golay24(&encoded);
+
+  const uint8_t *p = in + offset_;
+  for (int i = 0; i < num_units_; i++) {
+    uint32_t word = 0;
+    printf("\nencoded\n");
+    for (int j = 0; j < 24; j++) {
+      if (j != 0) {
+	word = word << 1;
+      }
+      if (*p != 0) {
+	word |= 1;
+	printf("1");
+      } else {
+	printf("0");
+      }
+      p++;
+    }
+    printf("\n%lu\n", word);
+    decode_golay24(&word);
+
+    printf("decoded\n%lu\n", word & 0xFFF);
+    uint32_t mask = 1 << 11;
+    for (int j = 0; j < 12; j++) {
+      printf(word & mask ? "1" : "0");
+      out.push_back(word & mask ? 1 : 0);
+      mask = mask >> 1;
+    }
   }
+
   std::copy(in + offset_ + 24 * num_units_, in + in_size,
             std::back_inserter(out));
 
