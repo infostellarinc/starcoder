@@ -88,5 +88,57 @@ class qa_golay_decoder(gr_unittest.TestCase):
         self.assertTrue(pmt.equal(self.snk.get_message(0),
                                   pmt.cons(pmt.PMT_NIL, expected_vector)))
 
+    def test_ignoreFourErrorBits(self):
+        encoded1 = copy.copy(ENCODED1)
+        encoded1[3] = 1 - encoded1[3]
+        encoded1[12] = 1 - encoded1[12]
+        encoded1[17] = 1 - encoded1[17]
+        encoded1[19] = 1 - encoded1[19]
+        encoded2 = copy.copy(ENCODED2)
+        encoded2[7] = 1 - encoded2[7]
+        encoded2[10] = 1 - encoded2[10]
+        encoded2[11] = 1 - encoded2[11]
+        encoded2[22] = 1 - encoded2[22]
+        input_vector = pmt.init_u8vector(
+            56, PREAMBLE + encoded1 + encoded2 + POSTAMBLE)
+
+        self.tb.start()
+        self.decoder._post(pmt.intern('in'),
+                      pmt.cons(pmt.make_dict(), input_vector))
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        self.assertEqual(self.snk.num_messages(), 0)
+
+    def test_correctFiveErrorBitsToDifferentMessage(self):
+        encoded1 = copy.copy(ENCODED1)
+        encoded1[3] = 1 - encoded1[3]
+        encoded1[5] = 1 - encoded1[5]
+        encoded1[12] = 1 - encoded1[12]
+        encoded1[17] = 1 - encoded1[17]
+        encoded1[19] = 1 - encoded1[19]
+        encoded2 = copy.copy(ENCODED2)
+        encoded2[7] = 1 - encoded2[7]
+        encoded2[10] = 1 - encoded2[10]
+        encoded2[11] = 1 - encoded2[11]
+        encoded2[18] = 1 - encoded2[18]
+        encoded2[22] = 1 - encoded2[22]
+        input_vector = pmt.init_u8vector(
+            56, PREAMBLE + encoded1 + encoded2 + POSTAMBLE)
+
+        self.tb.start()
+        self.decoder._post(pmt.intern('in'),
+                      pmt.cons(pmt.make_dict(), input_vector))
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        self.assertEqual(self.snk.num_messages(), 1)
+        expected_vector = pmt.init_u8vector(
+            32, PREAMBLE + MESSAGE1 + MESSAGE2 + POSTAMBLE)
+        self.assertFalse(pmt.equal(self.snk.get_message(0),
+                                   pmt.cons(pmt.PMT_NIL, expected_vector)))
+
 if __name__ == '__main__':
     gr_unittest.run(qa_golay_decoder, "qa_golay_decoder.xml")

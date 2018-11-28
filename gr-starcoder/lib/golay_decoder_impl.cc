@@ -75,7 +75,9 @@ void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
       }
       p++;
     }
-    decode_golay24(&word);
+    if (decode_golay24(&word) < 0) {
+      return;
+    }
 
     uint32_t mask = 1 << 11;
     for (int j = 0; j < 12; j++) {
