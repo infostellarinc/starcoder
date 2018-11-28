@@ -49,10 +49,11 @@ class qa_golay_decoder(gr_unittest.TestCase):
     def test_noError(self):
         input_vector = pmt.init_u8vector(
             56, PREAMBLE + ENCODED1 + ENCODED2 + POSTAMBLE)
+        message_car = pmt.dict_add(pmt.make_dict(), pmt.intern('key'), pmt.intern('value'))
 
         self.tb.start()
         self.decoder._post(pmt.intern('in'),
-                      pmt.cons(pmt.make_dict(), input_vector))
+                           pmt.cons(message_car, input_vector))
         time.sleep(0.1)
         self.tb.stop()
         self.tb.wait()
@@ -61,7 +62,7 @@ class qa_golay_decoder(gr_unittest.TestCase):
         expected_vector = pmt.init_u8vector(
             32, PREAMBLE + MESSAGE1 + MESSAGE2 + POSTAMBLE)
         self.assertTrue(pmt.equal(self.snk.get_message(0),
-                                  pmt.cons(pmt.PMT_NIL, expected_vector)))
+                                  pmt.cons(message_car, expected_vector)))
 
     def test_errorCorrected(self):
         encoded1 = copy.copy(ENCODED1)
@@ -74,10 +75,11 @@ class qa_golay_decoder(gr_unittest.TestCase):
         encoded2[11] = 1 - encoded2[11]
         input_vector = pmt.init_u8vector(
             56, PREAMBLE + encoded1 + encoded2 + POSTAMBLE)
+        message_car = pmt.dict_add(pmt.make_dict(), pmt.intern('key'), pmt.intern('value'))
 
         self.tb.start()
         self.decoder._post(pmt.intern('in'),
-                      pmt.cons(pmt.make_dict(), input_vector))
+                      pmt.cons(message_car, input_vector))
         time.sleep(0.1)
         self.tb.stop()
         self.tb.wait()
@@ -86,7 +88,7 @@ class qa_golay_decoder(gr_unittest.TestCase):
         expected_vector = pmt.init_u8vector(
             32, PREAMBLE + MESSAGE1 + MESSAGE2 + POSTAMBLE)
         self.assertTrue(pmt.equal(self.snk.get_message(0),
-                                  pmt.cons(pmt.PMT_NIL, expected_vector)))
+                                  pmt.cons(message_car, expected_vector)))
 
     def test_ignoreFourErrorBits(self):
         encoded1 = copy.copy(ENCODED1)
@@ -126,10 +128,11 @@ class qa_golay_decoder(gr_unittest.TestCase):
         encoded2[22] = 1 - encoded2[22]
         input_vector = pmt.init_u8vector(
             56, PREAMBLE + encoded1 + encoded2 + POSTAMBLE)
+        message_car = pmt.dict_add(pmt.make_dict(), pmt.intern('key'), pmt.intern('value'))
 
         self.tb.start()
         self.decoder._post(pmt.intern('in'),
-                      pmt.cons(pmt.make_dict(), input_vector))
+                      pmt.cons(message_car, input_vector))
         time.sleep(0.1)
         self.tb.stop()
         self.tb.wait()
@@ -138,7 +141,7 @@ class qa_golay_decoder(gr_unittest.TestCase):
         expected_vector = pmt.init_u8vector(
             32, PREAMBLE + MESSAGE1 + MESSAGE2 + POSTAMBLE)
         self.assertFalse(pmt.equal(self.snk.get_message(0),
-                                   pmt.cons(pmt.PMT_NIL, expected_vector)))
+                                   pmt.cons(message_car, expected_vector)))
 
 if __name__ == '__main__':
     gr_unittest.run(qa_golay_decoder, "qa_golay_decoder.xml")

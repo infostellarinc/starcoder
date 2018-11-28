@@ -91,7 +91,7 @@ void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
 
   message_port_pub(
       pmt::mp("out"),
-      pmt::cons(pmt::PMT_NIL, pmt::init_u8vector(out.size(), out)));
+      pmt::cons(pmt::car(pmt_msg), pmt::init_u8vector(out.size(), out)));
 }
 
 } /* namespace starcoder */
