@@ -128,33 +128,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 268)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>lpf_cutoff</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>8000</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(8, 396)</value>
     </param>
     <param>
@@ -957,7 +930,7 @@
     </param>
     <param>
       <key>cutoff_freq</key>
-      <value>lpf_cutoff</value>
+      <value>int(0.83*baud_rate)</value>
     </param>
     <param>
       <key>decim</key>
@@ -1005,7 +978,7 @@
     </param>
     <param>
       <key>width</key>
-      <value>lpf_cutoff/2</value>
+      <value>int(0.83*baud_rate/2)</value>
     </param>
     <param>
       <key>win</key>
