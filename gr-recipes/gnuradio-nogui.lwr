@@ -54,7 +54,7 @@ config:
 
     gr-sattools:
       vars:
-        config_opt: "-DINCLUDE_ZMQ_BLOCK=OFF"
+        config_opt: "-DENABLE_ZMQ_BLOCK=OFF"
 
     liblog4cpp:
       # Older versions don't compile on modern gcc.
