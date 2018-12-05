@@ -21,6 +21,7 @@ inherit: prefix
 depends:
 - gnuradio
 - gr-satellites
+- gr-sattools
 config:
   config:
     makewidth: 2
@@ -50,6 +51,10 @@ config:
       - liblog4cpp
       vars:
         config_opt: "-DENABLE_TESTING=off -DCMAKE_CXX_FLAGS=-D__STDC_LIMIT_MACROS -DENABLE_DOXYGEN=OFF -DENABLE_GR_AUDIO=OFF -DENABLE_GR_BLOCKS=ON -DENABLE_GR_DIGITAL=ON -DENABLE_GR_FEC=ON -DENABLE_GR_FFT=ON -DENABLE_GR_FILTER=ON -DENABLE_GR_QTGUI=OFF -DENABLE_GR_UHD=ON -DENABLE_GR_ZEROMQ=OFF -DENABLE_PYTHON=ON -DENABLE_VOLK=ON -DENABLE_GRC=ON -DENABLE_PERFORMANCE_COUNTERS=ON"
+
+    gr-sattools:
+      vars:
+        config_opt: "-DENABLE_SATTOOLS_ZEROMQ=OFF"
 
     liblog4cpp:
       # Older versions don't compile on modern gcc.
