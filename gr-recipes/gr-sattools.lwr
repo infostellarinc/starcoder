@@ -4,4 +4,4 @@ depends:
 description: GNU Radio decoder for AX100
 gitbranch: master
 inherit: cmake
-source: git+https://github.com/infostellarinc/gr-sattools
+source: git+https://github.com/mndza/gr-sattools
