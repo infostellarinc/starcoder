@@ -25,7 +25,7 @@ from gnuradio import gr
 
 class pmt_to_pdu(gr.sync_block):
     """
-    docstring for block pmt_to_pdu
+    Convert uniform vector PMT to PDU with empty metadata
     """
     def __init__(self):
         gr.sync_block.__init__(self,
