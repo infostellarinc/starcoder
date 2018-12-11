@@ -83,7 +83,9 @@ list(APPEND starcoder_sources
     command_source_impl.cc
     ax25_encoder_mb_impl.cc
     noaa_apt_sink_impl.cc
-    meteor_decoder_sink_impl.cc )
+    meteor_decoder_sink_impl.cc
+    golay_decoder_impl.cc
+    golay24.c )
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)

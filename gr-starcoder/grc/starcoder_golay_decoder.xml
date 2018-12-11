@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<block>
+  <name>golay_decoder</name>
+  <key>starcoder_golay_decoder</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.golay_decoder($offset, $num_units)</make>
+
+  <param>
+    <name>offset</name>
+    <key>offset</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>num_units</name>
+    <key>num_units</key>
+    <type>int</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

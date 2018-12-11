@@ -65,3 +65,4 @@ ${CMAKE_CURRENT_BINARY_DIR}/test_waterfall.png
 COPYONLY
 )
 GR_ADD_TEST(qa_pdu_trim_uvector ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_pdu_trim_uvector.py)
+GR_ADD_TEST(qa_golay_decoder ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_golay_decoder.py)
