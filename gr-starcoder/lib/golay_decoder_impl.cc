@@ -77,7 +77,7 @@ void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
     }
     int num_corrected_bits = decode_golay24(&word);
     if (num_corrected_bits < 0) {
-      GR_LOG_INFO(d_logger, "Failed to decode a Golay encoded message.");
+      GR_LOG_DEBUG(d_logger, "Failed to decode a Golay encoded message.");
       return;
     }
     GR_LOG_DEBUG(d_logger, "Decoded a golay encoded message. #corrected bits = "
