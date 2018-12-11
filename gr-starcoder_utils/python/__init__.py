@@ -19,21 +19,16 @@
 # The presence of this file turns this directory into a Python package
 
 '''
-This is the GNU Radio STARCODER module. Place your Python package
+This is the GNU Radio STARCODER_UTILS module. Place your Python package
 description here (python/__init__.py).
 '''
-# import swig generated symbols into the starcoder namespace
+
+# import swig generated symbols into the starcoder_utils namespace
 try:
 	# this might fail if the module is python-only
-	from starcoder_swig import *
+	from starcoder_utils_swig import *
 except ImportError:
-  pass
+	pass
 
 # import any pure python here
-from plot_waterfall import plot_waterfall
-from waterfall_sink import waterfall_sink
-from pdu_trim_uvector import pdu_trim_uvector
-from radio_source import radio_source
-from iq_only_receiver import iq_only_receiver
-from pmt_to_pdu import pmt_to_pdu
 #
