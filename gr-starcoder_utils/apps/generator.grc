@@ -198,33 +198,6 @@
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 84)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32000</value>
-    </param>
-  </block>
-  <block>
     <key>variable_cc_encoder_def</key>
     <param>
       <key>padding</key>
@@ -1548,7 +1521,7 @@ TODO: Implement enabling and disabling</value>
     <key>qtgui_sink_x</key>
     <param>
       <key>bw</key>
-      <value>samp_rate</value>
+      <value>1125000</value>
     </param>
     <param>
       <key>alias</key>
@@ -1746,7 +1719,54 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>value</key>
-      <value>445e6</value>
+      <value>400e6</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(160, 1076)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>rf_gain</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>30</value>
     </param>
   </block>
   <block>
@@ -2188,7 +2208,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>gain0</key>
-      <value>0</value>
+      <value>rf_gain</value>
     </param>
     <param>
       <key>ant10</key>

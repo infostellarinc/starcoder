@@ -32,7 +32,7 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    prbs_base.py
+    prbs_generator.py
     prbs_source_b.py
     add_sync_pdu.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
 )

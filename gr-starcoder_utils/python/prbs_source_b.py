@@ -21,7 +21,7 @@
 
 import numpy
 from gnuradio import gr
-import prbs_base
+import prbs_generator
 
 class prbs_source_b(gr.sync_block):
     """
@@ -41,7 +41,7 @@ class prbs_source_b(gr.sync_block):
             name="prbs_source_b",
             in_sig=None,
             out_sig=[numpy.uint8])
-        self.base = prbs_base.prbs_base(reset_len=reset_len)
+        self.base = prbs_generator.PRBSGenerator(reset_len=reset_len)
         self.packet_len = packet_len
         self.num_packets = num_packets
 
@@ -53,20 +53,17 @@ class prbs_source_b(gr.sync_block):
         out = output_items[0]
         nout = len(out)
         if self.num_packets == 0:
-            gen = self.base.gen_n(nout)
+            gen = self.base.generate_n_bits(nout)
             out[:] = gen[:]
             return nout
         else:
             if self.packets_sent == self.num_packets:
-                # TODO: Not certain what happens if there are still PMT messages queued
-                # in the rest of the flowgraph. Verify that we don't lose data
-                # in that case.
                 print('Done sending all bits')
                 return -1  # Signals to the flowgraph that we have no more data to provide
             packets_requested = nout / self.packet_len
             packets_left_to_send = self.num_packets - self.packets_sent
             packets_to_send_now = min(packets_requested, packets_left_to_send)
             bits_to_send_now = packets_to_send_now*self.packet_len
-            out[:bits_to_send_now] = self.base.gen_n(bits_to_send_now)
+            out[:bits_to_send_now] = self.base.generate_n_bits(bits_to_send_now)
             self.packets_sent += packets_to_send_now
             return bits_to_send_now

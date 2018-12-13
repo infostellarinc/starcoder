@@ -22,7 +22,8 @@
 import numpy as np
 import operator, copy
 
-class prbs_base:
+
+class PRBSGenerator:
     modes = {
         "PRBS7":[0,6,7],
         "PRBS15":[0,14,15],
@@ -41,9 +42,9 @@ class prbs_base:
         self.pregen()
 
     def pregen(self):
-        self.pre = self.gen_n(self.reset_len, lookup=False)
+        self.pre = self.generate_n_bits(self.reset_len, lookup=False)
 
-    def gen_n_nocheck(self, n=1000):
+    def generate_n_bits_and_store(self, n=1000):
         o = np.zeros([n],dtype='uint8')
         for i in range(0, n):
             nv = reduce(operator.xor, map(lambda x: self.reg[x], self.gen_poly[1:]))
@@ -52,17 +53,17 @@ class prbs_base:
             o[i] = nv
         return o
 
-    def gen_n_nocheck2(self, n=1000):
+    def generate_n_bits_from_store(self, n=1000):
         return self.pre[self.idx:self.idx+n]
 
-    def gen_n(self, n=1000, lookup=True):
+    def generate_n_bits(self, n=1000, lookup=True):
         o = np.array([],dtype='int8')
         while n > 0:
             nout = min(n,self.reset_len-self.idx)
             if lookup:
-                o = np.concatenate([o, self.gen_n_nocheck2(nout)])
+                o = np.concatenate([o, self.generate_n_bits_from_store(nout)])
             else:
-                o = np.concatenate([o, self.gen_n_nocheck(nout)])
+                o = np.concatenate([o, self.generate_n_bits_and_store(nout)])
             self.idx += nout
             n -= nout
             if self.idx == self.reset_len:
@@ -72,6 +73,6 @@ class prbs_base:
 
 
 if __name__ == "__main__":
-    m = prbs_base()
-    v = m.gen_n(1000)
+    m = PRBSGenerator()
+    v = m.generate_n_bits(1000)
     print v

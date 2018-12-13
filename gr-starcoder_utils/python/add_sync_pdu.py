@@ -36,6 +36,13 @@ class add_sync_pdu(gr.sync_block):
             out_sig=None)
         self.sync_word = sync_word
         self.byte_length = byte_length
+
+        self.sync_array = [
+            (self.sync_word >> (self.byte_length*8-1-i)) & 1
+            for i in range(self.byte_length*8)
+        ]
+        self.sync_array = np.array(self.sync_array, np.uint8)
+
         self.message_port_register_in(pmt.intern("in"))
         self.message_port_register_out(pmt.intern("out"))
 
@@ -51,15 +58,9 @@ class add_sync_pdu(gr.sync_block):
         if not pmt.is_uniform_vector(pmt.cdr(msg)):
             return
 
-        sync_array = [
-            (self.sync_word >> (self.byte_length*8-1-i)) & 1
-            for i in range(self.byte_length*8)
-        ]
-        sync_array = np.array(sync_array, np.uint8)
-
         arr = pmt.to_python(msg)[1]
         pmt.set_cdr(msg, pmt.to_pmt(
-            np.concatenate((sync_array, arr))))
+            np.concatenate((self.sync_array, arr))))
         self.message_port_pub(pmt.intern("out"), msg)
 
     def work(self, input_items, output_items):
