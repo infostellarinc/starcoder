@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<block>
+  <name>PMT to PDU</name>
+  <key>starcoder_pmt_to_pdu</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.pmt_to_pdu()</make>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+
+</block>

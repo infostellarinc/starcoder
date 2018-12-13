@@ -322,7 +322,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(824, 1172)</value>
+      <value>(824, 1468)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -463,7 +463,7 @@
     </param>
     <param>
       <key>msg</key>
-      <value>pmt.make_u8vector(fill=89, k=256)</value>
+      <value>pmt.make_u8vector(fill=89, k=20)</value>
     </param>
     <param>
       <key>minoutbuf</key>
@@ -498,7 +498,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(632, 1068)</value>
+      <value>(632, 1364)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -545,7 +545,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1040, 1072)</value>
+      <value>(1040, 1368)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -577,11 +577,50 @@
     </param>
   </block>
   <block>
-    <key>blocks_unpacked_to_packed_xx</key>
+    <key>blocks_pack_k_bits_bb</key>
     <param>
-      <key>bits_per_chunk</key>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
       <value>1</value>
     </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1008, 1228)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_pack_k_bits_bb_0_0</value>
+    </param>
+    <param>
+      <key>k</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_pdu_to_tagged_stream</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -599,12 +638,8 @@
       <value>True</value>
     </param>
     <param>
-      <key>endianness</key>
-      <value>gr.GR_MSB_FIRST</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(1008, 876)</value>
+      <value>(1176, 884)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -612,7 +647,105 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_unpacked_to_packed_xx_0</value>
+      <value>blocks_pdu_to_tagged_stream_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>tag</key>
+      <value>"header_length"</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_pdu_to_tagged_stream</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1064, 1108)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_pdu_to_tagged_stream_0_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>tag</key>
+      <value>packet_len</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_stream_to_tagged_stream</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(816, 972)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_stream_to_tagged_stream_0_0</value>
+    </param>
+    <param>
+      <key>len_tag_key</key>
+      <value>"header_length"</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -623,12 +756,181 @@
       <value>0</value>
     </param>
     <param>
-      <key>num_ports</key>
-      <value>1</value>
+      <key>packet_len</key>
+      <value>16</value>
     </param>
     <param>
       <key>type</key>
       <value>byte</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_tagged_stream_mux</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1184, 984)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_tagged_stream_mux_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>lengthtagname</key>
+      <value>"header_length"  </value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>ninputs</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>tag_preserve_head_pos</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_tagged_stream_to_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(632, 1108)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_tagged_stream_to_pdu_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>tag</key>
+      <value>"header_length"</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_vector_source_x</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(576, 964)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_vector_source_x_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>repeat</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>tags</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vector</key>
+      <value>[0x9c, 0x9e, 0x86, 0x82, 0x98, 0x98, 0x60, 0x86, 0xa2, 0x40, 0x40, 0x40, 0x40, 0xe1, 0x03, 0xf0]</value>
     </param>
   </block>
   <block>
@@ -949,7 +1251,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1192, 876)</value>
+      <value>(1192, 1220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -978,6 +1280,57 @@
     <param>
       <key>verbose</key>
       <value>False</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_scrambler_bb</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(632, 1212)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_scrambler_bb_0</value>
+    </param>
+    <param>
+      <key>len</key>
+      <value>16</value>
+    </param>
+    <param>
+      <key>mask</key>
+      <value>0x21</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>seed</key>
+      <value>0x0</value>
     </param>
   </block>
   <block>
@@ -1039,7 +1392,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(584, 1208)</value>
+      <value>(584, 1504)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1360,7 +1713,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(800, 1044)</value>
+      <value>(800, 1340)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1627,6 +1980,92 @@
     </param>
   </block>
   <block>
+    <key>satellites_hdlc_framer</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(864, 1100)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>satellites_hdlc_framer_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>postamble_bytes</key>
+      <value>64</value>
+    </param>
+    <param>
+      <key>preamble_bytes</key>
+      <value>192</value>
+    </param>
+  </block>
+  <block>
+    <key>satellites_nrzi_encode</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(816, 1232)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>satellites_nrzi_encode_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -1784,73 +2223,6 @@
     </param>
   </block>
   <block>
-    <key>starcoder_ax25_encoder_mb</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>dest_addr</key>
-      <value>dest_callsign</value>
-    </param>
-    <param>
-      <key>dest_ssid</key>
-      <value>dest_ssid</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>scramble</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(816, 836)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>starcoder_ax25_encoder_mb_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>postamble_len</key>
-      <value>16</value>
-    </param>
-    <param>
-      <key>preamble_len</key>
-      <value>16</value>
-    </param>
-    <param>
-      <key>src_addr</key>
-      <value>source_callsign</value>
-    </param>
-    <param>
-      <key>src_ssid</key>
-      <value>source_ssid</value>
-    </param>
-  </block>
-  <block>
     <key>starcoder_complex_to_msg_c</key>
     <param>
       <key>alias</key>
@@ -1962,6 +2334,45 @@
     <param>
       <key>target_samp_rate</key>
       <value>samp_rate</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_pmt_to_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(928, 888)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_pmt_to_pdu_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -2926,7 +3337,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1184, 1028)</value>
+      <value>(1184, 1324)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3091,15 +3502,15 @@
   </connection>
   <connection>
     <source_block_id>ax25_payload_source</source_block_id>
-    <sink_block_id>starcoder_ax25_encoder_mb_0</sink_block_id>
+    <sink_block_id>starcoder_pmt_to_pdu_0</sink_block_id>
     <source_key>out</source_key>
-    <sink_key>info</sink_key>
+    <sink_key>in</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_message_strobe_0</source_block_id>
-    <sink_block_id>starcoder_ax25_encoder_mb_0</sink_block_id>
+    <sink_block_id>starcoder_pmt_to_pdu_0</sink_block_id>
     <source_key>strobe</source_key>
-    <sink_key>info</sink_key>
+    <sink_key>in</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_multiply_const_vxx_0</source_block_id>
@@ -3114,8 +3525,44 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_unpacked_to_packed_xx_0</source_block_id>
+    <source_block_id>blocks_pack_k_bits_bb_0_0</source_block_id>
     <sink_block_id>digital_gmsk_mod_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_pdu_to_tagged_stream_0</source_block_id>
+    <sink_block_id>blocks_tagged_stream_mux_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_pdu_to_tagged_stream_0_0</source_block_id>
+    <sink_block_id>digital_scrambler_bb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_stream_to_tagged_stream_0_0</source_block_id>
+    <sink_block_id>blocks_tagged_stream_mux_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_tagged_stream_mux_0</source_block_id>
+    <sink_block_id>blocks_tagged_stream_to_pdu_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_tagged_stream_to_pdu_0</source_block_id>
+    <sink_block_id>satellites_hdlc_framer_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_vector_source_x_0</source_block_id>
+    <sink_block_id>blocks_stream_to_tagged_stream_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3140,6 +3587,12 @@
   <connection>
     <source_block_id>digital_gmsk_mod_0</source_block_id>
     <sink_block_id>blocks_multiply_const_vxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_scrambler_bb_0</source_block_id>
+    <sink_block_id>satellites_nrzi_encode_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3174,6 +3627,18 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>satellites_hdlc_framer_0</source_block_id>
+    <sink_block_id>blocks_pdu_to_tagged_stream_0_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>pdus</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>satellites_nrzi_encode_0</source_block_id>
+    <sink_block_id>blocks_pack_k_bits_bb_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>starcoder_ax25_decoder_bm_0</source_block_id>
     <sink_block_id>blocks_message_debug_0</sink_block_id>
     <source_key>pdu</source_key>
@@ -3184,12 +3649,6 @@
     <sink_block_id>fsk_9600_decoded</sink_block_id>
     <source_key>pdu</source_key>
     <sink_key>in</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>starcoder_ax25_encoder_mb_0</source_block_id>
-    <sink_block_id>blocks_unpacked_to_packed_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_complex_to_msg_c_0</source_block_id>
@@ -3214,5 +3673,11 @@
     <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_pmt_to_pdu_0</source_block_id>
+    <sink_block_id>blocks_pdu_to_tagged_stream_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>pdus</sink_key>
   </connection>
 </flow_graph>
