@@ -19,5 +19,6 @@
 # Boston, MA 02110-1301, USA.
 install(FILES
     starcoder_utils_prbs_source_b.xml
-    starcoder_utils_add_sync_pdu.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_utils_add_sync_pdu.xml
+    starcoder_utils_add_incrementing_header_pdu.xml DESTINATION share/gnuradio/grc/blocks
 )

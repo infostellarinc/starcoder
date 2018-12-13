@@ -34,7 +34,8 @@ GR_PYTHON_INSTALL(
     __init__.py
     prbs_generator.py
     prbs_source_b.py
-    add_sync_pdu.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
+    add_sync_pdu.py
+    add_incrementing_header_pdu.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
 )
 
 ########################################################################
