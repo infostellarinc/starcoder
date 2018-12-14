@@ -21,6 +21,10 @@
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
+from add_sync_pdu import add_sync_pdu
+import numpy as np
+import pmt
+import time
 
 
 class qa_add_sync_pdu (gr_unittest.TestCase):
@@ -31,4 +35,211 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_no_change(self):
-        pass
+        orig_array = np.array([1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        metadata = {'a': 1, 'b': 2}
+        in_pmt = pmt.cons(pmt.to_pmt(metadata),
+                          pmt.to_pmt(orig_array))
+        expected_pmt = pmt.cons(pmt.to_pmt(metadata),
+                                pmt.to_pmt(orig_array))
+
+        # We just need something connected to the trimmer block for
+        # the flowgraph to compile, but we'll post messages to it directly
+        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
+        appender = add_sync_pdu(0, 0)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
+        self.tb.msg_connect((appender, 'out'), (snk, 'store'))
+
+        self.tb.start()
+        appender.to_basic_block()._post(pmt.intern('in'), in_pmt)
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        # check data
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.equal(snk.get_message(0), expected_pmt))
+
+    def test_002_1_byte_sync(self):
+        orig_array = np.array([1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        metadata = {'a': 1, 'b': 2}
+        expected_array = np.array([0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        in_pmt = pmt.cons(pmt.to_pmt(metadata),
+                          pmt.to_pmt(orig_array))
+        expected_pmt = pmt.cons(pmt.to_pmt(metadata),
+                                pmt.to_pmt(expected_array))
+
+        # We just need something connected to the trimmer block for
+        # the flowgraph to compile, but we'll post messages to it directly
+        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
+        appender = add_sync_pdu(0x23, 1)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
+        self.tb.msg_connect((appender, 'out'), (snk, 'store'))
+
+        self.tb.start()
+        appender.to_basic_block()._post(pmt.intern('in'), in_pmt)
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        # check data
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.equal(snk.get_message(0), expected_pmt))
+
+    def test_003_2_byte_sync(self):
+        orig_array = np.array([1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        metadata = {'a': 1, 'b': 2}
+        expected_array = np.array([1, 1, 1, 1, 0, 0, 0, 0,
+                                   0, 0, 1, 0, 0, 0, 1, 1,
+                                   1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        in_pmt = pmt.cons(pmt.to_pmt(metadata),
+                          pmt.to_pmt(orig_array))
+        expected_pmt = pmt.cons(pmt.to_pmt(metadata),
+                                pmt.to_pmt(expected_array))
+
+        # We just need something connected to the trimmer block for
+        # the flowgraph to compile, but we'll post messages to it directly
+        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
+        appender = add_sync_pdu(0xf023, 2)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
+        self.tb.msg_connect((appender, 'out'), (snk, 'store'))
+
+        self.tb.start()
+        appender.to_basic_block()._post(pmt.intern('in'), in_pmt)
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        # check data
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.equal(snk.get_message(0), expected_pmt))
+
+    def test_004_4_byte_sync(self):
+        orig_array = np.array([1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        metadata = {'a': 1, 'b': 2}
+        expected_array = np.array([0, 1, 1, 0, 0, 1, 1, 1,
+                                   0, 0, 0, 1, 0, 1, 0, 1,
+                                   1, 1, 1, 1, 0, 0, 0, 0,
+                                   0, 0, 1, 0, 0, 0, 1, 1,
+                                   1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        in_pmt = pmt.cons(pmt.to_pmt(metadata),
+                          pmt.to_pmt(orig_array))
+        expected_pmt = pmt.cons(pmt.to_pmt(metadata),
+                                pmt.to_pmt(expected_array))
+
+        # We just need something connected to the trimmer block for
+        # the flowgraph to compile, but we'll post messages to it directly
+        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
+        appender = add_sync_pdu(0x6715f023, 4)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
+        self.tb.msg_connect((appender, 'out'), (snk, 'store'))
+
+        self.tb.start()
+        appender.to_basic_block()._post(pmt.intern('in'), in_pmt)
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        # check data
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.equal(snk.get_message(0), expected_pmt))
+
+    def test_005_byte_sync_with_padded_zeros(self):
+        orig_array = np.array([1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        metadata = {'a': 1, 'b': 2}
+        expected_array = np.array([0, 0, 0, 0, 0, 0, 0, 0,
+                                   0, 0, 0, 1, 0, 1, 0, 1,
+                                   1, 1, 1, 1, 0, 0, 0, 0,
+                                   0, 0, 1, 0, 0, 0, 1, 1,
+                                   1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        in_pmt = pmt.cons(pmt.to_pmt(metadata),
+                          pmt.to_pmt(orig_array))
+        expected_pmt = pmt.cons(pmt.to_pmt(metadata),
+                                pmt.to_pmt(expected_array))
+
+        # We just need something connected to the trimmer block for
+        # the flowgraph to compile, but we'll post messages to it directly
+        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
+        appender = add_sync_pdu(0x0015f023, 4)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
+        self.tb.msg_connect((appender, 'out'), (snk, 'store'))
+
+        self.tb.start()
+        appender.to_basic_block()._post(pmt.intern('in'), in_pmt)
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        # check data
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.equal(snk.get_message(0), expected_pmt))
+
+    def test_006_byte_sync_with_trim(self):
+        orig_array = np.array([1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        metadata = {'a': 1, 'b': 2}
+        expected_array = np.array([1, 1, 1, 1, 0, 0, 0, 0,
+                                   0, 0, 1, 0, 0, 0, 1, 1,
+                                   1, 0, 1, 0, 1, 0, 1], dtype=np.uint8)
+        in_pmt = pmt.cons(pmt.to_pmt(metadata),
+                          pmt.to_pmt(orig_array))
+        expected_pmt = pmt.cons(pmt.to_pmt(metadata),
+                                pmt.to_pmt(expected_array))
+
+        # We just need something connected to the trimmer block for
+        # the flowgraph to compile, but we'll post messages to it directly
+        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
+        appender = add_sync_pdu(0x6715f023, 2)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
+        self.tb.msg_connect((appender, 'out'), (snk, 'store'))
+
+        self.tb.start()
+        appender.to_basic_block()._post(pmt.intern('in'), in_pmt)
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        # check data
+        self.assertEqual(snk.num_messages(), 1)
+        self.assertTrue(pmt.equal(snk.get_message(0), expected_pmt))
+
+    def test_007_ignore_non_u8_pdu(self):
+        # We just need something connected to the trimmer block for
+        # the flowgraph to compile, but we'll post messages to it directly
+        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
+        appender = add_sync_pdu(0x6715f023, 2)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
+        self.tb.msg_connect((appender, 'out'), (snk, 'store'))
+
+        self.tb.start()
+        appender.to_basic_block()._post(pmt.intern('in'), pmt.PMT_NIL)
+        appender.to_basic_block()._post(pmt.intern('in'), pmt.cons(pmt.PMT_T,
+                                                                   pmt.make_u8vector(1, 2)))
+        appender.to_basic_block()._post(pmt.intern('in'), pmt.cons(pmt.make_dict(),
+                                                                   pmt.PMT_T))
+        appender.to_basic_block()._post(pmt.intern('in'), pmt.cons(
+                pmt.make_dict(),
+                pmt.to_pmt(np.array([1, 0, 1, 0, 1, 0, 1], dtype=np.int32))))
+
+        time.sleep(0.1)
+        self.tb.stop()
+        self.tb.wait()
+
+        # check data
+        self.assertEqual(snk.num_messages(), 0)
+
+
+if __name__ == '__main__':
+    gr_unittest.run(qa_add_sync_pdu, "qa_pdu_trim_uvector.xml")
