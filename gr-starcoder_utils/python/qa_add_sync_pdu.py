@@ -242,4 +242,4 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_add_sync_pdu, "qa_pdu_trim_uvector.xml")
+    gr_unittest.run(qa_add_sync_pdu, "qa_add_sync_pdu.xml")

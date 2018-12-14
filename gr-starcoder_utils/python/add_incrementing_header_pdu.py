@@ -50,7 +50,7 @@ class add_incrementing_header_pdu(gr.sync_block):
         if not pmt.is_dict(pmt.car(msg)):
             return
 
-        if not pmt.is_uniform_vector(pmt.cdr(msg)):
+        if not pmt.is_u8vector(pmt.cdr(msg)):
             return
 
         arr = pmt.to_python(msg)[1]
