@@ -32,7 +32,10 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
+    prbs_generator.py
+    prbs_source_b.py
+    add_sync_pdu.py
+    add_incrementing_header_pdu.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
 )
 
 ########################################################################
@@ -42,3 +45,5 @@ include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-starcoder_utils)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
+GR_ADD_TEST(qa_add_sync_pdu ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_add_sync_pdu.py)
+GR_ADD_TEST(qa_add_incrementing_header_pdu ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_add_incrementing_header_pdu.py)
