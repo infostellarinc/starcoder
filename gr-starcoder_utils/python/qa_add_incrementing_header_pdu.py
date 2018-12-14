@@ -52,13 +52,9 @@ class qa_add_incrementing_header_pdu (gr_unittest.TestCase):
         in_pmts = [pmt.cons(pmt.to_pmt(metadata), pmt.to_pmt(arr)) for arr in original_arrays]
         expected_pmts = [pmt.cons(pmt.to_pmt(metadata), pmt.to_pmt(arr)) for arr in expected_arrays]
 
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_incrementing_header_pdu()
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
@@ -72,13 +68,9 @@ class qa_add_incrementing_header_pdu (gr_unittest.TestCase):
         [self.assertTrue(pmt.equal(snk.get_message(i), expected) for (i, expected) in enumerate(expected_pmts))]
 
     def test_002_ignore_non_u8_pdu(self):
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_incrementing_header_pdu()
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()

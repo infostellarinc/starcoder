@@ -42,13 +42,9 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         expected_pmt = pmt.cons(pmt.to_pmt(metadata),
                                 pmt.to_pmt(orig_array))
 
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_sync_pdu(0, 0)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
@@ -70,13 +66,9 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         expected_pmt = pmt.cons(pmt.to_pmt(metadata),
                                 pmt.to_pmt(expected_array))
 
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_sync_pdu(0x23, 1)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
@@ -100,13 +92,9 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         expected_pmt = pmt.cons(pmt.to_pmt(metadata),
                                 pmt.to_pmt(expected_array))
 
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_sync_pdu(0xf023, 2)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
@@ -132,13 +120,9 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         expected_pmt = pmt.cons(pmt.to_pmt(metadata),
                                 pmt.to_pmt(expected_array))
 
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_sync_pdu(0x6715f023, 4)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
@@ -164,13 +148,9 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         expected_pmt = pmt.cons(pmt.to_pmt(metadata),
                                 pmt.to_pmt(expected_array))
 
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_sync_pdu(0x0015f023, 4)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
@@ -194,13 +174,9 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         expected_pmt = pmt.cons(pmt.to_pmt(metadata),
                                 pmt.to_pmt(expected_array))
 
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_sync_pdu(0x6715f023, 2)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
@@ -214,13 +190,9 @@ class qa_add_sync_pdu (gr_unittest.TestCase):
         self.assertTrue(pmt.equal(snk.get_message(0), expected_pmt))
 
     def test_007_ignore_non_u8_pdu(self):
-        # We just need something connected to the trimmer block for
-        # the flowgraph to compile, but we'll post messages to it directly
-        src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
         appender = add_sync_pdu(0x6715f023, 2)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (appender, 'in'))
         self.tb.msg_connect((appender, 'out'), (snk, 'store'))
 
         self.tb.start()
