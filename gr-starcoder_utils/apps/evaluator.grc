@@ -207,7 +207,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>file</key>
@@ -340,7 +340,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -395,7 +395,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -592,6 +592,53 @@
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(224, 500)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>folder_source</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>/home/rei/sampleAR2300IQ/encoded_packets</value>
+    </param>
+  </block>
+  <block>
     <key>note</key>
     <param>
       <key>alias</key>
@@ -766,7 +813,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(936, 172)</value>
+      <value>(1144, 172)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -809,7 +856,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(624, 172)</value>
+      <value>(904, 172)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1174,6 +1221,57 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <block>
+    <key>starcoder_utils_folder_source_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>delay_between_packets_ms</key>
+      <value>10</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>folder_name</key>
+      <value>folder_source</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 172)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_folder_source_pdu_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>packet_length_bytes</key>
+      <value>259</value>
+    </param>
+  </block>
+  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -1344,5 +1442,11 @@ TODO: Implement enabling and disabling</value>
     <sink_block_id>blocks_pdu_to_tagged_stream_1</sink_block_id>
     <source_key>out</source_key>
     <sink_key>pdus</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_folder_source_pdu_0</source_block_id>
+    <sink_block_id>repack_pdu_bits_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
   </connection>
 </flow_graph>
