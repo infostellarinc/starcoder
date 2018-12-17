@@ -90,6 +90,33 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 76)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>max_packet_length_bytes</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>259</value>
+    </param>
+  </block>
+  <block>
     <key>variable_cc_decoder_def</key>
     <param>
       <key>padding</key>
@@ -341,7 +368,7 @@
     </param>
     <param>
       <key>packet_len</key>
-      <value>packet_length_bytes</value>
+      <value>max_packet_length_bytes</value>
     </param>
     <param>
       <key>type</key>
@@ -755,53 +782,6 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(224, 84)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>packet_length_bytes</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value></value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>259</value>
-    </param>
-  </block>
-  <block>
     <key>repack_pdu_bits</key>
     <param>
       <key>bits_per_input_byte</key>
@@ -1021,7 +1001,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(224, 356)</value>
+      <value>(224, 268)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1115,7 +1095,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(224, 468)</value>
+      <value>(224, 380)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1209,7 +1189,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(224, 164)</value>
+      <value>(224, 76)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1256,7 +1236,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(224, 244)</value>
+      <value>(224, 156)</value>
     </param>
     <param>
       <key>_rotation</key>

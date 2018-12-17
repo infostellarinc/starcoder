@@ -23,5 +23,6 @@
 ########################################################################
 install(FILES
     api.h
+    folder_source_pdu.h
     DESTINATION include/starcoder_utils
 )
