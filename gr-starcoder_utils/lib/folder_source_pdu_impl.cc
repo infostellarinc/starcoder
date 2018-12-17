@@ -25,6 +25,10 @@
 #include <gnuradio/io_signature.h>
 #include "folder_source_pdu_impl.h"
 
+#include<iterator>
+
+namespace fs = boost::filesystem;
+
 namespace gr {
   namespace starcoder_utils {
 
@@ -59,6 +63,13 @@ namespace gr {
     }
 
     bool folder_source_pdu_impl::start() {
+      fs::path folder_name_path(folder_name_);
+      bool is_directory = fs::exists(folder_name_path) && fs::is_directory(folder_name_path);
+
+      if (!is_directory) {
+        throw std::runtime_error("Given folder path is not a directory");
+      }
+
       // NOTE: finished_ should be something explicitly thread safe. But since
       // nothing breaks on concurrent access, I'll just leave it as bool.
       finished_ = false;
@@ -77,12 +88,28 @@ namespace gr {
     }
 
     void folder_source_pdu_impl::run() {
-      while(!finished_) {
-        boost::this_thread::sleep(boost::posix_time::milliseconds(delay_between_packets_ms_));
-        if (finished_) return;
+      int i = 0;
 
-        message_port_pub(out_port_, pmt::mp("lolol"));
+      for(auto& p: fs::directory_iterator(folder_name_)) {
+        if (finished_) break;
+        if (fs::is_directory(p.path()) || fs::file_size(p.path()) != packet_length_bytes_) {
+          continue;
+        }
+
+        std::ifstream fstream(p.path().string(), std::ios::binary);
+        std::vector<uint8_t> out(std::istreambuf_iterator<char>{fstream},
+                                 {});
+
+        message_port_pub(
+            out_port_,
+            pmt::cons(
+                pmt::PMT_NIL,
+                pmt::init_u8vector(out.size(), out)));
+        i++;
+        boost::this_thread::sleep(boost::posix_time::milliseconds(delay_between_packets_ms_));
       }
+
+      GR_LOG_DEBUG(d_logger, boost::format("Read %1% files") % i);
     }
 
     int
@@ -95,4 +122,3 @@ namespace gr {
 
   } /* namespace starcoder_utils */
 } /* namespace gr */
-

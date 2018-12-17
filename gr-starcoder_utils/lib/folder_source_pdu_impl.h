@@ -30,7 +30,7 @@ namespace gr {
     {
      private:
 
-      const std::string &folder_name_;
+      const std::string folder_name_;
       int packet_length_bytes_;
       int delay_between_packets_ms_;
       bool finished_;
