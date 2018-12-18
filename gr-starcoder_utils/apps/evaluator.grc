@@ -266,7 +266,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(920, 1024)</value>
+      <value>(904, 1168)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -782,7 +782,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1112, 1052)</value>
+      <value>(1256, 1052)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1272,6 +1272,49 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <block>
+    <key>starcoder_utils_prbs_sink_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(904, 1068)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_prbs_sink_pdu_0</value>
+    </param>
+    <param>
+      <key>num_packets</key>
+      <value>10000</value>
+    </param>
+    <param>
+      <key>packet_len_bits_no_header</key>
+      <value>219*8</value>
+    </param>
+    <param>
+      <key>reset_len</key>
+      <value>100000</value>
+    </param>
+  </block>
+  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -1432,6 +1475,12 @@ TODO: Implement enabling and disabling</value>
     <sink_key>print_pdu</sink_key>
   </connection>
   <connection>
+    <source_block_id>repack_pdu_bits_0_0_1</source_block_id>
+    <sink_block_id>starcoder_utils_prbs_sink_pdu_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>corrected</sink_key>
+  </connection>
+  <connection>
     <source_block_id>satellites_decode_rs_0</source_block_id>
     <sink_block_id>repack_pdu_bits_0_0_0</sink_block_id>
     <source_key>out</source_key>
@@ -1448,5 +1497,11 @@ TODO: Implement enabling and disabling</value>
     <sink_block_id>repack_pdu_bits_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_folder_source_pdu_0</source_block_id>
+    <sink_block_id>starcoder_utils_prbs_sink_pdu_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>all</sink_key>
   </connection>
 </flow_graph>

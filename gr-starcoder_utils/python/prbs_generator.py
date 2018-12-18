@@ -73,7 +73,7 @@ class PRBSGenerator:
 
     def generate_n_bits_after_x(self, n=1000, x=0):
         """Generates the next n bits after x bits have been produced"""
-        o = np.array([], dtype='int8')
+        o = np.array([], dtype='uint8')
         idx = x % self.reset_len
         while n > 0:
             nout = min(n, self.reset_len - idx)
