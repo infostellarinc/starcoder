@@ -35,13 +35,14 @@ class qa_folder_source_pdu (gr_unittest.TestCase):
         self.tempdir_path = tempfile.mkdtemp()
 
         self.tempfiles = []
-        self.bytes1 = os.urandom(259)
-        self.bytes2 = os.urandom(260)
+        self.bytes1 = [os.urandom(259) for _ in range(10)]
+        self.bytes2 = [os.urandom(260) for _ in range(10)]
+        all_bytes = self.bytes1 + self.bytes2
         for i in range(20):
             handle, filename = tempfile.mkstemp(dir=self.tempdir_path)
 
             with open(filename, 'w') as f:
-                f.write(self.bytes1 if i > 9 else self.bytes2)
+                f.write(all_bytes[i])
             os.close(handle)
 
             self.tempfiles.append(filename)
@@ -70,12 +71,10 @@ class qa_folder_source_pdu (gr_unittest.TestCase):
         self.tb.wait()
 
         self.assertEqual(snk.num_messages(), 10)
-        for i in range(snk.num_messages()):
+        bytesRetrieved = {pmt.to_python(snk.get_message(i))[1].tobytes() for i in range(10)}
+        for i in range(10):
             self.assertTrue(
-                np.array_equal(
-                    np.frombuffer(self.bytes1, dtype=np.uint8),
-                    pmt.to_python(snk.get_message(i))[1]
-                )
+                self.bytes1[i] in bytesRetrieved
             )
 
     def test_002_regular(self):
@@ -90,12 +89,10 @@ class qa_folder_source_pdu (gr_unittest.TestCase):
         self.tb.wait()
 
         self.assertEqual(snk.num_messages(), 10)
-        for i in range(snk.num_messages()):
+        bytesRetrieved = {pmt.to_python(snk.get_message(i))[1].tobytes() for i in range(10)}
+        for i in range(10):
             self.assertTrue(
-                np.array_equal(
-                    np.frombuffer(self.bytes2, dtype=np.uint8),
-                    pmt.to_python(snk.get_message(i))[1]
-                )
+                self.bytes2[i] in bytesRetrieved
             )
 
 
