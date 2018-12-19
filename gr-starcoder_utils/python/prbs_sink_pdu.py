@@ -19,6 +19,8 @@
 # Boston, MA 02110-1301, USA.
 # 
 
+from collections import OrderedDict
+import json
 import numpy as np
 from gnuradio import gr
 import pmt
@@ -27,7 +29,12 @@ import prbs_generator
 
 class prbs_sink_pdu(gr.sync_block):
     """
-    docstring for block prbs_sink_pdu
+    This block reads PDUs and compares them with the expected values produced by
+    prbs_source_b + add_incrementing_header_pdu. Upon termination of the flowgraph,
+    some statistics are printed out e.g. frame error rate, number of duplicates.
+
+    These statistics are also stored as an OrderedDict in self.statistics, so
+    the calling program can use them e.g. saving to file, generating a plot.
     """
     def __init__(self, packet_len_bits_no_header, reset_len, num_packets):
         gr.sync_block.__init__(self,
@@ -47,6 +54,8 @@ class prbs_sink_pdu(gr.sync_block):
         self.erroneous_packets_after_fec_ctr = 0
         self.correct_packets_received_ctr = 0
         self.collected_packets = np.zeros(self.num_packets)
+
+        self.statistics = None
 
         self.message_port_register_in(pmt.intern("all"))
         self.message_port_register_in(pmt.intern("corrected"))
@@ -120,31 +129,26 @@ class prbs_sink_pdu(gr.sync_block):
 
         return packet_idx
 
+    def evaluate_statistics(self):
+        if self.statistics is not None:
+            return
+
+        unique_packets_num = np.count_nonzero(self.collected_packets)
+
+        self.statistics = OrderedDict([
+            ("Expected number of packets sent", self.num_packets),
+            ("Total number of packets received", self.all_packets_received_ctr),
+            ("Total number of correct packets after FEC", self.correct_packets_received_ctr),
+            ("Total number of wrong length packets after FEC (This should be 0)", self.wrong_length_packets_after_fec_ctr),
+            ("Total number of erroneous packets after FEC (This should be 0)", self.erroneous_packets_after_fec_ctr),
+            ("Total number of unique packets after FEC", unique_packets_num),
+            ("Total number of duplicates", np.sum(self.collected_packets[np.where(self.collected_packets > 1)] - 1)),
+            ("Frame error rate", 1 - unique_packets_num / float(self.num_packets))
+        ])
+
     def print_report(self):
-        print("Expected number of packets send: {}".format(
-            self.num_packets
-        ))
-        print("Total number of packets received: {}".format(
-            self.all_packets_received_ctr
-        ))
-        print("Total number of correct packets after FEC: {}".format(
-            self.correct_packets_received_ctr
-        ))
-        print("Total number of wrong length packets after FEC (This should be 0): {}".format(
-            self.wrong_length_packets_after_fec_ctr
-        ))
-        print("Total number of erroneous packets after FEC (This should be 0): {}".format(
-            self.erroneous_packets_after_fec_ctr
-        ))
-        print("Total number of unique packets after FEC: {}".format(
-            np.count_nonzero(self.collected_packets)
-        ))
-        print("Total number of duplicates: {}".format(
-            np.sum(self.collected_packets[np.where(self.collected_packets > 1)] - 1)
-        ))
-        print("Frame error rate: {}".format(
-            1 - np.count_nonzero(self.collected_packets) / float(self.num_packets)
-        ))
+        self.evaluate_statistics()
+        print(json.dumps(self.statistics, indent=2))
 
     def stop(self):
         self.print_report()
