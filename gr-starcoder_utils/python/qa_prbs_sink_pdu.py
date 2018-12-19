@@ -79,6 +79,13 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         self.assertEqual(snk.statistics["Total number of duplicates"], 0)
         self.assertAlmostEqual(snk.statistics["Frame error rate"], 0)
 
+        self.assertTrue(
+            np.array_equal(
+                snk.collected_packets,
+                np.ones([self.NUM_GENERATED_PACKETS])
+            )
+        )
+
     def test_002_miss_some_packets(self):
         snk = prbs_sink_pdu(self.PACKET_LENGTH_BYTES*8, self.PRBS_RESET_LEN, self.NUM_GENERATED_PACKETS)
 
@@ -105,6 +112,16 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         self.assertEqual(snk.statistics["Total number of unique packets after FEC"], 180)
         self.assertEqual(snk.statistics["Total number of duplicates"], 0)
         self.assertAlmostEqual(snk.statistics["Frame error rate"], 0.1)
+
+        self.assertTrue(
+            np.array_equal(
+                snk.collected_packets,
+                np.concatenate((
+                    np.ones([self.NUM_GENERATED_PACKETS-20]),
+                    np.zeros([20])
+                ))
+            )
+        )
 
     def test_003_some_unfixable_packets(self):
         snk = prbs_sink_pdu(self.PACKET_LENGTH_BYTES*8, self.PRBS_RESET_LEN, self.NUM_GENERATED_PACKETS)
@@ -133,6 +150,16 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         self.assertEqual(snk.statistics["Total number of unique packets after FEC"], 160)
         self.assertEqual(snk.statistics["Total number of duplicates"], 0)
         self.assertAlmostEqual(snk.statistics["Frame error rate"], 0.2)
+
+        self.assertTrue(
+            np.array_equal(
+                snk.collected_packets,
+                np.concatenate((
+                    np.ones([self.NUM_GENERATED_PACKETS-40]),
+                    np.zeros([40])
+                ))
+            )
+        )
 
     def test_004_some_erroneous_packets(self):
         snk = prbs_sink_pdu(self.PACKET_LENGTH_BYTES*8, self.PRBS_RESET_LEN, self.NUM_GENERATED_PACKETS)
@@ -164,6 +191,10 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         self.assertEqual(snk.statistics["Total number of unique packets after FEC"], 199)
         self.assertEqual(snk.statistics["Total number of duplicates"], 0)
         self.assertAlmostEqual(snk.statistics["Frame error rate"], 1/200.)
+
+        expected = np.ones([self.NUM_GENERATED_PACKETS])
+        expected[10] = 0
+        self.assertTrue(np.array_equal(snk.collected_packets, expected))
 
     def test_005_some_wrong_length_packets(self):
         snk = prbs_sink_pdu(self.PACKET_LENGTH_BYTES*8, self.PRBS_RESET_LEN, self.NUM_GENERATED_PACKETS)
@@ -197,6 +228,11 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         self.assertEqual(snk.statistics["Total number of duplicates"], 0)
         self.assertAlmostEqual(snk.statistics["Frame error rate"], 0.01)
 
+        expected = np.ones([self.NUM_GENERATED_PACKETS])
+        expected[10] = 0
+        expected[20] = 0
+        self.assertTrue(np.array_equal(snk.collected_packets, expected))
+
     def test_006_some_dupes(self):
         snk = prbs_sink_pdu(self.PACKET_LENGTH_BYTES*8, self.PRBS_RESET_LEN, self.NUM_GENERATED_PACKETS)
 
@@ -225,6 +261,10 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         self.assertEqual(snk.statistics["Total number of unique packets after FEC"], 200)
         self.assertEqual(snk.statistics["Total number of duplicates"], 1)
         self.assertAlmostEqual(snk.statistics["Frame error rate"], 0.00)
+
+        expected = np.ones([self.NUM_GENERATED_PACKETS])
+        expected[1] += 1
+        self.assertTrue(np.array_equal(snk.collected_packets, expected))
 
 
 if __name__ == '__main__':
