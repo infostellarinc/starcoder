@@ -32,6 +32,7 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
+    utils.py
     prbs_generator.py
     prbs_source_b.py
     add_sync_pdu.py

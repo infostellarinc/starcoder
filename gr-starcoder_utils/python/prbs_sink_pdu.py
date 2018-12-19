@@ -25,6 +25,7 @@ import numpy as np
 from gnuradio import gr
 import pmt
 import prbs_generator
+from utils import pack_bits
 
 
 class prbs_sink_pdu(gr.sync_block):
@@ -110,19 +111,7 @@ class prbs_sink_pdu(gr.sync_block):
         expected = self.generator.generate_n_bits_after_x(self.packet_len_bits_no_header,
                                                           number_bits_sent_before_this_packet)
         # Pack the expected bits
-        packed_expected = np.zeros(self.packet_len_bits_no_header/8, dtype=np.uint8)
-        idx = 0
-        packed_expected_idx = 0
-        packed_byte = 0
-        for bit in expected:
-            packed_byte |= bit << (7-idx)
-            if idx == 7:
-                packed_expected[packed_expected_idx] = packed_byte
-                packed_expected_idx += 1
-                packed_byte = 0
-                idx = 0
-            else:
-                idx += 1
+        packed_expected = pack_bits(expected)
 
         if not np.array_equal(packed_expected, arr[4:]):
             return -1
