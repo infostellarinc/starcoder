@@ -280,11 +280,12 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         for packet in self.packets:
             snk.to_basic_block()._post(pmt.intern('all'), pmt.cons(pmt.PMT_NIL, pmt.to_pmt(packet)))
         for i, packet in enumerate(self.packets):
-            if i == 10:
+            if i == 0:
                 packet = np.copy(packet)
                 # This makes the packet bigger than NUM_GENERATED_PACKETS
-                packet[0] = 0xff
-                packet[1] = 0xff
+                packet[0] = 0x90
+                packet[1] = 0x1
+                print(packet)
             snk.to_basic_block()._post(pmt.intern('corrected'), pmt.cons(pmt.PMT_NIL, pmt.to_pmt(packet)))
         time.sleep(0.1)
         self.tb.stop()
@@ -300,7 +301,7 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
         self.assertAlmostEqual(snk.statistics["Frame error rate"], 1/200.)
 
         expected = np.ones([self.NUM_GENERATED_PACKETS])
-        expected[10] = 0
+        expected[0] = 0
         self.assertTrue(np.array_equal(snk.collected_packets, expected))
 
 
