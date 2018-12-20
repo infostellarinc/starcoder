@@ -28,9 +28,7 @@
 
 #include "qa_starcoder_utils.h"
 
-CppUnit::TestSuite *
-qa_starcoder_utils::suite()
-{
+CppUnit::TestSuite *qa_starcoder_utils::suite() {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("starcoder_utils");
 
   return s;

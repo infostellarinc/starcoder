@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<block>
+  <name>prbs_sink_pdu</name>
+  <key>starcoder_utils_prbs_sink_pdu</key>
+  <category>[starcoder_utils]</category>
+  <import>import starcoder_utils</import>
+  <make>starcoder_utils.prbs_sink_pdu($packet_len_bits_no_header, $reset_len, $num_packets)</make>
+
+  <param>
+    <name>Packet length in bits (no header)</name>
+    <key>packet_len_bits_no_header</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Reset length</name>
+    <key>reset_len</key>
+    <value>100000</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Number of packets</name>
+    <key>num_packets</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+
+  <sink>
+    <name>all</name>
+    <type>message</type>
+  </sink>
+
+
+  <sink>
+    <name>corrected</name>
+    <type>message</type>
+  </sink>
+
+</block>

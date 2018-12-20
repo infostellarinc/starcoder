@@ -29,8 +29,7 @@
 
 //! collect all the tests for the gr-filter directory
 
-class __GR_ATTR_EXPORT qa_starcoder_utils
-{
+class __GR_ATTR_EXPORT qa_starcoder_utils {
  public:
   //! return suite of tests for all of gr-filter directory
   static CppUnit::TestSuite *suite();

@@ -71,8 +71,21 @@ class PRBSGenerator:
                 self.idx = 0
         return o
 
+    def generate_n_bits_after_x(self, n=1000, x=0):
+        """Generates the next n bits after x bits have been produced"""
+        o = np.array([], dtype='uint8')
+        idx = x % self.reset_len
+        while n > 0:
+            nout = min(n, self.reset_len - idx)
+            o = np.concatenate([o, self.pre[idx:idx+n]])
+            idx += nout
+            n -= nout
+            if idx == self.reset_len:
+                idx = 0
+        return o
+
 
 if __name__ == "__main__":
     m = PRBSGenerator()
-    v = m.generate_n_bits(1000)
-    print v
+    print(m.generate_n_bits(50))
+    print(m.generate_n_bits_after_x(10, 40))

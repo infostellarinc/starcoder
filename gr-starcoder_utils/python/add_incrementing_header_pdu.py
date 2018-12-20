@@ -22,6 +22,7 @@
 import numpy as np
 import pmt
 from gnuradio import gr
+from utils import is_u8_pdu
 
 class add_incrementing_header_pdu(gr.sync_block):
     """
@@ -44,13 +45,7 @@ class add_incrementing_header_pdu(gr.sync_block):
         self.set_msg_handler(pmt.intern("in"), self.msg_handler)
 
     def msg_handler(self, msg):
-        if not pmt.is_pair(msg):
-            return
-
-        if not pmt.is_dict(pmt.car(msg)):
-            return
-
-        if not pmt.is_u8vector(pmt.cdr(msg)):
+        if not is_u8_pdu(msg):
             return
 
         arr = pmt.to_python(msg)[1]

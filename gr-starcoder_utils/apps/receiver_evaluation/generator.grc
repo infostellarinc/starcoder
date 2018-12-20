@@ -38,7 +38,7 @@
     </param>
     <param>
       <key>generate_options</key>
-      <value>qt_gui</value>
+      <value>no_gui</value>
     </param>
     <param>
       <key>hier_block_src_path</key>
@@ -327,7 +327,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1416, 280)</value>
+      <value>(1592, 280)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1445,7 +1445,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>comment</key>
-      <value>Takes in unpacked tagged stream and
+      <value>Takes in packed tagged stream and
 outputs unpacked tagged stream.
 TODO: Implement enabling and disabling</value>
     </param>
@@ -1455,7 +1455,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1536, 44)</value>
+      <value>(1216, 324)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1545,7 +1545,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>fftsize</key>
@@ -1656,7 +1656,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>interp</key>
-      <value>rf_samp_rate</value>
+      <value>int(rf_samp_rate)</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1969,7 +1969,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>

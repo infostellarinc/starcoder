@@ -80,8 +80,9 @@ void golay_decoder_impl::msg_handler(pmt::pmt_t pmt_msg) {
       GR_LOG_DEBUG(d_logger, "Failed to decode a Golay encoded message.");
       return;
     }
-    GR_LOG_DEBUG(d_logger, "Decoded a golay encoded message. #corrected bits = "
-		 + std::to_string(num_corrected_bits));
+    GR_LOG_DEBUG(d_logger,
+                 "Decoded a golay encoded message. #corrected bits = " +
+                     std::to_string(num_corrected_bits));
 
     uint32_t mask = 1 << 11;
     for (int j = 0; j < 12; j++) {

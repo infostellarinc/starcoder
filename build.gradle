@@ -390,9 +390,11 @@ task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
     def ccFiles = fileTree('.').filter { it.isFile() && it.name.endsWith('.cc') }.files.path.join(' ')
     def hIncFiles = fileTree('./gr-starcoder/include').filter { it.isFile() && it.name.endsWith('.h') }.files.path.join(' ')
     def hLibFiles = fileTree('./gr-starcoder/lib').filter { it.isFile() && it.name.endsWith('.h') }.files.path.join(' ')
+    def hIncFilesUtil = fileTree('./gr-starcoder_utils/include').filter { it.isFile() && it.name.endsWith('.h') }.files.path.join(' ')
+    def hLibFilesUtil = fileTree('./gr-starcoder_utils/lib').filter { it.isFile() && it.name.endsWith('.h') }.files.path.join(' ')
 
     condaName 'gnuradio'
 
-    command "clang-format -style=Google -i ${ccFiles} ${hIncFiles} ${hLibFiles}"
+    command "clang-format -style=Google -i ${ccFiles} ${hIncFiles} ${hLibFiles} ${hIncFilesUtil} ${hLibFilesUtil}"
 }
 
