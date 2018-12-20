@@ -591,6 +591,53 @@
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(224, 644)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>expected_packet_length</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>259</value>
+    </param>
+  </block>
+  <block>
     <key>fec_async_decoder</key>
     <param>
       <key>alias</key>
@@ -1369,7 +1416,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>packet_length_bytes</key>
-      <value>259</value>
+      <value>expected_packet_length</value>
     </param>
   </block>
   <block>

@@ -1,11 +1,15 @@
 shared_params:  # Shared parameters are parameters that must be the same in the generator and evaluator flowgraph
   # Number of packets to send from the generator
-  num_packets_to_send: 1000
+  num_packets_to_send: 100
 
 evaluator_params:
+  # This value is used by Folder Source block to determine the size of valid packets
+  # for reading.
+  expected_packet_length: 255
+
   # This value is used to determine how many bytes to strip from the received packets.
   # If the received packets have already had their sync word removed, keep this at 0.
-  sync_word_num_bytes: 4
+  sync_word_num_bytes: 0
 
   # Whether or not Viterbi decoding should be applied
   viterbi_applied: False
@@ -27,7 +31,7 @@ generator_params:
   scrambling_applied: True
 
   # Synchronization word to use
-  sync_word: 0x24804321
+  sync_word: 0xa1345678
 
   # Number of bytes in the synchronization word
   sync_word_num_bytes: 4
@@ -39,7 +43,7 @@ generator_params:
   modulation_type: "FSK"
 
   # Bit rate
-  bit_rate: 300000
+  bit_rate: 9600
 
   # RF frequency
   rf_freq: 400.0e+6
