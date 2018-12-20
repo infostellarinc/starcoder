@@ -124,7 +124,7 @@ class prbs_sink_pdu(gr.sync_block):
             ("Total number of wrong length packets after FEC (This should be 0)", self.wrong_length_packets_after_fec_ctr),
             ("Total number of erroneous packets after FEC (This should be 0)", self.erroneous_packets_after_fec_ctr),
             ("Total number of unique packets after FEC", unique_packets_num),
-            ("Total number of duplicates", np.sum(self.collected_packets[np.where(self.collected_packets > 1)] - 1)),
+            ("Total number of duplicates", int(np.sum(self.collected_packets[np.where(self.collected_packets > 1)] - 1))),
             ("Frame error rate", 1 - unique_packets_num / float(self.num_packets))
         ])
 
