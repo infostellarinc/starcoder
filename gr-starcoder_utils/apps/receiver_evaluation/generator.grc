@@ -38,7 +38,7 @@
     </param>
     <param>
       <key>generate_options</key>
-      <value>qt_gui</value>
+      <value>no_gui</value>
     </param>
     <param>
       <key>hier_block_src_path</key>
@@ -1545,7 +1545,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>fftsize</key>
@@ -1656,7 +1656,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>interp</key>
-      <value>rf_samp_rate</value>
+      <value>int(rf_samp_rate)</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1969,7 +1969,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
