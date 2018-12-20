@@ -25,7 +25,7 @@ import numpy as np
 from gnuradio import gr
 import pmt
 import prbs_generator
-from utils import pack_bits
+from utils import pack_bits, is_u8_pdu
 
 
 class prbs_sink_pdu(gr.sync_block):
@@ -65,25 +65,13 @@ class prbs_sink_pdu(gr.sync_block):
         self.set_msg_handler(pmt.intern("corrected"), self.corrected_handler)
 
     def all_handler(self, msg):
-        if not pmt.is_pair(msg):
-            return
-
-        if not pmt.is_dict(pmt.car(msg)):
-            return
-
-        if not pmt.is_u8vector(pmt.cdr(msg)):
+        if not is_u8_pdu(msg):
             return
 
         self.all_packets_received_ctr += 1
 
     def corrected_handler(self, msg):
-        if not pmt.is_pair(msg):
-            return
-
-        if not pmt.is_dict(pmt.car(msg)):
-            return
-
-        if not pmt.is_u8vector(pmt.cdr(msg)):
+        if not is_u8_pdu(msg):
             return
 
         arr = pmt.to_python(msg)[1]
@@ -101,11 +89,16 @@ class prbs_sink_pdu(gr.sync_block):
         self.correct_packets_received_ctr += 1
         self.collected_packets[packet_idx] += 1
 
+    @staticmethod
+    def read_little_endian_header(arr):
+        val = arr[3] << 24
+        val |= arr[2] << 16
+        val |= arr[1] << 8
+        val |= arr[0]
+        return val
+
     def verify_packet_and_return_idx(self, arr):
-        packet_idx = arr[3] << 24
-        packet_idx |= arr[2] << 16
-        packet_idx |= arr[1] << 8
-        packet_idx |= arr[0]
+        packet_idx = self.read_little_endian_header(arr)
 
         number_bits_sent_before_this_packet = self.packet_len_bits_no_header * packet_idx
         expected = self.generator.generate_n_bits_after_x(self.packet_len_bits_no_header,

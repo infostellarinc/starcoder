@@ -28,7 +28,9 @@ namespace gr {
 namespace starcoder_utils {
 
 /*!
- * \brief <+description of block+>
+ * Reads from a given directory and treats every file as a binary file.
+ * Each file that matches packet_length_bytes is read and sent as a PDU
+ * to the rest of the flowgraph.
  * \ingroup starcoder_utils
  *
  */
@@ -36,16 +38,6 @@ class STARCODER_UTILS_API folder_source_pdu : virtual public gr::sync_block {
  public:
   typedef boost::shared_ptr<folder_source_pdu> sptr;
 
-  /*!
-   * \brief Return a shared_ptr to a new instance of
-   * starcoder_utils::folder_source_pdu.
-   *
-   * To avoid accidental use of raw pointers,
-   * starcoder_utils::folder_source_pdu's
-   * constructor is in a private implementation
-   * class. starcoder_utils::folder_source_pdu::make is the public interface for
-   * creating new instances.
-   */
   static sptr make(const std::string& folder_name, int packet_length_bytes,
                    int delay_between_packets_ms);
 };

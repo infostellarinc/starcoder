@@ -1,1 +1,2 @@
-*.py
+receiver_evaluation/evaluator.py
+receiver_evaluation/generator.py

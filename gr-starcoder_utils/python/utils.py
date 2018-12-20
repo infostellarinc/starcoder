@@ -19,6 +19,7 @@
 # Boston, MA 02110-1301, USA.
 #
 import numpy as np
+import pmt
 
 
 def pack_bits(arr):
@@ -40,3 +41,31 @@ def pack_bits(arr):
         else:
             idx += 1
     return packed_arr
+
+
+def is_pdu(msg):
+    """Checks if a PMT is a PDU"""
+    if not pmt.is_pair(msg):
+        return False
+
+    if not pmt.is_dict(pmt.car(msg)):
+        return False
+
+    if not pmt.is_uniform_vector(pmt.cdr(msg)):
+        return False
+
+    return True
+
+
+def is_u8_pdu(msg):
+    """Checks if a PMT is a uint8 PDU"""
+    if not pmt.is_pair(msg):
+        return False
+
+    if not pmt.is_dict(pmt.car(msg)):
+        return False
+
+    if not pmt.is_u8vector(pmt.cdr(msg)):
+        return False
+
+    return True

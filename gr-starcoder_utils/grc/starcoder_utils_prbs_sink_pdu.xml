@@ -5,11 +5,7 @@
   <category>[starcoder_utils]</category>
   <import>import starcoder_utils</import>
   <make>starcoder_utils.prbs_sink_pdu($packet_len_bits_no_header, $reset_len, $num_packets)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
+
   <param>
     <name>Packet length in bits (no header)</name>
     <key>packet_len_bits_no_header</key>
@@ -30,11 +26,6 @@
     <type>int</type>
   </param>
 
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <sink>
     <name>all</name>
     <type>message</type>
