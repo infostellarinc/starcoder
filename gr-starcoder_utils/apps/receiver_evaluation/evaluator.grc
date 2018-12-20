@@ -262,7 +262,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1123,7 +1123,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>verbose</key>
-      <value>True</value>
+      <value>False</value>
     </param>
   </block>
   <block>
@@ -1236,7 +1236,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>delay_between_packets_ms</key>
-      <value>10</value>
+      <value>0</value>
     </param>
     <param>
       <key>_enabled</key>
