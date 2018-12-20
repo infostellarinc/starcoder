@@ -96,5 +96,6 @@ if __name__ == "__main__":
             pass
         flowgraph.stop()
         flowgraph.wait()
-        print("Saving statistics to {}".format(config['report_output_file']))
-        generate_report(config['report_output_file'], config, flowgraph.starcoder_utils_prbs_sink_pdu_0.statistics)
+        if 'report_output_file' in config and config['report_output_file']:
+            print("Saving statistics to {}".format(config['report_output_file']))
+            generate_report(config['report_output_file'], config, flowgraph.starcoder_utils_prbs_sink_pdu_0.statistics)
