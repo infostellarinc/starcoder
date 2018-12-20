@@ -30,6 +30,10 @@ except ImportError:
     from yaml import Dumper
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
+import numpy as np
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+
 from generator import generator
 from evaluator import evaluator
 
@@ -57,6 +61,20 @@ def generate_report(filename, config, statistics):
             "configuration": config,
             "statistics": statistics
         }, Dumper=Dumper, default_flow_style=False))
+
+
+def plot_collected_packets(received_packets_arr, filename):
+    fig = Figure(figsize=(20.8, 12.8), dpi=200)
+    FigureCanvas(fig)
+
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.plot(np.arange(len(received_packets_arr)), received_packets_arr)
+
+    ax.set_xlabel('Packet number')
+    ax.set_ylabel('Number of received packets (including duplicates)')
+
+    fig.savefig(filename, bbox_inches='tight', pad_inches=0.2, format='png')
 
 
 if __name__ == "__main__":
@@ -99,3 +117,6 @@ if __name__ == "__main__":
         if 'report_output_file' in config and config['report_output_file']:
             print("Saving statistics to {}".format(config['report_output_file']))
             generate_report(config['report_output_file'], config, flowgraph.starcoder_utils_prbs_sink_pdu_0.statistics)
+        if 'plot_output_file' in config and config['plot_output_file']:
+            print("Saving output plot to {}".format(config['plot_output_file']))
+            plot_collected_packets(flowgraph.starcoder_utils_prbs_sink_pdu_0.collected_packets, config['plot_output_file'])

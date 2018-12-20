@@ -55,3 +55,6 @@ generator_params:
 
 # Location to store the analysis report in
 report_output_file: "output.yaml"
+
+# Location to store the plot of packet index vs. number of received packets
+plot_output_file: "output.png"
