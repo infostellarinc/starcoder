@@ -33,12 +33,11 @@
 #include <iostream>
 #include <fstream>
 
-int
-main (int argc, char **argv)
-{
+int main(int argc, char **argv) {
   CppUnit::TextTestRunner runner;
   std::ofstream xmlfile(get_unittest_path("starcoder_utils.xml").c_str());
-  CppUnit::XmlOutputter *xmlout = new CppUnit::XmlOutputter(&runner.result(), xmlfile);
+  CppUnit::XmlOutputter *xmlout =
+      new CppUnit::XmlOutputter(&runner.result(), xmlfile);
 
   runner.addTest(qa_starcoder_utils::suite());
   runner.setOutputter(xmlout);

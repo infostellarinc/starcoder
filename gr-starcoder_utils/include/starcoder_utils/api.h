@@ -26,9 +26,9 @@
 #include <gnuradio/attributes.h>
 
 #ifdef gnuradio_starcoder_utils_EXPORTS
-#  define STARCODER_UTILS_API __GR_ATTR_EXPORT
+#define STARCODER_UTILS_API __GR_ATTR_EXPORT
 #else
-#  define STARCODER_UTILS_API __GR_ATTR_IMPORT
+#define STARCODER_UTILS_API __GR_ATTR_IMPORT
 #endif
 
 #endif /* INCLUDED_STARCODER_UTILS_API_H */

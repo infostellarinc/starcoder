@@ -1,5 +1,5 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 Infostellar.
  * 
  * This is free software; you can redistribute it and/or modify
@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_STARCODER_UTILS_FOLDER_SOURCE_PDU_H
 #define INCLUDED_STARCODER_UTILS_FOLDER_SOURCE_PDU_H
 
@@ -26,31 +25,32 @@
 #include <gnuradio/sync_block.h>
 
 namespace gr {
-  namespace starcoder_utils {
+namespace starcoder_utils {
 
-    /*!
-     * \brief <+description of block+>
-     * \ingroup starcoder_utils
-     *
-     */
-    class STARCODER_UTILS_API folder_source_pdu : virtual public gr::sync_block
-    {
-     public:
-      typedef boost::shared_ptr<folder_source_pdu> sptr;
+/*!
+ * \brief <+description of block+>
+ * \ingroup starcoder_utils
+ *
+ */
+class STARCODER_UTILS_API folder_source_pdu : virtual public gr::sync_block {
+ public:
+  typedef boost::shared_ptr<folder_source_pdu> sptr;
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of starcoder_utils::folder_source_pdu.
-       *
-       * To avoid accidental use of raw pointers, starcoder_utils::folder_source_pdu's
-       * constructor is in a private implementation
-       * class. starcoder_utils::folder_source_pdu::make is the public interface for
-       * creating new instances.
-       */
-      static sptr make(const std::string& folder_name, int packet_length_bytes, int delay_between_packets_ms);
-    };
+  /*!
+   * \brief Return a shared_ptr to a new instance of
+   * starcoder_utils::folder_source_pdu.
+   *
+   * To avoid accidental use of raw pointers,
+   * starcoder_utils::folder_source_pdu's
+   * constructor is in a private implementation
+   * class. starcoder_utils::folder_source_pdu::make is the public interface for
+   * creating new instances.
+   */
+  static sptr make(const std::string& folder_name, int packet_length_bytes,
+                   int delay_between_packets_ms);
+};
 
-  } // namespace starcoder_utils
-} // namespace gr
+}  // namespace starcoder_utils
+}  // namespace gr
 
 #endif /* INCLUDED_STARCODER_UTILS_FOLDER_SOURCE_PDU_H */
-
