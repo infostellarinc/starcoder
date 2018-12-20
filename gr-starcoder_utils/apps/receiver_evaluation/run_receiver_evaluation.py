@@ -28,7 +28,6 @@ try:
     from yaml import CDumper as Dumper  # try to use LibYAML bindings if possible
 except ImportError:
     from yaml import Dumper
-from yaml.representer import SafeRepresenter
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
 from generator import generator
@@ -71,7 +70,9 @@ if __name__ == "__main__":
 
     if args.generator:
         print("Running signal generator flowgraph")
-        flowgraph = generator(**config["generator"])
+        generator_params = config['generator_params'].copy()
+        generator_params.update(config['shared_params'])
+        flowgraph = generator(**generator_params)
         flowgraph.start()
         try:
             raw_input('\nPress Enter after the USRP has finished processing '
@@ -85,7 +86,9 @@ if __name__ == "__main__":
         flowgraph.wait()
     elif args.evaluator:
         print("Running evaluation flowgraph")
-        flowgraph = evaluator(**config["evaluator"])
+        evaluator_params = config['evaluator_params'].copy()
+        evaluator_params.update(config['shared_params'])
+        flowgraph = evaluator(**evaluator_params)
         flowgraph.start()
         try:
             raw_input('Press Enter after all files have been read by the folder source.\n')

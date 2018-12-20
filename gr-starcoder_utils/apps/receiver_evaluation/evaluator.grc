@@ -101,7 +101,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 76)</value>
+      <value>(8, 92)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -114,6 +114,60 @@
     <param>
       <key>value</key>
       <value>259</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 220)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>packet_payload_length_bytes</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>219</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 156)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>prbs_reset_len</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>100000</value>
     </param>
   </block>
   <block>
@@ -829,6 +883,53 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(224, 580)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>num_packets_to_send</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>10000</value>
+    </param>
+  </block>
+  <block>
     <key>repack_pdu_bits</key>
     <param>
       <key>bits_per_input_byte</key>
@@ -1303,15 +1404,15 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>num_packets</key>
-      <value>10000</value>
+      <value>num_packets_to_send</value>
     </param>
     <param>
       <key>packet_len_bits_no_header</key>
-      <value>219*8</value>
+      <value>packet_payload_length_bytes*8</value>
     </param>
     <param>
       <key>reset_len</key>
-      <value>100000</value>
+      <value>prbs_reset_len</value>
     </param>
   </block>
   <block>
