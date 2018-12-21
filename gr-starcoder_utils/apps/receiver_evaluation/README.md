@@ -1,0 +1,41 @@
+# Using the offline receiver evaluation tool
+
+## Compile the flowgraphs
+
+First, install the OOT modules gr-starcoder and gr-starcoder_utils.
+
+Compile the hierarchical blocks in ../hierarchical by opening them in GNU Radio Companion and compiling.
+
+Compile `evaluator.grc` and `generator.grc` in GNU Radio Companion and ensure that the 
+generated .py files (`generator.py` and `evaluator.py`) are in the folder.
+
+
+## Configuration
+
+Write a single configuration file for generator and evaluator. 
+Use the template from `./config.example.yaml` as an example.
+
+## Run the generator
+
+Prepare the receiver e.g. start a test pass, run a flowgraph for demodulation
+
+Run the generator by running
+
+`python run_receiver_evaluation.py -C /path/to/config -G`
+
+End the pass after the USRP stops transmitting all packets by pressing Enter. 
+Make sure that the USRP is actually finished transmitting by checking the red 
+light on the radio, otherwise you may miss some packets.
+
+## Run the evaluator offline
+
+Run the evaluator by running
+
+`python run_receiver_evaluation.py -C /path/to/config -E`
+
+Wait for all the packets to be read by the Folder Source block. You can tell when it prints out the following line:
+
+`gr::log :DEBUG: folder_source_pdu0 - Read x files`
+
+Press Enter and wait for the report to be generated (TODO (rei): There should be no need to press Enter. The script
+should just end when there are no more packets to be processed).

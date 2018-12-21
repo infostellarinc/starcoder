@@ -86,6 +86,10 @@ class prbs_sink_pdu(gr.sync_block):
             self.log.warn("Received erroneous packets even after FEC.")
             self.erroneous_packets_after_fec_ctr += 1
             return
+        if packet_idx > self.num_packets - 1:
+            self.log.warn("Received packet with index greater than expected number of packets.")
+            self.erroneous_packets_after_fec_ctr += 1
+            return
         self.correct_packets_received_ctr += 1
         self.collected_packets[packet_idx] += 1
 
