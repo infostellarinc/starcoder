@@ -285,7 +285,6 @@ class qa_prbs_sink_pdu (gr_unittest.TestCase):
                 # This makes the packet bigger than NUM_GENERATED_PACKETS
                 packet[0] = 0x90
                 packet[1] = 0x1
-                print(packet)
             snk.to_basic_block()._post(pmt.intern('corrected'), pmt.cons(pmt.PMT_NIL, pmt.to_pmt(packet)))
         time.sleep(0.1)
         self.tb.stop()
