@@ -358,7 +358,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1184, 896)</value>
+      <value>(1184, 992)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -393,7 +393,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(424, 1268)</value>
+      <value>(424, 1364)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -440,7 +440,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(704, 340)</value>
+      <value>(616, 308)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -487,7 +487,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(424, 956)</value>
+      <value>(424, 1052)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -605,7 +605,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(960, 332)</value>
+      <value>(416, 444)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -664,7 +664,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(688, 948)</value>
+      <value>(688, 1044)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -813,7 +813,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(640, 516)</value>
+      <value>(616, 452)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -821,7 +821,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_tagged_stream_to_pdu_0_0</value>
+      <value>blocks_tagged_stream_to_pdu_0_0_0</value>
     </param>
     <param>
       <key>type</key>
@@ -860,7 +860,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(928, 956)</value>
+      <value>(928, 1052)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1023,7 +1023,7 @@ to use tagged stream blocks.</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(824, 1236)</value>
+      <value>(824, 1332)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1055,69 +1055,6 @@ to use tagged stream blocks.</value>
     </param>
   </block>
   <block>
-    <key>digital_additive_scrambler_bb</key>
-    <param>
-      <key>bits_per_byte</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>count</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(416, 476)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_additive_scrambler_bb_0</value>
-    </param>
-    <param>
-      <key>len</key>
-      <value>7</value>
-    </param>
-    <param>
-      <key>mask</key>
-      <value>0xa9</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>reset_tag_key</key>
-      <value>"packet_len"</value>
-    </param>
-    <param>
-      <key>seed</key>
-      <value>0xfF</value>
-    </param>
-  </block>
-  <block>
     <key>digital_gmsk_mod</key>
     <param>
       <key>bt</key>
@@ -1141,7 +1078,7 @@ to use tagged stream blocks.</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(424, 1116)</value>
+      <value>(424, 1212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1196,7 +1133,7 @@ to use tagged stream blocks.</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 804)</value>
+      <value>(416, 900)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1295,7 +1232,7 @@ TODO: Implement other modulations</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(584, 1116)</value>
+      <value>(584, 1212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1326,7 +1263,7 @@ TODO: Implement other modulations</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1240, 1252)</value>
+      <value>(1240, 1348)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1358,7 +1295,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(672, 804)</value>
+      <value>(672, 900)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1389,7 +1326,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(672, 676)</value>
+      <value>(672, 772)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1422,7 +1359,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 492)</value>
+      <value>(864, 588)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1446,8 +1383,7 @@ TODO: Implement enabling and disabling</value>
     <param>
       <key>comment</key>
       <value>Takes in packed tagged stream and
-outputs unpacked tagged stream.
-TODO: Implement enabling and disabling</value>
+outputs unpacked tagged stream.</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1553,7 +1489,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1576, 1084)</value>
+      <value>(1608, 1156)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1644,7 +1580,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(608, 1244)</value>
+      <value>(608, 1340)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1930,7 +1866,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1296, 1112)</value>
+      <value>(1328, 1184)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2008,7 +1944,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 676)</value>
+      <value>(416, 772)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2033,6 +1969,73 @@ TODO: Implement enabling and disabling</value>
     <param>
       <key>sync_word</key>
       <value>sync_word</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_utils_additive_scrambler</key>
+    <param>
+      <key>bits_per_byte</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>count</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>enabled</key>
+      <value>bool(scrambling_applied)</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(400, 564)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_additive_scrambler_0</value>
+    </param>
+    <param>
+      <key>length</key>
+      <value>7</value>
+    </param>
+    <param>
+      <key>mask</key>
+      <value>0xa9</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>reset_tag_key</key>
+      <value>"packet_len"</value>
+    </param>
+    <param>
+      <key>seed</key>
+      <value>0xff</value>
     </param>
   </block>
   <block>
@@ -2114,7 +2117,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 332)</value>
+      <value>(416, 300)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2899,7 +2902,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1040, 1220)</value>
+      <value>(1040, 1316)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3123,7 +3126,7 @@ TODO: Implement enabling and disabling</value>
   </connection>
   <connection>
     <source_block_id>blocks_repack_bits_bb_0_0</source_block_id>
-    <sink_block_id>digital_additive_scrambler_bb_0</sink_block_id>
+    <sink_block_id>blocks_tagged_stream_to_pdu_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3152,8 +3155,8 @@ TODO: Implement enabling and disabling</value>
     <sink_key>in</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_tagged_stream_to_pdu_0_0</source_block_id>
-    <sink_block_id>starcoder_utils_add_sync_pdu_0</sink_block_id>
+    <source_block_id>blocks_tagged_stream_to_pdu_0_0_0</source_block_id>
+    <sink_block_id>starcoder_utils_additive_scrambler_0</sink_block_id>
     <source_key>pdus</source_key>
     <sink_key>in</sink_key>
   </connection>
@@ -3172,12 +3175,6 @@ TODO: Implement enabling and disabling</value>
   <connection>
     <source_block_id>channels_channel_model_0</source_block_id>
     <sink_block_id>uhd_usrp_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>digital_additive_scrambler_bb_0</source_block_id>
-    <sink_block_id>blocks_tagged_stream_to_pdu_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3214,6 +3211,12 @@ TODO: Implement enabling and disabling</value>
   <connection>
     <source_block_id>starcoder_utils_add_sync_pdu_0</source_block_id>
     <sink_block_id>fec_async_encoder_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_additive_scrambler_0</source_block_id>
+    <sink_block_id>starcoder_utils_add_sync_pdu_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
