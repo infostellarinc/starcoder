@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<block>
+  <name>rs_encoder</name>
+  <key>starcoder_utils_rs_encoder</key>
+  <category>[starcoder_utils]</category>
+  <import>import starcoder_utils</import>
+  <make>starcoder_utils.rs_encoder($basis, $enabled)</make>
+
+  <param>
+    <name>Basis</name>
+    <key>basis</key>
+    <type>int</type>
+    <option>
+      <name>Conventional</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Dual</name>
+      <key>1</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Enabled</name>
+    <key>enabled</key>
+    <type>bool</type>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

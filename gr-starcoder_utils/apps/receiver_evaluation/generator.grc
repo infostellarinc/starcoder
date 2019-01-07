@@ -1864,49 +1864,6 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <block>
-    <key>satellites_encode_rs</key>
-    <param>
-      <key>basis</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(416, 340)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>satellites_encode_rs_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -2127,6 +2084,53 @@ TODO: Implement enabling and disabling</value>
     <param>
       <key>reset_len</key>
       <value>prbs_reset_len</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_utils_rs_encoder</key>
+    <param>
+      <key>basis</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>enabled</key>
+      <value>bool(rs_applied)</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(416, 332)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_rs_encoder_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -3196,18 +3200,6 @@ TODO: Implement enabling and disabling</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>satellites_encode_rs_0</source_block_id>
-    <sink_block_id>blocks_message_debug_0</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>print_pdu</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>satellites_encode_rs_0</source_block_id>
-    <sink_block_id>blocks_pdu_to_tagged_stream_0</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>pdus</sink_key>
-  </connection>
-  <connection>
     <source_block_id>starcoder_ar2300_source_0</source_block_id>
     <sink_block_id>qtgui_sink_x_0</sink_block_id>
     <source_key>0</source_key>
@@ -3215,7 +3207,7 @@ TODO: Implement enabling and disabling</value>
   </connection>
   <connection>
     <source_block_id>starcoder_utils_add_incrementing_header_pdu_0</source_block_id>
-    <sink_block_id>satellites_encode_rs_0</sink_block_id>
+    <sink_block_id>starcoder_utils_rs_encoder_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
@@ -3230,5 +3222,11 @@ TODO: Implement enabling and disabling</value>
     <sink_block_id>blocks_throttle_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_rs_encoder_0</source_block_id>
+    <sink_block_id>blocks_pdu_to_tagged_stream_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>pdus</sink_key>
   </connection>
 </flow_graph>

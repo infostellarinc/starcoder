@@ -39,6 +39,7 @@ from viterbi_decoder import viterbi_decoder
 from pmt_pass import pmt_pass
 from additive_scrambler import additive_scrambler
 from rs_decoder import rs_decoder
+from rs_encoder import rs_encoder
 
 
 #

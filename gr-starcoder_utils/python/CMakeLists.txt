@@ -41,7 +41,8 @@ GR_PYTHON_INSTALL(
     viterbi_decoder.py
     pmt_pass.py
     additive_scrambler.py
-    rs_decoder.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
+    rs_decoder.py
+    rs_encoder.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
 )
 
 ########################################################################
