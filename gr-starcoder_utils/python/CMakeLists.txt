@@ -39,7 +39,8 @@ GR_PYTHON_INSTALL(
     add_incrementing_header_pdu.py
     prbs_sink_pdu.py
     viterbi_decoder.py
-    pmt_pass.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
+    pmt_pass.py
+    additive_scrambler.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
 )
 
 ########################################################################

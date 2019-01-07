@@ -37,6 +37,7 @@ from add_incrementing_header_pdu import add_incrementing_header_pdu
 from prbs_sink_pdu import prbs_sink_pdu
 from viterbi_decoder import viterbi_decoder
 from pmt_pass import pmt_pass
+from additive_scrambler import additive_scrambler
 
 
 #
