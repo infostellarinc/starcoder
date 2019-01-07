@@ -21,6 +21,8 @@
 
 from gnuradio import gr
 from gnuradio import fec
+from gnuradio import blocks
+from gnuradio import digital
 from pmt_pass import pmt_pass
 
 
@@ -53,9 +55,19 @@ class viterbi_decoder(gr.hier_block2):
         self.message_port_register_hier_out("out")
 
         if enabled:
+            pdu_to_tagged_stream = blocks.pdu_to_tagged_stream(blocks.byte_t, 'packet_len')
+            map_vals = digital.map_bb(([-1, 1]))
+            char2float = blocks.char_to_float(1, 1)
+            tagged_stream_to_pdu = blocks.tagged_stream_to_pdu(blocks.float_t, 'packet_len')
             dec_block = fec.async_decoder(cc_decoder_definition, packed, rev_packing, mtu_bytes)
+
+            self.msg_connect((self, 'in'), (pdu_to_tagged_stream, 'pdus'))
+            self.connect((pdu_to_tagged_stream, 0), (map_vals, 0))
+            self.connect((map_vals, 0), (char2float, 0))
+            self.connect((char2float, 0), (tagged_stream_to_pdu, 0))
+            self.msg_connect((tagged_stream_to_pdu, 'pdus'), (dec_block, 'in'))
+            self.msg_connect((dec_block, 'out'), (self, 'out'))
         else:
             dec_block = pmt_pass()
-
-        self.msg_connect((self, 'in'), (dec_block, 'in'))
-        self.msg_connect((dec_block, 'out'), (self, 'out'))
+            self.msg_connect((self, 'in'), (dec_block, 'in'))
+            self.msg_connect((dec_block, 'out'), (self, 'out'))
