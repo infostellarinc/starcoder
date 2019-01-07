@@ -37,8 +37,6 @@ class additive_scrambler(gr.hier_block2):
             gr.io_signature(0, 0, 0),  # Input signature
             gr.io_signature(0, 0, 0)) # Output signature
 
-        self.log = gr.logger("log")
-
         self.message_port_register_hier_in("in")
         self.message_port_register_hier_out("out")
 
