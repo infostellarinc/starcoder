@@ -1,6 +1,6 @@
 shared_params:  # Shared parameters are parameters that must be the same in the generator and evaluator flowgraph
   # Number of packets to send from the generator
-  num_packets_to_send: 100
+  num_packets_to_send: 1000
 
 evaluator_params:
   # This value is used by Folder Source block to determine the size of valid packets
@@ -45,8 +45,11 @@ generator_params:
   # Bit rate
   bit_rate: 9600
 
+  # Preamble length bits
+  preamble_length_bits: 80
+
   # RF frequency
-  rf_freq: 400.0e+6
+  rf_freq: 445.0e+6
 
   # RF radio sampling rate
   rf_samp_rate: 4.0e+6
