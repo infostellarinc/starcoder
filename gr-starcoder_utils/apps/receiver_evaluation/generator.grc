@@ -1125,7 +1125,7 @@ to use tagged stream blocks.</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>0</value>
     </param>
     <param>
       <key>encoder</key>
@@ -1133,7 +1133,7 @@ to use tagged stream blocks.</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 900)</value>
+      <value>(1152, 820)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2003,7 +2003,7 @@ outputs unpacked tagged stream.</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(400, 564)</value>
+      <value>(408, 564)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2036,6 +2036,69 @@ outputs unpacked tagged stream.</value>
     <param>
       <key>seed</key>
       <value>0xff</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_utils_conv_encoder</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>enabled</key>
+      <value>bool(viterbi_applied)</value>
+    </param>
+    <param>
+      <key>my_encoder</key>
+      <value>variable_cc_encoder_def_0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(416, 884)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_conv_encoder_0</value>
+    </param>
+    <param>
+      <key>mtu</key>
+      <value>1500</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>packed</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>rev_pack</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>rev_unpack</key>
+      <value>False</value>
     </param>
   </block>
   <block>
@@ -3215,10 +3278,22 @@ outputs unpacked tagged stream.</value>
     <sink_key>in</sink_key>
   </connection>
   <connection>
+    <source_block_id>starcoder_utils_add_sync_pdu_0</source_block_id>
+    <sink_block_id>starcoder_utils_conv_encoder_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
     <source_block_id>starcoder_utils_additive_scrambler_0</source_block_id>
     <sink_block_id>starcoder_utils_add_sync_pdu_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_conv_encoder_0</source_block_id>
+    <sink_block_id>blocks_pdu_to_tagged_stream_0_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>pdus</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_utils_prbs_source_b_0</source_block_id>

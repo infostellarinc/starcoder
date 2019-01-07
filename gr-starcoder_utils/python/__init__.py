@@ -40,6 +40,7 @@ from pmt_pass import pmt_pass
 from additive_scrambler import additive_scrambler
 from rs_decoder import rs_decoder
 from rs_encoder import rs_encoder
+from conv_encoder import conv_encoder
 
 
 #

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<block>
+  <name>conv_encoder</name>
+  <key>starcoder_utils_conv_encoder</key>
+  <category>[starcoder_utils]</category>
+  <import>import starcoder_utils</import>
+  <make>starcoder_utils.conv_encoder($my_encoder, $packed, $rev_unpack, $rev_pack, $mtu, $enabled)</make>
+
+  <param>
+    <name>Encoder Obj.</name>
+    <key>my_encoder</key>
+  </param>
+
+  <param>
+    <name>Packed</name>
+    <key>packed</key>
+    <type>bool</type>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Rev. Unpacking</name>
+    <key>rev_unpack</key>
+    <type>bool</type>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Rev. Packing</name>
+    <key>rev_pack</key>
+    <type>bool</type>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+  </param>
+
+  <param>
+    <name>MTU (bytes)</name>
+    <key>mtu</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Enabled</name>
+    <key>enabled</key>
+    <type>bool</type>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

@@ -42,7 +42,8 @@ GR_PYTHON_INSTALL(
     pmt_pass.py
     additive_scrambler.py
     rs_decoder.py
-    rs_encoder.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
+    rs_encoder.py
+    conv_encoder.py DESTINATION ${GR_PYTHON_DIR}/starcoder_utils
 )
 
 ########################################################################

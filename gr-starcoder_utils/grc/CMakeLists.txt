@@ -27,5 +27,6 @@ install(FILES
     starcoder_utils_pmt_pass.xml
     starcoder_utils_additive_scrambler.xml
     starcoder_utils_rs_decoder.xml
-    starcoder_utils_rs_encoder.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_utils_rs_encoder.xml
+    starcoder_utils_conv_encoder.xml DESTINATION share/gnuradio/grc/blocks
 )
