@@ -638,61 +638,6 @@
     </param>
   </block>
   <block>
-    <key>fec_async_decoder</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>decoder</key>
-      <value>variable_cc_decoder</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(624, 316)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fec_async_decoder_0</value>
-    </param>
-    <param>
-      <key>mtu</key>
-      <value>1500</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>packed</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>rev_pack</key>
-      <value>True</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -1463,6 +1408,65 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <block>
+    <key>starcoder_utils_viterbi_decoder</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>cc_decoder_definition</key>
+      <value>variable_cc_decoder</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>enabled</key>
+      <value>bool(viterbi_applied)</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 292)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_viterbi_decoder_0</value>
+    </param>
+    <param>
+      <key>mtu_bytes</key>
+      <value>1500</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>packed</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>rev_packing</key>
+      <value>False</value>
+    </param>
+  </block>
+  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -1593,14 +1597,8 @@ TODO: Implement enabling and disabling</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fec_async_decoder_0</source_block_id>
-    <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>in</sink_key>
-  </connection>
-  <connection>
     <source_block_id>repack_pdu_bits_0</source_block_id>
-    <sink_block_id>fec_async_decoder_0</sink_block_id>
+    <sink_block_id>starcoder_utils_viterbi_decoder_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
@@ -1651,5 +1649,11 @@ TODO: Implement enabling and disabling</value>
     <sink_block_id>starcoder_utils_prbs_sink_pdu_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>all</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_viterbi_decoder_0</source_block_id>
+    <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
   </connection>
 </flow_graph>
