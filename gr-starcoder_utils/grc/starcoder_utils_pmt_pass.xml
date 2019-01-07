@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>pmt_pass</name>
+  <key>starcoder_utils_pmt_pass</key>
+  <category>[starcoder_utils]</category>
+  <import>import starcoder_utils</import>
+  <make>starcoder_utils.pmt_pass()</make>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>
