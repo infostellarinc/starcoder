@@ -35,6 +35,7 @@ from prbs_source_b import prbs_source_b
 from add_sync_pdu import add_sync_pdu
 from add_incrementing_header_pdu import add_incrementing_header_pdu
 from prbs_sink_pdu import prbs_sink_pdu
+from pmt_selector import pmt_selector
 
 
 #

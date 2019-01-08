@@ -22,5 +22,6 @@ install(FILES
     starcoder_utils_add_sync_pdu.xml
     starcoder_utils_add_incrementing_header_pdu.xml
     starcoder_utils_folder_source_pdu.xml
-    starcoder_utils_prbs_sink_pdu.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_utils_prbs_sink_pdu.xml
+    starcoder_utils_pmt_selector.xml DESTINATION share/gnuradio/grc/blocks
 )
