@@ -23,9 +23,6 @@ install(FILES
     starcoder_utils_add_incrementing_header_pdu.xml
     starcoder_utils_folder_source_pdu.xml
     starcoder_utils_prbs_sink_pdu.xml
-    starcoder_utils_viterbi_decoder.xml
     starcoder_utils_pmt_pass.xml
-    starcoder_utils_additive_scrambler.xml
-    starcoder_utils_rs_decoder.xml
     starcoder_utils_message_router.xml DESTINATION share/gnuradio/grc/blocks
 )
