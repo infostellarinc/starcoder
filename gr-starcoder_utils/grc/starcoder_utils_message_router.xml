@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<block>
+  <name>message_router</name>
+  <key>starcoder_utils_message_router</key>
+  <category>[starcoder_utils]</category>
+  <import>import starcoder_utils</import>
+  <make>starcoder_utils.message_router($output_index)</make>
+
+  <param>
+    <name>Output index</name>
+    <key>output_index</key>
+    <type>int</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out0</name>
+    <type>message</type>
+  </source>
+
+  <source>
+    <name>out1</name>
+    <type>message</type>
+  </source>
+</block>

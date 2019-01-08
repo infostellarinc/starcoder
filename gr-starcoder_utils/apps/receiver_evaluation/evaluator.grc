@@ -242,6 +242,53 @@
     </param>
   </block>
   <block>
+    <key>blocks_char_to_float</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1152, 332)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_char_to_float_0_1_1</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>scale</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_file_source</key>
     <param>
       <key>begin_tag</key>
@@ -320,7 +367,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(904, 1168)</value>
+      <value>(872, 1408)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -329,6 +376,53 @@
     <param>
       <key>id</key>
       <value>blocks_message_debug_0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_pdu_to_tagged_stream</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(808, 332)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_pdu_to_tagged_stream_1_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>tag</key>
+      <value>packet_len</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -434,6 +528,96 @@
     </param>
   </block>
   <block>
+    <key>blocks_tagged_stream_to_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1296, 332)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_tagged_stream_to_pdu_1_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>tag</key>
+      <value>packet_len</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_map_bb</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1032, 332)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_map_bb_0_0</value>
+    </param>
+    <param>
+      <key>map</key>
+      <value>[-1,1]</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -478,6 +662,61 @@
     <param>
       <key>value</key>
       <value>259</value>
+    </param>
+  </block>
+  <block>
+    <key>fec_async_decoder</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>decoder</key>
+      <value>variable_cc_decoder</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1512, 324)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fec_async_decoder_0</value>
+    </param>
+    <param>
+      <key>mtu</key>
+      <value>1500</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>packed</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>rev_pack</key>
+      <value>True</value>
     </param>
   </block>
   <block>
@@ -535,8 +774,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value>Input and output are unpacked PDU
-TODO: Implement enabling and disabling</value>
+      <value>Input and output are unpacked PDU</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -544,7 +782,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(936, 308)</value>
+      <value>(1784, 324)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -567,8 +805,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>comment</key>
-      <value>Input and output are unpacked PDU
-TODO: Implement enabling and disabling</value>
+      <value>Input and output are unpacked PDU</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -576,7 +813,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(936, 460)</value>
+      <value>(1144, 468)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -599,8 +836,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>comment</key>
-      <value>Input and output are unpacked PDU
-TODO: Implement enabling and disabling</value>
+      <value>Input and output are unpacked PDU</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -608,7 +844,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1416, 636)</value>
+      <value>(1144, 636)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -631,8 +867,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>comment</key>
-      <value>Input and output are unpacked PDU
-TODO: Implement enabling and disabling</value>
+      <value>Input is packed PDU</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -640,7 +875,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1416, 828)</value>
+      <value>(1144, 988)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -671,7 +906,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1256, 1052)</value>
+      <value>(1144, 1220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -792,7 +1027,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(904, 172)</value>
+      <value>(896, 172)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -843,58 +1078,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(632, 828)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>repack_pdu_bits_0_0</value>
-    </param>
-    <param>
-      <key>length_tag_key</key>
-      <value>"packet_len"</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>repack_pdu_bits</key>
-    <param>
-      <key>bits_per_input_byte</key>
-      <value>8</value>
-    </param>
-    <param>
-      <key>bits_per_output_byte</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1184, 828)</value>
+      <value>(624, 812)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -903,57 +1087,6 @@ TODO: Implement enabling and disabling</value>
     <param>
       <key>id</key>
       <value>repack_pdu_bits_0_0_0</value>
-    </param>
-    <param>
-      <key>length_tag_key</key>
-      <value>"packet_len"</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>repack_pdu_bits</key>
-    <param>
-      <key>bits_per_input_byte</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>bits_per_output_byte</key>
-      <value>8</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(632, 1068)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>repack_pdu_bits_0_0_1</value>
     </param>
     <param>
       <key>length_tag_key</key>
@@ -1013,6 +1146,53 @@ TODO: Implement enabling and disabling</value>
     <param>
       <key>value</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>satellites_decode_rs</key>
+    <param>
+      <key>basis</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(888, 988)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>satellites_decode_rs_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>False</value>
     </param>
   </block>
   <block>
@@ -1082,7 +1262,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(632, 468)</value>
+      <value>(624, 468)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1141,7 +1321,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(632, 604)</value>
+      <value>(896, 604)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1228,6 +1408,135 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <block>
+    <key>starcoder_utils_message_router</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 320)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_message_router_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>output_index</key>
+      <value>viterbi_applied</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_utils_message_router</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 640)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_message_router_0_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>output_index</key>
+      <value>scrambling_applied</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_utils_message_router</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 984)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_utils_message_router_0_0_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>output_index</key>
+      <value>rs_applied</value>
+    </param>
+  </block>
+  <block>
     <key>starcoder_utils_prbs_sink_pdu</key>
     <param>
       <key>alias</key>
@@ -1247,7 +1556,7 @@ TODO: Implement enabling and disabling</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(904, 1068)</value>
+      <value>(880, 1220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1268,116 +1577,6 @@ TODO: Implement enabling and disabling</value>
     <param>
       <key>reset_len</key>
       <value>prbs_reset_len</value>
-    </param>
-  </block>
-  <block>
-    <key>starcoder_utils_rs_decoder</key>
-    <param>
-      <key>basis</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>enabled</key>
-      <value>bool(rs_applied)</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(928, 828)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>starcoder_utils_rs_decoder_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>verbose</key>
-      <value>False</value>
-    </param>
-  </block>
-  <block>
-    <key>starcoder_utils_viterbi_decoder</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>cc_decoder_definition</key>
-      <value>variable_cc_decoder</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>enabled</key>
-      <value>bool(viterbi_applied)</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(624, 292)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>starcoder_utils_viterbi_decoder_0</value>
-    </param>
-    <param>
-      <key>mtu_bytes</key>
-      <value>1500</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>packed</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>rev_packing</key>
-      <value>False</value>
     </param>
   </block>
   <block>
@@ -1475,8 +1674,20 @@ TODO: Implement enabling and disabling</value>
     </param>
   </block>
   <connection>
+    <source_block_id>blocks_char_to_float_0_1_1</source_block_id>
+    <sink_block_id>blocks_tagged_stream_to_pdu_1_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_file_source_0</source_block_id>
     <sink_block_id>blocks_stream_to_tagged_stream_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_pdu_to_tagged_stream_1_0</source_block_id>
+    <sink_block_id>digital_map_bb_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1493,44 +1704,50 @@ TODO: Implement enabling and disabling</value>
     <sink_key>in</sink_key>
   </connection>
   <connection>
-    <source_block_id>repack_pdu_bits_0</source_block_id>
-    <sink_block_id>starcoder_utils_viterbi_decoder_0</sink_block_id>
+    <source_block_id>blocks_tagged_stream_to_pdu_1_0</source_block_id>
+    <sink_block_id>fec_async_decoder_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_map_bb_0_0</source_block_id>
+    <sink_block_id>blocks_char_to_float_0_1_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fec_async_decoder_0</source_block_id>
+    <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
   <connection>
-    <source_block_id>repack_pdu_bits_0_0</source_block_id>
-    <sink_block_id>starcoder_utils_rs_decoder_0</sink_block_id>
+    <source_block_id>repack_pdu_bits_0</source_block_id>
+    <sink_block_id>starcoder_utils_message_router_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
   <connection>
     <source_block_id>repack_pdu_bits_0_0_0</source_block_id>
-    <sink_block_id>repack_pdu_bits_0_0_1</sink_block_id>
+    <sink_block_id>starcoder_utils_message_router_0_0_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
   <connection>
-    <source_block_id>repack_pdu_bits_0_0_1</source_block_id>
-    <sink_block_id>blocks_message_debug_0</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>print_pdu</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>repack_pdu_bits_0_0_1</source_block_id>
+    <source_block_id>satellites_decode_rs_0</source_block_id>
     <sink_block_id>starcoder_utils_prbs_sink_pdu_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>corrected</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_pdu_trim_uvector_0</source_block_id>
-    <sink_block_id>starcoder_utils_additive_scrambler_0</sink_block_id>
+    <sink_block_id>starcoder_utils_message_router_0_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_utils_additive_scrambler_0</source_block_id>
-    <sink_block_id>repack_pdu_bits_0_0</sink_block_id>
+    <sink_block_id>repack_pdu_bits_0_0_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
@@ -1547,15 +1764,39 @@ TODO: Implement enabling and disabling</value>
     <sink_key>all</sink_key>
   </connection>
   <connection>
-    <source_block_id>starcoder_utils_rs_decoder_0</source_block_id>
-    <sink_block_id>repack_pdu_bits_0_0_0</sink_block_id>
-    <source_key>out</source_key>
+    <source_block_id>starcoder_utils_message_router_0</source_block_id>
+    <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
+    <source_key>out0</source_key>
     <sink_key>in</sink_key>
   </connection>
   <connection>
-    <source_block_id>starcoder_utils_viterbi_decoder_0</source_block_id>
-    <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
-    <source_key>out</source_key>
+    <source_block_id>starcoder_utils_message_router_0</source_block_id>
+    <sink_block_id>blocks_pdu_to_tagged_stream_1_0</sink_block_id>
+    <source_key>out1</source_key>
+    <sink_key>pdus</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_message_router_0_0</source_block_id>
+    <sink_block_id>repack_pdu_bits_0_0_0</sink_block_id>
+    <source_key>out0</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_message_router_0_0</source_block_id>
+    <sink_block_id>starcoder_utils_additive_scrambler_0</sink_block_id>
+    <source_key>out1</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_message_router_0_0_0</source_block_id>
+    <sink_block_id>starcoder_utils_prbs_sink_pdu_0</sink_block_id>
+    <source_key>out0</source_key>
+    <sink_key>corrected</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_utils_message_router_0_0_0</source_block_id>
+    <sink_block_id>satellites_decode_rs_0</sink_block_id>
+    <source_key>out1</source_key>
     <sink_key>in</sink_key>
   </connection>
 </flow_graph>
