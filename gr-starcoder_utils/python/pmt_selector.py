@@ -25,7 +25,8 @@ import pmt
 
 class pmt_selector(gr.sync_block):
     """
-    docstring for block pmt_selector
+    This block routes PMTs received into one of two paths,
+    selected by `output_index`.
     """
     def __init__(self, output_index):
         gr.sync_block.__init__(self,
