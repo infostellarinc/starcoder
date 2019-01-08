@@ -23,14 +23,14 @@ from gnuradio import gr
 import pmt
 
 
-class pmt_selector(gr.sync_block):
+class message_router(gr.sync_block):
     """
     This block routes PMTs received into one of two paths,
     selected by `output_index`.
     """
     def __init__(self, output_index):
         gr.sync_block.__init__(self,
-            name="pmt_selector",
+            name="message_router",
             in_sig=None,
             out_sig=None)
         self.message_port_register_in(pmt.intern("in"))

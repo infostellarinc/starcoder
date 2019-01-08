@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
-  <name>pmt_selector</name>
-  <key>starcoder_utils_pmt_selector</key>
+  <name>message_router</name>
+  <key>starcoder_utils_message_router</key>
   <category>[starcoder_utils]</category>
   <import>import starcoder_utils</import>
-  <make>starcoder_utils.pmt_selector($output_index)</make>
+  <make>starcoder_utils.message_router($output_index)</make>
 
   <param>
     <name>Output index</name>
