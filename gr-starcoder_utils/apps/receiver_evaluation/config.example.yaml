@@ -39,7 +39,7 @@ generator_params:
   # Whether or not to apply CCSDS convolutional coding
   viterbi_applied: False
 
-  # Modulation type: Currently only takes FSK
+  # Modulation type: "FSK", "BPSK", or "QPSK"
   modulation_type: "FSK"
 
   # Bit rate
