@@ -26,6 +26,7 @@
 #include "folder_source_pdu_impl.h"
 
 #include <iterator>
+#include <fstream>
 
 namespace fs = boost::filesystem;
 
