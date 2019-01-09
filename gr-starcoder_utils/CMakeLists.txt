@@ -25,6 +25,10 @@ cmake_minimum_required(VERSION 2.6)
 project(gr-starcoder_utils CXX C)
 enable_testing()
 
+# Enable C++11 support
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_STANDARD_REQUIRED ON)
+
 #install to PyBOMBS target prefix if defined
 if(DEFINED ENV{PYBOMBS_PREFIX})
     set(CMAKE_INSTALL_PREFIX $ENV{PYBOMBS_PREFIX})
