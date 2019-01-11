@@ -60,6 +60,8 @@ generator_params:
   # File in which to save the generated IQ data.
   iq_save_file: "/tmp/iq.bin"
 
+# This is only needed if you intend to run an IQ file directly
+# for the generator. Otherwise, it can be ignored.
 file_gen_params:
   # RF frequency
   rf_freq: 400.0e+6
