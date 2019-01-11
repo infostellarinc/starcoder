@@ -126,13 +126,7 @@ if __name__ == "__main__":
             plot_collected_packets(flowgraph.starcoder_utils_prbs_sink_pdu_0.collected_packets, config['plot_output_file'])
     elif args.filegen:
         print("Running IQ file")
-        generator_params = config['generator_params'].copy()
-        filegen_params = {
-            'rf_freq': generator_params['rf_freq'],
-            'rf_gain': generator_params['rf_gain'],
-            'iq_save_file': generator_params['iq_save_file'],
-            'rf_samp_rate': generator_params['rf_samp_rate']
-        }
+        filegen_params = config['file_gen_params'].copy()
         flowgraph = file_generator(**filegen_params)
         flowgraph.start()
         try:

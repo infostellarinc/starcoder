@@ -58,8 +58,19 @@ generator_params:
   channel_noise_voltage: 0.0
 
   # File in which to save the generated IQ data.
-  # When running the file_generator flowgraph, this
-  # file will be read from.
+  iq_save_file: "/tmp/iq.bin"
+
+file_gen_params:
+  # RF frequency
+  rf_freq: 400.0e+6
+
+  # RF radio sampling rate
+  rf_samp_rate: 2.0e+6
+
+  # RF radio gain
+  rf_gain: 30
+
+  # File from which to read the IQ data
   iq_save_file: "/tmp/iq.bin"
 
 # Location to store the analysis report in
