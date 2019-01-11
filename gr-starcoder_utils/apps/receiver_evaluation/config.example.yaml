@@ -57,7 +57,9 @@ generator_params:
   # Channel noise voltage
   channel_noise_voltage: 0.0
 
-  # IQ save file
+  # File in which to save the generated IQ data.
+  # When running the file_generator flowgraph, this
+  # file will be read from.
   iq_save_file: "/tmp/iq.bin"
 
 # Location to store the analysis report in
