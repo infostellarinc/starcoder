@@ -67,13 +67,19 @@ file_gen_params:
   rf_freq: 400.0e+6
 
   # RF radio sampling rate
-  rf_samp_rate: 2.0e+6
+  rf_samp_rate: 4.0e+6
 
   # RF radio gain
   rf_gain: 30
 
   # File from which to read the IQ data
   iq_save_file: "/tmp/iq.bin"
+
+  # IQ file sampling rate
+  iq_samp_rate: 2.0e+6
+
+  # Frequency shift
+  freq_shift: 1.0e+6
 
 # Location to store the analysis report in
 report_output_file: "output.yaml"
