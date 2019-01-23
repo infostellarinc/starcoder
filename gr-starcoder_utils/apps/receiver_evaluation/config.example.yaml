@@ -31,7 +31,7 @@ generator_params:
   scrambling_applied: True
 
   # Synchronization word to use
-  sync_word: 0xa1345678
+  sync_word: 0xa1345678  # 0xe1ee71064f4e70a5 with Viterbi
 
   # Number of bytes in the synchronization word
   sync_word_num_bytes: 4
@@ -49,13 +49,31 @@ generator_params:
   rf_freq: 400.0e+6
 
   # RF radio sampling rate
-  rf_samp_rate: 4.0e+6
+  rf_samp_rate: 2.0e+6
 
   # RF radio gain
   rf_gain: 30
 
   # Channel noise voltage
   channel_noise_voltage: 0.0
+
+  # File in which to save the generated IQ data.
+  iq_save_file: "/tmp/iq.bin"
+
+# This is only needed if you intend to run an IQ file directly
+# for the generator. Otherwise, it can be ignored.
+file_gen_params:
+  # RF frequency
+  rf_freq: 400.0e+6
+
+  # RF radio sampling rate
+  rf_samp_rate: 2.0e+6
+
+  # RF radio gain
+  rf_gain: 30
+
+  # File from which to read the IQ data
+  iq_save_file: "/tmp/iq.bin"
 
 # Location to store the analysis report in
 report_output_file: "output.yaml"
