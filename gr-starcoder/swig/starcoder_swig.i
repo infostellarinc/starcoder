@@ -19,6 +19,8 @@
 #include "starcoder/noaa_apt_sink.h"
 #include "starcoder/meteor_decoder_sink.h"
 #include "starcoder/golay_decoder.h"
+#include "starcoder/cw_to_symbol.h"
+#include "starcoder/morse_decoder.h"
 %}
 
 
@@ -45,3 +47,7 @@ GR_SWIG_BLOCK_MAGIC2(starcoder, noaa_apt_sink);
 GR_SWIG_BLOCK_MAGIC2(starcoder, meteor_decoder_sink);
 %include "starcoder/golay_decoder.h"
 GR_SWIG_BLOCK_MAGIC2(starcoder, golay_decoder);
+%include "starcoder/cw_to_symbol.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, cw_to_symbol);
+%include "starcoder/morse_decoder.h"
+GR_SWIG_BLOCK_MAGIC2(starcoder, morse_decoder);

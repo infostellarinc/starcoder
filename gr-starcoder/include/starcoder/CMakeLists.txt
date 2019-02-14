@@ -33,5 +33,7 @@ install(FILES
     ax25_encoder_mb.h
     noaa_apt_sink.h
     meteor_decoder_sink.h
-    golay_decoder.h DESTINATION include/starcoder
+    golay_decoder.h
+    cw_to_symbol.h
+    morse_decoder.h DESTINATION include/starcoder
 )
