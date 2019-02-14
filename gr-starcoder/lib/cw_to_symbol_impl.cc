@@ -51,8 +51,6 @@
 
 #include <limits>
 #include <gnuradio/io_signature.h>
-//#include <satnogs/log.h>
-//#include <starcoder/utils.h>
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 106500
   #include <boost/integer/common_factor.hpp>
@@ -133,9 +131,6 @@ namespace gr
         d_window_size++;
       }
 
-      //LOG_WARN("Dot symbol samples: %lu", d_dot_samples);
-      //LOG_WARN("Window size: %lu", d_window_size);
-
       /* Set the duration of each symbol in multiples of the window size */
       d_dot_windows_num = d_dot_samples / d_window_size;
       d_dash_windows_num = 3 * d_dot_windows_num;
@@ -161,7 +156,6 @@ namespace gr
         d_const_val[i] = threshold;
       }
       set_history(d_window_size);
-      // printf("Initial threshold value used = %f", threshold); //////////////////////
     }
 
     inline void
@@ -226,7 +220,7 @@ namespace gr
           set_act_threshold (pmt::to_double (pmt::cdr (msg)));
       }
       else {
-	printf("Threshold error\n");
+	GR_LOG_ERROR(d_logger, "CW threshold error");
       }
     }
 
@@ -258,7 +252,6 @@ namespace gr
            */
           triggered = is_triggered(in_old + i, d_window_size);
           if(triggered) {
-            //LOG_DEBUG("Triggered!");
             set_short_on();
             return i+1;
           }
@@ -275,15 +268,12 @@ namespace gr
               d_window_cnt++;
               if(d_window_cnt > d_dot_windows_num) {
                 set_long_on();
-                //LOG_DEBUG("Going to search for long sequence");
               }
             }
             else {
               if(check_conf_level(d_window_cnt, d_dot_windows_num)) {
-                //LOG_DEBUG("DOT");
                 send_symbol_msg(MORSE_DOT);
               }
-              //LOG_DEBUG("Going to search for space: win cnt %lu", d_window_cnt);
               set_search_space ();
             }
             break;
@@ -293,44 +283,35 @@ namespace gr
             }
             else{
               if(check_conf_level(d_window_cnt, d_dash_windows_num)) {
-                //LOG_DEBUG("DASH");
                 send_symbol_msg(MORSE_DASH);
               }
               else{
-                //LOG_DEBUG("DOT");
                 send_symbol_msg(MORSE_DOT);
               }
               set_search_space ();
-              //LOG_DEBUG("Going to search for space");
             }
             break;
           case SEARCH_SPACE:
             if (triggered) {
               if(check_conf_level(d_window_cnt, d_long_pause_windows_num)) {
-                //LOG_DEBUG("LONG SPACE");
                 send_symbol_msg(MORSE_L_SPACE);
               }
               else if(check_conf_level(d_window_cnt, d_short_pause_windows_num)){
-                //LOG_DEBUG("SHORT SPACE");
                 send_symbol_msg(MORSE_S_SPACE);
               }
               set_short_on();
-              //LOG_DEBUG("Going to search for dot");
             }
             else{
               d_window_cnt++; 
               if(d_window_cnt > d_long_pause_windows_num) {
-                //LOG_DEBUG("LONG SPACE");
                 send_symbol_msg(MORSE_L_SPACE);
                 set_idle();
-                //LOG_DEBUG("Going to idle");
                 return (i + 1) * d_window_size;
               }
             }
             break;
           default:
-            //LOG_ERROR("Invalid decoder state");
-	    printf("Invalid decoder state");
+	    GR_LOG_ERROR(d_logger, "Invalid decoder state");
         }
       }
       return i * d_window_size;

@@ -44,7 +44,6 @@
 
 #include <gnuradio/io_signature.h>
 #include "morse_decoder_impl.h"
-//#include <satnogs/log.h>
 namespace gr
 {
   namespace starcoder
@@ -98,8 +97,7 @@ namespace gr
           /*Ignore it */
           break;
         default:
-          // LOG_ERROR("Unknown Morse symbol");
-	  printf("Unknown Morse symbol");
+	  GR_LOG_ERROR(d_logger, "Unknown Morse symbol");
           return;
         }
 

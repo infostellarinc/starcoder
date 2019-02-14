@@ -44,7 +44,6 @@
 
 #include <gnuradio/io_signature.h>
 #include <starcoder/morse_tree.h>
-// #include <satnogs/log.h>
 #include <string.h>
 
 namespace gr
