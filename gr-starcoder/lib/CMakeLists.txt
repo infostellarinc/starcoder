@@ -85,7 +85,10 @@ list(APPEND starcoder_sources
     noaa_apt_sink_impl.cc
     meteor_decoder_sink_impl.cc
     golay_decoder_impl.cc
-    golay24.c )
+    golay24.c
+    cw_to_symbol_impl.cc
+    morse_decoder_impl.cc
+    morse_tree.cc)
 
 set(starcoder_sources "${starcoder_sources}" PARENT_SCOPE)
 if(NOT starcoder_sources)

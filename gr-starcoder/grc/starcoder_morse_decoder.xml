@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<block>
+	<name>Morse Decoder</name>
+	<key>starcoder_morse_decoder</key>
+  	<category>[starcoder]</category>
+	<import>import starcoder</import>
+	<make>starcoder.morse_decoder($unrecognized_char, $min_frame_len)</make>
+
+	<param>
+		<name>Unrecognized character</name>
+		<key>unrecognized_char</key>
+		<value>ord('#')</value>
+		<type>int</type>
+	</param>
+	
+	<param>
+		<name>Minimum frame length</name>
+		<key>min_frame_len</key>
+		<value>3</value>
+		<type>int</type>
+	</param>
+
+
+	<sink>
+		<name>in</name>
+		<type>message</type>
+	</sink>
+	
+	<source>
+		<name>out</name>
+		<type>message</type>
+	</source>
+</block>
