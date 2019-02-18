@@ -32,5 +32,7 @@ install(FILES
     starcoder_radio_source.xml
     starcoder_iq_only_receiver.xml
     starcoder_pmt_to_pdu.xml
-    starcoder_golay_decoder.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_golay_decoder.xml
+    starcoder_cw_to_symbol.xml
+    starcoder_morse_decoder.xml DESTINATION share/gnuradio/grc/blocks
 )
