@@ -2023,7 +2023,7 @@
     </param>
     <param>
       <key>preamble_bytes</key>
-      <value>192</value>
+      <value>16</value>
     </param>
   </block>
   <block>
