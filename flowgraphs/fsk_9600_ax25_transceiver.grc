@@ -2019,11 +2019,11 @@
     </param>
     <param>
       <key>postamble_bytes</key>
-      <value>64</value>
+      <value>1</value>
     </param>
     <param>
       <key>preamble_bytes</key>
-      <value>192</value>
+      <value>16</value>
     </param>
   </block>
   <block>
