@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<block>
+  <name>Threshold printer</name>
+  <key>starcoder_threshold_printer</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.threshold_printer($straight_mode, $hard_threshold)</make>
+
+  <param>
+    <name>Straight Mode</name>
+    <key>straight_mode</key>
+    <type>enum</type>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
+  </param>
+
+  <param>
+    <name>Hard threshold</name>
+    <key>hard_threshold</key>
+    <type>int</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

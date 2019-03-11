@@ -36,4 +36,5 @@ from pdu_trim_uvector import pdu_trim_uvector
 from radio_source import radio_source
 from iq_only_receiver import iq_only_receiver
 from pmt_to_pdu import pmt_to_pdu
+from threshold_printer import threshold_printer
 #
