@@ -36,7 +36,8 @@ GR_PYTHON_INSTALL(
     pdu_trim_uvector.py
     radio_source.py
     iq_only_receiver.py
-    pmt_to_pdu.py DESTINATION ${GR_PYTHON_DIR}/starcoder
+    pmt_to_pdu.py
+    threshold_printer.py DESTINATION ${GR_PYTHON_DIR}/starcoder
 )
 
 ########################################################################
