@@ -167,9 +167,9 @@ var serveCmd = &cobra.Command{
 	},
 }
 
-func doRestart(starcoder *server.StarCoder, s *grpc.Server) {
+func doRestart(starcoder *server.Starcoder, s *grpc.Server) {
 	for {
-		if starcoder.getCurrentFlowgraphCount() == 0 {
+		if starcoder.GetCurrentFlowgraphCount() == 0 {
 			starcoder.Close()
 			s.GracefulStop()
 			return

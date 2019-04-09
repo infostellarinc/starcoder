@@ -149,15 +149,15 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 	return s
 }
 
+func (s *Starcoder) GetCurrentFlowgraphCount() int {
+	s.requestFlowgraphCountChannel <- struct{}{}
+	return <-s.responseFlowgraphCountChannel
+}
+
 func (s *Starcoder) closeAllStreams() {
 	respCh := make(chan bool)
 	s.closeAllStreamsChannel <- respCh
 	<-respCh
-}
-
-func (s *Starcoder) getCurrentFlowgraphCount() int {
-	s.requestFlowgraphCountChannel <- struct{}{}
-	return <-s.responseFlowgraphCountChannel
 }
 
 type flowgraphProperties struct {
