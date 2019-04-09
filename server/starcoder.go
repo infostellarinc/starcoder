@@ -42,19 +42,21 @@ import (
 const defaultQueueSize = 1048576
 
 type Starcoder struct {
-	flowgraphDir              string
-	gilState                  python.PyGILState
-	threadState               *python.PyThreadState
-	streamHandlers            map[*streamHandler]bool // registered stream handlers
-	registerStreamHandler     chan *streamHandler
-	deregisterStreamHandler   chan *streamHandler
-	closeAllStreamsChannel    chan chan bool
-	tempModule                string
-	filepathToModAndClassName map[string]*moduleAndClassNames
-	perfCtrInterval           time.Duration
-	compileLock               sync.Mutex
-	log                       *zap.SugaredLogger
-	silencedCommandBlocks     map[string]bool
+	flowgraphDir                  string
+	gilState                      python.PyGILState
+	threadState                   *python.PyThreadState
+	streamHandlers                map[*streamHandler]bool // registered stream handlers
+	registerStreamHandler         chan *streamHandler
+	deregisterStreamHandler       chan *streamHandler
+	closeAllStreamsChannel        chan chan bool
+	requestFlowgraphCountChannel  chan struct{}
+	responseFlowgraphCountChannel chan int
+	tempModule                    string
+	filepathToModAndClassName     map[string]*moduleAndClassNames
+	perfCtrInterval               time.Duration
+	compileLock                   sync.Mutex
+	log                           *zap.SugaredLogger
+	silencedCommandBlocks         map[string]bool
 }
 
 type moduleAndClassNames struct {
@@ -80,16 +82,18 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 	}
 
 	s := &Starcoder{
-		flowgraphDir:              flowgraphDir,
-		streamHandlers:            make(map[*streamHandler]bool),
-		registerStreamHandler:     make(chan *streamHandler),
-		deregisterStreamHandler:   make(chan *streamHandler),
-		closeAllStreamsChannel:    make(chan chan bool),
-		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
-		log:                       log,
-		perfCtrInterval:           perfCtrInterval,
-		silencedCommandBlocks:     silencedCommandBlocksMap,
-		threadState:               pyThreadState,
+		flowgraphDir:                  flowgraphDir,
+		streamHandlers:                make(map[*streamHandler]bool),
+		registerStreamHandler:         make(chan *streamHandler),
+		deregisterStreamHandler:       make(chan *streamHandler),
+		closeAllStreamsChannel:        make(chan chan bool),
+		requestFlowgraphCountChannel:  make(chan struct{}),
+		responseFlowgraphCountChannel: make(chan int),
+		filepathToModAndClassName:     make(map[string]*moduleAndClassNames),
+		log:                           log,
+		perfCtrInterval:               perfCtrInterval,
+		silencedCommandBlocks:         silencedCommandBlocksMap,
+		threadState:                   pyThreadState,
 	}
 
 	tempDir, err := ioutil.TempDir("", "starcoder")
@@ -130,6 +134,8 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 					delete(s.streamHandlers, sh)
 					metrics.FlowgraphCount.Sub(1)
 				}
+			case _ = <-s.requestFlowgraphCountChannel:
+				s.responseFlowgraphCountChannel <- len(s.streamHandlers)
 			case respCh := <-s.closeAllStreamsChannel:
 				for sh := range s.streamHandlers {
 					sh.Close()
@@ -147,6 +153,11 @@ func (s *Starcoder) closeAllStreams() {
 	respCh := make(chan bool)
 	s.closeAllStreamsChannel <- respCh
 	<-respCh
+}
+
+func (s *Starcoder) getCurrentFlowgraphCount() int {
+	s.requestFlowgraphCountChannel <- struct{}{}
+	return <-s.responseFlowgraphCountChannel
 }
 
 type flowgraphProperties struct {
