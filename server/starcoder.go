@@ -49,6 +49,7 @@ type Starcoder struct {
 	registerStreamHandler     chan *streamHandler
 	deregisterStreamHandler   chan *streamHandler
 	closeAllStreamsChannel    chan chan bool
+	flowgraphCountChannel     chan chan int
 	tempModule                string
 	filepathToModAndClassName map[string]*moduleAndClassNames
 	perfCtrInterval           time.Duration
@@ -85,6 +86,7 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 		registerStreamHandler:     make(chan *streamHandler),
 		deregisterStreamHandler:   make(chan *streamHandler),
 		closeAllStreamsChannel:    make(chan chan bool),
+		flowgraphCountChannel:     make(chan chan int),
 		filepathToModAndClassName: make(map[string]*moduleAndClassNames),
 		log:                       log,
 		perfCtrInterval:           perfCtrInterval,
@@ -130,6 +132,8 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 					delete(s.streamHandlers, sh)
 					metrics.FlowgraphCount.Sub(1)
 				}
+			case respCh := <-s.flowgraphCountChannel:
+				respCh <- len(s.streamHandlers)
 			case respCh := <-s.closeAllStreamsChannel:
 				for sh := range s.streamHandlers {
 					sh.Close()
@@ -141,6 +145,12 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 	}(s)
 
 	return s
+}
+
+func (s *Starcoder) GetCurrentFlowgraphCount() int {
+	respCh := make(chan int)
+	s.flowgraphCountChannel <- respCh
+	return <-respCh
 }
 
 func (s *Starcoder) closeAllStreams() {

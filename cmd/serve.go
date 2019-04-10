@@ -140,6 +140,9 @@ var serveCmd = &cobra.Command{
 				select {
 				case sig := <-sigs:
 					switch sig {
+					case syscall.SIGHUP:
+						log.Infof("Starcoder will restart.")
+						go doRestart(starcoder, s)
 					case syscall.SIGINT:
 						fallthrough
 					case syscall.SIGTERM:
@@ -162,6 +165,17 @@ var serveCmd = &cobra.Command{
 			log.Fatalf("failed to serve: %v", err)
 		}
 	},
+}
+
+func doRestart(starcoder *server.Starcoder, s *grpc.Server) {
+	for {
+		if starcoder.GetCurrentFlowgraphCount() == 0 {
+			starcoder.Close()
+			s.GracefulStop()
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func init() {
