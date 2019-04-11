@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: openjdk:10-slim
+      - image: openjdk:11-slim
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -27,7 +27,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v2.3-dependencies
+          - v3.0-dependencies
 
       - run:
           command: ./gradlew --no-daemon install
@@ -36,4 +36,4 @@ jobs:
       - save_cache:
           paths:
             - ~/.gradle
-          key: v2.3-dependencies
+          key: v3.0-dependencies
