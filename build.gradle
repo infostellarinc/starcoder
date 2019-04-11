@@ -37,7 +37,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.162.5'
+        classpath 'org.curioswitch.curiostack:gradle-curiostack-plugin:0.0.182.2'
     }
 }
 
@@ -92,34 +92,35 @@ golang {
 }
 
 protobuf {
-    generateProtoTasks {
-        all().each { task ->
-            task.plugins {
-                gofast {
-                    option 'plugins=grpc'
-                    option 'paths=source_relative'
-                    option 'Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types'
-                    option 'Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types'
-                    // Output into root directory for gogradle
-                    outputSubDir = '../../../../../api'
-                }
-            }
+    sources {
+        main {
+            srcDir file('api')
         }
     }
-    plugins {
+
+    languages {
         gofast {
-            path = project.file("${gopath}/bin/protoc-gen-gofast")
+            plugin {
+                path = project.file("${gopath}/bin/protoc-gen-gofast")
+            }
+
+            option 'plugins=grpc'
+            option 'paths=source_relative'
+            option 'Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types'
+            option 'Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types'
         }
     }
 }
 
-sourceSets {
-    main {
-        proto {
-            srcDir 'api'
-        }
-    }
+def copyGeneratedProto = tasks.register('copyGeneratedProto', Copy) {
+    from 'build/generated/proto/main'
+    into 'api'
+
+    include '**/*.pb.go'
+    includeEmptyDirs = false
 }
+
+tasks.generateProto.finalizedBy copyGeneratedProto
 
 task deleteGeneratedFiles(type: Delete) {
     delete fileTree(project.projectDir) {
