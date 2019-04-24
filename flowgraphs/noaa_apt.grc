@@ -1061,6 +1061,53 @@ the quadrature demodulation</value>
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(352, 716)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>radio_port_number</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(0, 876)</value>
     </param>
     <param>
@@ -1314,6 +1361,10 @@ the quadrature demodulation</value>
     <param>
       <key>radio_samp_rate</key>
       <value>radio_samp_rate</value>
+    </param>
+    <param>
+      <key>radio_port_number</key>
+      <value>radio_port_number</value>
     </param>
     <param>
       <key>radio</key>
