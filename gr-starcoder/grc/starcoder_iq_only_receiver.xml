@@ -4,7 +4,7 @@
   <key>starcoder_iq_only_receiver</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
-  <make>starcoder.iq_only_receiver($radio, $radio_device_address, $radio_samp_rate, $radio_center_freq, $radio_gain, $radio_antenna, $target_samp_rate, $freq_offset_dc_bias)</make>
+  <make>starcoder.iq_only_receiver($radio, $radio_device_address, $radio_samp_rate, $radio_center_freq, $radio_gain, $radio_antenna, $target_samp_rate, $freq_offset_dc_bias, $radio_port_number)</make>
 
   <param>
     <name>Radio</name>
@@ -18,6 +18,10 @@
     <option>
       <name>USRP</name>
       <key>"USRP"</key>
+    </option>
+    <option>
+      <name>TCP</name>
+      <key>"TCP"</key>
     </option>
   </param>
 
@@ -68,6 +72,13 @@
     <key>freq_offset_dc_bias</key>
     <value>0.0</value>
     <type>real</type>
+  </param>
+
+  <param>
+    <name>Radio port number</name>
+    <key>radio_port_number</key>
+    <value>0</value>
+    <type>int</type>
   </param>
 
   <sink>

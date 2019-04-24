@@ -33,9 +33,9 @@ class iq_only_receiver(gr.hier_block2):
     * The offset frequency for preventing DC bias can be specified.
     * Resampling from the original radio sampling rate to the target sampling rate.
     """
-    def __init__(self, radio, radio_device_address, radio_samp_rate, radio_center_freq, radio_gain, radio_antenna, target_samp_rate, freq_offset_dc_bias):
+    def __init__(self, radio, radio_device_address, radio_samp_rate, radio_center_freq, radio_gain, radio_antenna, target_samp_rate, freq_offset_dc_bias, radio_port_number):
         """
-        :param radio: Which radio to use: Currently only "USRP" or "AR2300"
+        :param radio: Which radio to use: Currently supports "USRP" or "AR2300" or "TCP"
         :type radio: string
         :param radio_device_address: Device address.
         :type radio_device_address: string
@@ -51,6 +51,8 @@ class iq_only_receiver(gr.hier_block2):
         :type target_samp_rate: int
         :param freq_offset_dc_bias: Frequency offset to eliminate DC bias
         :type freq_offset_dc_bias: double
+        :param radio_port_number: Port number for TCP
+        :type radio_port_number: int
         """
         gr.hier_block2.__init__(self,
             "iq_only_receiver",
@@ -65,11 +67,11 @@ class iq_only_receiver(gr.hier_block2):
         if radio == "AR2300" and radio_samp_rate != 1125000:
             self.log.warn("Radio sampling rate not set to 1125000 for AR2300. AR2300 only supports 1125000.")
             radio_samp_rate = 1125000
-        if radio == "AR2300" and freq_offset_dc_bias != 0:
-            self.log.warn("It is not possible to offset DC bias of AR2300 since "
+        if (radio == "AR2300" or radio == "TCP") and freq_offset_dc_bias != 0:
+            self.log.warn("It is not possible to offset DC bias since "
                           "frequency setting is done outside GNU Radio.")
             freq_offset_dc_bias = 0
-        if radio != "AR2300":
+        if radio == "USRP":
             available_bw = min(radio_samp_rate/2 - abs(freq_offset_dc_bias), abs(freq_offset_dc_bias))
             self.log.debug("Available bandwidth for signal after DC bias correction "
                            "and before resampling is {}. "
@@ -78,7 +80,7 @@ class iq_only_receiver(gr.hier_block2):
         if target_samp_rate > radio_samp_rate:
             self.log.warn("Target sampling rate is larger than radio sampling rate.")
 
-        self.radio = radio_source(radio, radio_device_address, radio_samp_rate, radio_center_freq+freq_offset_dc_bias, radio_gain, radio_antenna)
+        self.radio = radio_source(radio, radio_device_address, radio_samp_rate, radio_center_freq+freq_offset_dc_bias, radio_gain, radio_antenna, radio_port_number)
         self.mult = blocks.multiply_vcc(1)
         self.rational_resampler = filter.rational_resampler_ccc(
             interpolation=target_samp_rate,
