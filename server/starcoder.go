@@ -56,6 +56,9 @@ type Starcoder struct {
 	compileLock               sync.Mutex
 	log                       *zap.SugaredLogger
 	silencedCommandBlocks     map[string]bool
+
+	// If this is true, Starcoder will restart after a stream is finished. This is a hack.
+	killAfterStream bool
 }
 
 type moduleAndClassNames struct {
@@ -131,6 +134,10 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 					sh.Close()
 					delete(s.streamHandlers, sh)
 					metrics.FlowgraphCount.Sub(1)
+
+					if s.killAfterStream {
+						os.Exit(0)
+					}
 				}
 			case respCh := <-s.flowgraphCountChannel:
 				respCh <- len(s.streamHandlers)
@@ -576,7 +583,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 		}
 		defer kwArgs.DecRef()
 
-		fillDictWithParameters(kwArgs, request.GetParameters())
+		fillDictWithParameters(kwArgs, request.GetParameters(), s)
 
 		emptyTuple := python.PyTuple_New(0)
 		if emptyTuple == nil {
@@ -671,7 +678,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 	}, err
 }
 
-func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter) error {
+func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter, s *Starcoder) error {
 	for _, param := range params {
 		err := func() error {
 			pyKey := python.PyString_FromString(param.GetKey())
@@ -683,6 +690,12 @@ func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRe
 			switch v := param.GetValue().GetVal().(type) {
 			case *pb.Value_StringValue:
 				convertedValue = python.PyString_FromString(v.StringValue)
+
+				// If radio is TCP, restart Starcoder after this stream. This is a hack.
+				if param.GetKey() == "radio" && v.StringValue == "TCP" {
+					s.killAfterStream = true
+					s.log.Info("Restarting starcoder after this stream")
+				}
 			case *pb.Value_IntegerValue:
 				convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
 			case *pb.Value_LongValue:
