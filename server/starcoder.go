@@ -57,7 +57,7 @@ type Starcoder struct {
 	log                       *zap.SugaredLogger
 	silencedCommandBlocks     map[string]bool
 
-	// If this is true, Starcoder will restart after a stream is finished. This is a hack.
+	// If this is true, Starcoder will restart after a stream is finished. This is a workaround for a bug in the TCP source block.
 	killAfterStream bool
 }
 
