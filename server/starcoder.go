@@ -691,7 +691,7 @@ func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRe
 			case *pb.Value_StringValue:
 				convertedValue = python.PyString_FromString(v.StringValue)
 
-				// If radio is TCP, restart Starcoder after this stream. This is a hack.
+				// If radio is TCP, restart Starcoder after this stream to work around a bug in the TCP source block.
 				if param.GetKey() == "radio" && v.StringValue == "TCP" {
 					s.killAfterStream = true
 					s.log.Info("Restarting starcoder after this stream")
