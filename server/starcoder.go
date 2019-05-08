@@ -40,6 +40,7 @@ import (
 )
 
 const defaultQueueSize = 1048576
+const restartDelay = time.Second * 10
 
 type Starcoder struct {
 	flowgraphDir              string
@@ -427,7 +428,7 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		if s.killAfterStream {
 			go func() {
 				// Give it some time to properly close the stream.
-				time.Sleep(time.Second * 10)
+				time.Sleep(restartDelay)
 				os.Exit(0)
 			}()
 		}
