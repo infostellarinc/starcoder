@@ -134,10 +134,6 @@ func NewStarcoderServer(flowgraphDir string, perfCtrInterval time.Duration, sile
 					sh.Close()
 					delete(s.streamHandlers, sh)
 					metrics.FlowgraphCount.Sub(1)
-
-					if s.killAfterStream {
-						os.Exit(0)
-					}
 				}
 			case respCh := <-s.flowgraphCountChannel:
 				respCh <- len(s.streamHandlers)
@@ -426,6 +422,14 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		})
 		for _, q := range flowgraphProps.observableCQueues {
 			q.Delete()
+		}
+
+		if s.killAfterStream {
+			go func() {
+				// Give it some time to properly close the stream.
+				time.Sleep(time.Second * 10)
+				os.Exit(0)
+			}()
 		}
 	}()
 
