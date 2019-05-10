@@ -380,8 +380,16 @@ task installStarcoder(type: Copy) {
     into "${gnuradioRoot}/bin"
 }
 
+task compileGrSatellitesHierarchicalBlocks(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {
+    dependsOn setupPrefix
+
+    condaName 'gnuradio'
+
+    command "git clone https://github.com/daniestevez/gr-satellites.git /tmp/gr-satellites && cd /tmp/gr-satellites/ && ./compile_hierarchical.sh"
+}
+
 task install {
-    dependsOn installGrStarcoder, installGrStarcoderUtils, installStarcoder
+    dependsOn compileGrSatellitesHierarchicalBlocks, installGrStarcoder, installGrStarcoderUtils, installStarcoder
 }
 
 task clangFormat(type: org.curioswitch.gradle.conda.tasks.CondaExecTask) {

@@ -22,6 +22,7 @@ COPY --from=0 /root/.gradle/curiostack/gnuradio/4.4.10/share/gnuradio /root/.gra
 COPY --from=0 /root/.gradle/curiostack/gnuradio/4.4.10/share/uhd /root/.gradle/curiostack/gnuradio/4.4.10/share/uhd
 COPY --from=0 /root/.gradle/curiostack/gnuradio/4.4.10/ssl /root/.gradle/curiostack/gnuradio/4.4.10/ssl
 COPY --from=0 /root/.gradle/curiostack/gnuradio/4.4.10/x86_64-conda_cos6-linux-gnu /root/.gradle/curiostack/gnuradio/4.4.10/x86_64-conda_cos6-linux-gnu
+COPY --from=0 /root/.grc_gnuradio /root/.grc_gnuradio
 
 
 COPY --from=0 /root/.gradle/curiostack/gnuradio/4.4.10/bin/conda \
