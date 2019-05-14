@@ -67,9 +67,8 @@ class iq_only_receiver(gr.hier_block2):
         if radio == "AR2300" and radio_samp_rate != 1125000:
             self.log.warn("Radio sampling rate not set to 1125000 for AR2300. AR2300 only supports 1125000.")
             radio_samp_rate = 1125000
-        if (radio == "AR2300" or radio == "TCP") and freq_offset_dc_bias != 0:
-            self.log.warn("It is not possible to offset DC bias since "
-                          "frequency setting is done outside GNU Radio.")
+        if radio == "AR2300" and freq_offset_dc_bias != 0:
+            self.log.warn("It is not permitted to offset DC bias for AR2300")
             freq_offset_dc_bias = 0
         if radio == "USRP":
             available_bw = min(radio_samp_rate/2 - abs(freq_offset_dc_bias), abs(freq_offset_dc_bias))
