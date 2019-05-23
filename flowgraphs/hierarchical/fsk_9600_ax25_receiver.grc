@@ -1237,7 +1237,7 @@
     </param>
     <param>
       <key>strip_headers</key>
-      <value>False</value>
+      <value>True</value>
     </param>
   </block>
   <block>
@@ -1301,6 +1301,10 @@
     <param>
       <key>radio_samp_rate</key>
       <value>radio_samp_rate</value>
+    </param>
+    <param>
+      <key>radio_port_number</key>
+      <value>0</value>
     </param>
     <param>
       <key>radio</key>
