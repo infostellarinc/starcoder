@@ -24,6 +24,16 @@ jobs:
     steps:
       - checkout
 
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v3.1-dependencies
+
       - run:
           command: ./gradlew --no-daemon install
           no_output_timeout: 2h
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v3.1-dependencies
