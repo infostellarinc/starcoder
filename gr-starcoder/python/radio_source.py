@@ -21,14 +21,15 @@
 
 from gnuradio import gr
 from gnuradio import uhd
+from grc_gnuradio import blks2 as grc_blks2
 from starcoder import starcoder_swig
 
 class radio_source(gr.hier_block2):
-    def __init__(self, radio, device_address, samp_rate, center_freq, gain, antenna):
+    def __init__(self, radio, device_address, samp_rate, center_freq, gain, antenna, port_number):
         """
-        :param radio: Which radio to use: Currently only "USRP" or "AR2300"
+        :param radio: Which radio to use: Currently supports "USRP" or "AR2300" or "TCP"
         :type radio: string
-        :param device_address: Device address.
+        :param device_address: Device address for USRP or TCP.
         :type device_address: string
         :param samp_rate: the sampling rate
         :type samp_rate: int
@@ -38,6 +39,8 @@ class radio_source(gr.hier_block2):
         :type gain: int
         :param antenna: The antenna to use
         :type antenna: string
+        :param port_number: Port number for TCP
+        :type port_number: int
         """
         gr.hier_block2.__init__(self,
             "radio_source",
@@ -59,6 +62,13 @@ class radio_source(gr.hier_block2):
             self.radio_block.set_center_freq(center_freq, 0)
             self.radio_block.set_gain(gain, 0)
             self.radio_block.set_antenna(antenna, 0)
+        elif radio == "TCP":
+            self.radio_block = grc_blks2.tcp_source(
+                itemsize=gr.sizeof_gr_complex*1,
+                addr=device_address,
+                port=port_number,
+                server=False,  # TODO: We usually use as client although might be better to make this configurable.
+            )
         else:
             raise NotImplementedError
         self.connect(self.radio_block, self)

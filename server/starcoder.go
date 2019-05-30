@@ -40,6 +40,7 @@ import (
 )
 
 const defaultQueueSize = 1048576
+const restartDelay = time.Second * 10
 
 type Starcoder struct {
 	flowgraphDir              string
@@ -56,6 +57,9 @@ type Starcoder struct {
 	compileLock               sync.Mutex
 	log                       *zap.SugaredLogger
 	silencedCommandBlocks     map[string]bool
+
+	// If this is true, Starcoder will restart after a stream is finished. This is a workaround for a bug in the TCP source block.
+	killAfterStream bool
 }
 
 type moduleAndClassNames struct {
@@ -420,6 +424,14 @@ func (s *Starcoder) RunFlowgraph(stream pb.Starcoder_RunFlowgraphServer) error {
 		for _, q := range flowgraphProps.observableCQueues {
 			q.Delete()
 		}
+
+		if s.killAfterStream {
+			go func() {
+				// Give it some time to properly close the stream.
+				time.Sleep(restartDelay)
+				os.Exit(0)
+			}()
+		}
 	}()
 
 	sh := newStreamHandler(s, stream, flowgraphProps, s.log)
@@ -576,7 +588,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 		}
 		defer kwArgs.DecRef()
 
-		fillDictWithParameters(kwArgs, request.GetParameters())
+		fillDictWithParameters(kwArgs, request.GetParameters(), s)
 
 		emptyTuple := python.PyTuple_New(0)
 		if emptyTuple == nil {
@@ -671,7 +683,7 @@ func (s *Starcoder) startFlowGraph(modAndImport *moduleAndClassNames, request *p
 	}, err
 }
 
-func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter) error {
+func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRequest_Parameter, s *Starcoder) error {
 	for _, param := range params {
 		err := func() error {
 			pyKey := python.PyString_FromString(param.GetKey())
@@ -683,6 +695,12 @@ func fillDictWithParameters(dict *python.PyObject, params []*pb.StartFlowgraphRe
 			switch v := param.GetValue().GetVal().(type) {
 			case *pb.Value_StringValue:
 				convertedValue = python.PyString_FromString(v.StringValue)
+
+				// If radio is TCP, restart Starcoder after this stream to work around a bug in the TCP source block.
+				if param.GetKey() == "radio" && v.StringValue == "TCP" {
+					s.killAfterStream = true
+					s.log.Info("Restarting starcoder after this stream")
+				}
 			case *pb.Value_IntegerValue:
 				convertedValue = python.PyInt_FromLong(int(v.IntegerValue))
 			case *pb.Value_LongValue:
