@@ -37,7 +37,8 @@ GR_PYTHON_INSTALL(
     radio_source.py
     iq_only_receiver.py
     pmt_to_pdu.py
-    threshold_printer.py DESTINATION ${GR_PYTHON_DIR}/starcoder
+    threshold_printer.py
+    starpass_api.py DESTINATION ${GR_PYTHON_DIR}/starcoder
 )
 
 ########################################################################

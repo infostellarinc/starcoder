@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<block>
+  <name>starpass_api</name>
+  <key>starcoder_starpass_api</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.starpass_api($api_key, $api_url, $root_cert_path, $groundstation_id, $stream_tag, $files_to_collect)</make>
+
+  <param>
+    <name>Groundstation ID</name>
+    <key>groundstation_id</key>
+    <value>""</value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Stream tag</name>
+    <key>stream_tag</key>
+    <value>""</value>
+    <type>string</type>
+    <hide>part</hide>
+  </param>
+
+  <param>
+    <name>Stellarstation API Key Filepath</name>
+    <key>api_key</key>
+    <value>""</value>
+    <type>file_open</type>
+  </param>
+
+  <param>
+    <name>Fake Server tls.crt Filepath</name>
+    <key>root_cert_path</key>
+    <value></value>
+    <type>file_open</type>
+    <hide>part</hide>
+  </param>
+
+  <param>
+    <name>Stellarstation API URL</name>
+    <key>api_url</key>
+    <value></value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Files to collect</name>
+    <key>files_to_collect</key>
+    <value>""</value>
+    <type>string</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+
+  <source>
+    <name>command</name>
+    <type>message</type>
+  </source>
+
+  <source>
+    <name>receive_frequency_shift</name>
+    <type>message</type>
+  </source>
+
+  <source>
+    <name>transmit_frequency_shift</name>
+    <type>message</type>
+  </source>
+
+</block>
