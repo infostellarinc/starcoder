@@ -96,19 +96,9 @@ class starpass_api(gr.sync_block):
             jwt_creds, None, self.api_url, channel_credential)
         return groundstation_pb2_grpc.GroundStationServiceStub(channel)
 
-    def msg_handler(self, msg):
-        pass
-
-    def work(self, input_items, output_items):
-        return len(output_items[0])
-
-    def stop(self):
-        # TODO: self.collect_files()
-        self.set_stopped(True)
-        self.queue.join()
-        self.stream_thread.join()
-        return True
-
+    # This generator continuously reads requests from the queue and sends them to StarReceiver.
+    # It stops and closes the stream once get_stopped() returns True (when the block's stop() function is
+    # called at close).
     def generate_request(self):
         # Send the first request to activate the stream. Commands will start
         # to be received at this point.
@@ -138,7 +128,23 @@ class starpass_api(gr.sync_block):
             telemetry = self.queue.get()
             _process_queue_entry(telemetry)
 
+    # This function runs asynchronously and starts the bidirectional stream.
+    # All commands/messages from StarReceiver are sent to the appropriate PMT ports.
     def handle_stream(self):
         for response in self.api_client.OpenGroundStationStream(self.generate_request()):
             # TODO: Handle commands received from server
             pass
+
+    # This method is called for every input PMT and places a message on the queue to be sent to StarReceiver
+    def msg_handler(self, msg):
+        pass
+
+    def work(self, input_items, output_items):
+        return len(output_items[0])
+
+    def stop(self):
+        # TODO: self.collect_files()
+        self.set_stopped(True)
+        self.queue.join()
+        self.stream_thread.join()
+        return True
