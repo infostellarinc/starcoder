@@ -4,7 +4,7 @@
   <key>starcoder_starpass_api</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
-  <make>starcoder.starpass_api($api_key, $api_url, $root_cert_path, $groundstation_id, $stream_tag, $files_to_collect)</make>
+  <make>starcoder.starpass_api($api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $stream_tag, $files_to_collect)</make>
 
   <param>
     <name>Groundstation ID</name>
@@ -12,6 +12,13 @@
     <value>""</value>
     <type>string</type>
   </param>
+
+<param>
+    <name>Plan ID</name>
+    <key>plan_id</key>
+    <value>""</value>
+    <type>string</type>
+</param>
 
   <param>
     <name>Stream tag</name>
