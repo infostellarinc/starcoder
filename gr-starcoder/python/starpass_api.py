@@ -17,18 +17,18 @@
 # along with this software; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-# 
-
-from gnuradio import gr
-import pmt
-
-import numpy as np
+#
 
 from Queue import Queue, Empty
 import threading
+import os
+import time
+
+import numpy as np
+from gnuradio import gr
+import pmt
 
 import grpc
-
 from google.auth import jwt as google_auth_jwt
 from google.auth.transport import grpc as google_auth_transport_grpc
 from stellarstation.api.v1.groundstation import groundstation_pb2
@@ -99,6 +99,17 @@ class starpass_api(gr.sync_block):
             jwt_creds, None, self.api_url, channel_credential)
         return groundstation_pb2_grpc.GroundStationServiceStub(channel)
 
+    def _telemetry_to_stream_request(self, t):
+        stream_request = groundstation_pb2.GroundStationStreamRequest(
+            ground_station_id=self.groundstation_id,
+            stream_tag=self.stream_tag,
+            satellite_telemetry=groundstation_pb2.SatelliteTelemetry(
+                plan_id=self.plan_id,
+                telemetry=t
+            )
+        )
+        return stream_request
+
     # This generator continuously reads requests from the queue and sends them to StarReceiver.
     # It stops and closes the stream once get_stopped() returns True (when the block's stop() function is
     # called at close).
@@ -108,28 +119,18 @@ class starpass_api(gr.sync_block):
         yield groundstation_pb2.GroundStationStreamRequest(ground_station_id=self.groundstation_id,
                                                            stream_tag=self.stream_tag)
 
-        def _process_queue_entry(t):
-            stream_request = groundstation_pb2.GroundStationStreamRequest(
-                ground_station_id=self.groundstation_id,
-                stream_tag=self.stream_tag,
-                satellite_telemetry=groundstation_pb2.SatelliteTelemetry(
-                    plan_id=self.plan_id,
-                    telemetry=t
-                )
-            )
-            yield stream_request
-            self.queue.task_done()
-
         while not self.get_stopped():
             try:
                 telemetry = self.queue.get(timeout=1)
-                _process_queue_entry(telemetry)
+                yield self._telemetry_to_stream_request(telemetry)
+                self.queue.task_done()
             except Empty:
                 continue
 
         while not self.queue.empty():
             telemetry = self.queue.get()
-            _process_queue_entry(telemetry)
+            yield self._telemetry_to_stream_request(telemetry)
+            self.queue.task_done()
 
     # This function runs asynchronously and starts the bidirectional stream.
     # All commands/messages from StarReceiver are sent to the appropriate PMT ports.
@@ -152,11 +153,34 @@ class starpass_api(gr.sync_block):
         received.ParseFromString(pmt.pmt_to_python(msg))
         self.queue.put(received)
 
+    # This function continuously polls and waits for files in self.files_to_collect to appear, and sends them
+    # as telemetry messages to StarReceiver
+    def collect_files(self, timeout):
+        start_time = time.time()
+        for fname in self.files_to_collect:
+            if self.verbose:
+                print('Collecting file: ', fname)
+            while True:
+                if os.path.exists(fname):
+                    with open(fname) as f:
+                        content = f.read()
+                        # TODO: Choose the appropriate framing.
+                        telemetry = transport_pb2.Telemetry(
+                            framing=transport_pb2.WATERFALL,
+                            data=content,
+                        )
+                        self.queue.put(telemetry)
+                    break
+                elif time.time() - start_time < timeout:
+                    print('Unable to collect file: ', fname)
+                    break
+                time.sleep(1)
+
     def work(self, input_items, output_items):
         return len(output_items[0])
 
     def stop(self):
-        # TODO: self.collect_files()
+        self.collect_files(30)
         self.set_stopped(True)
         self.queue.join()
         self.stream_thread.join()

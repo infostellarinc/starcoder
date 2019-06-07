@@ -53,8 +53,6 @@
   <param>
     <name>Files to collect</name>
     <key>files_to_collect</key>
-    <value>""</value>
-    <type>string</type>
   </param>
 
     <param>
