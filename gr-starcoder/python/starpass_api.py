@@ -22,6 +22,8 @@
 from gnuradio import gr
 import pmt
 
+import numpy as np
+
 from Queue import Queue, Empty
 import threading
 
@@ -31,6 +33,7 @@ from google.auth import jwt as google_auth_jwt
 from google.auth.transport import grpc as google_auth_transport_grpc
 from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
+from stellarstation.api.v1 import transport_pb2
 
 class starpass_api(gr.sync_block):
     """
@@ -59,8 +62,6 @@ class starpass_api(gr.sync_block):
         )
 
         self.message_port_register_out(pmt.intern("command"))
-        self.message_port_register_out(pmt.intern("receive_frequency_shift"))
-        self.message_port_register_out(pmt.intern("transmit_frequency_shift"))
 
         self.message_port_register_in(pmt.intern("in"))
         self.set_msg_handler(pmt.intern("in"), self.msg_handler)
@@ -132,12 +133,20 @@ class starpass_api(gr.sync_block):
     # All commands/messages from StarReceiver are sent to the appropriate PMT ports.
     def handle_stream(self):
         for response in self.api_client.OpenGroundStationStream(self.generate_request()):
-            # TODO: Handle commands received from server
-            pass
+            if response.HasField("satellite_commands"):
+                for command in response.satellite_commands.command:
+                    send_pmt = pmt.python_to_pmt(np.fromstring(command, dtype=np.uint8))
+                    # TODO: Send plan_id and response_id as metadata
+                    self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
 
     # This method is called for every input PMT and places a message on the queue to be sent to StarReceiver
+    # Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
+    # protocol buffer.
+    # https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
     def msg_handler(self, msg):
-        pass
+        received = transport_pb2.Telemetry()
+        received.ParseFromString(pmt.pmt_to_python(msg))
+        self.queue.put(received)
 
     def work(self, input_items, output_items):
         return len(output_items[0])

@@ -67,14 +67,5 @@
     <type>message</type>
   </source>
 
-  <source>
-    <name>receive_frequency_shift</name>
-    <type>message</type>
-  </source>
-
-  <source>
-    <name>transmit_frequency_shift</name>
-    <type>message</type>
-  </source>
 
 </block>
