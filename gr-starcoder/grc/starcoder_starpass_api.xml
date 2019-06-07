@@ -4,7 +4,7 @@
   <key>starcoder_starpass_api</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
-  <make>starcoder.starpass_api($api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $stream_tag, $files_to_collect)</make>
+  <make>starcoder.starpass_api($api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $stream_tag, $files_to_collect, $verbose)</make>
 
   <param>
     <name>Groundstation ID</name>
@@ -57,6 +57,21 @@
     <type>string</type>
   </param>
 
+    <param>
+        <name>Verbose</name>
+        <key>verbose</key>
+        <value>False</value>
+        <type>bool</type>
+        <option>
+            <name>Yes</name>
+            <key>True</key>
+        </option>
+        <option>
+            <name>No</name>
+            <key>False</key>
+        </option>
+    </param>
+
   <sink>
     <name>in</name>
     <type>message</type>
@@ -66,6 +81,5 @@
     <name>command</name>
     <type>message</type>
   </source>
-
 
 </block>

@@ -39,7 +39,7 @@ class starpass_api(gr.sync_block):
     """
     docstring for block starpass_api
     """
-    def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, files_to_collect):
+    def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, files_to_collect, verbose):
         gr.sync_block.__init__(self,
             name="starpass_api",
             in_sig=None,
@@ -51,6 +51,7 @@ class starpass_api(gr.sync_block):
         self.plan_id = plan_id
         self.stream_tag = stream_tag
         self.files_to_collect = files_to_collect
+        self.verbose = verbose
         print(
             self.api_key,
             self.api_url,
@@ -59,6 +60,7 @@ class starpass_api(gr.sync_block):
             self.plan_id,
             self.stream_tag,
             self.files_to_collect,
+            self.verbose,
         )
 
         self.message_port_register_out(pmt.intern("command"))
@@ -135,6 +137,8 @@ class starpass_api(gr.sync_block):
         for response in self.api_client.OpenGroundStationStream(self.generate_request()):
             if response.HasField("satellite_commands"):
                 for command in response.satellite_commands.command:
+                    if self.verbose:
+                        print("Sending command", command[:20])
                     send_pmt = pmt.python_to_pmt(np.fromstring(command, dtype=np.uint8))
                     # TODO: Send plan_id and response_id as metadata
                     self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
