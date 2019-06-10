@@ -74,11 +74,6 @@ class starpass_api(gr.sync_block):
         self.lock = threading.Lock()
         self.stopped = False
 
-        self.api_client = self.setup_api_client()
-
-        self.stream_thread = threading.Thread(target=self.handle_stream)
-        self.stream_thread.start()
-
     def get_stopped(self):
         with self.lock:
             return self.stopped
@@ -183,6 +178,13 @@ class starpass_api(gr.sync_block):
 
     def work(self, input_items, output_items):
         return len(output_items[0])
+
+    def start(self):
+        self.api_client = self.setup_api_client()
+
+        self.stream_thread = threading.Thread(target=self.handle_stream)
+        self.stream_thread.start()
+        return True
 
     def stop(self):
         self.collect_files(30)
