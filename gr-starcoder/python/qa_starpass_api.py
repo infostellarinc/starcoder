@@ -5,6 +5,7 @@ from starpass_api import starpass_api
 
 from stellarstation.api.v1.groundstation import groundstation_pb2
 import grpc_testing
+import grpc
 
 import time
 import threading
@@ -22,7 +23,7 @@ class qa_starpass_api (gr_unittest.TestCase):
         self.tb = gr.top_block ()
 
     def tearDown (self):
-        #self.test_channel.close()
+        self.test_channel.close()
         self.test_channel = None
         self.tb = None
 
@@ -44,8 +45,9 @@ class qa_starpass_api (gr_unittest.TestCase):
                 .services_by_name['GroundStationService']
                 .methods_by_name['OpenGroundStationStream'])
         req = test_stream.take_request()
-        test_stream.terminate({}, 0, 'a')
         self.tb.stop()
+        test_stream.requests_closed()
+        test_stream.terminate({}, grpc.StatusCode.OK, '')
         self.tb.wait()
         self.assertEqual(req, groundstation_pb2.GroundStationStreamRequest(ground_station_id=gs_id,
                                                                            stream_tag=stream_tag))
