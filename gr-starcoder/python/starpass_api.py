@@ -39,7 +39,8 @@ class starpass_api(gr.sync_block):
     """
     docstring for block starpass_api
     """
-    def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, files_to_collect, verbose):
+    def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, files_to_collect, verbose,
+                 test_channel=None):  # This last argument test_channel is used only for unit testing purposes.
         gr.sync_block.__init__(self,
             name="starpass_api",
             in_sig=None,
@@ -52,6 +53,7 @@ class starpass_api(gr.sync_block):
         self.stream_tag = stream_tag
         self.files_to_collect = files_to_collect
         self.verbose = verbose
+        self.test_channel = test_channel
         print(
             self.api_key,
             self.api_url,
@@ -86,17 +88,20 @@ class starpass_api(gr.sync_block):
             self.stopped = x
 
     def setup_api_client(self):
-        credentials = google_auth_jwt.Credentials.from_service_account_file(
-            self.api_key,
-            audience='https://api.stellarstation.com'
-        )
+        if self.test_channel is None:
+            credentials = google_auth_jwt.Credentials.from_service_account_file(
+                self.api_key,
+                audience='https://api.stellarstation.com'
+            )
 
-        jwt_creds = google_auth_jwt.OnDemandCredentials.from_signing_credentials(
-            credentials)
-        channel_credential = grpc.ssl_channel_credentials(
-            open(self.root_cert_path, 'br').read())
-        channel = google_auth_transport_grpc.secure_authorized_channel(
-            jwt_creds, None, self.api_url, channel_credential)
+            jwt_creds = google_auth_jwt.OnDemandCredentials.from_signing_credentials(
+                credentials)
+            channel_credential = grpc.ssl_channel_credentials(
+                open(self.root_cert_path, 'br').read())
+            channel = google_auth_transport_grpc.secure_authorized_channel(
+                jwt_creds, None, self.api_url, channel_credential)
+        else:
+            channel = self.test_channel
         return groundstation_pb2_grpc.GroundStationServiceStub(channel)
 
     def _telemetry_to_stream_request(self, t):
