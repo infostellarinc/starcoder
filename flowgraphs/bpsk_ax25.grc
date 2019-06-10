@@ -1786,6 +1786,53 @@
     </param>
   </block>
   <block>
+    <key>starcoder_pdu_trim_uvector</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1328, 780)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_pdu_trim_uvector_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>end_trim_length</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>start_trim_length</key>
+      <value>16</value>
+    </param>
+  </block>
+  <block>
     <key>starcoder_utils_message_router</key>
     <param>
       <key>alias</key>
@@ -1868,7 +1915,7 @@
     </param>
     <param>
       <key>output_index</key>
-      <value>strip_ax25_header</value>
+      <value>bool(strip_ax25_header)</value>
     </param>
   </block>
   <block>
@@ -1903,7 +1950,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(360, 220)</value>
+      <value>(368, 220)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1971,73 +2018,6 @@
     <param>
       <key>value</key>
       <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>epy_block</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_io_cache</key>
-      <value>('Strip AX25 header', 'strip_ax25_header', [], [('in', 'message', 1)], [('out', 'message', 1)], '\n    Drops the first 2 bytes of each packet passing through.\n    ', [])</value>
-    </param>
-    <param>
-      <key>_source_code</key>
-      <value>import numpy
-from gnuradio import gr
-import pmt
-import array
-import struct
-
-class strip_ax25_header(gr.basic_block):
-    """
-    Drops the first 2 bytes of each packet passing through.
-    """
-    def __init__(self):
-        gr.basic_block.__init__(self,
-            name="Strip AX25 header",
-            in_sig=[],
-            out_sig=[])
-        self.message_port_register_in(pmt.intern('in'))
-        self.set_msg_handler(pmt.intern('in'), self.handle_msg)
-        self.message_port_register_out(pmt.intern('out'))
-
-    def handle_msg(self, msg_pmt):
-        msg = pmt.cdr(msg_pmt)
-        if not pmt.is_u8vector(msg):
-            print "[ERROR] Received invalid message type. Expected u8vector"
-            return
-        packet = array.array("B", pmt.u8vector_elements(msg))
-        #if packet[0] != 156:
-        #    print("Header error!")
-        if len(packet) &lt;= 16:
-            return
-        packet = packet[16:]
-        self.message_port_pub(pmt.intern('out'),
-        pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(len(packet), packet)))
-</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1344, 768)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>strip_ax25_header_0</value>
     </param>
   </block>
   <block>
@@ -2267,6 +2247,12 @@ class strip_ax25_header(gr.basic_block):
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>starcoder_pdu_trim_uvector_0</source_block_id>
+    <sink_block_id>bpsk_ax25_decoded</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
     <source_block_id>starcoder_utils_message_router_0</source_block_id>
     <sink_block_id>blocks_pdu_to_tagged_stream_1_0_0_0</sink_block_id>
     <source_key>out0</source_key>
@@ -2286,14 +2272,8 @@ class strip_ax25_header(gr.basic_block):
   </connection>
   <connection>
     <source_block_id>starcoder_utils_message_router_0_0</source_block_id>
-    <sink_block_id>strip_ax25_header_0</sink_block_id>
+    <sink_block_id>starcoder_pdu_trim_uvector_0</sink_block_id>
     <source_key>out1</source_key>
-    <sink_key>in</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>strip_ax25_header_0</source_block_id>
-    <sink_block_id>bpsk_ax25_decoded</sink_block_id>
-    <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
 </flow_graph>
