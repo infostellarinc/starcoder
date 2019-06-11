@@ -34,7 +34,7 @@ class qa_starpass_api (gr_unittest.TestCase):
         # We just need something connected to the trimmer block for
         # the flowgraph to compile, but we'll post messages to it directly
         src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
-        starpass_blk = starpass_api("", "", "", gs_id, "1", stream_tag, [], True, test_channel=self.test_channel)
+        starpass_blk = starpass_api("", "", "", gs_id, "1", stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
         self.tb.msg_connect((src, 'strobe'), (starpass_blk, 'in'))
@@ -64,7 +64,7 @@ class qa_starpass_api (gr_unittest.TestCase):
         # We just need something connected to the trimmer block for
         # the flowgraph to compile, but we'll post messages to it directly
         src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
-        starpass_blk = starpass_api("", "", "", gs_id, plan_id, stream_tag, [], True, test_channel=self.test_channel)
+        starpass_blk = starpass_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
         self.tb.msg_connect((src, 'strobe'), (starpass_blk, 'in'))
@@ -122,7 +122,7 @@ class qa_starpass_api (gr_unittest.TestCase):
         # We just need something connected to the trimmer block for
         # the flowgraph to compile, but we'll post messages to it directly
         src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
-        starpass_blk = starpass_api("", "", "", gs_id, plan_id, stream_tag, [], True, test_channel=self.test_channel)
+        starpass_blk = starpass_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
         self.tb.msg_connect((src, 'strobe'), (starpass_blk, 'in'))

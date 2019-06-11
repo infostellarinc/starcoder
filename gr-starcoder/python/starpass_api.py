@@ -39,7 +39,7 @@ class starpass_api(gr.sync_block):
     """
     docstring for block starpass_api
     """
-    def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, files_to_collect, verbose,
+    def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, verbose,
                  test_channel=None):  # This last argument test_channel is used only for unit testing purposes.
         gr.sync_block.__init__(self,
             name="starpass_api",
@@ -51,7 +51,6 @@ class starpass_api(gr.sync_block):
         self.groundstation_id = groundstation_id
         self.plan_id = plan_id
         self.stream_tag = stream_tag
-        self.files_to_collect = files_to_collect
         self.verbose = verbose
         self.test_channel = test_channel
         print(
@@ -61,7 +60,6 @@ class starpass_api(gr.sync_block):
             self.groundstation_id,
             self.plan_id,
             self.stream_tag,
-            self.files_to_collect,
             self.verbose,
         )
 
@@ -153,29 +151,6 @@ class starpass_api(gr.sync_block):
         received.ParseFromString(pmt.to_python(msg))
         self.queue.put(received)
 
-    # This function continuously polls and waits for files in self.files_to_collect to appear, and sends them
-    # as telemetry messages to StarReceiver
-    def collect_files(self, timeout):
-        start_time = time.time()
-        for fname in self.files_to_collect:
-            if self.verbose:
-                print('Collecting file: ', fname)
-            while True:
-                if os.path.exists(fname):
-                    with open(fname) as f:
-                        content = f.read()
-                        # TODO: Choose the appropriate framing.
-                        telemetry = transport_pb2.Telemetry(
-                            framing=transport_pb2.WATERFALL,
-                            data=content,
-                        )
-                        self.queue.put(telemetry)
-                    break
-                elif time.time() - start_time < timeout:
-                    print('Unable to collect file: ', fname)
-                    break
-                time.sleep(1)
-
     def work(self, input_items, output_items):
         return len(output_items[0])
 
@@ -187,7 +162,6 @@ class starpass_api(gr.sync_block):
         return True
 
     def stop(self):
-        self.collect_files(30)
         self.set_stopped(True)
         self.queue.join()
         self.stream_thread.join()
