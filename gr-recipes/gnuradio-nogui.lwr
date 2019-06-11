@@ -19,6 +19,10 @@
 
 inherit: prefix
 depends:
+- grpcio
+- google-auth
+- grpcio-testing
+- stellarstation
 - gnuradio
 - gr-satellites
 - gr-sattools
