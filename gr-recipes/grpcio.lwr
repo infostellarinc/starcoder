@@ -22,4 +22,4 @@ inherit: distutils
 depends:
 - python
 satisfy:
-  pip: grpcio == 1.21.1
+  pip: grpcio
