@@ -19,9 +19,6 @@
 
 inherit: prefix
 depends:
-- grpcio
-- grpcio-testing
-- stellarstation
 - gnuradio
 - gr-satellites
 - gr-sattools
@@ -35,7 +32,6 @@ config:
     elevate_pre_args: ''
     packagers:
     - pkgconfig
-    - pip
 
   packages:
     gnuradio:
