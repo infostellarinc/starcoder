@@ -22,4 +22,4 @@ inherit: distutils
 depends:
 - python
 satisfy:
-  pip: google-auth == 1.6.3
+  pip: google-auth

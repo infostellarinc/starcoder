@@ -22,4 +22,4 @@ inherit: distutils
 depends:
 - python
 satisfy:
-  pip: stellarstation == 0.3.0
+  pip: stellarstation
