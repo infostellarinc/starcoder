@@ -36,6 +36,7 @@ config:
     elevate_pre_args: ''
     packagers:
     - pkgconfig
+    - pip
 
   packages:
     gnuradio:
