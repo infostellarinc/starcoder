@@ -140,7 +140,7 @@ class starpass_api(gr.sync_block):
                 for command in response.satellite_commands.command:
                     if self.verbose:
                         print("Sending command", command[:20])
-                    send_pmt = pmt.python_to_pmt(np.fromstring(command, dtype=np.uint8))
+                    send_pmt = pmt.to_pmt(np.fromstring(command, dtype=np.uint8))
                     # TODO: Send plan_id and response_id as metadata
                     self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
 
