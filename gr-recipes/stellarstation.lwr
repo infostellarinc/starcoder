@@ -17,7 +17,7 @@
 #
 #
 
-category: baseline
+category: pip
 inherit: distutils
 depends:
 - python
