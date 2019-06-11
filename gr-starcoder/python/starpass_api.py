@@ -150,7 +150,7 @@ class starpass_api(gr.sync_block):
     # https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
     def msg_handler(self, msg):
         received = transport_pb2.Telemetry()
-        received.ParseFromString(pmt.pmt_to_python(msg))
+        received.ParseFromString(pmt.to_python(msg))
         self.queue.put(received)
 
     # This function continuously polls and waits for files in self.files_to_collect to appear, and sends them
