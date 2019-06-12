@@ -65,15 +65,6 @@ class starpass_api(gr.sync_block):
         self.stream_tag = stream_tag
         self.verbose = verbose
         self.test_channel = test_channel
-        print(
-            self.api_key,
-            self.api_url,
-            self.root_cert_path,
-            self.groundstation_id,
-            self.plan_id,
-            self.stream_tag,
-            self.verbose,
-        )
 
         self.message_port_register_out(pmt.intern("command"))
 
