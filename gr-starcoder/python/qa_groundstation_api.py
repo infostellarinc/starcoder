@@ -1,7 +1,7 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 
-from starpass_api import starpass_api
+from groundstation_api import groundstation_api
 
 from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1 import transport_pb2
@@ -13,7 +13,7 @@ import numpy as np
 import pmt
 
 
-class qa_starpass_api (gr_unittest.TestCase):
+class qa_groundstation_api (gr_unittest.TestCase):
     def setUp (self):
         service_descriptors = [
             groundstation_pb2.DESCRIPTOR.services_by_name['GroundStationService']
@@ -34,11 +34,11 @@ class qa_starpass_api (gr_unittest.TestCase):
         # We just need something connected to the trimmer block for
         # the flowgraph to compile, but we'll post messages to it directly
         src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
-        starpass_blk = starpass_api("", "", "", gs_id, "1", stream_tag, True, test_channel=self.test_channel)
+        groundstation_blk = groundstation_api("", "", "", gs_id, "1", stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (starpass_blk, 'in'))
-        self.tb.msg_connect((starpass_blk, 'command'), (snk, 'store'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'in'))
+        self.tb.msg_connect((groundstation_blk, 'command'), (snk, 'store'))
 
         self.tb.start()
         invocation_metadata, test_stream = self.test_channel.take_stream_stream(
@@ -64,11 +64,11 @@ class qa_starpass_api (gr_unittest.TestCase):
         # We just need something connected to the trimmer block for
         # the flowgraph to compile, but we'll post messages to it directly
         src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
-        starpass_blk = starpass_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
+        groundstation_blk = groundstation_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (starpass_blk, 'in'))
-        self.tb.msg_connect((starpass_blk, 'command'), (snk, 'store'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'in'))
+        self.tb.msg_connect((groundstation_blk, 'command'), (snk, 'store'))
 
         self.tb.start()
 
@@ -122,11 +122,11 @@ class qa_starpass_api (gr_unittest.TestCase):
         # We just need something connected to the trimmer block for
         # the flowgraph to compile, but we'll post messages to it directly
         src = blocks.message_strobe(pmt.PMT_NIL, 9999999)
-        starpass_blk = starpass_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
+        groundstation_blk = groundstation_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (starpass_blk, 'in'))
-        self.tb.msg_connect((starpass_blk, 'command'), (snk, 'store'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'in'))
+        self.tb.msg_connect((groundstation_blk, 'command'), (snk, 'store'))
 
         self.tb.start()
 
@@ -135,8 +135,8 @@ class qa_starpass_api (gr_unittest.TestCase):
                 .services_by_name['GroundStationService']
                 .methods_by_name['OpenGroundStationStream'])
 
-        starpass_blk.to_basic_block()._post(pmt.intern('in'), in_pmt1)
-        starpass_blk.to_basic_block()._post(pmt.intern('in'), in_pmt2)
+        groundstation_blk.to_basic_block()._post(pmt.intern('in'), in_pmt1)
+        groundstation_blk.to_basic_block()._post(pmt.intern('in'), in_pmt2)
         initial_request = test_stream.take_request()
         telemetry_request1 = test_stream.take_request()
         telemetry_request2 = test_stream.take_request()
@@ -162,4 +162,4 @@ class qa_starpass_api (gr_unittest.TestCase):
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_starpass_api, "qa_starpass_api.xml")
+    gr_unittest.run(qa_groundstation_api, "qa_groundstation_api.xml")

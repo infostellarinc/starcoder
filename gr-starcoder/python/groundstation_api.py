@@ -33,14 +33,14 @@ from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
 from stellarstation.api.v1 import transport_pb2
 
-class starpass_api(gr.sync_block):
+class groundstation_api(gr.sync_block):
     """
-    This block communicates with the StarPass API and performs two functions: retrieving commands from Starpass and
-    sending telemetry to Starpass.
+    This block communicates with the Ground Station API and performs two functions: retrieving commands from the
+    groundstation and sending telemetry to the groundstation.
     Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
     protocol buffer.
     https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
-    Commands received from Starpass are sent to the rest of the flowgraph as uint8 PDUs.
+    Commands received from the groundstation are sent to the rest of the flowgraph as uint8 PDUs.
 
     api_key (str): Path to API key file for authentication. If empty string, use insecure channel.
     api_url (str): URL to gRPC API.
@@ -54,7 +54,7 @@ class starpass_api(gr.sync_block):
     def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, verbose,
                  test_channel=None):  # This last argument test_channel is used only for unit testing purposes.
         gr.sync_block.__init__(self,
-            name="starpass_api",
+            name="groundstation_api",
             in_sig=None,
             out_sig=None)
         self.api_key = api_key
@@ -114,7 +114,7 @@ class starpass_api(gr.sync_block):
         )
         return stream_request
 
-    # This generator continuously reads requests from the queue and sends them to StarReceiver.
+    # This generator continuously reads requests from the queue and sends them to the groundstation.
     # It stops and closes the stream once get_stopped() returns True (when the block's stop() function is
     # called at close).
     def generate_request(self):
@@ -137,7 +137,7 @@ class starpass_api(gr.sync_block):
             self.queue.task_done()
 
     # This function runs asynchronously and starts the bidirectional stream.
-    # All commands/messages from StarReceiver are sent to the appropriate PMT ports.
+    # All commands/messages from the groundstation are sent to the appropriate PMT ports.
     def handle_stream(self):
         for response in self.api_client.OpenGroundStationStream(self.generate_request()):
             if response.HasField("satellite_commands"):
@@ -148,7 +148,7 @@ class starpass_api(gr.sync_block):
                     # TODO: Send plan_id and response_id as metadata
                     self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
 
-    # This method is called for every input PMT and places a message on the queue to be sent to StarReceiver
+    # This method is called for every input PMT and places a message on the queue to be sent to the groundstation
     # Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
     # protocol buffer.
     # https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
-  <name>starpass_api</name>
-  <key>starcoder_starpass_api</key>
+  <name>groundstation_api</name>
+  <key>starcoder_groundstation_api</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
-  <make>starcoder.starpass_api($api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $stream_tag, $verbose)</make>
+  <make>starcoder.groundstation_api($api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $stream_tag, $verbose)</make>
 
   <param>
     <name>Groundstation ID</name>
