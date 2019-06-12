@@ -35,7 +35,21 @@ from stellarstation.api.v1 import transport_pb2
 
 class starpass_api(gr.sync_block):
     """
-    docstring for block starpass_api
+    This block communicates with the StarPass API and performs two functions: retrieving commands from Starpass and
+    sending telemetry to Starpass.
+    Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
+    protocol buffer.
+    https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
+    Commands received from Starpass are sent to the rest of the flowgraph as uint8 PDUs.
+
+    api_key (str): Path to API key file for authentication. If empty string, use insecure channel.
+    api_url (str): URL to gRPC API.
+    root_cert_path (str): Root certificate path for TLS. If empty string, use insecure channel.
+    groundstation_id (str): Groundstation ID
+    plan_id (str): Plan ID
+    stream_tag (str): Stream tag
+    verbose (bool): Controls verbosity
+    test_channel (grpc.Channel): Test channel used for unit testing purposes.
     """
     def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, stream_tag, verbose,
                  test_channel=None):  # This last argument test_channel is used only for unit testing purposes.
@@ -80,17 +94,20 @@ class starpass_api(gr.sync_block):
 
     def setup_api_client(self):
         if self.test_channel is None:
-            credentials = google_auth_jwt.Credentials.from_service_account_file(
-                self.api_key,
-                audience='https://api.stellarstation.com'
-            )
+            if self.root_cert_path == '' or self.api_key == '':
+                channel = grpc.insecure_channel(self.api_url)
+            else:
+                credentials = google_auth_jwt.Credentials.from_service_account_file(
+                    self.api_key,
+                    audience='https://api.stellarstation.com'
+                )
 
-            jwt_creds = google_auth_jwt.OnDemandCredentials.from_signing_credentials(
-                credentials)
-            channel_credential = grpc.ssl_channel_credentials(
-                open(self.root_cert_path, 'br').read())
-            channel = google_auth_transport_grpc.secure_authorized_channel(
-                jwt_creds, None, self.api_url, channel_credential)
+                jwt_creds = google_auth_jwt.OnDemandCredentials.from_signing_credentials(
+                    credentials)
+                channel_credential = grpc.ssl_channel_credentials(
+                    open(self.root_cert_path, 'br').read())
+                channel = google_auth_transport_grpc.secure_authorized_channel(
+                    jwt_creds, None, self.api_url, channel_credential)
         else:
             channel = self.test_channel
         return groundstation_pb2_grpc.GroundStationServiceStub(channel)
