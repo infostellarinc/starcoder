@@ -35,10 +35,10 @@ from stellarstation.api.v1 import transport_pb2
 
 class groundstation_api(gr.sync_block):
     """
-    This block communicates with the Ground Station API and performs two functions: retrieving commands from the
+    This block communicates with the Ground Station API server and performs two functions: retrieving commands from the
     groundstation and sending telemetry to the groundstation.
     Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
-    protocol buffer.
+    message.
     https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
     Commands received from the groundstation are sent to the rest of the flowgraph as uint8 PDUs.
 
@@ -150,7 +150,7 @@ class groundstation_api(gr.sync_block):
 
     # This method is called for every input PMT and places a message on the queue to be sent to the groundstation
     # Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
-    # protocol buffer.
+    # message.
     # https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
     def msg_handler(self, msg):
         received = transport_pb2.Telemetry()
