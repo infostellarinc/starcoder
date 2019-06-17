@@ -35,5 +35,6 @@ install(FILES
     starcoder_golay_decoder.xml
     starcoder_cw_to_symbol.xml
     starcoder_morse_decoder.xml
-    starcoder_threshold_printer.xml DESTINATION share/gnuradio/grc/blocks
+    starcoder_threshold_printer.xml
+    starcoder_groundstation_api.xml DESTINATION share/gnuradio/grc/blocks
 )

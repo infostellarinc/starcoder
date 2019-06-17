@@ -77,12 +77,16 @@ conda {
         pythonPackages = [
                 'cheetah',
                 'construct',
+                'google-auth',
+                'grpcio',
+                'grpcio-testing',
                 'lxml',
                 'mako',
                 'matplotlib',
                 'pybombs',
                 'requests',
                 'ruamel.yaml==0.15.51',
+                'stellarstation',
         ]
     }
 }
