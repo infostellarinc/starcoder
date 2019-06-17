@@ -37,8 +37,7 @@ class groundstation_api(gr.sync_block):
     """
     This block communicates with the Ground Station API server and performs two functions: retrieving commands from the
     groundstation and sending telemetry to the groundstation.
-    Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
-    message.
+    Input PMTs are expected to be uint8 PDUs containing the data bytes inside a transport.Telemetry message.
     https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
     Commands received from the groundstation are sent to the rest of the flowgraph as uint8 PDUs.
 
