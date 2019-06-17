@@ -68,21 +68,25 @@
     <sink>
         <name>bitstream</name>
         <type>message</type>
+        <optional>1</optional>
     </sink>
 
     <sink>
         <name>ax25</name>
         <type>message</type>
+        <optional>1</optional>
     </sink>
 
     <sink>
         <name>iq</name>
         <type>message</type>
+        <optional>1</optional>
     </sink>
 
   <source>
     <name>command</name>
     <type>message</type>
+      <optional>1</optional>
   </source>
 
 </block>
