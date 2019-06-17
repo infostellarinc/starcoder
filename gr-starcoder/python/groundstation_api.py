@@ -68,14 +68,42 @@ class groundstation_api(gr.sync_block):
 
         self.message_port_register_out(pmt.intern("command"))
 
-        self.message_port_register_in(pmt.intern("in"))
-        self.set_msg_handler(pmt.intern("in"), self.msg_handler)
+        self.register_port_and_message_handler("bitstream")
+        self.register_port_and_message_handler("ax25")
+        self.register_port_and_message_handler("iq")
 
         self.queue = Queue()
         self.lock = threading.Lock()
         self.stopped = False
 
         self.log = gr.logger("log")
+
+    def register_port_and_message_handler(self, port):
+        self.message_port_register_in(pmt.intern(port))
+        self.set_msg_handler(pmt.intern(port), self.msg_handler_factory(port))
+
+    def msg_handler_factory(self, port):
+        if port == 'bitstream':
+            framing = transport_pb2.BITSTREAM
+        elif port == 'ax25':
+            framing = transport_pb2.AX25
+        elif port == 'iq':
+            framing = transport_pb2.IQ
+        else:
+            raise RuntimeError("Unknown framing {}".format(port))
+
+        def handler(msg):
+            """
+            This method is called for every input PMT and places a message on the queue to be sent to the groundstation
+            Input PMTs are expected to be uint8 PDUs containing the actual data inside Telemetry
+            """
+            data = pmt.to_python(pmt.cdr(msg)).tostring()
+            received = transport_pb2.Telemetry(
+                framing=framing,
+                data=data,
+            )
+            self.queue.put(received)
+        return handler
 
     def get_stopped(self):
         with self.lock:
@@ -149,15 +177,6 @@ class groundstation_api(gr.sync_block):
                     send_pmt = pmt.to_pmt(np.fromstring(command, dtype=np.uint8))
                     # TODO: Send plan_id and response_id as metadata
                     self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
-
-    # This method is called for every input PMT and places a message on the queue to be sent to the groundstation
-    # Input PMTs are expected to be blobs containing the serialized string corresponding to a transport.Telemetry
-    # message.
-    # https://github.com/infostellarinc/stellarstation-api/blob/0.3.0/api/src/main/proto/stellarstation/api/v1/transport.proto#L63
-    def msg_handler(self, msg):
-        received = transport_pb2.Telemetry()
-        received.ParseFromString(pmt.to_python(msg))
-        self.queue.put(received)
 
     def work(self, input_items, output_items):
         return len(output_items[0])

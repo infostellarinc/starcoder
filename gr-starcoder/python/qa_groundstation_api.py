@@ -37,7 +37,9 @@ class qa_groundstation_api (gr_unittest.TestCase):
         groundstation_blk = groundstation_api("", "", "", gs_id, "1", stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'in'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'bitstream'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'ax25'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'iq'))
         self.tb.msg_connect((groundstation_blk, 'command'), (snk, 'store'))
 
         self.tb.start()
@@ -67,7 +69,9 @@ class qa_groundstation_api (gr_unittest.TestCase):
         groundstation_blk = groundstation_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'in'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'bitstream'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'ax25'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'iq'))
         self.tb.msg_connect((groundstation_blk, 'command'), (snk, 'store'))
 
         self.tb.start()
@@ -108,16 +112,24 @@ class qa_groundstation_api (gr_unittest.TestCase):
         plan_id = "3"
         stream_tag = "2"
 
+        in_pmt1 = pmt.cons(pmt.PMT_NIL,
+                           pmt.to_pmt(np.fromstring('telemetry', dtype=np.uint8)))
         t1 = transport_pb2.Telemetry(
-            framing=transport_pb2.WATERFALL,
+            framing=transport_pb2.BITSTREAM,
             data='telemetry',
         )
-        in_pmt1 = pmt.intern(t1.SerializeToString())
+        in_pmt2 = pmt.cons(pmt.PMT_NIL,
+                           pmt.to_pmt(np.fromstring('telemetry2', dtype=np.uint8)))
         t2 = transport_pb2.Telemetry(
-            framing=transport_pb2.WATERFALL,
+            framing=transport_pb2.AX25,
             data='telemetry2',
         )
-        in_pmt2 = pmt.intern(t2.SerializeToString())
+        in_pmt3 = pmt.cons(pmt.PMT_NIL,
+                           pmt.to_pmt(np.fromstring('telemetry3', dtype=np.uint8)))
+        t3 = transport_pb2.Telemetry(
+            framing=transport_pb2.IQ,
+            data='telemetry3',
+        )
 
         # We just need something connected to the trimmer block for
         # the flowgraph to compile, but we'll post messages to it directly
@@ -125,7 +137,9 @@ class qa_groundstation_api (gr_unittest.TestCase):
         groundstation_blk = groundstation_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'in'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'bitstream'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'ax25'))
+        self.tb.msg_connect((src, 'strobe'), (groundstation_blk, 'iq'))
         self.tb.msg_connect((groundstation_blk, 'command'), (snk, 'store'))
 
         self.tb.start()
@@ -135,11 +149,15 @@ class qa_groundstation_api (gr_unittest.TestCase):
                 .services_by_name['GroundStationService']
                 .methods_by_name['OpenGroundStationStream'])
 
-        groundstation_blk.to_basic_block()._post(pmt.intern('in'), in_pmt1)
-        groundstation_blk.to_basic_block()._post(pmt.intern('in'), in_pmt2)
+        groundstation_blk.to_basic_block()._post(pmt.intern('bitstream'), in_pmt1)
+        time.sleep(0.1)  # This sleep is to make sure packets from different ports arrive one after another.
+        groundstation_blk.to_basic_block()._post(pmt.intern('ax25'), in_pmt2)
+        time.sleep(0.1)  # This sleep is to make sure packets from different ports arrive one after another.
+        groundstation_blk.to_basic_block()._post(pmt.intern('iq'), in_pmt3)
         initial_request = test_stream.take_request()
         telemetry_request1 = test_stream.take_request()
         telemetry_request2 = test_stream.take_request()
+        telemetry_request3 = test_stream.take_request()
 
         self.tb.stop()
         test_stream.requests_closed()
@@ -158,6 +176,13 @@ class qa_groundstation_api (gr_unittest.TestCase):
             satellite_telemetry=groundstation_pb2.SatelliteTelemetry(
                 plan_id=plan_id,
                 telemetry=t2,
+            )))
+        self.assertEqual(telemetry_request3, groundstation_pb2.GroundStationStreamRequest(
+            ground_station_id=gs_id,
+            stream_tag=stream_tag,
+            satellite_telemetry=groundstation_pb2.SatelliteTelemetry(
+                plan_id=plan_id,
+                telemetry=t3,
             )))
 
 
