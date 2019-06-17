@@ -75,6 +75,8 @@ class groundstation_api(gr.sync_block):
         self.lock = threading.Lock()
         self.stopped = False
 
+        self.log = gr.logger("log")
+
     def get_stopped(self):
         with self.lock:
             return self.stopped
@@ -136,14 +138,14 @@ class groundstation_api(gr.sync_block):
             yield self._telemetry_to_stream_request(telemetry)
             self.queue.task_done()
 
-    # This function runs asynchronously and starts the bidirectional stream.
+    # This function runs in another thread and starts the bidirectional stream.
     # All commands/messages from the groundstation are sent to the appropriate PMT ports.
     def handle_stream(self):
         for response in self.api_client.OpenGroundStationStream(self.generate_request()):
             if response.HasField("satellite_commands"):
                 for command in response.satellite_commands.command:
                     if self.verbose:
-                        print("Sending command", command[:20])
+                        self.log.info("Sending command: {}".format(command[:20]))
                     send_pmt = pmt.to_pmt(np.fromstring(command, dtype=np.uint8))
                     # TODO: Send plan_id and response_id as metadata
                     self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
