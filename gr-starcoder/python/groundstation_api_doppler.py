@@ -19,7 +19,6 @@
 # Boston, MA 02110-1301, USA.
 #
 
-from Queue import Queue, Empty
 import threading
 import time
 
@@ -33,7 +32,6 @@ from google.auth.transport import grpc as google_auth_transport_grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
-from stellarstation.api.v1 import transport_pb2
 
 class groundstation_api_doppler(gr.sync_block):
     """
@@ -64,7 +62,7 @@ class groundstation_api_doppler(gr.sync_block):
         self.verbose = verbose
         self.test_channel = test_channel
 
-        self.message_port_register_out(pmt.intern("command"))
+        self.message_port_register_out(pmt.intern("doppler"))
 
         self.log = gr.logger("log")
 
@@ -91,14 +89,29 @@ class groundstation_api_doppler(gr.sync_block):
     def work(self, input_items, output_items):
         return len(output_items[0])
 
-    def start(self):
-        self.api_client = self.setup_api_client()
-
+    def handle_stream(self):
         listPlansResponse = self.api_client.ListPlans(groundstation_pb2.ListPlansRequest(
             ground_station_id=self.groundstation_id,
             aos_after=Timestamp(seconds=int(time.time()) - 120, nanos=0),
             aos_before=Timestamp(seconds=int(time.time() + 3600), nanos=0),
         ))
+        self.log.debug("Fetched {} plans".format(len(listPlansResponse.plan)))
 
-        print(listPlansResponse)
+        plan = [x for x in listPlansResponse.plan if x.plan_id == self.plan_id]
+        if not plan:
+            self.log.debug("No plans matching plan ID {} found.".format(self.plan_id))
+        else:
+            plan = plan[0]
+
+        self.log.debug(repr(plan))
+
+    def start(self):
+        self.api_client = self.setup_api_client()
+
+        self.stream_thread = threading.Thread(target=self.handle_stream)
+        self.stream_thread.start()
+        return True
+
+    def stop(self):
+        self.stream_thread.join()
         return True

@@ -65,7 +65,7 @@
   </param>
 
   <source>
-    <name>command</name>
+    <name>doppler</name>
     <type>message</type>
     <optional>1</optional>
   </source>

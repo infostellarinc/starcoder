@@ -23,18 +23,46 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 from groundstation_api_doppler import groundstation_api_doppler
 
+from stellarstation.api.v1.groundstation import groundstation_pb2
+import grpc
+import grpc_testing
+
 class qa_groundstation_api_doppler (gr_unittest.TestCase):
 
     def setUp (self):
-        self.tb = gr.top_block ()
+        service_descriptors = [
+            groundstation_pb2.DESCRIPTOR.services_by_name['GroundStationService']
+        ]
+        self.test_channel = grpc_testing.channel(service_descriptors, grpc_testing.strict_real_time())
 
-    def tearDown (self):
+        self.tb = gr.top_block()
+
+    def tearDown(self):
+        self.test_channel.close()
+        self.test_channel = None
         self.tb = None
 
-    def test_001_t (self):
-        # set up fg
-        self.tb.run ()
-        # check data
+    def test_001_correct_response(self):
+        gs_id = "1"
+        plan_id = "2"
+
+        groundstation_blk = groundstation_api_doppler("", "", "", gs_id, plan_id, 1, True, test_channel=self.test_channel)
+        snk = blocks.message_debug()
+
+        self.tb.msg_connect((groundstation_blk, 'doppler'), (snk, 'store'))
+
+        self.tb.start()
+        _, request, unary_unary_channel_rpc = self.test_channel.take_unary_unary(
+            groundstation_pb2.DESCRIPTOR
+                .services_by_name['GroundStationService']
+                .methods_by_name['ListPlans']
+        )
+        unary_unary_channel_rpc.terminate(groundstation_pb2.ListPlansResponse(
+            plan=[groundstation_pb2.Plan(plan_id="1"), groundstation_pb2.Plan(plan_id="2")]
+        ), {}, grpc.StatusCode.OK, '')
+        self.tb.stop()
+        self.tb.wait()
+        self.assertEqual(request.ground_station_id, gs_id)
 
 
 if __name__ == '__main__':
