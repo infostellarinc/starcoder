@@ -82,28 +82,46 @@ class qa_groundstation_api_doppler (gr_unittest.TestCase):
         self.assertEqual(request.ground_station_id, gs_id)
 
     def test_002_interpolate_coordinates(self):
+        now = time.time()
         satellite_coordinates=[
             groundstation_pb2.SatelliteCoordinates(
-                time=Timestamp(seconds=int(time.time() + 2))
+                time=Timestamp(seconds=int(now + 2)),
+                range_rate = 2.1,
             ),
             groundstation_pb2.SatelliteCoordinates(
-                time=Timestamp(seconds=int(time.time() + 3))
+                time=Timestamp(seconds=int(now + 3)),
+                range_rate = 2.4,
+            ),
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(now + 4)),
+                range_rate = 2.9,
             ),
         ]
         interpolated = interpolate_coordinates(satellite_coordinates, 2)
         expected = [
             groundstation_pb2.SatelliteCoordinates(
-                time=Timestamp(seconds=int(time.time() + 2))
+                time=Timestamp(seconds=int(now + 2)),
+                range_rate = 2.1,
             ),
             groundstation_pb2.SatelliteCoordinates(
-                time=Timestamp(seconds=int(time.time() + 2),
-                               nanos=int(0.5 * 10**9))
+                time=Timestamp(seconds=int(now + 2),
+                               nanos=int(0.5 * 10**9)),
+                range_rate = 2.25,
             ),
             groundstation_pb2.SatelliteCoordinates(
-                time=Timestamp(seconds=int(time.time() + 3))
+                time=Timestamp(seconds=int(now + 3)),
+                range_rate = 2.4,
+            ),
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(now + 3),
+                               nanos=int(0.5 * 10**9)),
+                range_rate = 2.65,
+            ),
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(now + 4)),
+                range_rate = 2.9,
             ),
         ]
-        print('int', interpolated)
         self.assertEqual(interpolated, expected)
 
 
