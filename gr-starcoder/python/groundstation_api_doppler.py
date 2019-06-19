@@ -104,6 +104,8 @@ class groundstation_api_doppler(gr.sync_block):
             plan = plan[0]
 
         self.log.debug(repr(plan))
+        interpolated_satellite_coordinates = self.interpolate_coordinates(
+            plan.satellite_coordinates)
 
     def start(self):
         self.api_client = self.setup_api_client()
@@ -115,3 +117,26 @@ class groundstation_api_doppler(gr.sync_block):
     def stop(self):
         self.stream_thread.join()
         return True
+
+def interpolate_coordinates(satellite_coordinates, corrections_per_second):
+    if not satellite_coordinates:
+        return []
+    interpolated_satellite_coordinates = []
+    for i, coord in enumerate(satellite_coordinates):
+        if i == len(satellite_coordinates) - 1:
+            c = groundstation_pb2.SatelliteCoordinates()
+            c.CopyFrom(coord)
+            interpolated_satellite_coordinates.append(c)
+            return interpolated_satellite_coordinates
+
+        time_interval = 1./corrections_per_second
+        for j in range(corrections_per_second):
+            time_to_add = j * time_interval
+            base_time = coord.time.seconds + coord.time.nanos / 10.**9
+            new_time = base_time + time_to_add
+            new_coord = groundstation_pb2.SatelliteCoordinates(
+                time = Timestamp(seconds=int(new_time),
+                                 nanos=int((new_time - int(new_time)) * 10**9))
+                # TODO: Range rate etc
+            )
+            interpolated_satellite_coordinates.append(new_coord)

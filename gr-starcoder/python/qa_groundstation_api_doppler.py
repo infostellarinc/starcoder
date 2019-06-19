@@ -17,13 +17,20 @@
 # along with this software; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-# 
+#
+# TODO: Remove these two lines before merging, need latest release of stellarstation-api.
+import sys
+sys.path.insert(0, '/home/rei/Projects/stellarstation-api/stubs/python/build/publications/python')
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
-from groundstation_api_doppler import groundstation_api_doppler
+from groundstation_api_doppler import groundstation_api_doppler, interpolate_coordinates
 
+import time
+
+from google.protobuf.timestamp_pb2 import Timestamp
 from stellarstation.api.v1.groundstation import groundstation_pb2
+from stellarstation.api.v1 import common
 import grpc
 import grpc_testing
 
@@ -58,11 +65,46 @@ class qa_groundstation_api_doppler (gr_unittest.TestCase):
                 .methods_by_name['ListPlans']
         )
         unary_unary_channel_rpc.terminate(groundstation_pb2.ListPlansResponse(
-            plan=[groundstation_pb2.Plan(plan_id="1"), groundstation_pb2.Plan(plan_id="2")]
+            plan=[groundstation_pb2.Plan(plan_id="1"),
+                  groundstation_pb2.Plan(plan_id="2", satellite_coordinates=[
+                      groundstation_pb2.SatelliteCoordinates(
+                          range_rate=1234.56,
+                          time=Timestamp(seconds=int(time.time() + 2))
+                      ),
+                      groundstation_pb2.SatelliteCoordinates(
+                          range_rate=1235.6,
+                          time=Timestamp(seconds=int(time.time() + 3))
+                      ),
+                  ])]
         ), {}, grpc.StatusCode.OK, '')
         self.tb.stop()
         self.tb.wait()
         self.assertEqual(request.ground_station_id, gs_id)
+
+    def test_002_interpolate_coordinates(self):
+        satellite_coordinates=[
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(time.time() + 2))
+            ),
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(time.time() + 3))
+            ),
+        ]
+        interpolated = interpolate_coordinates(satellite_coordinates, 2)
+        expected = [
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(time.time() + 2))
+            ),
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(time.time() + 2),
+                               nanos=int(0.5 * 10**9))
+            ),
+            groundstation_pb2.SatelliteCoordinates(
+                time=Timestamp(seconds=int(time.time() + 3))
+            ),
+        ]
+        print('int', interpolated)
+        self.assertEqual(interpolated, expected)
 
 
 if __name__ == '__main__':
