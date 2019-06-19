@@ -62,6 +62,8 @@ class groundstation_api_doppler(gr.sync_block):
         self.verbose = verbose
         self.test_channel = test_channel
 
+        self.stopped = False
+
         self.message_port_register_out(pmt.intern("doppler"))
 
         self.log = gr.logger("log")
@@ -106,6 +108,22 @@ class groundstation_api_doppler(gr.sync_block):
         self.log.debug(repr(plan))
         interpolated_satellite_coordinates = interpolate_coordinates(
             plan.satellite_coordinates, self.corrections_per_second)
+        self.log.debug("{} satellite coordinates interpolated".format(
+            len(interpolated_satellite_coordinates)))
+        for coord in interpolated_satellite_coordinates:
+            if self.stopped:
+                break
+            curr_time = time.time()
+            coord_time = coord.time.seconds + coord.time.nanos / 10.**9
+            if coord_time < curr_time:
+                continue
+            while coord_time - curr_time > 1.1:
+                time.sleep(1)
+                if self.stopped:
+                    break
+            time.sleep(coord_time - curr_time)
+            self.message_port_pub(
+                pmt.intern("doppler"), pmt.to_pmt(coord.range_rate))
 
     def start(self):
         self.api_client = self.setup_api_client()
@@ -115,6 +133,7 @@ class groundstation_api_doppler(gr.sync_block):
         return True
 
     def stop(self):
+        self.stopped = True
         self.stream_thread.join()
         return True
 
