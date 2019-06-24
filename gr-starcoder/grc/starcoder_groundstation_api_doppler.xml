@@ -4,7 +4,21 @@
   <key>starcoder_groundstation_api_doppler</key>
   <category>[starcoder]</category>
   <import>import starcoder</import>
-  <make>starcoder.groundstation_api_doppler($api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $corrections_per_second, $verbose)</make>
+  <make>starcoder.groundstation_api_doppler($downlink_frequency, $uplink_frequency, $api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $corrections_per_second, $verbose)</make>
+
+  <param>
+    <name>Downlink frequency in Hz</name>
+    <key>downlink_frequency</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Uplink frequency in Hz</name>
+    <key>uplink_frequency</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
 
   <param>
     <name>Groundstation ID</name>
@@ -65,7 +79,13 @@
   </param>
 
   <source>
-    <name>doppler</name>
+    <name>downlink_shift</name>
+    <type>message</type>
+    <optional>1</optional>
+  </source>
+
+  <source>
+    <name>uplink_shift</name>
     <type>message</type>
     <optional>1</optional>
   </source>

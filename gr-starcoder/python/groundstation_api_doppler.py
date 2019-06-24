@@ -36,7 +36,7 @@ from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
 class groundstation_api_doppler(gr.sync_block):
     """
     This block communicates with the Ground Station API server, finds the specified plan ID, and sends out the
-    appropriate Doppler shifts at the specified interpolated interval.
+    corresponding range rate of the satellite at the specified number of corrections per second.
 
     api_key (str): Path to API key file for authentication. If empty string, use insecure channel.
     api_url (str): URL to gRPC API.
@@ -44,15 +44,18 @@ class groundstation_api_doppler(gr.sync_block):
     groundstation_id (str): Groundstation ID
     plan_id (str): Plan ID
     corrections_per_second (int): Number of times the Doppler shift is sent out per second.
-    verbose (bool): Controls verbosity
+    verbose (bool): Enables verbose logging.
     test_channel (grpc.Channel): Test channel used for unit testing purposes.
     """
-    def __init__(self, api_key, api_url, root_cert_path, groundstation_id, plan_id, corrections_per_second, verbose,
+    def __init__(self, downlink_frequency, uplink_frequency, api_key, api_url, root_cert_path, groundstation_id,
+                 plan_id, corrections_per_second, verbose,
                  test_channel=None):  # This last argument test_channel is used only for unit testing purposes.
         gr.sync_block.__init__(self,
                                name="groundstation_api_doppler",
                                in_sig=None,
                                out_sig=None)
+        self.downlink_frequency = downlink_frequency
+        self.uplink_frequency = uplink_frequency
         self.api_key = api_key
         self.api_url = api_url
         self.root_cert_path = root_cert_path
@@ -64,7 +67,8 @@ class groundstation_api_doppler(gr.sync_block):
 
         self.stopped = False
 
-        self.message_port_register_out(pmt.intern("doppler"))
+        self.message_port_register_out(pmt.intern("downlink_shift"))
+        self.message_port_register_out(pmt.intern("uplink_shift"))
 
         self.log = gr.logger("log")
 
@@ -123,7 +127,7 @@ class groundstation_api_doppler(gr.sync_block):
                     break
             time.sleep(coord_time - curr_time)
             self.message_port_pub(
-                pmt.intern("doppler"), pmt.to_pmt(coord.range_rate))
+                pmt.intern("downlink_shift"), pmt.to_pmt(coord.range_rate))
 
     def start(self):
         self.api_client = self.setup_api_client()

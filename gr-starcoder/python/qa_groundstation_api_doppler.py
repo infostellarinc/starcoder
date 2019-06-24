@@ -18,9 +18,6 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
-# TODO: Remove these two lines before merging, need latest release of stellarstation-api.
-import sys
-sys.path.insert(0, '/home/rei/Projects/stellarstation-api/stubs/python/build/publications/python')
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
@@ -53,10 +50,10 @@ class qa_groundstation_api_doppler (gr_unittest.TestCase):
         gs_id = "1"
         plan_id = "2"
 
-        groundstation_blk = groundstation_api_doppler("", "", "", gs_id, plan_id, 1, True, test_channel=self.test_channel)
+        groundstation_blk = groundstation_api_doppler(0, 0, "", "", "", gs_id, plan_id, 1, True, test_channel=self.test_channel)
         snk = blocks.message_debug()
 
-        self.tb.msg_connect((groundstation_blk, 'doppler'), (snk, 'store'))
+        self.tb.msg_connect((groundstation_blk, 'downlink_shift'), (snk, 'store'))
 
         self.tb.start()
         _, request, unary_unary_channel_rpc = self.test_channel.take_unary_unary(
