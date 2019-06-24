@@ -40,6 +40,8 @@ class groundstation_api_doppler(gr.sync_block):
     This block communicates with the Ground Station API server, finds the specified plan ID, and sends out the
     Doppler shifted frequencies of the satellite at the specified number of corrections per second.
 
+    downlink_frequency (float): Center downlink frequency for satellite.
+    uplink_frequency (float): Center uplink frequency for satellite.
     api_key (str): Path to API key file for authentication. If empty string, use insecure channel.
     api_url (str): URL to gRPC API.
     root_cert_path (str): Root certificate path for TLS. If empty string, use insecure channel.
@@ -97,7 +99,10 @@ class groundstation_api_doppler(gr.sync_block):
     def work(self, input_items, output_items):
         return len(output_items[0])
 
-    def handle_stream(self):
+    def processing_loop(self):
+        """
+        This processing loop runs in a separate thread and sends out Doppler shifted frequencies at a fixed interval.
+        """
         listPlansResponse = self.api_client.ListPlans(groundstation_pb2.ListPlansRequest(
             ground_station_id=self.groundstation_id,
             aos_after=Timestamp(seconds=int(time.time()) - 120, nanos=0),
@@ -107,7 +112,7 @@ class groundstation_api_doppler(gr.sync_block):
 
         plan = [x for x in listPlansResponse.plan if x.plan_id == self.plan_id]
         if not plan:
-            self.log.debug("No plans matching plan ID {} found.".format(self.plan_id))
+            self.log.fatal("No plans matching plan ID {} found.".format(self.plan_id))
         else:
             plan = plan[0]
 
@@ -142,7 +147,7 @@ class groundstation_api_doppler(gr.sync_block):
     def start(self):
         self.api_client = self.setup_api_client()
 
-        self.stream_thread = threading.Thread(target=self.handle_stream)
+        self.stream_thread = threading.Thread(target=self.processing_loop)
         self.stream_thread.start()
         return True
 
