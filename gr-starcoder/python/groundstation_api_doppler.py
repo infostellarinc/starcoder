@@ -38,7 +38,7 @@ SPEED_OF_LIGHT = 299792458.0
 class groundstation_api_doppler(gr.sync_block):
     """
     This block communicates with the Ground Station API server, finds the specified plan ID, and sends out the
-    corresponding range rate of the satellite at the specified number of corrections per second.
+    Doppler shifted frequencies of the satellite at the specified number of corrections per second.
 
     api_key (str): Path to API key file for authentication. If empty string, use insecure channel.
     api_url (str): URL to gRPC API.
@@ -119,15 +119,16 @@ class groundstation_api_doppler(gr.sync_block):
         for coord in interpolated_satellite_coordinates:
             if self.stopped:
                 break
-            curr_time = time.time()
             coord_time = coord.time.seconds + coord.time.nanos / 10.**9
-            if coord_time < curr_time:
+            if coord_time < time.time():
                 continue
-            while coord_time - curr_time > 1.1:
+            while coord_time - time.time() > 1.1:
                 time.sleep(1)
                 if self.stopped:
                     break
-            time.sleep(coord_time - curr_time)
+            time.sleep(coord_time - time.time())
+            if self.verbose:
+                self.log.debug("Publishing to ports at {}. Scheduled time {}".format(time.time(), coord_time))
             self.publish_to_ports(coord.range_rate)
 
     def publish_to_ports(self, range_rate):
