@@ -33,6 +33,8 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
 
+SPEED_OF_LIGHT = 299792458.0
+
 class groundstation_api_doppler(gr.sync_block):
     """
     This block communicates with the Ground Station API server, finds the specified plan ID, and sends out the
@@ -126,8 +128,15 @@ class groundstation_api_doppler(gr.sync_block):
                 if self.stopped:
                     break
             time.sleep(coord_time - curr_time)
-            self.message_port_pub(
-                pmt.intern("downlink_shift"), pmt.to_pmt(coord.range_rate))
+            self.publish_to_ports(coord.range_rate)
+
+    def publish_to_ports(self, range_rate):
+        shifted_downlink = self.downlink_frequency * (1.0 - range_rate / SPEED_OF_LIGHT)
+        shifted_uplink = self.uplink_frequency * (1.0 + range_rate / SPEED_OF_LIGHT)
+        self.message_port_pub(
+            pmt.intern("downlink_shift"), pmt.to_pmt(shifted_downlink))
+        self.message_port_pub(
+            pmt.intern("uplink_shift"), pmt.to_pmt(shifted_uplink))
 
     def start(self):
         self.api_client = self.setup_api_client()
