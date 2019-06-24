@@ -38,7 +38,8 @@ GR_PYTHON_INSTALL(
     iq_only_receiver.py
     pmt_to_pdu.py
     threshold_printer.py
-    groundstation_api.py DESTINATION ${GR_PYTHON_DIR}/starcoder
+    groundstation_api.py
+    groundstation_api_doppler.py DESTINATION ${GR_PYTHON_DIR}/starcoder
 )
 
 ########################################################################
@@ -71,3 +72,4 @@ GR_ADD_TEST(qa_golay_decoder ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa
 GR_ADD_TEST(qa_cw_to_symbol ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_cw_to_symbol.py)
 GR_ADD_TEST(qa_morse_decoder ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_morse_decoder.py)
 GR_ADD_TEST(qa_groundstation_api ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_groundstation_api.py)
+GR_ADD_TEST(qa_groundstation_api_doppler ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_groundstation_api_doppler.py)

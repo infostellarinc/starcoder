@@ -38,4 +38,5 @@ from iq_only_receiver import iq_only_receiver
 from pmt_to_pdu import pmt_to_pdu
 from threshold_printer import threshold_printer
 from groundstation_api import groundstation_api
+from groundstation_api_doppler import groundstation_api_doppler
 #

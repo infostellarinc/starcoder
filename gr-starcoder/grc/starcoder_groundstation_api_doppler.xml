@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<block>
+  <name>groundstation_api_doppler</name>
+  <key>starcoder_groundstation_api_doppler</key>
+  <category>[starcoder]</category>
+  <import>import starcoder</import>
+  <make>starcoder.groundstation_api_doppler($downlink_frequency, $uplink_frequency, $api_key, $api_url, $root_cert_path, $groundstation_id, $plan_id, $corrections_per_second, $verbose)</make>
+
+  <param>
+    <name>Downlink frequency in Hz</name>
+    <key>downlink_frequency</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Uplink frequency in Hz</name>
+    <key>uplink_frequency</key>
+    <value>0</value>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Groundstation ID</name>
+    <key>groundstation_id</key>
+    <value>""</value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Plan ID</name>
+    <key>plan_id</key>
+    <value>""</value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Corrections per second</name>
+    <key>corrections_per_second</key>
+    <value>20</value>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Stellarstation API Key Filepath</name>
+    <key>api_key</key>
+    <value>""</value>
+    <type>file_open</type>
+  </param>
+
+  <param>
+    <name>Fake Server tls.crt Filepath</name>
+    <key>root_cert_path</key>
+    <value></value>
+    <type>file_open</type>
+    <hide>part</hide>
+  </param>
+
+  <param>
+    <name>Stellarstation API URL</name>
+    <key>api_url</key>
+    <value></value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Verbose</name>
+    <key>verbose</key>
+    <value>False</value>
+    <type>bool</type>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
+  </param>
+
+  <source>
+    <name>downlink_shift</name>
+    <type>message</type>
+    <optional>1</optional>
+  </source>
+
+  <source>
+    <name>uplink_shift</name>
+    <type>message</type>
+    <optional>1</optional>
+  </source>
+</block>
