@@ -113,6 +113,7 @@ class groundstation_api_doppler(gr.sync_block):
         plan = [x for x in listPlansResponse.plan if x.plan_id == self.plan_id]
         if not plan:
             self.log.fatal("No plans matching plan ID {} found.".format(self.plan_id))
+            raise Exception('No plans matching plan ID {} found'.format(self.plan_id))
         else:
             plan = plan[0]
 
@@ -123,14 +124,14 @@ class groundstation_api_doppler(gr.sync_block):
             len(interpolated_satellite_coordinates)))
         for coord in interpolated_satellite_coordinates:
             if self.stopped:
-                break
+                return
             coord_time = coord.time.seconds + coord.time.nanos / 10.**9
             if coord_time < time.time():
                 continue
             while coord_time - time.time() > 1.1:
                 time.sleep(1)
                 if self.stopped:
-                    break
+                    return
             time.sleep(coord_time - time.time())
             if self.verbose:
                 self.log.debug("Publishing to ports at {}. Scheduled time {}".format(time.time(), coord_time))
