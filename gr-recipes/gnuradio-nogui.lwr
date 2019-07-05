@@ -67,7 +67,7 @@ config:
     uhd:
       gitbranch: v3.14.1.0
       vars:
-        config_opt: "-DENABLE_EXAMPLES=off -DENABLE_OCTOCLOCK=off"
+        config_opt: "-DENABLE_TESTS=off -DENABLE_EXAMPLES=off -DENABLE_OCTOCLOCK=off"
 
     # All these dependencies are installed through miniconda.
     autoconf:
