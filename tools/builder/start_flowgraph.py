@@ -133,21 +133,11 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
 
 
 def string_to_framing(x):
-    mapping = {
-        'BITSTREAM': transport_pb2.BITSTREAM,
-        'AX25': transport_pb2.AX25,
-        'IQ': transport_pb2.IQ,
-        'IMAGE_PNG': transport_pb2.IMAGE_PNG,
-        'IMAGE_JPEG': transport_pb2.IMAGE_JPEG,
-        'FREE_TEXT_UTF8': transport_pb2.FREE_TEXT_UTF8,
-        'WATERFALL': transport_pb2.WATERFALL,
-    }
-
     x = x.upper()
-    if x not in mapping:
+    if x not in transport_pb2.__dict__:
         raise Exception('Unknown framing type {}'.format(x))
 
-    return mapping[x]
+    return transport_pb2.__dict__[x]
 
 
 if __name__ == "__main__":
