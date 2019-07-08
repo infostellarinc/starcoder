@@ -18,6 +18,16 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
+"""
+Sample command to use this script
+$ python tools/builder/start_flowgraph.py \
+    -F flowgraphs/test.grc \
+    -C /tmp/flowgraph_params.yaml \
+    -X /tmp/waterfall.png WATERFALL \
+    -U localhost:50051 \
+    -G 2 \
+    -P 3
+"""
 
 import argparse
 import json
@@ -28,6 +38,7 @@ import importlib
 import tempfile
 import yaml
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+from itertools import izip
 
 from gnuradio import gr
 
@@ -43,8 +54,10 @@ parser = argparse.ArgumentParser(description="Script to compile and run a flowgr
 
 parser.add_argument("-F", "--flowgraph", help="Location of flowgraph file", required=True)
 parser.add_argument("-C", "--config", help="Location of configuration file", required=True)
-parser.add_argument('-X','--collect', nargs='*', help='List of files to collect and send to the ground station API '
-                                                      'at the end of the pass. e.g. Waterfall plots')
+parser.add_argument('-X','--collect', nargs='*', help='List of files to collect and their respective framing type to '
+                                                      'send to the ground station API at the end of the pass. The '
+                                                      'filepath and corresponding frame type must be sent alternately'
+                                                      ' e.g. waterfall.png WATERFALL weather.jpg IMAGE_JPEG')
 
 # The below arguments are only used when there are files to collect.
 parser.add_argument('-K', '--api-key', help="Location of API key for connecting to the ground station API.")
@@ -53,6 +66,12 @@ parser.add_argument('-U', '--api-url', help="URL for ground station API")
 parser.add_argument('-G', '--ground-station-id', help="Ground Station ID", default='')
 parser.add_argument('-S', '--stream-tag', help="Stream tag for this plan", default='')
 parser.add_argument('-P', '--plan-id', help="Plan ID", default='')
+
+
+def pairwise(iterable):
+    """s -> (s0, s1), (s2, s3), (s4, s5), ..."""
+    a = iter(iterable)
+    return izip(a, a)
 
 
 def compile_flowgraph(path):
@@ -93,8 +112,8 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
     # Send the first request to activate the stream.
     yield groundstation_pb2.GroundStationStreamRequest(ground_station_id=ground_station_id,
                                                        stream_tag=stream_tag)
-    for path in files_to_collect:
-        print('Processing {}'.format(path))
+    for path, frame_type in pairwise(files_to_collect):
+        print('Processing {} of framing type {}'.format(path, frame_type))
         if os.path.isfile(path):
             with open(path) as f:
                 stream_request = groundstation_pb2.GroundStationStreamRequest(
@@ -103,7 +122,7 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
                     satellite_telemetry=groundstation_pb2.SatelliteTelemetry(
                         plan_id=plan_id,
                         telemetry=transport_pb2.Telemetry(
-                            framing=transport_pb2.WATERFALL,
+                            framing=string_to_framing(frame_type),
                             data=f.read()
                         )
                     )
@@ -113,12 +132,32 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
             print("WARNING: {} is not a file".format(path))
 
 
+def string_to_framing(x):
+    mapping = {
+        'BITSTREAM': transport_pb2.BITSTREAM,
+        'AX25': transport_pb2.AX25,
+        'IQ': transport_pb2.IQ,
+        'IMAGE_PNG': transport_pb2.IMAGE_PNG,
+        'IMAGE_JPEG': transport_pb2.IMAGE_JPEG,
+        'FREE_TEXT_UTF8': transport_pb2.FREE_TEXT_UTF8,
+        'WATERFALL': transport_pb2.WATERFALL,
+    }
+
+    x = x.upper()
+    if x not in mapping:
+        raise Exception('Unknown framing type {}'.format(x))
+
+    return mapping[x]
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
 
     print("Using flowgraph file: {}".format(args.flowgraph))
     print("Using configuration file: {}".format(args.config))
     print("Files to collect: {}".format(args.collect))
+    if len(args.collect) % 2 != 0:
+        raise Exception('files_to_collect does not have an even number of elements. Do all files have a frame type?')
     print("Reading flowgraph configuration..")
     with open(args.config) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
