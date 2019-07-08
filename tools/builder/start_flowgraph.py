@@ -20,16 +20,13 @@
 #
 
 import argparse
-from collections import OrderedDict
 import json
 import os
 import sys
+import subprocess
 import importlib
+import tempfile
 import yaml
-try:
-    from yaml import CDumper as Dumper  # try to use LibYAML bindings if possible
-except ImportError:
-    from yaml import Dumper
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
 from gnuradio import gr
@@ -41,12 +38,18 @@ parser.add_argument("-C", "--config", help="Location of configuration file", req
 parser.add_argument('-X','--collect', nargs='*', help='List of files to collect and send to the ground station API '
                                                       'at the end of the pass. e.g. Waterfall plots')
 
-# Code to make yaml work well with OrderedDict
-def dict_representer(dumper, data):
-    return dumper.represent_dict(data.iteritems())
 
+def compile_flowgraph(path):
+    print('Compiling flowgraph {}'.format(path))
 
-Dumper.add_representer(OrderedDict, dict_representer)
+    # Create temporary directory to store compiled .py file. We need this because we can't control the output filename
+    # of the compiled file
+    temp_dir = tempfile.mkdtemp("", "starcoder")
+    print('temporary directory {}'.format(temp_dir))
+
+    subprocess.check_call(['grcc', '-d', temp_dir, path])
+
+    return os.path.join(temp_dir, os.listdir(temp_dir)[0])
 
 
 if __name__ == "__main__":
@@ -55,17 +58,18 @@ if __name__ == "__main__":
     print("Using flowgraph file: {}".format(args.flowgraph))
     print("Using configuration file: {}".format(args.config))
     print("Files to collect: {}".format(args.collect))
+    print("Reading configuration..")
     with open(args.config) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-
-    print(json.dumps(config, indent=2))
+        if config is None:
+            config = dict()
+    print('Configuration', json.dumps(config, indent=2))
 
     _, ext = os.path.splitext(args.flowgraph)
     if ext == '.py':
         flowgraph_py_path = args.flowgraph
     elif ext == '.grc':
-        # TODO: Compile grc into python file
-        flowgraph_py_path = 'something.py'
+        flowgraph_py_path = compile_flowgraph(args.flowgraph)
     else:
         raise Exception('Flowgraph uses invalid extension {}'.format(ext))
 
