@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2018 Infostellar.
+# Copyright 2019 Infostellar.
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ from stellarstation.api.v1 import transport_pb2
 parser = argparse.ArgumentParser(description="Script to compile and run a flowgraph")
 
 parser.add_argument("-F", "--flowgraph", help="Location of flowgraph file", required=True)
-parser.add_argument("-C", "--config", help="Location of configuration file", required=True)
+parser.add_argument("-C", "--flowgraph-config", help="Location of flowgraph configuration file in YAML format", required=True)
 parser.add_argument('-X','--collect', nargs='*', help='List of files to collect and their respective framing type to '
                                                       'send to the ground station API at the end of the pass. The '
                                                       'filepath and corresponding frame type must be sent alternately'
@@ -154,16 +154,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("Using flowgraph file: {}".format(args.flowgraph))
-    print("Using configuration file: {}".format(args.config))
+    print("Using flowgraph configuration file: {}".format(args.flowgraph_config))
     print("Files to collect: {}".format(args.collect))
     if len(args.collect) % 2 != 0:
         raise Exception('files_to_collect does not have an even number of elements. Do all files have a frame type?')
     print("Reading flowgraph configuration..")
-    with open(args.config) as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-        if config is None:
-            config = dict()
-    print('Flowgraph configuration', json.dumps(config, indent=2))
+    with open(args.flowgraph_config) as f:
+        flowgraph_config = yaml.load(f, Loader=yaml.FullLoader)
+        if flowgraph_config is None:
+            flowgraph_config = dict()
+    print('Flowgraph configuration', json.dumps(flowgraph_config, indent=2))
 
     _, ext = os.path.splitext(args.flowgraph)
     if ext == '.py':
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     flowgraph_class = module.__dict__[module_name]
     assert issubclass(flowgraph_class, gr.top_block)
 
-    flowgraph = flowgraph_class(**config)
+    flowgraph = flowgraph_class(**flowgraph_config)
     print("Running flowgraph. CTRL + C to stop.")
     flowgraph.run()
 
