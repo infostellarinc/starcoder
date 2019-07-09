@@ -122,7 +122,7 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
                     satellite_telemetry=groundstation_pb2.SatelliteTelemetry(
                         plan_id=plan_id,
                         telemetry=transport_pb2.Telemetry(
-                            framing=string_to_framing(frame_type),
+                            framing=transport_pb2.Framing.Value(frame_type.upper()),
                             data=f.read()
                         )
                     )
@@ -130,14 +130,6 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
             yield stream_request
         else:
             print("WARNING: {} is not a file".format(path))
-
-
-def string_to_framing(x):
-    x = x.upper()
-    if x not in transport_pb2.__dict__:
-        raise Exception('Unknown framing type {}'.format(x))
-
-    return transport_pb2.__dict__[x]
 
 
 if __name__ == "__main__":
