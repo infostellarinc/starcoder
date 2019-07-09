@@ -180,6 +180,7 @@ target_link_libraries(
   ${Boost_LIBRARIES}
   ${CPPUNIT_LIBRARIES}
   gnuradio-blocks
+  gnuradio-pmt
   gnuradio-starcoder
   ${PYTHON_LIBRARIES}
 )
