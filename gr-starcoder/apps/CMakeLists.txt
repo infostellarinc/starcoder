@@ -19,6 +19,10 @@
 
 include(GrPython)
 
+install(
+    DIRECTORY flowgraphs scripts DESTINATION share/gnuradio/starcoder
+)
+
 GR_PYTHON_INSTALL(
     PROGRAMS
     DESTINATION bin
