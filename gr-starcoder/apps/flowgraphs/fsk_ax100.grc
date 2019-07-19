@@ -1068,45 +1068,6 @@
     </param>
   </block>
   <block>
-    <key>starcoder_command_source</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(248, 272)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>doppler_command_source</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -1154,7 +1115,7 @@
     </param>
   </block>
   <block>
-    <key>starcoder_enqueue_message_sink</key>
+    <key>parameter</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1164,16 +1125,12 @@
       <value></value>
     </param>
     <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1336, 688)</value>
+      <value>(552, 1140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1181,7 +1138,27 @@
     </param>
     <param>
       <key>id</key>
-      <value>fsk_ax100_decoded</value>
+      <value>ground_station_id</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value></value>
     </param>
   </block>
   <block>
@@ -1291,7 +1268,7 @@
     </param>
   </block>
   <block>
-    <key>starcoder_enqueue_message_sink</key>
+    <key>parameter</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1301,24 +1278,40 @@
       <value></value>
     </param>
     <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 288)</value>
+      <value>(680, 1140)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>180</value>
+      <value>0</value>
     </param>
     <param>
       <key>id</key>
-      <value>partial_iq_sink</value>
+      <value>plan_id</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value></value>
     </param>
   </block>
   <block>
@@ -1365,7 +1358,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>AR2300</value>
+      <value>USRP</value>
     </param>
   </block>
   <block>
@@ -1647,7 +1640,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1125000</value>
+      <value>1000000</value>
     </param>
   </block>
   <block>
@@ -1700,11 +1693,39 @@
   <block>
     <key>sattools_asm_golay_decoder</key>
     <param>
+      <key>asm_threshold</key>
+      <value>3</value>
+    </param>
+    <param>
+      <key>asm</key>
+      <value>'{:b}'.format(sync_word)</value>
+    </param>
+    <param>
+      <key>bitrate</key>
+      <value>baud_rate</value>
+    </param>
+    <param>
       <key>alias</key>
       <value></value>
     </param>
     <param>
+      <key>ccsds_randomize</key>
+      <value>bool(ccsds_scramble)</value>
+    </param>
+    <param>
+      <key>ccsds_rs</key>
+      <value>bool(reed_solomon)</value>
+    </param>
+    <param>
+      <key>crc32c</key>
+      <value>bool(crc_check)</value>
+    </param>
+    <param>
       <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
       <value></value>
     </param>
     <param>
@@ -1724,20 +1745,31 @@
       <value>sattools_asm_golay_decoder_0</value>
     </param>
     <param>
-      <key>affinity</key>
-      <value></value>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>sattools_asm_golay_decoder</key>
+    <param>
+      <key>asm_threshold</key>
+      <value>3</value>
     </param>
     <param>
       <key>asm</key>
       <value>'{:b}'.format(sync_word)</value>
     </param>
     <param>
-      <key>asm_threshold</key>
-      <value>3</value>
-    </param>
-    <param>
       <key>bitrate</key>
       <value>baud_rate</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
     </param>
     <param>
       <key>ccsds_randomize</key>
@@ -1752,22 +1784,11 @@
       <value>bool(crc_check)</value>
     </param>
     <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>sattools_asm_golay_decoder</key>
-    <param>
-      <key>alias</key>
+      <key>comment</key>
       <value></value>
     </param>
     <param>
-      <key>comment</key>
+      <key>affinity</key>
       <value></value>
     </param>
     <param>
@@ -1785,34 +1806,6 @@
     <param>
       <key>id</key>
       <value>sattools_asm_golay_decoder_0_0</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>asm</key>
-      <value>'{:b}'.format(sync_word)</value>
-    </param>
-    <param>
-      <key>asm_threshold</key>
-      <value>3</value>
-    </param>
-    <param>
-      <key>bitrate</key>
-      <value>baud_rate</value>
-    </param>
-    <param>
-      <key>ccsds_randomize</key>
-      <value>bool(ccsds_scramble)</value>
-    </param>
-    <param>
-      <key>ccsds_rs</key>
-      <value>bool(reed_solomon)</value>
-    </param>
-    <param>
-      <key>crc32c</key>
-      <value>bool(crc_check)</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1867,6 +1860,148 @@
     </param>
   </block>
   <block>
+    <key>starcoder_groundstation_api</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>root_cert_path</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1176, 1020)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>groundstation_id</key>
+      <value>ground_station_id</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_groundstation_api_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>plan_id</key>
+      <value>plan_id</value>
+    </param>
+    <param>
+      <key>api_key</key>
+      <value>""</value>
+    </param>
+    <param>
+      <key>api_url</key>
+      <value>stellarstation_api_url</value>
+    </param>
+    <param>
+      <key>stream_tag</key>
+      <value>""</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>False</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_groundstation_api_doppler</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>corrections_per_second</key>
+      <value>20</value>
+    </param>
+    <param>
+      <key>downlink_frequency</key>
+      <value>radio_center_freq</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>root_cert_path</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(144, 124)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>groundstation_id</key>
+      <value>ground_station_id</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_groundstation_api_doppler_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>plan_id</key>
+      <value>plan_id</value>
+    </param>
+    <param>
+      <key>api_key</key>
+      <value>""</value>
+    </param>
+    <param>
+      <key>api_url</key>
+      <value>stellarstation_api_url</value>
+    </param>
+    <param>
+      <key>uplink_frequency</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>False</value>
+    </param>
+  </block>
+  <block>
     <key>starcoder_iq_only_receiver</key>
     <param>
       <key>alias</key>
@@ -1890,7 +2025,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 108)</value>
+      <value>(424, 108)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2012,6 +2147,53 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(768, 1140)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>stellarstation_api_url</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value></value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(376, 1060)</value>
     </param>
     <param>
@@ -2088,6 +2270,60 @@
     <param>
       <key>value</key>
       <value>112500</value>
+    </param>
+  </block>
+  <block>
+    <key>virtual_sink</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1128, 228)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>virtual_sink_0</value>
+    </param>
+    <param>
+      <key>stream_id</key>
+      <value>iq</value>
+    </param>
+  </block>
+  <block>
+    <key>virtual_source</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1016, 1084)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>virtual_source_0</value>
+    </param>
+    <param>
+      <key>stream_id</key>
+      <value>iq</value>
     </param>
   </block>
   <block>
@@ -2234,12 +2470,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>doppler_command_source</source_block_id>
-    <sink_block_id>starcoder_iq_only_receiver_0</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>doppler_in</sink_key>
-  </connection>
-  <connection>
     <source_block_id>low_pass_filter_0</source_block_id>
     <sink_block_id>analog_quadrature_demod_cf_0</sink_block_id>
     <source_key>0</source_key>
@@ -2253,9 +2483,9 @@
   </connection>
   <connection>
     <source_block_id>sattools_asm_golay_decoder_0</source_block_id>
-    <sink_block_id>fsk_ax100_decoded</sink_block_id>
+    <sink_block_id>starcoder_groundstation_api_0</sink_block_id>
     <source_key>out</source_key>
-    <sink_key>in</sink_key>
+    <sink_key>bitstream</sink_key>
   </connection>
   <connection>
     <source_block_id>sattools_asm_golay_decoder_0_0</source_block_id>
@@ -2265,15 +2495,21 @@
   </connection>
   <connection>
     <source_block_id>sattools_asm_golay_decoder_0_0</source_block_id>
-    <sink_block_id>fsk_ax100_decoded</sink_block_id>
+    <sink_block_id>starcoder_groundstation_api_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>bitstream</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_complex_to_msg_c_0</source_block_id>
+    <sink_block_id>virtual_sink_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
   <connection>
-    <source_block_id>starcoder_complex_to_msg_c_0</source_block_id>
-    <sink_block_id>partial_iq_sink</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>in</sink_key>
+    <source_block_id>starcoder_groundstation_api_doppler_0</source_block_id>
+    <sink_block_id>starcoder_iq_only_receiver_0</sink_block_id>
+    <source_key>downlink_shift</source_key>
+    <sink_key>doppler_in</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_iq_only_receiver_0</source_block_id>
@@ -2292,5 +2528,11 @@
     <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>virtual_source_0</source_block_id>
+    <sink_block_id>starcoder_groundstation_api_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>iq</sink_key>
   </connection>
 </flow_graph>
