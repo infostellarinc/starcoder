@@ -90,45 +90,6 @@
     </param>
   </block>
   <block>
-    <key>starcoder_command_source</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(200, 144)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>doppler_command_source</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -176,7 +137,7 @@
     </param>
   </block>
   <block>
-    <key>starcoder_enqueue_message_sink</key>
+    <key>parameter</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -186,24 +147,87 @@
       <value></value>
     </param>
     <param>
-      <key>affinity</key>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(400, 396)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>ground_station_id</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value></value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
       <value></value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(784, 232)</value>
+      <value>(400, 476)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>180</value>
+      <value>0</value>
     </param>
     <param>
       <key>id</key>
-      <value>partial_iq_sink</value>
+      <value>plan_id</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value></value>
     </param>
   </block>
   <block>
@@ -250,7 +274,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>AR2300</value>
+      <value>USRP</value>
     </param>
   </block>
   <block>
@@ -297,7 +321,7 @@
     </param>
     <param>
       <key>value</key>
-      <value></value>
+      <value>"TX/RX"</value>
     </param>
   </block>
   <block>
@@ -532,7 +556,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1125000</value>
+      <value>1000000</value>
     </param>
   </block>
   <block>
@@ -576,6 +600,148 @@
     <param>
       <key>num_items</key>
       <value>131072</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_groundstation_api</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>root_cert_path</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(784, 324)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>groundstation_id</key>
+      <value>ground_station_id</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_groundstation_api_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>plan_id</key>
+      <value>plan_id</value>
+    </param>
+    <param>
+      <key>api_key</key>
+      <value>""</value>
+    </param>
+    <param>
+      <key>api_url</key>
+      <value>stellarstation_api_url</value>
+    </param>
+    <param>
+      <key>stream_tag</key>
+      <value>""</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>False</value>
+    </param>
+  </block>
+  <block>
+    <key>starcoder_groundstation_api_doppler</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>corrections_per_second</key>
+      <value>20</value>
+    </param>
+    <param>
+      <key>downlink_frequency</key>
+      <value>radio_center_freq</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>root_cert_path</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(168, 108)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>groundstation_id</key>
+      <value>ground_station_id</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_groundstation_api_doppler_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>plan_id</key>
+      <value>plan_id</value>
+    </param>
+    <param>
+      <key>api_key</key>
+      <value>""</value>
+    </param>
+    <param>
+      <key>api_url</key>
+      <value>stellarstation_api_url</value>
+    </param>
+    <param>
+      <key>uplink_frequency</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>False</value>
     </param>
   </block>
   <block>
@@ -654,6 +820,45 @@
     </param>
   </block>
   <block>
+    <key>starcoder_pmt_to_pdu</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(784, 264)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>starcoder_pmt_to_pdu_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>starcoder_waterfall_sink</key>
     <param>
       <key>alias</key>
@@ -681,7 +886,7 @@
     </param>
     <param>
       <key>filename</key>
-      <value></value>
+      <value>waterfall_image_file_path</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -706,6 +911,53 @@
     <param>
       <key>samp_rate</key>
       <value>target_bandwidth</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(400, 556)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>stellarstation_api_url</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value></value>
     </param>
   </block>
   <block>
@@ -802,17 +1054,64 @@
       <value>112500</value>
     </param>
   </block>
-  <connection>
-    <source_block_id>doppler_command_source</source_block_id>
-    <sink_block_id>starcoder_iq_only_receiver_0</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>doppler_in</sink_key>
-  </connection>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(0, 556)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>waterfall_image_file_path</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>""</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>starcoder_complex_to_msg_c_0</source_block_id>
-    <sink_block_id>partial_iq_sink</sink_block_id>
+    <sink_block_id>starcoder_pmt_to_pdu_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_groundstation_api_doppler_0</source_block_id>
+    <sink_block_id>starcoder_iq_only_receiver_0</sink_block_id>
+    <source_key>downlink_shift</source_key>
+    <sink_key>doppler_in</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_iq_only_receiver_0</source_block_id>
@@ -825,5 +1124,11 @@
     <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_pmt_to_pdu_0</source_block_id>
+    <sink_block_id>starcoder_groundstation_api_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>iq</sink_key>
   </connection>
 </flow_graph>

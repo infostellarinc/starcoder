@@ -164,10 +164,10 @@ class qa_groundstation_api_doppler (gr_unittest.TestCase):
         self.assertEqual(request.ground_station_id, gs_id)
         self.assertEqual(downlink_sink.num_messages(), 5)
         self.assertEqual(uplink_sink.num_messages(), 5)
-        downlink_sink_expected = [929951.5400083881, 924948.0785804158, 919944.6171524435,  911605.5147724898, 903266.412392536]
+        downlink_sink_expected = [1e6-929951.5400083881, 1e6-924948.0785804158, 1e6-919944.6171524435,  1e6-911605.5147724898, 1e6-903266.412392536]
         for i in range(5):
             self.assertAlmostEqual(pmt.to_python(downlink_sink.get_message(i)), downlink_sink_expected[i])
-        uplink_sink_expected = [1070048.459991612, 1075051.9214195842, 1080055.3828475566, 1088394.4852275103, 1096733.587607464]
+        uplink_sink_expected = [1e6-1070048.459991612, 1e6-1075051.9214195842, 1e6-1080055.3828475566, 1e6-1088394.4852275103, 1e6-1096733.587607464]
         for i in range(5):
             self.assertAlmostEqual(pmt.to_python(uplink_sink.get_message(i)), uplink_sink_expected[i])
 

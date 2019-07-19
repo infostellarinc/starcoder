@@ -38,7 +38,7 @@ SPEED_OF_LIGHT = 299792458.0
 class groundstation_api_doppler(gr.sync_block):
     """
     This block communicates with the Ground Station API server, finds the specified plan ID, and sends out the
-    Doppler shifted frequencies of the satellite at the specified number of corrections per second.
+    Doppler shift of the downlink/uplink frequencies of the satellite at the specified number of corrections per second.
 
     downlink_frequency (float): Center downlink frequency for satellite.
     uplink_frequency (float): Center uplink frequency for satellite.
@@ -141,9 +141,9 @@ class groundstation_api_doppler(gr.sync_block):
         shifted_downlink = self.downlink_frequency * (1.0 - range_rate / SPEED_OF_LIGHT)
         shifted_uplink = self.uplink_frequency * (1.0 + range_rate / SPEED_OF_LIGHT)
         self.message_port_pub(
-            pmt.intern("downlink_shift"), pmt.to_pmt(shifted_downlink))
+            pmt.intern("downlink_shift"), pmt.to_pmt(self.downlink_frequency - shifted_downlink))
         self.message_port_pub(
-            pmt.intern("uplink_shift"), pmt.to_pmt(shifted_uplink))
+            pmt.intern("uplink_shift"), pmt.to_pmt(self.uplink_frequency - shifted_uplink))
 
     def start(self):
         self.api_client = self.setup_api_client()
