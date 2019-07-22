@@ -117,7 +117,6 @@ class groundstation_api_doppler(gr.sync_block):
         else:
             plan = plan[0]
 
-        self.log.debug(repr(plan))
         interpolated_satellite_coordinates = interpolate_coordinates(
             plan.satellite_coordinates, self.corrections_per_second)
         self.log.debug("{} satellite coordinates interpolated".format(
