@@ -98,7 +98,8 @@ class groundstation_api(gr.sync_block):
             This method is called for every input PMT and places a message on the queue to be sent to the groundstation
             Input PMTs are expected to be uint8 PDUs containing the actual data inside Telemetry
             """
-            curr_time = time.time() if self.test_channel is None else 59  # TODO: Replace with an actual mock clock?
+            # TODO: 59 is a placeholder so we can test the time. Replace with an actual mock clock?
+            curr_time = time.time() if self.test_channel is None else 59
             data = pmt.to_python(pmt.cdr(msg)).tostring()
             received = transport_pb2.Telemetry(
                 framing=framing,
