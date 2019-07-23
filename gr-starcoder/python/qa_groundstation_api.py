@@ -7,6 +7,7 @@ from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1 import transport_pb2
 import grpc_testing
 import grpc
+from google.protobuf.timestamp_pb2 import Timestamp
 
 import time
 import numpy as np
@@ -117,18 +118,24 @@ class qa_groundstation_api (gr_unittest.TestCase):
         t1 = transport_pb2.Telemetry(
             framing=transport_pb2.BITSTREAM,
             data='telemetry',
+            time_first_byte_received=Timestamp(seconds=59),
+            time_last_byte_received=Timestamp(seconds=59),
         )
         in_pmt2 = pmt.cons(pmt.PMT_NIL,
                            pmt.to_pmt(np.fromstring('telemetry2', dtype=np.uint8)))
         t2 = transport_pb2.Telemetry(
             framing=transport_pb2.AX25,
             data='telemetry2',
+            time_first_byte_received=Timestamp(seconds=59),
+            time_last_byte_received=Timestamp(seconds=59),
         )
         in_pmt3 = pmt.cons(pmt.PMT_NIL,
                            pmt.to_pmt(np.fromstring('telemetry3', dtype=np.uint8)))
         t3 = transport_pb2.Telemetry(
             framing=transport_pb2.IQ,
             data='telemetry3',
+            time_first_byte_received=Timestamp(seconds=59),
+            time_last_byte_received=Timestamp(seconds=59),
         )
 
         # We just need something connected to the trimmer block for
