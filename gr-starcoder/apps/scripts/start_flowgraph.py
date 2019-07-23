@@ -39,12 +39,14 @@ import tempfile
 import yaml
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 from itertools import izip
+import time
 
 from gnuradio import gr
 
 import grpc
 from google.auth import jwt as google_auth_jwt
 from google.auth.transport import grpc as google_auth_transport_grpc
+from google.protobuf.timestamp_pb2 import Timestamp
 
 from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
@@ -116,6 +118,7 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
         print('Processing {} of framing type {}'.format(path, frame_type))
         if os.path.isfile(path):
             with open(path) as f:
+                curr_time = time.time()
                 stream_request = groundstation_pb2.GroundStationStreamRequest(
                     ground_station_id=ground_station_id,
                     stream_tag=stream_tag,
@@ -123,7 +126,9 @@ def generate_request(files_to_collect, ground_station_id, stream_tag, plan_id):
                         plan_id=plan_id,
                         telemetry=transport_pb2.Telemetry(
                             framing=transport_pb2.Framing.Value(frame_type.upper()),
-                            data=f.read()
+                            data=f.read(),
+                            time_first_byte_received=Timestamp(seconds=int(curr_time)),
+                            time_last_byte_received=Timestamp(seconds=int(curr_time)),
                         )
                     )
                 )
