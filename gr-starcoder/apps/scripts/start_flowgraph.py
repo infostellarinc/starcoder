@@ -36,8 +36,7 @@ import sys
 import subprocess
 import importlib
 import tempfile
-import yaml
-_mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+import ruamel.yaml as yaml
 from itertools import izip
 import time
 
@@ -143,11 +142,11 @@ if __name__ == "__main__":
     print("Using flowgraph file: {}".format(args.flowgraph))
     print("Using flowgraph configuration file: {}".format(args.flowgraph_config))
     print("Files to collect: {}".format(args.collect))
-    if len(args.collect) % 2 != 0:
+    if args.collect and len(args.collect) % 2 != 0:
         raise Exception('files_to_collect does not have an even number of elements. Do all files have a frame type?')
     print("Reading flowgraph configuration..")
     with open(args.flowgraph_config) as f:
-        flowgraph_config = yaml.load(f, Loader=yaml.FullLoader)
+        flowgraph_config = yaml.load(f)
         if flowgraph_config is None:
             flowgraph_config = dict()
     print('Flowgraph configuration', json.dumps(flowgraph_config, indent=2))
