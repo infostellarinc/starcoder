@@ -1917,7 +1917,7 @@
     </param>
     <param>
       <key>target_samp_rate</key>
-      <value>target_bandwidth if target_bandwidth != 112500 else target_samp_rate</value>
+      <value>target_samp_rate</value>
     </param>
   </block>
   <block>
@@ -2112,19 +2112,19 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>fft_size</key>
-      <value>1024</value>
+      <value>4096</value>
     </param>
     <param>
       <key>filename</key>
-      <value></value>
+      <value>"" + waterfall_image_file_path</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 220)</value>
+      <value>(368, 212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2132,11 +2132,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>starcoder_waterfall_sink_0</value>
+      <value>starcoder_waterfall_sink_0_0</value>
     </param>
     <param>
       <key>mode</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>rps</key>
@@ -2144,7 +2144,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>target_bandwidth</value>
+      <value>target_samp_rate</value>
     </param>
   </block>
   <block>
@@ -2257,53 +2257,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 596)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>target_bandwidth</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value></value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>112500</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(208, 836)</value>
     </param>
     <param>
@@ -2387,6 +2340,53 @@
     <param>
       <key>stream_id</key>
       <value>iq</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(32, 916)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>waterfall_image_file_path</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>""</value>
     </param>
   </block>
   <connection>
@@ -2517,7 +2517,7 @@
   </connection>
   <connection>
     <source_block_id>starcoder_iq_only_receiver_0</source_block_id>
-    <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
+    <sink_block_id>starcoder_waterfall_sink_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
