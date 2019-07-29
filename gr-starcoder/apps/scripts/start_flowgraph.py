@@ -69,6 +69,9 @@ parser.add_argument('-S', '--stream-tag', help="Stream tag for this plan", defau
 parser.add_argument('-P', '--plan-id', help="Plan ID", default='')
 
 
+MAX_MESSAGE_LENGTH = 10485760  # 10MB
+
+
 def pairwise(iterable):
     """s -> (s0, s1), (s2, s3), (s4, s5), ..."""
     a = iter(iterable)
@@ -92,7 +95,9 @@ def setup_api_client(root_cert_path, api_key, api_url):
     print('Setting up client to communicate with Ground Station API')
     if not root_cert_path or not api_key:
         print('Root certificate path or API key not set. Using insecure channel')
-        channel = grpc.insecure_channel(api_url)
+        channel = grpc.insecure_channel(api_url, options=[
+            ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
+            ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)])
     else:
         credentials = google_auth_jwt.Credentials.from_service_account_file(
             api_key,
@@ -104,7 +109,9 @@ def setup_api_client(root_cert_path, api_key, api_url):
             open(root_cert_path, 'br').read()
         )
         channel = google_auth_transport_grpc.secure_authorized_channel(
-            jwt_creds, None, api_url, channel_credential
+            jwt_creds, None, api_url, channel_credential, options=[
+                ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
+                ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)]
         )
     return groundstation_pb2_grpc.GroundStationServiceStub(channel)
 
