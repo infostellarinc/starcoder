@@ -35,6 +35,8 @@ from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
 from stellarstation.api.v1 import transport_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 
+MAX_RETRY_ATTEMPTS = 5
+
 class groundstation_api(gr.sync_block):
     """
     This block communicates with the Ground Station API server and performs two functions: retrieving commands from the
@@ -161,27 +163,44 @@ class groundstation_api(gr.sync_block):
         while not self.get_stopped():
             try:
                 telemetry = self.queue.get(timeout=1)
-                yield self._telemetry_to_stream_request(telemetry)
                 self.queue.task_done()
+                yield self._telemetry_to_stream_request(telemetry)
             except Empty:
                 continue
 
         while not self.queue.empty():
             telemetry = self.queue.get()
-            yield self._telemetry_to_stream_request(telemetry)
             self.queue.task_done()
+            yield self._telemetry_to_stream_request(telemetry)
 
     # This function runs in another thread and starts the bidirectional stream.
     # All commands/messages from the groundstation are sent to the appropriate PMT ports.
     def handle_stream(self):
-        for response in self.api_client.OpenGroundStationStream(self.generate_request()):
-            if response.HasField("satellite_commands"):
-                for command in response.satellite_commands.command:
-                    if self.verbose:
-                        self.log.info("Sending command: {}".format(command[:20]))
-                    send_pmt = pmt.to_pmt(np.fromstring(command, dtype=np.uint8))
-                    # TODO: Send plan_id and response_id as metadata
-                    self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
+        retries = 0
+        while True:
+            try:
+                for response in self.api_client.OpenGroundStationStream(self.generate_request()):
+                    if response.HasField("satellite_commands"):
+                        for command in response.satellite_commands.command:
+                            if self.verbose:
+                                self.log.info("Sending command: {}".format(command[:20]))
+                            send_pmt = pmt.to_pmt(np.fromstring(command, dtype=np.uint8))
+                            # TODO: Send plan_id and response_id as metadata
+                            self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
+                break
+            except grpc.RpcError as e:
+                self.log.error("Caught RPC error {}".format(e))
+                if retries >= MAX_RETRY_ATTEMPTS or self.get_stopped():
+                    self.log.info("Maximum retries attempted. Giving up")
+                    break
+                retries += 1
+                self.log.info("Retry attempt {}".format(retries))
+                self.api_client = self.setup_api_client()
+                continue
+            except Exception as e:
+                # Catch all other exceptions so the block does not cause the rest of the flowgraph to hang.
+                self.log.error("Caught non-RPC error {}".format(e))
+                break
 
     def work(self, input_items, output_items):
         return len(output_items[0])
@@ -195,6 +214,7 @@ class groundstation_api(gr.sync_block):
 
     def stop(self):
         self.set_stopped(True)
-        self.queue.join()
+        self.log.debug('set stopped true')
         self.stream_thread.join()
+        self.log.debug('stream thread joined')
         return True
