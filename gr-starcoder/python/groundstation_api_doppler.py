@@ -115,7 +115,7 @@ class groundstation_api_doppler(gr.sync_block):
                 break
             except grpc.RpcError as e:
                 self.log.error("Caught RPC error {}".format(e))
-                if retries >= MAX_RETRY_ATTEMPTS or self.get_stopped():
+                if retries >= MAX_RETRY_ATTEMPTS:
                     self.log.info("Maximum retries attempted. Giving up")
                     return
                 retries += 1
