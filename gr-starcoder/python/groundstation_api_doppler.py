@@ -34,6 +34,7 @@ from stellarstation.api.v1.groundstation import groundstation_pb2
 from stellarstation.api.v1.groundstation import groundstation_pb2_grpc
 
 SPEED_OF_LIGHT = 299792458.0
+MAX_RETRY_ATTEMPTS = 5
 
 class groundstation_api_doppler(gr.sync_block):
     """
@@ -103,11 +104,28 @@ class groundstation_api_doppler(gr.sync_block):
         """
         This processing loop runs in a separate thread and sends out Doppler shifted frequencies at a fixed interval.
         """
-        listPlansResponse = self.api_client.ListPlans(groundstation_pb2.ListPlansRequest(
-            ground_station_id=self.groundstation_id,
-            aos_after=Timestamp(seconds=int(time.time()) - 120, nanos=0),
-            aos_before=Timestamp(seconds=int(time.time() + 3600), nanos=0),
-        ))
+        retries = 0
+        while True:
+            try:
+                listPlansResponse = self.api_client.ListPlans(groundstation_pb2.ListPlansRequest(
+                    ground_station_id=self.groundstation_id,
+                    aos_after=Timestamp(seconds=int(time.time()) - 120, nanos=0),
+                    aos_before=Timestamp(seconds=int(time.time() + 3600), nanos=0),
+                ))
+                break
+            except grpc.RpcError as e:
+                self.log.error("Caught RPC error {}".format(e))
+                if retries >= MAX_RETRY_ATTEMPTS or self.get_stopped():
+                    self.log.info("Maximum retries attempted. Giving up")
+                    return
+                retries += 1
+                self.log.info("Retry attempt {}".format(retries))
+                continue
+            except Exception as e:
+                # Catch all other exceptions so the block does not cause the rest of the flowgraph to hang.
+                self.log.error("Caught non-RPC error {}".format(e))
+                return
+
         self.log.debug("Fetched {} plans".format(len(listPlansResponse.plan)))
 
         plan = [x for x in listPlansResponse.plan if x.plan_id == self.plan_id]
