@@ -39,8 +39,8 @@ category: common
 depends:
 description: libpng
 satisfy:
-  deb: libpng-dev
-  rpm: libpng-devel
+  deb: libpng && libpng-dev
+  rpm: libpng && libpng-devel
 gitbranch: master
 inherit: cmake
-source: git+https://github.com/glennrp/libpng.git
+#source: git+https://github.com/glennrp/libpng.git

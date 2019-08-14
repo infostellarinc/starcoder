@@ -39,8 +39,8 @@ category: common
 depends:
 description: libprotobuf
 satisfy:
-  deb: libprotobuf-dev
-  rpm: protobuf-devel
+  deb: libprotobuf && libprotobuf-dev
+  rpm: protobuf && protobuf-devel
 gitbranch: master
 inherit: autoconf
 source: git+https://github.com/protocolbuffers/protobuf.git
