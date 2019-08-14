@@ -23,6 +23,9 @@ gitbranch: master
 inherit: cmake
 depends:
 - gr-satellites
+- libprotobuf
+- libgrpc
+- libpng
 source: git+https://github.com/infostellarinc/starcoder.git
 configuredir: gr-starcoder/build
 makedir: gr-starcoder/build
