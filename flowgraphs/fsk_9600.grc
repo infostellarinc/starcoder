@@ -194,7 +194,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/full.bin"</value>
+      <value>"/home/colin/dev/iq/spaceit.bin"</value>
     </param>
   </block>
   <block>
@@ -448,7 +448,7 @@
     </param>
     <param>
       <key>repeat</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>vlen</key>
@@ -726,7 +726,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(896, 720)</value>
+      <value>(592, 714)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -742,6 +742,57 @@
     </param>
     <param>
       <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_descrambler_bb</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(688, 826)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_descrambler_bb_0_0</value>
+    </param>
+    <param>
+      <key>len</key>
+      <value>16</value>
+    </param>
+    <param>
+      <key>mask</key>
+      <value>0x21</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>seed</key>
       <value>0</value>
     </param>
   </block>
@@ -777,7 +828,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 620)</value>
+      <value>(212, 638)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -848,7 +899,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -934,11 +985,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1304, 704)</value>
+      <value>(1300, 846)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -978,6 +1029,92 @@
     <param>
       <key>import</key>
       <value>import math</value>
+    </param>
+  </block>
+  <block>
+    <key>kiss_hdlc_deframer</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>check_fcs</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(824, 832)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>kiss_hdlc_deframer_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>max_length</key>
+      <value>10000</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>kiss_nrzi_decode</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(732, 714)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>kiss_nrzi_decode_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -1416,7 +1553,7 @@
     </param>
   </block>
   <block>
-    <key>starcoder_ax25_decoder_bm</key>
+    <key>satellites_strip_ax25_header</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1434,12 +1571,8 @@
       <value>True</value>
     </param>
     <param>
-      <key>descrambling</key>
-      <value>bool(descramble)</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(1056, 676)</value>
+      <value>(1096, 846)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1447,35 +1580,15 @@
     </param>
     <param>
       <key>id</key>
-      <value>starcoder_ax25_decoder_bm_0</value>
+      <value>satellites_strip_ax25_header_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
       <value>0</value>
     </param>
     <param>
-      <key>max_frame_len</key>
-      <value>1024</value>
-    </param>
-    <param>
       <key>minoutbuf</key>
       <value>0</value>
-    </param>
-    <param>
-      <key>promisc</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>addr</key>
-      <value>'GND'</value>
-    </param>
-    <param>
-      <key>ssid</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>strip_headers</key>
-      <value>True</value>
     </param>
   </block>
   <block>
@@ -1537,7 +1650,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>freq_offset_dc_bias</key>
@@ -1813,7 +1926,13 @@
   </connection>
   <connection>
     <source_block_id>digital_binary_slicer_fb_0</source_block_id>
-    <sink_block_id>starcoder_ax25_decoder_bm_0</sink_block_id>
+    <sink_block_id>kiss_nrzi_decode_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_descrambler_bb_0_0</source_block_id>
+    <sink_block_id>kiss_hdlc_deframer_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1830,15 +1949,27 @@
     <sink_key>doppler_in</sink_key>
   </connection>
   <connection>
+    <source_block_id>kiss_hdlc_deframer_0</source_block_id>
+    <sink_block_id>satellites_strip_ax25_header_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>kiss_nrzi_decode_0</source_block_id>
+    <sink_block_id>digital_descrambler_bb_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>low_pass_filter_0</source_block_id>
     <sink_block_id>analog_quadrature_demod_cf_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>starcoder_ax25_decoder_bm_0</source_block_id>
+    <source_block_id>satellites_strip_ax25_header_0</source_block_id>
     <sink_block_id>fsk_9600_decoded</sink_block_id>
-    <source_key>pdu</source_key>
+    <source_key>out</source_key>
     <sink_key>in</sink_key>
   </connection>
   <connection>
