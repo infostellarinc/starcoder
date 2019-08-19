@@ -2366,7 +2366,7 @@
     </param>
     <param>
       <key>target_samp_rate</key>
-      <value>target_bandwidth if target_bandwidth != 112500 else target_samp_rate</value>
+      <value>target_samp_rate</value>
     </param>
   </block>
   <block>
@@ -2421,7 +2421,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>target_bandwidth</value>
+      <value>target_samp_rate</value>
     </param>
   </block>
   <block>
@@ -2469,53 +2469,6 @@
     <param>
       <key>value</key>
       <value>"00011010110011111111110000011101"</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(32, 596)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>target_bandwidth</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value></value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>112500</value>
     </param>
   </block>
   <block>
