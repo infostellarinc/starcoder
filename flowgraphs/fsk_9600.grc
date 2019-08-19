@@ -194,7 +194,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"/home/colin/dev/iq/spaceit.bin"</value>
+      <value>""</value>
     </param>
   </block>
   <block>
