@@ -194,7 +194,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"/home/rei/sampleAR2300IQ/full.bin"</value>
+      <value>"/iq/aalto-1.bin"</value>
     </param>
   </block>
   <block>
@@ -284,6 +284,45 @@
     <param>
       <key>id</key>
       <value>analog_quadrature_demod_cf_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ax25_decoder</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(934, 704)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>ax25_decoder_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -453,6 +492,37 @@
     <param>
       <key>vlen</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_message_debug</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1369, 873)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_message_debug_0</value>
     </param>
   </block>
   <block>
@@ -704,45 +774,6 @@
     <param>
       <key>value</key>
       <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>digital_binary_slicer_fb</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(896, 720)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_binary_slicer_fb_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
     </param>
   </block>
   <block>
@@ -1409,69 +1440,6 @@
     </param>
   </block>
   <block>
-    <key>starcoder_ax25_decoder_bm</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>descrambling</key>
-      <value>bool(descramble)</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1056, 676)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>starcoder_ax25_decoder_bm_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>max_frame_len</key>
-      <value>1024</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>promisc</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>addr</key>
-      <value>'GND'</value>
-    </param>
-    <param>
-      <key>ssid</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>strip_headers</key>
-      <value>True</value>
-    </param>
-  </block>
-  <block>
     <key>starcoder_complex_to_msg_c</key>
     <param>
       <key>alias</key>
@@ -1530,7 +1498,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>root_cert_path</key>
@@ -1538,7 +1506,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1088, 908)</value>
+      <value>(1024, 835)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1605,7 +1573,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>root_cert_path</key>
@@ -1672,7 +1640,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>freq_offset_dc_bias</key>
@@ -1993,11 +1961,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(920, 972)</value>
+      <value>(812, 889)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2066,6 +2034,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>ax25_decoder_0</source_block_id>
+    <sink_block_id>starcoder_pmt_to_pdu_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_add_const_vxx_0</source_block_id>
     <sink_block_id>blocks_divide_xx_0</sink_block_id>
     <source_key>0</source_key>
@@ -2126,14 +2100,8 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_binary_slicer_fb_0</source_block_id>
-    <sink_block_id>starcoder_ax25_decoder_bm_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>digital_symbol_sync_xx_0</source_block_id>
-    <sink_block_id>digital_binary_slicer_fb_0</sink_block_id>
+    <sink_block_id>ax25_decoder_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2142,12 +2110,6 @@
     <sink_block_id>analog_quadrature_demod_cf_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>starcoder_ax25_decoder_bm_0</source_block_id>
-    <sink_block_id>starcoder_pmt_to_pdu_0</sink_block_id>
-    <source_key>pdu</source_key>
-    <sink_key>in</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_complex_to_msg_c_0</source_block_id>
@@ -2178,6 +2140,12 @@
     <sink_block_id>starcoder_waterfall_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>starcoder_pmt_to_pdu_0</source_block_id>
+    <sink_block_id>blocks_message_debug_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>print_pdu</sink_key>
   </connection>
   <connection>
     <source_block_id>starcoder_pmt_to_pdu_0</source_block_id>
