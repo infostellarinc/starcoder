@@ -149,7 +149,10 @@ class groundstation_api_doppler(gr.sync_block):
                 time.sleep(1)
                 if self.stopped:
                     return
-            time.sleep(coord_time - time.time())
+            delta_t = coord_time - time.time()
+            if delta_t > 0 {
+                time.sleep(delta_t)
+            }
             if self.verbose:
                 self.log.debug("Publishing to ports at {}. Scheduled time {}".format(time.time(), coord_time))
             self.publish_to_ports(coord.range_rate)
