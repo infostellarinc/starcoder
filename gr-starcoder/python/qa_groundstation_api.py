@@ -4,10 +4,11 @@ from gnuradio import blocks
 from groundstation_api import groundstation_api
 
 from stellarstation.api.v1.groundstation import groundstation_pb2
-from stellarstation.api.v1 import transport_pb2
+from stellarstation.api.v1 import stellarstation_pb2, transport_pb2
 import grpc_testing
 import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf.wrappers_pb2 import BoolValue, FloatValue
 
 import time
 import numpy as np
@@ -192,6 +193,111 @@ class qa_groundstation_api (gr_unittest.TestCase):
                 telemetry=t3,
             )))
 
+    def test_004_correctly_passes_on_transmitter_configuration_request_from_star_receiver(self):
+        gs_id = "1"
+        plan_id = "3"
+        stream_tag = "2"
+
+        create_pmt_pair = lambda name, val: pmt.cons(pmt.to_pmt(name), pmt.to_pmt(val))
+
+        groundstation_blk = groundstation_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
+        snk = blocks.message_debug()
+        self.tb.msg_connect((groundstation_blk, 'transmitter_control'), (snk, 'store'))
+
+        self.tb.start()
+
+        invocation_metadata, test_stream = self.test_channel.take_stream_stream(
+            groundstation_pb2.DESCRIPTOR
+                .services_by_name['GroundStationService']
+                .methods_by_name['OpenGroundStationStream'])
+
+        test_stream.send_response(groundstation_pb2.GroundStationStreamResponse(
+            plan_id=plan_id,
+            ground_station_configuration_request= stellarstation_pb2.GroundStationConfigurationRequest(
+                transmitter_configuration_request = stellarstation_pb2.TransmitterConfigurationRequest(
+                    enable_carrier=BoolValue(value=True),
+                    enable_if_modulation=BoolValue(value=True),
+                    enable_idle_pattern=BoolValue(value=True),
+                    enable_if_sweep=BoolValue(value=True),
+                    bitrate=FloatValue(value=1000),
+                )
+            )
+        ))
+        test_stream.send_response(groundstation_pb2.GroundStationStreamResponse(
+            plan_id=plan_id,
+            ground_station_configuration_request= stellarstation_pb2.GroundStationConfigurationRequest(
+                transmitter_configuration_request = stellarstation_pb2.TransmitterConfigurationRequest(
+                    enable_carrier=BoolValue(value=False),
+                    enable_if_modulation=BoolValue(value=False),
+                    enable_idle_pattern=BoolValue(value=False),
+                    enable_if_sweep=BoolValue(value=False),
+                    bitrate=FloatValue(value=4000),
+                )
+            )
+        ))
+
+        time.sleep(0.1)
+
+        self.tb.stop()
+        test_stream.requests_closed()
+        test_stream.terminate({}, grpc.StatusCode.OK, '')
+        self.tb.wait()
+        self.assertEqual(snk.num_messages(), 10)
+        self.assertTrue(pmt.equal(snk.get_message(0), create_pmt_pair("enable_carrier", True)))
+        self.assertTrue(pmt.equal(snk.get_message(1), create_pmt_pair("enable_if_modulation", True)))
+        self.assertTrue(pmt.equal(snk.get_message(2), create_pmt_pair("enable_idle_pattern", True)))
+        self.assertTrue(pmt.equal(snk.get_message(3), create_pmt_pair("enable_if_sweep", True)))
+        self.assertTrue(pmt.equal(snk.get_message(4), create_pmt_pair("bitrate", 1000.)))
+        self.assertTrue(pmt.equal(snk.get_message(5), create_pmt_pair("enable_carrier", False)))
+        self.assertTrue(pmt.equal(snk.get_message(6), create_pmt_pair("enable_if_modulation", False)))
+        self.assertTrue(pmt.equal(snk.get_message(7), create_pmt_pair("enable_idle_pattern", False)))
+        self.assertTrue(pmt.equal(snk.get_message(8), create_pmt_pair("enable_if_sweep", False)))
+        self.assertTrue(pmt.equal(snk.get_message(9), create_pmt_pair("bitrate", 4000.)))
+
+    def test_005_correctly_passes_on_receiver_configuration_request_from_star_receiver(self):
+        gs_id = "1"
+        plan_id = "3"
+        stream_tag = "2"
+
+        create_pmt_pair = lambda name, val: pmt.cons(pmt.to_pmt(name), pmt.to_pmt(val))
+
+        groundstation_blk = groundstation_api("", "", "", gs_id, plan_id, stream_tag, True, test_channel=self.test_channel)
+        snk = blocks.message_debug()
+        self.tb.msg_connect((groundstation_blk, 'receiver_control'), (snk, 'store'))
+
+        self.tb.start()
+
+        invocation_metadata, test_stream = self.test_channel.take_stream_stream(
+            groundstation_pb2.DESCRIPTOR
+                .services_by_name['GroundStationService']
+                .methods_by_name['OpenGroundStationStream'])
+
+        test_stream.send_response(groundstation_pb2.GroundStationStreamResponse(
+            plan_id=plan_id,
+            ground_station_configuration_request= stellarstation_pb2.GroundStationConfigurationRequest(
+                receiver_configuration_request = stellarstation_pb2.ReceiverConfigurationRequest(
+                    bitrate=FloatValue(value=1000),
+                )
+            )
+        ))
+        test_stream.send_response(groundstation_pb2.GroundStationStreamResponse(
+            plan_id=plan_id,
+            ground_station_configuration_request= stellarstation_pb2.GroundStationConfigurationRequest(
+                receiver_configuration_request = stellarstation_pb2.ReceiverConfigurationRequest(
+                    bitrate=FloatValue(value=4000),
+                )
+            )
+        ))
+
+        time.sleep(0.1)
+
+        self.tb.stop()
+        test_stream.requests_closed()
+        test_stream.terminate({}, grpc.StatusCode.OK, '')
+        self.tb.wait()
+        self.assertEqual(snk.num_messages(), 2)
+        self.assertTrue(pmt.equal(snk.get_message(0), create_pmt_pair("bitrate", 1000.)))
+        self.assertTrue(pmt.equal(snk.get_message(1), create_pmt_pair("bitrate", 4000.)))
 
 if __name__ == '__main__':
     gr_unittest.run(qa_groundstation_api, "qa_groundstation_api.xml")

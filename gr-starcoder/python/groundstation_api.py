@@ -70,6 +70,8 @@ class groundstation_api(gr.sync_block):
         self.test_channel = test_channel
 
         self.message_port_register_out(pmt.intern("command"))
+        self.message_port_register_out(pmt.intern("transmitter_control"))
+        self.message_port_register_out(pmt.intern("receiver_control"))
 
         self.register_port_and_message_handler("bitstream")
         self.register_port_and_message_handler("ax25")
@@ -133,7 +135,7 @@ class groundstation_api(gr.sync_block):
                 jwt_creds = google_auth_jwt.OnDemandCredentials.from_signing_credentials(
                     credentials)
                 channel_credential = grpc.ssl_channel_credentials(
-                    open(self.root_cert_path, 'br').read())
+                    open(self.root_cert_path, 'rb').read())
                 channel = google_auth_transport_grpc.secure_authorized_channel(
                     jwt_creds, None, self.api_url, channel_credential)
         else:
@@ -187,6 +189,12 @@ class groundstation_api(gr.sync_block):
                             send_pmt = pmt.to_pmt(np.fromstring(command, dtype=np.uint8))
                             # TODO: Send plan_id and response_id as metadata
                             self.message_port_pub(pmt.intern("command"), pmt.cons(pmt.PMT_NIL, send_pmt))
+                    if response.HasField("ground_station_configuration_request"):
+                        config_request = response.ground_station_configuration_request
+                        if config_request.HasField("transmitter_configuration_request"):
+                            self.handle_transmitter_config_request(config_request.transmitter_configuration_request)
+                        if config_request.HasField("receiver_configuration_request"):
+                            self.handle_receiver_config_request(config_request.receiver_configuration_request)
                 break
             except grpc.RpcError as e:
                 self.log.error("Caught RPC error {}".format(e))
@@ -201,6 +209,34 @@ class groundstation_api(gr.sync_block):
                 # Catch all other exceptions so the block does not cause the rest of the flowgraph to hang.
                 self.log.error("Caught non-RPC error {}".format(e))
                 break
+
+    def handle_transmitter_config_request(self, transmitter_config_request):
+        if transmitter_config_request.HasField("enable_carrier"):
+            self.message_port_pub(
+                pmt.intern("transmitter_control"),
+                pmt.cons(pmt.to_pmt("enable_carrier"), pmt.to_pmt(transmitter_config_request.enable_carrier.value)))
+        if transmitter_config_request.HasField("enable_if_modulation"):
+            self.message_port_pub(
+                pmt.intern("transmitter_control"),
+                pmt.cons(pmt.to_pmt("enable_if_modulation"), pmt.to_pmt(transmitter_config_request.enable_if_modulation.value)))
+        if transmitter_config_request.HasField("enable_idle_pattern"):
+            self.message_port_pub(
+                pmt.intern("transmitter_control"),
+                pmt.cons(pmt.to_pmt("enable_idle_pattern"), pmt.to_pmt(transmitter_config_request.enable_idle_pattern.value)))
+        if transmitter_config_request.HasField("enable_if_sweep"):
+            self.message_port_pub(
+                pmt.intern("transmitter_control"),
+                pmt.cons(pmt.to_pmt("enable_if_sweep"), pmt.to_pmt(transmitter_config_request.enable_if_sweep.value)))
+        if transmitter_config_request.HasField("bitrate"):
+            self.message_port_pub(
+                pmt.intern("transmitter_control"),
+                pmt.cons(pmt.to_pmt("bitrate"), pmt.to_pmt(transmitter_config_request.bitrate.value)))
+
+    def handle_receiver_config_request(self, receiver_config_request):
+        if receiver_config_request.HasField("bitrate"):
+            self.message_port_pub(
+                pmt.intern("receiver_control"),
+                pmt.cons(pmt.to_pmt("bitrate"), pmt.to_pmt(receiver_config_request.bitrate.value)))
 
     def work(self, input_items, output_items):
         return len(output_items[0])

@@ -89,4 +89,15 @@
       <optional>1</optional>
   </source>
 
+  <source>
+    <name>transmitter_control</name>
+    <type>message</type>
+    <optional>1</optional>
+  </source>
+
+  <source>
+    <name>receiver_control</name>
+    <type>message</type>
+    <optional>1</optional>
+  </source>
 </block>
