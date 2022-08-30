@@ -36,7 +36,6 @@
 #
 
 category: common
-depends:
 description: Phil Karn's libfec
 gitbranch: master
 inherit: cmake

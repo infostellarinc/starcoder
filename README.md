@@ -14,8 +14,14 @@ Stay tuned for more generalization on the way to production
 
 Currently, the simplest way to run Starcoder is using docker.
 
-```bash
-$ docker run -it --rm quay.io/infostellarinc/starcoder:0.1.0
+```shell
+docker run -it --rm quay.io/infostellarinc/starcoder:0.1.0
+```
+
+## Building docker image locally
+
+```shell
+docker build -f tools/builder/Dockerfile .
 ```
 
 ## Developing
@@ -23,8 +29,8 @@ $ docker run -it --rm quay.io/infostellarinc/starcoder:0.1.0
 Starcoder uses Gradle for building. The only dependency for building Starcoder is Java, all other components
 like Python, a build toolchain, and even GnuRadio will be automatically setup by the build.
 
-```bash
-$ ./gradlew install
+```shell
+./gradlew install
 ```
 
 will create a GnuRadio prefix at `~/.gradle/curiostack/gnuradio` with Starcoder installed.
