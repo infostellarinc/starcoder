@@ -2,6 +2,6 @@ category: common
 depends:
 - gnuradio
 description: GNU Radio decoder for AX100
-gitbranch: master
+gitbranch: maint-3.7
 inherit: cmake
 source: git+https://github.com/mndza/gr-sattools

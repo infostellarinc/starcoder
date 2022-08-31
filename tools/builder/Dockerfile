@@ -6,12 +6,14 @@ ADD gradle /workspace/gnuradio/gradle
 ADD gradlew /workspace/gnuradio/gradlew
 ADD gr-recipes /workspace/gnuradio/gr-recipes
 ADD mockpygtk /workspace/gnuradio/mockpygtk
-
-RUN cd /workspace/gnuradio && ./gradlew setupPrefix
+WORKDIR /workspace/gnuradio
+RUN ./gradlew setupPrefix
 
 ADD . /workspace/starcoder
+WORKDIR /workspace/starcoder
+RUN ./gradlew install
+RUN mkdir -p /root/.gradle/curiostack/gnuradio/4.4.10/lib64
 
-RUN cd /workspace/starcoder && ./gradlew install
 
 FROM debian:9-slim
 
@@ -30,7 +32,7 @@ COPY --from=0 /root/.gradle/curiostack/gnuradio/4.4.10/bin/conda \
   /root/.gradle/curiostack/gnuradio/4.4.10/bin/starcoder \
   /root/.gradle/curiostack/gnuradio/4.4.10/bin/
 
-ADD ./tools/builder/run.sh /usr/bin/run-starcoder
+ADD tools/builder/run.sh /usr/bin/run-starcoder
 
 ENV GR_CONF_PERFCOUNTERS_ON True
 ENV STARCODER_SILENCED_COMMAND_BLOCKS doppler_command_source,doppler_command_source_transmit
